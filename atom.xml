@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Welcom to Monkey&#39;s Home</title>
+  
+  <subtitle>My Own Planet</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://houx15.github.io/"/>
+  <updated>2018-01-09T11:29:53.238Z</updated>
+  <id>http://houx15.github.io/</id>
+  
+  <author>
+    <name>HOU Yuxin</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>try</title>
+    <link href="http://houx15.github.io/2018/01/09/try/"/>
+    <id>http://houx15.github.io/2018/01/09/try/</id>
+    <published>2018-01-09T11:28:34.000Z</published>
+    <updated>2018-01-09T11:29:53.238Z</updated>
+    
+    <content type="html"><![CDATA[<img title="图片标题" alt="图片说明" class="class1 class2" src="http://bucket_name.qiniudn.com/static/images/try.jpg"><h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;img title=&quot;图片标题&quot; alt=&quot;图片说明&quot; class=&quot;class1 class2&quot; src=&quot;http://bucket_name.qiniudn.com/static/images/try.jpg&quot;&gt;
+&lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; cla
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-认知心理学（二-认知与知觉）</title>
+    <link href="http://houx15.github.io/2018/01/09/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E8%AE%A4%E7%9F%A5%E5%BF%83%E7%90%86%E5%AD%A6%EF%BC%88%E4%BA%8C-%E8%84%91%E4%B8%8E%E8%AE%A4%E7%9F%A5%EF%BC%89/"/>
+    <id>http://houx15.github.io/2018/01/09/读书笔记-认知心理学（二-脑与认知）/</id>
+    <published>2018-01-09T01:59:12.000Z</published>
+    <updated>2018-01-09T02:37:10.575Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>待更新</p><h3 id="脑的结构与特性-神经元、功能化、分布式"><a href="#脑的结构与特性-神经元、功能化、分布式" class="headerlink" title="脑的结构与特性-神经元、功能化、分布式"></a>脑的结构与特性-神经元、功能化、分布式</h3><h3 id="表征能力"><a href="#表征能力" class="headerlink" title="表征能力"></a>表征能力</h3>]]></content>
+    
+    <summary type="html">
+    
+      2018年上了认知心理学的课程，教材十分有意思。但是直到期末才有时间好好进行阅读。从概述开始，将读书笔记记录于此。本篇介绍大脑的结构和其与认知的关系。
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
+    
+      <category term="心理学" scheme="http://houx15.github.io/categories/reading/psychology/"/>
+    
+    
+      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
+    
+      <category term="psychology" scheme="http://houx15.github.io/tags/psychology/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-认知心理学（一-概述）</title>
+    <link href="http://houx15.github.io/2018/01/09/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E8%AE%A4%E7%9F%A5%E5%BF%83%E7%90%86%E5%AD%A6%EF%BC%88%E4%B8%80-%E6%A6%82%E8%BF%B0%EF%BC%89/"/>
+    <id>http://houx15.github.io/2018/01/09/读书笔记-认知心理学（一-概述）/</id>
+    <published>2018-01-09T01:16:43.000Z</published>
+    <updated>2018-01-09T01:58:09.155Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>xxx</p><h3 id="什么是认知心理学"><a href="#什么是认知心理学" class="headerlink" title="什么是认知心理学"></a>什么是认知心理学</h3><blockquote><p>认知心理学是心理学的一个分支学科，它主要关注的是有关心智的科学研究。</p></blockquote><p>嗯，一如往常的什么都没说。</p><p>认知心理学既然是研究心智的，那么心智又是什么呢？</p><blockquote><p>心智是产生和控制知觉、注意、记忆、情绪、语言、决策、思维和推理等心理机能的成分。心智是形成客观世界表征的系统，促使人们采取行动以实现目标。</p></blockquote><p>向来定义都是严格抽象的。真正理解一件事物还是要靠与生活有关的例子。这一刻，读者你正在阅读这篇文章，你脑海中浮现出来的场景叫做表象，你赋予这篇文章的注意力，你眼睛感知到的文字信息被转化成的可以理解的信号，你会想起过去自己的经历，你正在思考着怎么理解“认知”这个概念——这一瞬间思维发生的繁复的过程，就是认知心理学要研究的内容。</p><p>人类的认知过程十分复杂，认知心理学从不同的角度来理解与研究它。怎么研究它却是一个大难题，因为内心的活动过程没有办法测量——19世纪普遍认为“心智不可研究”。</p><h3 id="认知心理学发展简史"><a href="#认知心理学发展简史" class="headerlink" title="认知心理学发展简史"></a>认知心理学发展简史</h3><p>心理学的实验研究从1868年开始，认知心理学元年在1956年。期间经历了比较漫长的发展过程，从开始的唐德斯反应时实验与艾宾浩斯节省发，到了冯特的第一个心理学实验室，再到华生用行为主义颠覆了心智研究，到后来又渐渐有人开始关注行为背后的心理学过程，再到计算机出现之后，信息加工模型提出，人们开始将心智阶段化。认知心理学仍然处在一个不断深入的过程中。</p><p>简单将认知心理学的发展史列举此处：</p><ul><li>1868 - 唐德斯 - 反应时实验 - 第一个认知心理学实验，通过行为反应推测心理过程</li><li>1878 - 冯特 - 内省分析法，第一个科学心理学实验</li><li>1885 - 艾宾浩斯 - 节省法 - 一个开创性的记忆研究方法</li><li>1890 - 威廉·詹姆斯 - 心理学原理 - 第一次对于心智进行系统分析</li><li>1913 - 华生 - 行为主义 - 经典条件反射，不涉及心智也可以分析行为，改变了心理学的重心</li><li>1938 - 斯金纳 - 操作性条件反射 - 积极强化与消极强化，不关心心智过程，只关心刺激如何影响行为</li><li>1938 - 托曼 - 认知地图 - 研究行为并且分析行为背后的心智过程</li><li>1959 - 乔姆斯基 - 怒怼《言语行为》 - 语言是心智构建过程的产物</li><li>20世纪50年代 - 认知革命的开端 - 信息加工观</li><li>1953 - Colin Cherry - 选择性注意</li><li>1958 - 第一个展示心智运作方式的流程示意图</li><li>1956 - “夏季人工智能研究计划” - 认知科学诞生元年</li></ul><h3 id="怎么研究心理学"><a href="#怎么研究心理学" class="headerlink" title="怎么研究心理学"></a>怎么研究心理学</h3><p>现有的心理学研究方法，有两个角度：行为学方法与生理学研究方法。</p><p>行为学研究方法偏行为主义，通过操作实验中各个组不同的行为，观察实验的结果。但是行为学研究方法只能得到结论，对于过程是如何发生的、本质是什么，却难以做出解释。</p><p>生理学方法则是通过脑成像、fMRI等技术研究大脑的活动状态，甚至通过药物注射等干扰相应蛋白质功能，来探究某一心理现象的生理本质。</p>]]></content>
+    
+    <summary type="html">
+    
+      2018年上了认知心理学的课程，教材十分有意思。但是直到期末才有时间好好进行阅读。从概述开始，将读书笔记记录于此。
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
+    
+      <category term="心理学" scheme="http://houx15.github.io/categories/reading/psychology/"/>
+    
+    
+      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
+    
+      <category term="psychology" scheme="http://houx15.github.io/tags/psychology/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-我承认我不曾经历沧桑</title>
+    <link href="http://houx15.github.io/2018/01/08/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%88%91%E6%89%BF%E8%AE%A4%E6%88%91%E4%B8%8D%E6%9B%BE%E7%BB%8F%E5%8E%86%E6%B2%A7%E6%A1%91/"/>
+    <id>http://houx15.github.io/2018/01/08/读书笔记-我承认我不曾经历沧桑/</id>
+    <published>2018-01-08T07:16:42.000Z</published>
+    <updated>2018-01-09T01:18:50.052Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>第二本书，蒋方舟的《我承认我不曾经历沧桑》。这本书是蒋学姐的文集，毕业一年，写作五年的感慨。</p><blockquote><p>回首过去五年，课业之外，作者亦经常参与公共话题的讨论以及多种社会活动，生活不可谓不丰富不精彩。然而在忙碌与喧腾背后，作者却渐感迷失与困惑：参与的讨论越多，离真相仿佛越远；战斗檄文式的文章越写越多，却越来越不喜欢自己剑拔弩张的嘴脸。</p></blockquote><p>于是有了这本书，沉淀了五年的内容，回避了各种最热门的议论，而回到了成长这个话题，回到了记录本身。书本分为三个部分，“被绑架的一代”中记录了几个高中大学时代青年成长的故事——处在一个时代变革，互联网、经济发展冲击着一个个个体的时间节点上，明明之比我早了七年，读起来却感觉这像是隔世的光阴；“记录本身，即已是反抗”中则讲了多个作家的故事，有国内的，也有国外的，却不是在对于作家们进行巡回礼赞。一个个写出来的，是作家的梦魇，仿佛文学是一次次磨难之后大彻大悟的产物，而那些磨难与故事，都被记录在这里；“审判童年”从一个很奇怪的角度梳理着童年的故事，兄弟姐妹、祖父祖母、父亲母亲、保姆和幼儿园，多个角度，读起来却感觉过于阴暗与沉重——对不起，我实在是没能接受这个部分的内容。或许在自己的心中，童年终究还是一个童话的世界，一个阳光的世界，一点点的笑容之外的阴暗声音，我都难以适应。</p><h3 id="时代冲击-“被绑架的一代”"><a href="#时代冲击-“被绑架的一代”" class="headerlink" title="时代冲击-“被绑架的一代”"></a>时代冲击-“被绑架的一代”</h3><p>被绑架的一代，被什么绑架？答曰，被时代绑架。</p><p>从某个时间点开始，我们好像进入了一个指数爆炸式发展的年代，进入了一个一天变个样的时代——互联网进入了生活，游戏厅、网吧、电脑、手机挨个挨个站了出来，社会竞争的激烈，和优胜劣汰的机制，经济差异与品牌效应，人口流动与地区歧视……这个时代像是多了一万种让人们生活更加方便的东西，和多了一百万种让生活更加复杂的情感，和让生活更加艰难的状态。</p><p>或许我不算处于这个跨时代节点的人吧，那个时候自己还在幼儿园中蹒跚学步，比我大九岁的学姐算是清楚遍历了千年的转变。</p><p>青春期的少年们，暗藏着的对于社会与现实的厌烦与不满，恰好被新出现的游戏厅与网吧所捕捉到，整个人被从现实抽离出去。青春期的少年进入了虚拟的世界，现实世界中的人把他们称作冷漠，也有北大的老教授把这一代叫做“调侃的一代”。</p><blockquote><p>“调侃的一代”——自以为把什么都看透了，不相信世上还有真诚的东西，所以对什么都调侃，已经没有敬畏之心了</p></blockquote><p>那之后了？在下能够看见的，是电脑与手机逐渐深入到了我们的血液之中，当然，这种调侃与冷漠也深入血液了。</p><p>于是走在路上的，坐在车里的人们，整张脸都被牢牢吸附在了屏幕上面。网络世界越发的丰富了，现实世界的吸引力也就越发的弱化了。我可以在整个网络中构建我自己的伊甸园，为什么不呢？</p><p>但是，我总觉得，是失去了点什么的。</p><p>网络冲击算是一个，社会竞争则是另外一个。</p><p>攀比心理这个词出现了，举着身上穿着的名牌互相的比较是一种竞争，这是不被众人所鼓励的竞争。当然，有另一种大家都十分支持的，所有人还在不断激化着的——高考。</p><p>作者文中讲到高中时期为了学习逐渐变得孤僻的经历，讲到“两耳不闻窗外事”的过往，讲到了那个寓言——玫瑰很美丽，但是没用，于是玫瑰变成了卷心菜——为了有用，为了利益。</p><blockquote><p>青春这个大园子，有点美丽，有点诱惑，有点危险，就是没有用。但若是全拔了无用的劳什子，改种饱腹的卷心菜，伊甸园变成菜园子，未免也太可惜了。</p></blockquote><p>但是，现在这个现象好像只是在不断的恶化？</p><p>记得小学的时候自己还是楼下花坛中玩耍的常客，学习只是生活的half，作业也是如此，不敢想象现在必须要每周去学习奥数学习音乐学习绘画生活忙碌不堪的孩子们。逐渐失真的童年，以及从来都逃不脱的压力——为了有用。</p><p>反正，因为我们的教育成了一种筛选。</p><p>我们不断的创造资源，为了让教育资源不要那么的紧张，这样的话高考这些选拔也不会再是一个唯一的独木桥。但是与此同时，这些资源被用来去不断提高起跑线的标准，压力不减反增。</p><p>为什么会这样了？因为这毕竟是一个优胜劣汰的社会吧。</p><p>每个人都幻想着一个不需要竞争的乌托邦，却每个人都喜欢去追求那个“仅我一个”的优越感与巅峰体验。就像书中不断奔跑着的圆谷幸吉，世界中的人都是对手，你只能去当第一，没有成为第一的时候你必须用尽整个生命地去奔跑，成为了第一之后你也不断奔跑，为了给自己挣得更多的不能花费但是让人心安的余地。</p><p>于是，没有余地。</p><blockquote><p>也是那时，我发现自己也不如了圆谷幸吉的跑道，永远跑在自我训练的途中，永远跑在全是对手的竞争里。</p><p>于是，没有余地。</p></blockquote><p>总体说来，关于这个时代的述说最戳中我心。我也常常自己质问，人们奔波那么久，每个人都说要为了更好的生活，但是生活真的更好了吗？为什么我越来越少的看见笑容呢？</p><p>我不懂得，我还需要持续思考。</p><p>当然，也有其他内容，比如说描写“南方科技大学追逐学术自由”这一场变革的。</p><blockquote><p>盗火者是被绑缚的，也是被绑架的。这几乎是所有改革或者革命者的宿命，骑虎难下，革命者们用一贯洪亮激昂的调门控诉当下，构造乌托邦；戏假情真，革命者们眼里常含泪水，眼泪也为自己而流。</p></blockquote><p>暂且说至此处，罢了，罢了。</p><h3 id="笔中千秋-“记录本身，即已是反抗”"><a href="#笔中千秋-“记录本身，即已是反抗”" class="headerlink" title="笔中千秋-“记录本身，即已是反抗”"></a>笔中千秋-“记录本身，即已是反抗”</h3><p>待完善</p><blockquote><p>可以通过顺从，把苦役和惩罚变得荒谬，这绝不是简单的精神胜利法。</p><p>作家真正该恐惧的，是被国家巨大力量所魇住，被它的荣誉和拥抱售卖，被它逐渐走向开明包容的幻想所欺骗。因为那将让他失去自我。</p><p>记录本身，即已是反抗。</p><p>故乡是用来怀念的，故乡是用来美化的，故乡是用来失望的。</p><p>人生如戏，人人都在扮演着一定角色。有人没有意识到自己在演戏，把戏演完；另一种人，发现生活原来是一出戏，就努力离开舞台。第二种人错了，因为剧院以外，什么都没有，没有另一类生活在等着你。这场戏是唯一的演出。</p><p>我想，大概是伊拉斯谟错了。努力离开舞台很难，但是并非不可能。</p><p>虽然很难，虽然根本不被任何人看见，虽然努力的效果微乎其微，他把他们叫做“针尖上的天使”。</p><p>然而离开是为了回来，追忆也是一种归来，用《芒果街上的小屋》里的话说：“为了那些我留在身后的人。为了那些无法出去的人。”</p></blockquote>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;p&gt;第二本书，蒋方舟的《我承认我不曾经历沧桑》。这本书是蒋学姐的文集，毕业一年，写作五年的感慨。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;回首过
+      
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
+    
+    
+      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
+    
+      <category term="literature" scheme="http://houx15.github.io/tags/literature/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-西方哲学精神探源</title>
+    <link href="http://houx15.github.io/2018/01/08/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E8%A5%BF%E6%96%B9%E5%93%B2%E5%AD%A6%E7%B2%BE%E7%A5%9E%E6%8E%A2%E6%BA%90/"/>
+    <id>http://houx15.github.io/2018/01/08/读书笔记-西方哲学精神探源/</id>
+    <published>2018-01-08T01:10:22.000Z</published>
+    <updated>2018-01-08T14:29:50.253Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>年初的时候立下了今年要读98本书的flag，期末考正好临近，就偷懒用一本《西方哲学精神探源》作为开始吧。</p><p>《西方哲学精神探源》对于古希腊与古罗马哲学做了一个比较粗略的介绍，开头的导论部分从历史背景和地理背景讲述了那个时代的希腊与罗马的故事，而后面则是从求是、求本、求真等十二个不同的角度解读其哲学底蕴。本质内容与老师在MOOC中讲解的内容相似。但是这样体系特征不明显、没有时间贯穿的碎片化西方哲学，终究与自己一直向往着的西方哲学有一些落差。</p><p>这篇读书笔记不谈书本，不谈哲学，只想说说自己对于西方哲学残留的念想。</p><h3 id="不是哲学，而是文明"><a href="#不是哲学，而是文明" class="headerlink" title="不是哲学，而是文明"></a>不是哲学，而是文明</h3><p>我本身对于哲学没有什么兴趣。</p><p>这片神秘的大陆吸引我的，是一个叫做庞贝古城的地方。那个公元79年维苏威火山大爆发掩埋了的文明，残垣断壁，以及失落的国度。吸引我的，是特洛伊木马和他们像是传奇一样的战争。是淹没了的巴比伦文化。当然，还有奥林匹斯星传中众神的生活。</p><p>文明对于一个人总是会有巨大的吸引力的，哲学又是这块文明中的瑰宝，就像是从哲学诞生那一刻开始，人类的深邃思维诞生了。《西哲》中提到，哲学家们第一次用自然去解释自然，第一次让人去思考事物本身而不是其表象。就像是从那一刻开始，从哲学家开始思考的那一刻，从逻辑诞生那一刻，所有人开始用逻辑去编织这个世界巨大的entity网络，于是有了知识体系，有了复杂的精神世界。</p><h3 id="知识与真理"><a href="#知识与真理" class="headerlink" title="知识与真理"></a>知识与真理</h3><p>哲学中，最感兴趣的命题，是知识，也就是书中的“求知”，“求实”的部分。</p><p>是从什么时候开始，着迷于整个人类知识产生与认知发展的体系。从哲学到数学到科学，从三段论到科学哲学，范式、范畴论、普遍怀疑、覆盖率模型，演绎与归纳，这些字眼一次又一次的让人觉得兴奋。</p><p><em>Metaphors We Live By</em> ，想起来了这本书。</p><p>我们赖以生存的隐喻——人类认知的构建就是通过这逐层的隐喻发展而来。你知道了一个东西，当你要学习一个新东西的时候，我们通过将新事物与过去旧的事物进行联系来进行学习，因而我们的脑中是神经网络，因而我们有了建构主义的模型。</p><p>当然，范式转移也是一个让人震惊的的东西——绝对唯一真理的幻想破灭之后，哥德尔不完备性定理到来之后，人们用范式找到了出路——每一个科学体系有着自己的作用域，也就是范式，范式中有一个或多个由于归纳法而得到的公理，以及内部演绎推理得到的多个命题以及定理。因而我们许许多多这样的体系内部则是完全逻辑自洽的。不断找到更加底层的知识，通过覆盖率模型发展这个体系，或者突然之间产生一些突破性的发现，导致范式转移，从而带来科技革命。</p><p>我们还走在不断革新知识体系的路上。</p><p>人类现在知道的终究还是太少了，感觉我们离真理依然很远。现有的知识传授方式又不够高效，想要获得人类已有的知识都需要花费多少时间啊！人类的知识体系发展越庞杂，前进的包袱就越重。</p><p>到底怎么样才能打破这个僵局呢？</p>]]></content>
+    
+    <summary type="html">
+    
+      2018第一篇读书笔记
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
+    
+    
+      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
+    
+      <category term="philosophy" scheme="http://houx15.github.io/tags/philosophy/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://houx15.github.io/2018/01/08/hello-world/"/>
+    <id>http://houx15.github.io/2018/01/08/hello-world/</id>
+    <published>2018-01-08T01:01:41.743Z</published>
+    <updated>2018-01-08T01:01:41.743Z</updated>
+    
+    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>
