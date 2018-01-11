@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    
+
+    <title>
+      hexo-进阶之七牛图床 | Welcom to Monkey&#39;s Home 
+    </title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    
+      <meta name="author" content="HOU Yuxin">
+    
+    
+
+    <meta name="description" content="node实现一键上传多张图片到七牛云并且将图片的url以json格式输出。可以在将七牛作为hexo博客的图床的时候使用。">
+<meta name="keywords" content="hexo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hexo-进阶之七牛图床 | Welcom to Monkey&#39;s Home">
+<meta property="og:url" content="http://houx15.github.io/2018/01/11/hexo-进阶之七牛图床/index.html">
+<meta property="og:site_name" content="Welcom to Monkey&#39;s Home">
+<meta property="og:description" content="node实现一键上传多张图片到七牛云并且将图片的url以json格式输出。可以在将七牛作为hexo博客的图床的时候使用。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-01-11T15:40:21.233Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hexo-进阶之七牛图床 | Welcom to Monkey&#39;s Home">
+<meta name="twitter:description" content="node实现一键上传多张图片到七牛云并且将图片的url以json格式输出。可以在将七牛作为hexo博客的图床的时候使用。">
+    
+    
+      <link rel="alternate" href="/atom.xml" title="Welcom to Monkey&#39;s Home" type="application/atom+xml">
+    
+    
+      <link rel="icon" type="image/x-icon" href="/favicon.png">
+    
+    <link rel="stylesheet" href="/css/uno.css">
+    <link rel="stylesheet" href="/css/highlight.css">
+    <link rel="stylesheet" href="/css/archive.css">
+    <link rel="stylesheet" href="/css/china-social-icon.css">
+
+</head>
+<body>
+
+    <span class="mobile btn-mobile-menu">
+        <i class="icon icon-list btn-mobile-menu__icon"></i>
+        <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+    </span>
+
+    
+
+<header class="panel-cover panel-cover--collapsed">
+
+
+  <div class="panel-main">
+
+  
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+
+        
+
+        <h1 class="panel-cover__title panel-title"><a href="/" title="link to homepage">Welcom to Monkey&#39;s Home</a></h1>
+        <hr class="panel-cover__divider" />
+
+        
+        <p class="panel-cover__description">
+          My Own Planet
+        </p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary" />
+        
+
+        <div class="navigation-wrapper">
+
+          <nav class="cover-navigation cover-navigation--primary">
+            <ul class="navigation">
+
+              
+                
+                <li class="navigation__item"><a href="/#blog" title="" class="blog-button">首页</a></li>
+              
+                
+                <li class="navigation__item"><a href="/about" title="" class="">关于</a></li>
+              
+                
+                <li class="navigation__item"><a href="/archive" title="" class="">文章</a></li>
+              
+                
+                <li class="navigation__item"><a href="/categories" title="" class="">分类</a></li>
+              
+                
+                <li class="navigation__item"><a href="/photos" title="" class="">相册</a></li>
+              
+
+            </ul>
+          </nav>
+
+          <!-- ----------------------------
+To add a new social icon simply duplicate one of the list items from below
+and change the class in the <i> tag to match the desired social network
+and then add your link to the <a>. Here is a full list of social network
+classes that you can use:
+
+    icon-social-500px
+    icon-social-behance
+    icon-social-delicious
+    icon-social-designer-news
+    icon-social-deviant-art
+    icon-social-digg
+    icon-social-dribbble
+    icon-social-facebook
+    icon-social-flickr
+    icon-social-forrst
+    icon-social-foursquare
+    icon-social-github
+    icon-social-google-plus
+    icon-social-hi5
+    icon-social-instagram
+    icon-social-lastfm
+    icon-social-linkedin
+    icon-social-medium
+    icon-social-myspace
+    icon-social-path
+    icon-social-pinterest
+    icon-social-rdio
+    icon-social-reddit
+    icon-social-skype
+    icon-social-spotify
+    icon-social-stack-overflow
+    icon-social-steam
+    icon-social-stumbleupon
+    icon-social-treehouse
+    icon-social-tumblr
+    icon-social-twitter
+    icon-social-vimeo
+    icon-social-xbox
+    icon-social-yelp
+    icon-social-youtube
+    icon-social-zerply
+    icon-mail
+
+-------------------------------->
+
+<!-- add social info here -->
+
+
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="panel-cover--overlay"></div>
+  </div>
+</header>
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner entry">
+            
+
+<article class="post-container post-container--single">
+
+  <header class="post-header">
+    
+    <h1 class="post-title">hexo-进阶之七牛图床</h1>
+
+    
+
+    <div class="post-meta">
+      <time datetime="2018-01-11" class="post-meta__date date">2018-01-11</time> 
+
+      <span class="post-meta__tags tags">
+
+          
+            <font class="categories">
+            &#8226; 分类:
+            <a class="categories-link" href="/categories/technology/">技术栈</a>
+            </font>
+          
+
+          
+             &#8226; 标签:
+            <font class="tags">
+              <a class="tags-link" href="/tags/hexo/">hexo</a>
+            </font>
+          
+
+      </span>
+    </div>
+    
+    
+
+  </header>
+
+  <section id="post-content" class="article-content post">
+    <p>这是hexo博客搭建日志的进阶篇，本篇介绍如何将七牛作为图床存储你的照片。</p>
+<p>博客使用的时间长了，会有很多图片，甚至视频等大文件，全部都使用github作为存储空间，会因为io页面本身的大小限制带来麻烦，以及在部署的时候也会影响速度。于是我找了一个云存储空间作为图床。</p>
+<p>国内比较好用的就是七牛，每个月免费的10GB存储空间以及20GB下载流量，10万次PUT与100万次GET，用在我的小博客上也是足够了。</p>
+<h4 id="STEP1：-一个hexo博客"><a href="#STEP1：-一个hexo博客" class="headerlink" title="STEP1： 一个hexo博客"></a>STEP1： 一个hexo博客</h4><p>本文实现的图片上传功能是用于我的博客搭建的（非常想拥有照片墙功能啊）。所以你需要现有一个博客啦，如果不会的话可以参加博主前面的文档</p>
+<ul>
+<li>mark</li>
+</ul>
+<p>当然，本文相对独立的介绍了怎么用javascript一键上传多张图片到七牛云，你也可以无视这个博客</p>
+<h4 id="STEP2：-一个七牛云账户"><a href="#STEP2：-一个七牛云账户" class="headerlink" title="STEP2： 一个七牛云账户"></a>STEP2： 一个七牛云账户</h4><p>嗯，注册一个七牛云账户。</p>
+<p>注册相对容易，大概是需要拍两张身份证照片认证一下。</p>
+<p>注册完之后，点击进入“管理控制台”。点击左侧的“对象存储”，建立一个bucket（相当于一个文件夹）。</p>
+<blockquote>
+<p>此处注意，建立bucket的时候要选择是公开的还是私有的文件夹，区别在于，如果是私有的文件夹，每次获取文件的时候也需要认证。（其余的上传、删除等操作都是必需要token认证的）</p>
+</blockquote>
+<p>这里有几个参数是你之后会要用到的：</p>
+<ul>
+<li>密钥管理页面有一个ACCESS_KEY和SECRET_KEY，作为你的上传密钥</li>
+<li>bucket的名字</li>
+<li>你的url（七牛会提供一个测试域名，在性能方面有限制，你也可以使用自己的域名，注意，需要公安部备案之后的域名）</li>
+</ul>
+<h4 id="STEP3：-一个本地上传脚本"><a href="#STEP3：-一个本地上传脚本" class="headerlink" title="STEP3： 一个本地上传脚本"></a>STEP3： 一个本地上传脚本</h4><p>有了七牛云账户，有了自己的存储空间，你已经可以在网页中一个个的上传图片了。</p>
+<p>不过这样的话，你每次智能上传一个文件，比较麻烦。写一个脚本的好处，在于一次可以上传一打文件。</p>
+<p>在网上找了很多现有的代码，或许是七牛官方版本更新了？找到的多为2016年甚至更早的，而且<strong>都不能用！！</strong> 最后决定依着官方文档自己造了一个轮子。</p>
+<blockquote>
+<p>项目地址： <a href="https://github.com/houx15/qiniu-node-upload.git" target="_blank" rel="noopener">https://github.com/houx15/qiniu-node-upload.git</a></p>
+</blockquote>
+<h5 id="功能描述"><a href="#功能描述" class="headerlink" title="功能描述"></a>功能描述</h5><p>一键上传文件夹中所有图片到七牛云。</p>
+<h5 id="使用流程"><a href="#使用流程" class="headerlink" title="使用流程"></a>使用流程</h5><ul>
+<li>确保已经安装node</li>
+<li>安装qiniu的官方插件: npm install qiniu</li>
+<li>获取代码 git clone</li>
+<li>更改 qiniu-node-uploader.js 中相关参数<ul>
+<li>七牛的 AK, SK, BUCKET, URL</li>
+<li>本地文件夹的路径</li>
+</ul>
+</li>
+<li>打开shell, node qiniu-node-uploader.js</li>
+</ul>
+<h5 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h5><ul>
+<li>与markdown文件结合，直接自动上传并替换md中的图片为链接</li>
+</ul>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><ul>
+<li><a href="https://yq.aliyun.com/articles/8608" target="_blank" rel="noopener">Hexo折腾记——性能优化篇</a></li>
+<li><a href="https://developer.qiniu.com/kodo/sdk/1289/nodejs" target="_blank" rel="noopener">七牛官方文档</a></li>
+</ul>
+
+  </section>
+
+  <section class="post-comments">
+
+    <!-- 将评论系统（例如Disqus、多说、友言、畅言等）提供的代码片段粘贴在这里 -->
+    <!-- 来必力City版安装代码 -->
+    <div id="lv-container" data-id="city" data-uid="MTAyMC8zMzA5Ny85NjU4">
+        <script type="text/javascript">
+            (function (d, s) {
+                var j, e = d.getElementsByTagName(s)[0];
+
+                if (typeof LivereTower === 'function') { return; }
+
+                j = d.createElement(s);
+                j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+                j.async = true;
+
+                e.parentNode.insertBefore(j, e);
+            })(document, 'script');
+        </script>
+        <noscript> 为正常使用来必力评论功能请激活JavaScript</noscript>
+    </div>
+    <!-- City版安装代码已完成 -->
+</section>
+
+
+</article>
+
+
+            <footer class="footer">
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+    </script>
+    <span id="busuanzi_container_site_pv">
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        您是Monkey的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+    </span>
+
+    <span class="footer__copyright">&copy; 2014-2015. | 由
+        <a href="https://hexo.io/">Hexo</a>强力驱动 | 主题
+        <a href="https://github.com/someus/huno">Huno</a>
+    </span>
+</footer>
+        </div>
+    </div>
+
+    <!-- js files -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/scale.fix.js"></script>
+    
+
+    
+
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript"> 
+        $(document).ready(function(){
+            MathJax.Hub.Config({ 
+                tex2jax: {inlineMath: [['[latex]','[/latex]'], ['\\(','\\)']]} 
+            });
+        });
+    </script>
+
+
+    
+
+    <script src="/js/awesome-toc.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.awesome_toc({
+                overlay: true,
+                contentId: "post-content",
+            });
+        });
+    </script>
+
+
+    
+    
+
+    <script src="/js/jquery.githubRepoWidget.min.js"></script>
+
+
+    <!--kill ie6 -->
+<!--[if IE 6]>
+  <script src="//letskillie6.googlecode.com/svn/trunk/2/zh_CN.js"></script>
+<![endif]-->
+
+</body>
+</html>

@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://houx15.github.io/"/>
-  <updated>2018-01-09T15:41:40.345Z</updated>
+  <updated>2018-01-11T15:40:21.233Z</updated>
   <id>http://houx15.github.io/</id>
   
   <author>
@@ -15,6 +15,52 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>hexo-进阶之七牛图床</title>
+    <link href="http://houx15.github.io/2018/01/11/hexo-%E8%BF%9B%E9%98%B6%E4%B9%8B%E4%B8%83%E7%89%9B%E5%9B%BE%E5%BA%8A/"/>
+    <id>http://houx15.github.io/2018/01/11/hexo-进阶之七牛图床/</id>
+    <published>2018-01-11T12:11:12.000Z</published>
+    <updated>2018-01-11T15:40:21.233Z</updated>
+    
+    <content type="html"><![CDATA[<p>这是hexo博客搭建日志的进阶篇，本篇介绍如何将七牛作为图床存储你的照片。</p><p>博客使用的时间长了，会有很多图片，甚至视频等大文件，全部都使用github作为存储空间，会因为io页面本身的大小限制带来麻烦，以及在部署的时候也会影响速度。于是我找了一个云存储空间作为图床。</p><p>国内比较好用的就是七牛，每个月免费的10GB存储空间以及20GB下载流量，10万次PUT与100万次GET，用在我的小博客上也是足够了。</p><h4 id="STEP1：-一个hexo博客"><a href="#STEP1：-一个hexo博客" class="headerlink" title="STEP1： 一个hexo博客"></a>STEP1： 一个hexo博客</h4><p>本文实现的图片上传功能是用于我的博客搭建的（非常想拥有照片墙功能啊）。所以你需要现有一个博客啦，如果不会的话可以参加博主前面的文档</p><ul><li>mark</li></ul><p>当然，本文相对独立的介绍了怎么用javascript一键上传多张图片到七牛云，你也可以无视这个博客</p><h4 id="STEP2：-一个七牛云账户"><a href="#STEP2：-一个七牛云账户" class="headerlink" title="STEP2： 一个七牛云账户"></a>STEP2： 一个七牛云账户</h4><p>嗯，注册一个七牛云账户。</p><p>注册相对容易，大概是需要拍两张身份证照片认证一下。</p><p>注册完之后，点击进入“管理控制台”。点击左侧的“对象存储”，建立一个bucket（相当于一个文件夹）。</p><blockquote><p>此处注意，建立bucket的时候要选择是公开的还是私有的文件夹，区别在于，如果是私有的文件夹，每次获取文件的时候也需要认证。（其余的上传、删除等操作都是必需要token认证的）</p></blockquote><p>这里有几个参数是你之后会要用到的：</p><ul><li>密钥管理页面有一个ACCESS_KEY和SECRET_KEY，作为你的上传密钥</li><li>bucket的名字</li><li>你的url（七牛会提供一个测试域名，在性能方面有限制，你也可以使用自己的域名，注意，需要公安部备案之后的域名）</li></ul><h4 id="STEP3：-一个本地上传脚本"><a href="#STEP3：-一个本地上传脚本" class="headerlink" title="STEP3： 一个本地上传脚本"></a>STEP3： 一个本地上传脚本</h4><p>有了七牛云账户，有了自己的存储空间，你已经可以在网页中一个个的上传图片了。</p><p>不过这样的话，你每次智能上传一个文件，比较麻烦。写一个脚本的好处，在于一次可以上传一打文件。</p><p>在网上找了很多现有的代码，或许是七牛官方版本更新了？找到的多为2016年甚至更早的，而且<strong>都不能用！！</strong> 最后决定依着官方文档自己造了一个轮子。</p><blockquote><p>项目地址： <a href="https://github.com/houx15/qiniu-node-upload.git" target="_blank" rel="noopener">https://github.com/houx15/qiniu-node-upload.git</a></p></blockquote><h5 id="功能描述"><a href="#功能描述" class="headerlink" title="功能描述"></a>功能描述</h5><p>一键上传文件夹中所有图片到七牛云。</p><h5 id="使用流程"><a href="#使用流程" class="headerlink" title="使用流程"></a>使用流程</h5><ul><li>确保已经安装node</li><li>安装qiniu的官方插件: npm install qiniu</li><li>获取代码 git clone</li><li>更改 qiniu-node-uploader.js 中相关参数<ul><li>七牛的 AK, SK, BUCKET, URL</li><li>本地文件夹的路径</li></ul></li><li>打开shell, node qiniu-node-uploader.js</li></ul><h5 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h5><ul><li>与markdown文件结合，直接自动上传并替换md中的图片为链接</li></ul><h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><ul><li><a href="https://yq.aliyun.com/articles/8608" target="_blank" rel="noopener">Hexo折腾记——性能优化篇</a></li><li><a href="https://developer.qiniu.com/kodo/sdk/1289/nodejs" target="_blank" rel="noopener">七牛官方文档</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      node实现一键上传多张图片到七牛云并且将图片的url以json格式输出。可以在将七牛作为hexo博客的图床的时候使用。
+    
+    </summary>
+    
+      <category term="技术栈" scheme="http://houx15.github.io/categories/technology/"/>
+    
+    
+      <category term="hexo" scheme="http://houx15.github.io/tags/hexo/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-奥丁的子女</title>
+    <link href="http://houx15.github.io/2018/01/11/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%A5%A5%E4%B8%81%E7%9A%84%E5%AD%90%E5%A5%B3/"/>
+    <id>http://houx15.github.io/2018/01/11/读书笔记-奥丁的子女/</id>
+    <published>2018-01-11T11:21:36.000Z</published>
+    <updated>2018-01-11T15:48:36.534Z</updated>
+    
+    <content type="html"><![CDATA[<p>自从看了龙族二之后，一直都想仔细了解一下北欧神话。这一次正好阅读了《奥丁的子女》，从阿斯加尔德的辉煌，到诸神的黄昏，也算是完整了解了一道。</p><p>总的说来，这一个神话集并没有想象之中那么精彩，没有自己一直都爱读的童话故事精彩，更没有引人入胜的小说那么精彩。为什么呢？虽然神话中发生了很多很多的事情，但是这一史诗般的叙述，都只是平铺直叙的将事情记录下来而已，没有细致的描写，也不会尝试去抓取人的心灵瞬间。</p><p>仿佛是在让故事本身来讲述一切。</p><p>因此神话中可以一句话就讲完了勇士屠龙的过程，可以不用去解释为什么巨人会相信神族，可以不用去解释为什么洛基突然杀死水獭，也可以一句话说完巴尔德的死。</p><p>甚至诸神的黄昏那么深刻的宏达的画面，也不过一个段落全部说尽罢了。</p><p>或许是为了给我们更多想想的空间吧。</p>]]></content>
+    
+    <summary type="html">
+    
+      自从看了龙族二之后，一直都想仔细了解一下北欧神话。这一次正好阅读了《奥丁的子女》，从阿斯加尔德的辉煌，到诸神的黄昏，也算是完整了解了一道。
+    
+    </summary>
+    
+      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
+    
+    
+      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
+    
+      <category term="literature" scheme="http://houx15.github.io/tags/literature/"/>
+    
+  </entry>
   
   <entry>
     <title>音乐-一纸流年</title>
