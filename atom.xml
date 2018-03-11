@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://houx15.github.io/"/>
-  <updated>2018-01-27T15:57:17.753Z</updated>
+  <updated>2018-03-11T13:18:31.880Z</updated>
   <id>http://houx15.github.io/</id>
   
   <author>
@@ -17,394 +17,439 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>读书笔记-金色梦乡</title>
-    <link href="http://houx15.github.io/2018/01/27/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E9%87%91%E8%89%B2%E6%A2%A6%E4%B9%A1/"/>
-    <id>http://houx15.github.io/2018/01/27/读书笔记-金色梦乡/</id>
-    <published>2018-01-27T11:09:51.000Z</published>
-    <updated>2018-01-27T15:57:17.753Z</updated>
+    <title>其他-测试相关</title>
+    <link href="http://houx15.github.io/2018/03/11/%E5%85%B6%E4%BB%96-%E6%B5%8B%E8%AF%95%E7%9B%B8%E5%85%B3/"/>
+    <id>http://houx15.github.io/2018/03/11/其他-测试相关/</id>
+    <published>2018-03-11T12:55:42.000Z</published>
+    <updated>2018-03-11T13:18:31.880Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>伊坂幸太郎总是在压抑的黑暗中给你一个老旧的手电筒，让你看到斑驳的墙面上小兔子的手影。</p><p>说忙碌的蚂蚁里其实有百分之三十都没真正干活。此刻她看着眼前的场面，茫然觉得那些跑去看游行的，会不会就是那没干活的百分之三十呢？</p><p>“命名可是很重要的。有了名字后就有了形象，形象这东西可以左右人的想法。”</p><p>四平八稳的日子里，谁都能讲出几句大道理。主张人权，占领道德高地很简单。但当暴风雨来临之时，人们就慌了手脚，再无力顾及所谓的正确，只能随波逐流。人就是这样。</p><p>所谓正确，还要看对谁而言。</p><p>带着先入为主的观念去思考分析，总容易草木皆兵，原本正常的自然现象也可能被当作敌国的阴谋。</p><p>人最强大的武器，是习惯和信赖</p><p>我只是在怀疑那个什么准备都没有，只知道没头没脑生活的自己</p><p>“城镇也好村庄也好，或许预算规模不一样，可是嫁出去的女儿夏天带着孩子回娘家，一家人结伴去看烟火的心情，在哪里都是一样的。不同行业、不同生活背景的人为了烟火而聚到一起，遥望着它们砰地飞上了天，打心眼里觉得真大真好看，从中得到了继续努力的动力，于是相约到明年再一起回来看，这才是烟火大会的意义。”</p><p>你们看那些烟火，总有不同的人在不同的地方观看。或许它们在眼前绽放的瞬间，某个老朋友也正在某处眺望着同样的景色——想到这些不是很快乐吗？而那个老朋友一定也正想着同样的事情。我一直这样觉得。”</p><p>回忆会在相似的情景下苏醒。既然自己能想起，对方同样也能。</p><p>越是看上去无害的人，越可能是你的敌人。</p><p>不管问题多困难，情况多悲惨，只要还能笑，当然很多时候或许根本笑不出来，但只要能笑一笑，就会有重新充电的感觉。这是事实。</p><p>现在所走的这条路</p><p>留给将来的某个时候怀念就好</p><p>将来的某个时候</p><p>或许我会怀念现在所走的这条路</p><p>那个时候你一定要在</p><p>那个时候我一定要在</p><p>这样我会很开心</p><p>拜托了</p><p>我很开心</p><p>请多关照</p></blockquote>]]></content>
+    <content type="html"><![CDATA[<h3 id="黑盒测试"><a href="#黑盒测试" class="headerlink" title="黑盒测试"></a>黑盒测试</h3><p>黑盒测试（面向实际用户）：功能测试，由数据驱动的测试。不考虑程序内部结构和内部特性，检查程序是否按照需求规格说明书的规定能够正常使用——检查数据输入、输出是否正常，数据库、文件是否完整</p><ul><li>具体方法：<ul><li>等价类划分</li><li>边值分析</li><li>因果图</li><li>错误推测</li></ul></li><li>合法输入、不合法输入都要测试</li><li>穷举法测试</li></ul><h3 id="白盒测试"><a href="#白盒测试" class="headerlink" title="白盒测试"></a>白盒测试</h3><p>白盒测试（面向开发人员）：也称结构测试、逻辑驱动测试，知道产品内部工作过程，通过测试来检测产品内部动作是否按照规格说明书进行。检验程序中的每条通路是否都有能按预定要求进行工作</p><ul><li>具体方法：<ul><li>逻辑驱动</li><li>记录测试</li></ul></li><li>穷举路径测试</li></ul><h3 id="灰盒测试"><a href="#灰盒测试" class="headerlink" title="灰盒测试"></a>灰盒测试</h3><p>灰盒测试：关注输出对于输入的正确性，也关注内部表现</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li><a href="http://blog.csdn.net/emag_testage/article/details/279565" target="_blank" rel="noopener">黑盒测试、白盒测试和灰盒测试的基本概念</a></li><li><a href="https://www.ktanx.com/blog/p/2283" target="_blank" rel="noopener">软件测试</a></li><li>​</li></ol>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;blockquote&gt;
-&lt;p&gt;伊坂幸太郎总是在压抑的黑暗中给你一个老旧的手电筒，让你看到斑驳的墙面上小兔子的手影。&lt;/p&gt;
-&lt;p&gt;说忙碌的蚂蚁里其实有百分之三十都没真正干活。此刻她看着眼前的场面，茫然觉得那些跑去看游行的，会不会就是那没干活的百分之三十呢？&lt;/p&gt;
-&lt;p&gt;“命名
+        &lt;h3 id=&quot;黑盒测试&quot;&gt;&lt;a href=&quot;#黑盒测试&quot; class=&quot;headerlink&quot; title=&quot;黑盒测试&quot;&gt;&lt;/a&gt;黑盒测试&lt;/h3&gt;&lt;p&gt;黑盒测试（面向实际用户）：功能测试，由数据驱动的测试。不考虑程序内部结构和内部特性，检查程序是否按照需求规格说明书的规定能够
       
     
     </summary>
     
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
     
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="literature" scheme="http://houx15.github.io/tags/literature/"/>
+      <category term="others" scheme="http://houx15.github.io/tags/others/"/>
     
   </entry>
   
   <entry>
-    <title>读书笔记-看见</title>
-    <link href="http://houx15.github.io/2018/01/27/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%9C%8B%E8%A7%81/"/>
-    <id>http://houx15.github.io/2018/01/27/读书笔记-看见/</id>
-    <published>2018-01-27T11:09:44.000Z</published>
-    <updated>2018-01-27T16:16:03.734Z</updated>
+    <title>其他-自动集成</title>
+    <link href="http://houx15.github.io/2018/03/11/%E5%85%B6%E4%BB%96-%E8%87%AA%E5%8A%A8%E9%9B%86%E6%88%90/"/>
+    <id>http://houx15.github.io/2018/03/11/其他-自动集成/</id>
+    <published>2018-03-11T12:10:11.000Z</published>
+    <updated>2018-03-11T13:18:21.139Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>道德，不是没有弱点，而是看清它，然后抑制它。</p><p>人们声称的最美好的岁月其实都是最痛苦的，只是事后回忆起来的时候才那么幸福。</p><p>你可小心，别变成当初你最反对的人</p><p>r当一个人关心别人的时候，才会忘记自己。</p><p>觉得么，像是《卡桑德拉大桥》里头的感觉，火车正往危险的地方开，车里的人耳边咣咣响——外面有人正把窗户钉死。</p><p>你可以选择不当记者，但是你当了记者，就没有选择不去的权利。</p><p>我摸着血管，这就是最原始的东西。活着就是活着。在所有的灾难中，这个温热的跳动就是活着。</p><p>在电话里，他沉默了一下说：“回忆太痛苦了。” “是，”我说，“但痛苦也是一种清洗，是对牺牲的人的告慰。”</p><p>对遭受的侮辱，不需要愤怒，也不需要还击，只需要蔑视。</p><p>在清水里呛呛，血水里泡泡，咸水里滚滚’，十年之后咱们再来讨论。</p><p>我们发现，最大的谜，其实是孩子的内心世界，能不能打开它，可能是每个人都需要面对的问题。</p><p>你看玩电脑游戏的孩子，什么时候说过自己累？有乐趣的人从不说累。</p><p>“生活就是严峻的历险，学得越快越好，我永远忘不了那记耳光，对我来说，它就像一个吻。</p><p>生和死真他妈脆弱，就这么一百米，这些人天天这么过，超负荷地工作。我难过的是，他们很知足，觉得这么比在村里种地强多了。”他拍到那些被藏的尸体遗骸，闻了被烧过的裹尸布，“你要是真见过他们的样子，就不可能为几个钱把灵魂卖了。”</p><p>陈虻有一次跟我讲，日本横纲级的相扑选手，上台的时候，两人不交手，就拿眼睛互相瞪，据说胜败在那时候就决定了。两刃不相交，就靠意志。</p><p>作家野夫说：“那是因为我们已经不是大多数人，在很大程度上已经免于受辱了。”</p><p>生和死，苦难和苍老，都蕴涵在每一个人的体内，总有一天我们会与之遭逢。 我们终将浑然难分，像水溶于水中。</p><p>家庭是最小的社会单元，门吱呀一声关上后，在这里人们如何相待，多少决定了一个社会的基本面目。 家庭是人类生活最亲密的部分，为什么会给彼此带来残酷的伤害？这是个很常规的问题。但爱伦堡说过：“石头就在那儿，我不仅要让人看见它，还要让人感觉到它。” 我想感觉到人，哪怕是血肉模糊的心。</p><p>人性里从来不会只有恶或善，但是恶得不到抑制，就会吞吃别人的恐惧长大，尖牙啃咬着他们身体里的善，和着一口一口的酒咽下去。最后一夜，“血红的眼睛”睁开，人的脸也许在背后</p><p>自卑的一个极端就是自负，对吧？中国也是这样，中国是一个自卑情结很重的国家。所以自卑的极端是自负。”</p><p>万物流变，千百万年，谁都是一小粒，嵌在世界的秩序当中，采访是什么？采访是生命间的往来，认识自己越深，认识他人越深，反之亦然。</p><p>天空一无所有，为何给我安慰</p><p>权利是用来伸张的，否则权利就只是一张纸</p><p>你们说要争自由，自由是针对外面束缚而言的，独立是你们自己的事，给你自由而不独立，仍是奴隶。独立要不盲从，不受欺骗，不依赖门户，不依赖别人，这就是独立的精神。</p><p>在这个世界上，没有一劳永逸的答案，也没有完美的世界图式。认为一个人、一个概念、一次诉讼就可以彻底解决现实问题，如果不是无知，就是智力上的懒惰。但这个不完美的世界上，还是有一个共有的规则存在。</p><p>“能独立地表达自己的观点，却不傲慢，对政治表示服从，却不卑躬屈膝。能积极地参与国家的政策，看到弱者知道同情，看到邪恶知道愤怒，我认为他才算是一个真正的公民。”</p><p>只有通过争论才能达成共识，争论是争真理，有理走天下。”</p><p>“痛苦是财富，这话是扯淡。姑娘，痛苦就是痛苦，”他说，“对痛苦的思考才是财富。”</p><p>这世上没有英雄，只有受苦受难的人民”。</p><p>人性的好恶不可避免，去做免费手术的老人都贫穷，坐我对面，穿着带破洞的旧解放鞋，吃饭只能一勺一勺抖抖索索喂在嘴里，青布衣襟上掉着米粒。面对这样的人不可能没有同情，</p><p>一个世界如果只按强弱黑白两分，它很有可能只是一个立方体，你把它推倒，另一面朝上，原状存在。</p><p>准确是这一工种最重要的手艺，而自我感动、感动先行是准确最大的敌人，真相常流失于涕泪交加中。”</p><p>绝望。一个过于主动甚至积极坦白自己内心阴暗面的人，往往会让原本想去挖掘他内心弱点的人感到尴尬和一丝不安。他甚至都不为自己辩解一句。为什么不在镜头面前，哪怕是伪装歉意向大家忏悔以乞求宽恕呢？”</p><p>“无论如何，你看到的总是你自己。死在路上的甲虫，它是像你一样为了生存而奋斗的生命，像你一样喜欢太阳，像你一样懂得害怕和痛苦，现在，它却成了腐烂的肌体，就像你今后也会如此。”</p><p>我提到心理医生说有的人为什么要拼命吃东西，因为要抑制自己表达不出来的欲望。</p><p>有的笑容背后是咬紧牙关的灵魂</p><p>希望和失望也绝不能是善。因为恐惧是一种痛苦，希望不能脱离恐惧而存在，所以希望和失望都表示知识的缺乏，和心灵的软弱无力。</p><p>认识这个事件的时候，有一个干预它的事件发生了，但你原本可以通过拍摄它，看到这背后更深刻的真实，你失去了一次认识它的机会。”</p><p>新旧之间没有怨讼，唯有真与伪是大敌。”</p><p>宽容不是道德，而是认识。唯有深刻地认识事物，才能对人和世界的复杂性有了解和体谅，才有不轻易责难和赞美的思维习惯。</p><p>人们不会忘记没有答案的事情。在真相面前，这世界上不存在特殊的国民性，人性本身想要了解万事原由。</p><p>真实自有万钧之力</p><p>在哪里生活都是一样的，没什么生活在别处。地铁上满头小辫的黑姑娘在电话里跟男朋友吵架，报馆里都是开会熬夜菜色的脸，咖啡馆里两个花白胡子老头对坐着看一下午人来人往，酒吧里心高气傲没嫁出去的女人端着酒杯一眼把所有男人分成三六九等，父亲带着儿子在晚春才破冰的河边一言不发地钓鱼……人类只是个概念，一代一代人都是相似的生活，这辈子决定你悲欢的就是你身边的几个人。 叮叮叮。</p><p>“When I am down and, oh my soul, so weary, When troubles come and my heart burdened be…”音乐衬着他的话：“在她弥留之际，差不多还有三个小时的时候，我向苏珊承诺过，我会一直在这儿陪着你，我会一直向前，去参加奥运会，去争取金牌……”</p><p>他俯身亲吻杠铃，音乐唱道：“I am still and wait here in the silence, Until you come and sit awhile with me…” 最后一个镜头是他站在领奖台上，余喘未息，右手持玫瑰，左手举起苏珊照片，放在肩头，注视升起的国旗，胸口一起一伏，音乐正唱到“I am strong when I am on your shoulders, You raise me up to more than I can be…”他像个小孩子一样，红鼻尖上挂着汗珠笑了。 </p><p>只有最亲的人才能了解和陪伴你的伤痛”</p><p>老范试探着唱：“孤独站在这舞台，听到掌声响起来，我的心中有无限感慨……” 旁边编辑机的镜头上，苏丽文被踢中伤处倒地。她的教练实在看不下去，要冲上赛台，被裁判制止了，裁判问她是否要停止比赛。 她在地上双拳相击，表示“我可以，我可以，马上站起来”。 “经过多少失败……经过多少等待，告诉自己要忍耐……” 嗯，嗯。 我和老范摇头晃脑大声合唱，“掌声响起来……” 苏丽文最后一次从场地上拖起自己，她说：“我听到很多观众一直叫我站起来。然后我也觉得，对，非站起来不可，对。” 她用这个方式撑到最后就是想告诉父亲：“有呼吸就有希望。” 旁边的实习生宋达加进来与我们合唱：“掌声响起来，我心更明白，你的爱将与我同在……”</p><p>没有什么是不朽的，包括艺术本身。唯一不朽的，是艺术所传递出来的对人和世界的理解。</p><p>自治，本就是一个解缚的过程。解，不是一扯两断，是需要找到线头，以柔和手势轻轻一抽，让一切归于本来应然。</p><p>“这个很奇怪，想影响别人，反而影响不到。因为他们会感觉到这是为了影响他们，他们才不接受。”</p><p>“这样我就变成了一个没用的人。”他说，“这样我就自由了。”</p><p>“如果自己作为老师，想象学生该怎么样，总是把他们的样子跟觉得该怎么样比较，是教育上最大的障碍。这样我没办法跟他们建立关系，这个想象就好像一面墙隔在学生和我之间，所以我不要这个想象。”</p><p>文明，就是停下来想一想自己在做什么</p><p>那我们做什么？” “当然会发生改变，改变自会发生，但这不是我的目的，也不是我的责任，不是压在我肩膀上的。” “改变不是目的？”我喃喃自语。 “它压着太重了，也做不到。”他说，“但你不这么想的时候，它会自己发生。”</p><p>纪律可以带来秩序，但却是被动的，只有一个人归属于一件事，一群人，一个社会，才会有认同和发自内心去照顾它的愿望。</p><p>人类大部分的苦都是因为期待的存在。其实，在人生中不存在任何必须的事情，只存在不必要的期待。没有任何期待和面子的人生是最美好和自由的，因为这样，人才能听到自己的心。”</p><p>教育，是人与人之间，也是自己与自己之间发生的事，它永不停止， “就像一棵树摇动另一棵树，一朵云触碰另一朵云，一个灵魂唤醒另一个灵魂，只要这样的传递和唤醒不停止，我们就不会告别卢安克”。</p><p>我觉得我活该。每一个犯了错的人，别人都有权利把你以前的言论拿出来印证你。</p><p>一个人得被自己的弱点绑架多少次啊，悲催的是这些弱点怎么也改不掉。但这几年来，身边的人待我，就像陈升歌里唱的，‘因为你对我的温柔，所以我懂得对别人好’，能起码认识到什么不好，最重要的，是能以‘别人可能是对的’为前提来思考一些问题。</p><p>不要问我为何如此眷恋，我不再与世界争辩，如果离去的时刻钟声响起，让我回头看见你的笑脸。”</p></blockquote>]]></content>
+    <content type="html"><![CDATA[<h3 id="每日集成"><a href="#每日集成" class="headerlink" title="每日集成"></a>每日集成</h3><p>因为每日集成的主体是全自动过程，所以每日集成对工具高度依赖，没有工具就没有每日集成。而且，一般的每日集成依赖于多个工具组合。<br>1，配置管理类工具：Git，SVN，TFS，CVS，ClearCase等等<br>2，集成管理类工具：Jenkins（原名Hudson），CrouseControl<br>3，编译类工具：maven, ant,nant等等<br>4，测试类工具：xUnit系列，Selenium，QTP等等<br>5，代码检查类工具：Sonar,PMD,Findbugs, Checkstyle, Fxcop等等<br>6，度量监控类工具，集成监控类CCTray，Jenkins; 覆盖率度量 emma, jacoco，NCover等等<br>以上列表还不是全部，为了在集成及集成配套动作方面得到更多好处和便利，外围还有更多的工具，而且在持续的增加<br>对应于特定的开发环境，可以找到各类工具，有些工具以插件的方式提供，比如Jenkins附带很多插件，甚至也可以自己开发配套工具（插件） </p><h3 id="Jenkins"><a href="#Jenkins" class="headerlink" title="Jenkins"></a>Jenkins</h3><ul><li><a href="https://www.jianshu.com/p/9a7e0b4a476d" target="_blank" rel="noopener">Jenkins iOS每日构建</a></li><li><a href="http://www.fblinux.com/?p=705" target="_blank" rel="noopener">Jenkins介绍及三种部署方式</a></li><li><a href="http://blog.csdn.net/zzy1078689276/article/details/77520441" target="_blank" rel="noopener">Jenkins之定时构建</a></li><li><a href="https://www.ibm.com/developerworks/cn/java/j-lo-jenkins/" target="_blank" rel="noopener">基于Jenkins快速搭建持续集成环境</a></li><li><a href="http://debugtalk.com/post/iOS-Android-Packing-with-Jenkins/" target="_blank" rel="noopener">使用Jenkins搭建iOS/Android持续集成打包平台</a></li><li><a href="http://williamzang.com/blog/2014/07/23/shi-yong-jenkins-plus-calabash-plus-cocoapodsda-jian-ioschi-xu-ji-cheng-huan-jing/" target="_blank" rel="noopener">使用jenkins+calabash+cocoapods构建iOS持续集成环境</a></li></ul><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li><a href="http://blog.csdn.net/bird67/article/details/59116408" target="_blank" rel="noopener">http://blog.csdn.net/bird67/article/details/59116408</a></li></ol>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;blockquote&gt;
-&lt;p&gt;道德，不是没有弱点，而是看清它，然后抑制它。&lt;/p&gt;
-&lt;p&gt;人们声称的最美好的岁月其实都是最痛苦的，只是事后回忆起来的时候才那么幸福。&lt;/p&gt;
-&lt;p&gt;你可小心，别变成当初你最反对的人&lt;/p&gt;
-&lt;p&gt;r当一个人关心别人的时候，才会忘记自己。&lt;/p&gt;
-
+        &lt;h3 id=&quot;每日集成&quot;&gt;&lt;a href=&quot;#每日集成&quot; class=&quot;headerlink&quot; title=&quot;每日集成&quot;&gt;&lt;/a&gt;每日集成&lt;/h3&gt;&lt;p&gt;因为每日集成的主体是全自动过程，所以每日集成对工具高度依赖，没有工具就没有每日集成。而且，一般的每日集成依赖于多个工具组合。
       
     
     </summary>
     
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
     
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="literature" scheme="http://houx15.github.io/tags/literature/"/>
+      <category term="others" scheme="http://houx15.github.io/tags/others/"/>
     
   </entry>
   
   <entry>
-    <title>读书笔记-失控</title>
-    <link href="http://houx15.github.io/2018/01/19/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%A4%B1%E6%8E%A7/"/>
-    <id>http://houx15.github.io/2018/01/19/读书笔记-失控/</id>
-    <published>2018-01-19T00:48:01.000Z</published>
-    <updated>2018-01-19T01:12:55.689Z</updated>
+    <title>其他-博客资源整理</title>
+    <link href="http://houx15.github.io/2018/03/08/%E5%85%B6%E4%BB%96-%E5%8D%9A%E5%AE%A2%E8%B5%84%E6%BA%90%E6%95%B4%E7%90%86/"/>
+    <id>http://houx15.github.io/2018/03/08/其他-博客资源整理/</id>
+    <published>2018-03-08T03:13:59.000Z</published>
+    <updated>2018-03-11T13:18:40.253Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>造化所生的自然王国和人类建造的人造国度正在融为一体。机器，正在生物化；而生物，正在工程化。</p><p>这种趋势正验证着某些古老的隐喻——将机器比喻为生物，将生物比喻为机器。那些比喻由来已久，古老到第一台机器诞生之时。如今，那些久远的隐喻不再只是诗意的遐想，它们正在变为现实——一种积极有益的现实。</p><p>我们的技术所引导的未来，朝向的正是一种新生物文明。</p><p>钟表般的精确逻辑，也即机械的逻辑，只能用来建造简单的装置。真正复杂的系统，比如细胞、草原、经济体或者大脑（不管是自然的还是人工的）都需要一种地道的非技术的逻辑。我们现在意识到，除了生物逻辑之外，没有任何一种逻辑能够让我们组装出一台能够思想的设备，甚至不可能组装出一套可运行的大型系统。</p><p>摧毁一片草原，毁掉的不仅仅是一个生物基因库，还毁掉了一座蕴藏着各种启示、洞见和新生物文明模型的宝藏。</p><p>群体曾被看作是生命体的决定性象征，某些壮观的队列只有生命体才能实现。如今根据雷诺兹的算法，群体被看作是一种自适应的技巧，适用于任何分布式的活系统，无论是有机的还是人造的。</p><p>“蜂群思维”的神奇在于，没有一只蜜蜂在控制它，但是有一只看不见的手，一只从大量愚钝的成员中涌现出来的手，控制着整个群体。它的神奇还在于，量变引起质变。要想从单个虫子的机体过渡到集群机体，只需要增加虫子的数量，使大量的虫子聚集在一起，使它们能够相互交流。等到某一阶段，当复杂度达到某一程度时，“集群”就会从“虫子”中涌现出来。</p><p>要想洞悉一个系统所蕴藏的涌现结构，最快捷、最直接也是唯一可靠的方法就是运行它。</p><p>记忆在某种程度上是与时间和空间捆绑在一起的，而与时间和空间捆绑在一起则正是真实的一种定义。</p><p>在一个稀疏分布式网络中，记忆是感知的一种。回忆行为和感知行为都是在一个非常巨大的模式可选集中探查所需要的一种模式。我们在回忆的时候，实际上是重现了原来的感知行为，也就是说，我们按照原来感知这种模式的过程，重新定位了该模式。</p><p>只有把产品当作服务来做，才能取得最佳的效果。你卖给顾客什么并不重要，重要的是你为顾客做了些什么。这个东西是什么并不重要，重要的是它与什么相关联，它做了什么。流程重于资源。</p><p>行为代理之间并没有明确的信息交流。所有的交流都是通过观察其他代理的动作在外界环境里留下的痕迹和影响而得以进行的。”像这样保持事物的局部性和直接性，就可让社会进化出新的行为方式，</p><p>一切都是分布式的。“通过外部世界进行沟通可以避免根据来自触臂的数据调校视觉系统的问题。”布鲁克斯写道。外部世界自身成为“中央”控制者；没有映像的环境成为映像本身。这样就节约下海量的计算工作。“</p><p>生命正在变为人造的，一如人造的正在变得有生命，它们都在成为某种精彩而奇特的东西。</p><p>在利奥波德这天真的行动之前，文明迈出的每一步都走上对自然进行控制和阻隔的又一个阶梯。修建房屋是为了将大自然的极端温度挡在门外；侍弄园圃是为了将自然生长的植物转变为驯服的农作物；开采铁矿则是为了砍伐树木以获取木材。</p><p>火使草原有效地运转。它使那些需要浴火重生的种子得以发芽[5]，将那些入侵的树苗一笔抹去，让那些经不起考验的“城里人”望而却步。</p><p>我们能把失去的生态系统重新组合起来吗？是的，只要所有的碎片都还存在，我们就能将其还原。只是，不知道我们能否还能得到所有的碎片。也许陪伴生态系统早期发展的某些物种——正如助推智能发展的拇指——在附近已不复存在了。或者，在一场真正的灾难中，重要的辅助物种在全球灭绝了。完全有这样一种可能，曾经有一种假想的、到处生长的小草，对于北美大草原的形成具有至关重要的作用，但却在最后的冰河时期被一扫而空。随着它的逝去，蛋壳就不可能再还原了。“记住，两点之间并非总有一条路径可走，”皮姆说。</p><p>在一个紧密相连的21世纪社会中，市场营销就是那面镜子，而全体消费者就是变色龙。你将消费者放入市场的时候，他该是什么颜色？他是否会沉降到某个最小公分母——成为一个平均消费者？或者总是为试图追赶自己循环反射的镜像而处于疯狂振荡的摇摆状态？</p><p>不远的将来，普及的数字化必将为我们提供更清晰、更快捷、更无所不在的镜子。每个消费者都将成为反射镜像与反射体，既是因，也是果</p><p>洛夫洛克认为这持久的摇摇欲坠状态是生命的显著特征。近来复杂性理论的研究人士也已意识到，任何活系统：经济体、自然生态系统、复杂的计算机模拟系统、免疫系统，以及共同进化系统，都具有摇摇欲坠的显著特征。当它们保持着埃舍尔式 [17] 的平衡态——处在总在下行却永远未曾降低过的状态时，都具有那种似是而非的最佳特性——在塌落中平衡。</p><p>生命是一种连结成网的东西——是分布式的存在。它是在时空中延展的单一有机体。没有单独的生命。哪里也看不到单个有机体的独奏。生命总是复数形式。（直到变成复数以后——复制繁殖着自己——生命才成其为生命）生命承接着彼此的联系，链接，还有多方共享。“你和我，血脉相同，”诗人莫格利柔声吟咏。蚂蚁，你和我，血脉相同。暴龙，你和我，血脉相同。艾滋病毒，你和我，血脉相同。</p><p>在地球历史的太古期，气候条件形成了一个恰好适合生命诞生的机遇窗口。生命获得了自我创生的短暂时期。如果它当初失败，也就没有未来的整个生命系统了。” 可是一旦扎下了根，生命就再也不撒手了。并且，一旦越过了I点，生命就不再娇贵脆弱，而会出落得桀骜不驯。单细胞细菌出奇地不屈不挠，它们生存在每一种你想得到的恶劣环境中，包括强辐射地区。将病房里的细菌完全清除？也许只有医院才知道这根本就是天方夜谭。从地球上把生命抹去？哈！做梦吧！ 我们必须留意生命永不停歇的本性，它与活系统的复杂性密切相关。</p><p>之所以无法令生命止步，是因为生命动力的复杂性已经超过了所有已知破坏力的复杂性。生命远比非生命复杂。生命自己就能打理死亡的事宜——掠食者分食被掠食者——由一种生命形式消费掉另一种生命形式在总体上无损整个系统的复杂性，甚至可能增加它的复杂性。</p><p>创造性地失灵是活系统的标记。寻死很难，但导致死亡的路却有无数条。</p><p>复杂系统不会轻易死亡。系统的成员与其整体达成了一种交易。部件们说：“我们愿为整体牺牲，因为作为一个整体的我们大于作为个体的我们的总和。”生命与复杂交织。部件会死，但整体永存。当系统自组织成更复杂的整体，它就加强了自己的生命——不是它的生命长度，而是它的生命力度。它拥有了更多生命力。</p><p>工程师们发现的这个控制论原理是个一般性的原理：如果所有的变量都是紧密相关的，而且如果你真正能够最大限度地控制其中的一个变量，那么你就可以间接地控制其他所有变量。这个原理的依据是系统的整体性。</p><p>一个系统，就是任何一种能够自说自话的东西。而所有的有生命的系统以及有机体，最后都必然精简为一组调节器，即化学路径和神经回路，其间总是进行着如此愚蠢的对话：“我要，我要，我要要要；不行，不行，你不能要。”</p><p>自然亦是如此：它通过牺牲简洁性来换取可靠性。自然界中存在的神经元回路，其非最优化程度始终令科学家们瞠目结舌。研究小龙虾尾部神经细胞的科学家们揭示了这种回路是多么令人震惊地臃肿和丑陋。</p><p>分布式 ◎自下而上的控制 ◎递增收益 ◎模块化生长 ◎边界最大化 ◎鼓励犯错误 ◎不求最优化，但求多目标 ◎谋求持久的不均衡态 ◎变自生变 在诸如生物进化、“模拟城市”等各式各样的系统中都能发现这九律的身影。</p></blockquote>]]></content>
+    <content type="html"><![CDATA[<ol><li><a href="https://www.jianshu.com/p/ec8fbf171b93" target="_blank" rel="noopener">https://www.jianshu.com/p/ec8fbf171b93</a>  iOS相关比较厉害的面试及内容大全</li></ol>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;blockquote&gt;
-&lt;p&gt;造化所生的自然王国和人类建造的人造国度正在融为一体。机器，正在生物化；而生物，正在工程化。&lt;/p&gt;
-&lt;p&gt;这种趋势正验证着某些古老的隐喻——将机器比喻为生物，将生物比喻为机器。那些比喻由来已久，古老到第一台机器诞生之时。如今，那些久远的隐喻不再只是
+        &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.jianshu.com/p/ec8fbf171b93&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.jianshu.com/p/ec8fbf171b93&lt;/a&gt;  iOS相关比较
       
     
     </summary>
     
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
     
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
+      <category term="others" scheme="http://houx15.github.io/tags/others/"/>
     
   </entry>
   
   <entry>
-    <title>读书笔记-人间失格</title>
-    <link href="http://houx15.github.io/2018/01/13/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E4%BA%BA%E9%97%B4%E5%A4%B1%E6%A0%BC/"/>
-    <id>http://houx15.github.io/2018/01/13/读书笔记-人间失格/</id>
-    <published>2018-01-13T08:42:37.000Z</published>
-    <updated>2018-01-19T00:56:21.326Z</updated>
+    <title>算法学习-数据结构与算法分析（一）</title>
+    <link href="http://houx15.github.io/2018/03/07/%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89/"/>
+    <id>http://houx15.github.io/2018/03/07/算法学习-数据结构与算法分析（一）/</id>
+    <published>2018-03-07T06:01:25.000Z</published>
+    <updated>2018-03-09T07:55:59.578Z</updated>
     
-    <content type="html"><![CDATA[<p>《人间失格》，我一直都犹豫到底要不要拿起这本书。曾经读过川端康成的一本短篇集，已经让我有一种压抑得喘不过气来的感觉了。那么这本书又会怎么样？</p><p>我终究还是拿起来了，读罢之后又纠结了好久好久，要不要写读书笔记。我终究还是战胜内心的小九九，开始写了。</p><p>毕竟这本书给我的并不是压抑的感觉，并不是灰暗的，反而是栩栩如生的，他在不断踢动着内心深处的什么东西。每一个活着得人，每一个身边的人，都带了厚重的面具，这本书，是在面具背后书写的。这个人他做尽了世界上可以称之为“错”的事情，或许这个是真实世界中不常见的，但是那张遮着的面具，却是众人都一模一样。</p><p>这本书跟一本普普通通的小说不太一样。我向来不太能够体会文学中的文字的美丽，也不懂得分析什么高深的写作手段。我只知道小说会因为跌宕起伏的情节吸引我，我会记得其中的故事，《人间失格》好像没有什么故事，只是在我的大脑中留下了一个一个的画面——照片上笑容诡异的少年，偷偷改掉父亲记事本上的文字只是害怕别人生气的少年，一次又一次手足无措的境地，被同学一语道破的绝望，发现所谓“一根绳上的蚂蚱”原来一直没把自己当人看，想要死去却又没有成功，自己明明很糟糕却还是被被人说“好”，感觉自己永远都不配拥有幸福……</p><p>小心翼翼地，用了很快很快的速度读完这本书，因为害怕自己掉落进去。</p><p>看到竹一道破小叶的秘密那一刻，我想起来，自己一直觉得自己太过于自卑，只会否定自己，所以一直希望想到各种方法让自己自信一点，直到有一天，一个人对我说“你这个人太自大”。</p><p>看到“胆小鬼连幸福都会害怕，碰到棉花都会受伤，有时还被幸福所伤”，我想到自己总是会伤害所有亲近的人。我不敢跟任何人亲近，因为我觉得自己不配。</p><p>看到“我知道有人是爱我的，但我好像缺乏爱人的能力”，我觉得并没有人会爱我，大家都爱那个努力的人，爱那个会帮助他们的人，有一天我一无所有了，我觉得没有人会爱我。我也不会爱人，我觉得一切好像都会是敌对的，我说的每一句话，做的每一件事情，我都要小心翼翼。就像我现在在写的这篇文章，会不会有人看了之后突然发现了我的真面目呢？</p><p>“我的不幸，恰恰在于我缺乏拒绝的能力。我害怕一旦拒绝别人，便会在彼此心里留下永远无法痊愈的裂痕”。嗯，我每到饭点就会低着头走路，我害怕遇到人，我害怕跟人一起吃饭。饮食障碍的我一直觉得自己快要痊愈了，偶尔的突如其来的爆发又让我陷入深渊。我不敢跟人一起吃饭，我怕他们评价起我的饮食习惯我哑口无言。</p><p>我记得刚刚搬过寝室的时候，就害怕自己会不会给这个新环境造成负担，我小心翼翼，刚开始的时候说每一句话都很注意，谢谢你们接纳了我。</p><p>我觉得我虽然没有叶藏的表演能力，但我有同样强大的伪装力量。我觉得我刻画好了在每一个人面前的我的形象，我走在路上，脑袋里面不断假设着自己在某个场景下会说什么画。我的每个动作每个表情，都不能有半点差错。</p><p>所以我害怕突然遇见一个人，所以我害怕其实所有人都知道我是个糟糕的人，但是因为大家都那么的善良，从来不会告诉你真相。</p><p>有点说不下去了。。。。</p><blockquote><p>总之，我不懂。旁人承受的痛苦的性质和大小，我完全捉摸不透。现实生活中的痛苦，只是吃个饭就能化解的痛苦，或许才是莫大的痛苦。也许，我刚才所说的那十个灾祸在这些痛苦面前，不值一提。也许那些我无法理解的痛苦才是凄惨的阿鼻地狱。果真如此吗？我不知道。但即使如此，那些人依然不想轻生、不会发狂，纵谈政治、毫不绝望、毫不屈服，继续与生活作战。他们不觉得痛苦吗？他们变得自私自利，甚至视其为理所当然，难道他们从未怀疑过自己？若真如此，那真是快活。不是每个人都是如此吧？真的都满足于此吗？我不知道……</p><p>那是我对人类最后的求爱。我对人类极度恐惧，却无论如何也无法对人类死心。于是，我靠滑稽这根细线，维系着与人类的联系。表面上，我总是笑脸迎人，可心里头，却是拼死拼活，以高难度的动作汗流浃背地为人类提供最周详的服务。</p><p>有人问我想要什么时，我总是突然就什么都不想要了。什么都好，反正任何东西都不能让我快乐——这样的想法总是突然涌上心头。另外，只要是别人赠予我的东西，即使再不合意，我也不会拒绝。对讨厌的事说不出讨厌，对喜欢的事也总是偷偷摸摸，我总是品着极为苦涩的滋味，因难以名状的恐惧痛苦挣扎。可以说，我竟连二选一的能力都没有。我想，正是这种性格上的缺陷，最终导致我可耻地度过了这一生。 那一次，因为我闷不吭声，扭扭捏捏，父亲显得稍有不快。</p><p>一向对“向人诉苦”不抱任何期待。无论是向父母诉说，还是向警察或政府诉说，最终还是会被那些深谙处世之道的人打败，任由他们花言巧语，喋喋不休。</p><p>相互欺骗的双方竟都相安无事，甚至并未觉察相互欺骗之事——我以为，人类生活中无处不是这样单纯、明了的不信任之举。</p><p>那是我有生以来第一次远离故乡，竟觉得异乡之地远比故乡更让我轻松自得。这或许得益于我的搞笑本领早已出神入化，欺骗他人已不再如幼时那般艰难。这样解释也未尝不可，更重要的是，在至亲与旁人、故乡与他乡之间，难免存在演技的难易之差。无论怎样的天才，即便是上帝之子耶稣，这种差异也同样不可避免。对于一个演员，难度最大的演出场所莫过于故乡的剧场。若再逢亲朋好友齐聚一堂，想必再出色的演员也无计可施。而我坚持完成了演出，还收获了不小的成功。如此功力深厚的演员踏上外乡的舞台，自然万无一失。</p><p>真正的大师，能以主观力量，在平淡无奇的事物中创造出美，或许丑陋的事物令他们隐隐作呕，但仍无法阻挡他们的兴趣，大师们沉浸在表现事物的喜悦中。换言之，他们不被他人的想法所左右。竹一启发我的，是最原始的绘画秘笈。</p><p>俗语说“脚上有伤，怕被人知”，在我还是婴儿的时候，这伤就极自然地出现在我的一只脚上，及至我长大，伤口非但没能痊愈，反而日益严重，深入骨髓，每晚的痛苦犹如置身千变万化的地狱，但这伤口（也许这种说法略显奇怪），却与我日渐亲密，胜过血肉的无间。伤口的痛楚仿佛是伤口活灵活现的情感，抑或是爱情的私语。</p><p>胆小鬼连幸福都会害怕，碰到棉花都会受伤，有时还会被幸福所伤。趁着还没受伤，我想及早和她分道扬镳。于是，我又开始施放搞笑的烟幕弹。</p><p>比目鱼的说话方式，不，这世上每个人的说话方式都如此拐弯抹角、闪烁其词，如此不负责任、如此微妙复杂。他们总是徒劳地严加防范，无时无刻不费尽心机，这让我困惑不解，最终只得随波逐流，用搞笑的办法蒙混过关，抑或默默颔首，任凭对方行事，即采取败北者的消极态度。</p><p>我知道有人爱我，但我似乎缺乏爱人的能力（原本我就常常怀疑，这世上的人们究竟是否具备“爱”的力量）。这样的我，自是不可能有什么“挚友”，更何况我连“拜访”他人的能力都没有。别人家的门于我而言，比《神曲》中的地狱之门更加恐怖，毫不夸张地说，我能切实感受到那扇门后有条可怕且满身血腥的巨龙正在蠕动着身躯。</p><p>人啊，明明一点也不了解对方，错看对方，却视彼此为独一无二的挚友，一生不解对方的真性情，待一方撒手西去，还要为其哭泣，念诵悼词。</p><p>所谓“世人”，到底是什么？是人的复数吗？世人的实体究竟在哪里？一直以来，我茫然不知，只觉得世人应是强大、严厉又可怕的东西。但经堀木一说，“所谓的世人，不就是你吗？”这句话我呼之欲出，终归还是怕惹恼堀木，欲言又止。</p><p>同样的事日日反复， 只需遵循与昨日相同的惯例。 倘若避免大喜大悲， 彻骨的悲伤便不会到来。 前方路遇挡路之石， 蟾蜍都会绕路而行。</p><p>世人——我似乎也懵懵懂懂地明白了何谓世人。世人就是人与人的争斗，而且是现场之争，人活着仅是为了在争斗中取胜。人们互不屈服，即使奴隶也有其卑微的报复。所以，除了当场决出胜负，人们没有其他生存方式。他们冠冕堂皇，以个人为斗争目标，战胜一人再去迎战下一人。世人的困惑便是个人的困惑。大海指的不是世人，而是个人。如此一来，我对人世间这片亦真亦幻之海的恐惧大为减弱，不再如以往那样劳心费神，永无穷尽，即是说，我开始只考虑眼前需求，变得厚颜无耻。</p></blockquote>]]></content>
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>第一章主要讲的是C++的编程基础，曾经学过但已经遗忘差不多，此外英文的实在看着头痛，固参考了中文版C++ Primer进行略读</p><h3 id="各种库"><a href="#各种库" class="headerlink" title="各种库"></a>各种库</h3><h4 id="iostream"><a href="#iostream" class="headerlink" title="iostream"></a>iostream</h4><ul><li>输入输出流</li><li>cin&gt;&gt;</li><li>cout&lt;&lt;</li><li>cerr  错误信息</li><li>clog  一般信息</li></ul><h3 id="各种数据类型"><a href="#各种数据类型" class="headerlink" title="各种数据类型"></a>各种数据类型</h3><p>bool，char，wchar_t，short，int，long，float，double，long double</p><h3 id="各种函数"><a href="#各种函数" class="headerlink" title="各种函数"></a>各种函数</h3><h4 id="main函数"><a href="#main函数" class="headerlink" title="main函数"></a>main函数</h4><ul><li>main函数是唯一被操作系统显示调用的函数</li><li>一般返回0-成功，其他整数-失败</li></ul><h3 id="各种类与相关内容"><a href="#各种类与相关内容" class="headerlink" title="各种类与相关内容"></a>各种类与相关内容</h3><ul><li>interface &amp; implementation</li></ul><h3 id="其他高级货"><a href="#其他高级货" class="headerlink" title="其他高级货"></a>其他高级货</h3><ul><li>引用：&amp;，int &amp;quote = val， quote是val的别名  const引用是对于const的引用</li><li>typedef用来给type取名字</li><li>enum，枚举 enum val={a=1,b=2,c=3}</li><li>vector<int> frac(10)</int></li><li>迭代器iterator  容器的begin  end</li></ul><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>《C++ Primer 4th》</li><li>《数据结构与算法分析》</li></ol>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;p&gt;《人间失格》，我一直都犹豫到底要不要拿起这本书。曾经读过川端康成的一本短篇集，已经让我有一种压抑得喘不过气来的感觉了。那么这本书又会怎么样？&lt;/p&gt;
-&lt;p&gt;我终究还是拿起来了，读罢之后又纠结了好久好久，要不要写读书笔记。我终究还是战胜内心的小九九，开始写了。&lt;/p&gt;
-&lt;p&gt;
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;p&gt;第一章主要讲的是C++的编程基础，曾经学过但已经遗忘差不多，此外英文的实在看着头痛，固参考了中文版C++ Primer进行略读&lt;/p&gt;
+&lt;h
       
     
     </summary>
     
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
-    
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="literature" scheme="http://houx15.github.io/tags/literature/"/>
     
   </entry>
   
   <entry>
-    <title>读书笔记-梦幻花</title>
-    <link href="http://houx15.github.io/2018/01/13/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%A2%A6%E5%B9%BB%E8%8A%B1/"/>
-    <id>http://houx15.github.io/2018/01/13/读书笔记-梦幻花/</id>
-    <published>2018-01-13T06:36:05.000Z</published>
-    <updated>2018-01-19T00:51:46.260Z</updated>
+    <title>读书笔记-爱你就像爱生命</title>
+    <link href="http://houx15.github.io/2018/03/07/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%88%B1%E4%BD%A0%E5%B0%B1%E5%83%8F%E7%88%B1%E7%94%9F%E5%91%BD/"/>
+    <id>http://houx15.github.io/2018/03/07/读书笔记-爱你就像爱生命/</id>
+    <published>2018-03-07T06:00:53.000Z</published>
+    <updated>2018-03-07T06:00:53.348Z</updated>
     
-    <content type="html"><![CDATA[<p>东野圭吾的书，向来都不是纯粹的推理。每一个故事背后总是要折射一些人生的道理。《梦幻花》也是没有例外。</p><p>这本书想说的应该是一个叫做“负遗产”的词，讲的是勇敢的追逐梦想，或者完成自己的使命——有的人的使命被指定了，那是前辈留下来的负遗产，是没有收的场。</p><blockquote><p>我们都在羡慕他人，都在否定自己。</p><p>父母或者家族留给我们的，并非全部都是宝贵的乐于接受的遗产，也有可能是注定的无法逃脱的宿命。</p><p>不是不擅长学习，只是没有找到自己想要学习的东西。这既是在给自己鼓起勇气</p><p>富有正义感的人通常也会要求身边的人充满正义感。但是，事实上能够做到这一点的人很少。</p><p>该存在的就会存在。反过来说，该消失的终归会消失的。</p><p>而是写一些对十几岁的年轻人有用的、有深意的话。“觉得很痛苦的时候，你就想着，因为这痛苦而成长了一步。这样的话，就又能迎来美好的一年了吧。”</p><p>在人的一生中，人都是会犯错的。</p><p>在自己坚信的道路上拼命地努力，不知什么时候却迷路了。</p><p>“世上还有所谓的负遗产呀，苍太。”孝美语气轻柔，“要是放任不管就能消失的话那就好了，要不是这样的话就必须有人接受吧？必须有人继续追踪黄色牵牛花的种子，直到能确认它完全消失。这是播撒了魔性植物的人的后代们的义务，无法逃避。”</p><p>“可是，”梨乃说，“大多数人不都是这样吗？有才的人只是极少数。只是装作有才——能这么说就很了不起啊。”</p><p>“这世上有所谓的负遗产，要是扔在那儿能自行消失，扔一边就行了，要不是这样，也总得有人接着。我去接也不是不行吧？”</p></blockquote>]]></content>
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;p&gt;东野圭吾的书，向来都不是纯粹的推理。每一个故事背后总是要折射一些人生的道理。《梦幻花》也是没有例外。&lt;/p&gt;
-&lt;p&gt;这本书想说的应该是一个叫做“负遗产”的词，讲的是勇敢的追逐梦想，或者完成自己的使命——有的人的使命被指定了，那是前辈留下来的负遗产，是没有收的场。&lt;/p&gt;
-&lt;
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
       
     
     </summary>
     
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
-    
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="literature" scheme="http://houx15.github.io/tags/literature/"/>
     
   </entry>
   
   <entry>
-    <title>python-三坐标几何公差计算的python实现</title>
-    <link href="http://houx15.github.io/2018/01/12/python-%E4%B8%89%E5%9D%90%E6%A0%87%E5%87%A0%E4%BD%95%E5%85%AC%E5%B7%AE%E8%AE%A1%E7%AE%97%E7%9A%84python%E5%AE%9E%E7%8E%B0/"/>
-    <id>http://houx15.github.io/2018/01/12/python-三坐标几何公差计算的python实现/</id>
-    <published>2018-01-12T07:13:59.000Z</published>
-    <updated>2018-01-12T07:20:38.398Z</updated>
+    <title>读书笔记-霸王别姬</title>
+    <link href="http://houx15.github.io/2018/03/07/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E9%9C%B8%E7%8E%8B%E5%88%AB%E5%A7%AC/"/>
+    <id>http://houx15.github.io/2018/03/07/读书笔记-霸王别姬/</id>
+    <published>2018-03-07T06:00:42.000Z</published>
+    <updated>2018-03-07T06:00:42.995Z</updated>
     
-    <content type="html"><![CDATA[<p>mark</p>]]></content>
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
     
     <summary type="html">
     
-      学校开设的三坐标几何公差测量实验要求代码实现最小二乘法计算相应的几何公差。顺手写了个函数。实现多种几何公差的计算。
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>算法学习（一）概述</title>
+    <link href="http://houx15.github.io/2018/02/18/%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%80%EF%BC%89%E6%A6%82%E8%BF%B0/"/>
+    <id>http://houx15.github.io/2018/02/18/算法学习（一）概述/</id>
+    <published>2018-02-18T15:55:55.000Z</published>
+    <updated>2018-02-19T16:47:05.665Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><h3 id="线性表"><a href="#线性表" class="headerlink" title="线性表"></a>线性表</h3><h4 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h4><ul><li>n个数据的优先序列</li><li>大小固定，一旦创建大小就无法改变</li><li>当前数组不能再存储新元素的时候，创建一个大数组替换当前数组，从而实现动态数据结构</li><li>可以通过下标访问、修改元素，效率高，插入和删除的花费比较大</li></ul><h4 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h4><p><img src="https://upload-images.jianshu.io/upload_images/2243690-f3fdc61e316abb2b.png" alt=""></p><ul><li>由多个内存中不相邻的节点连接而成，每一个节点包括了data-数据内容，next-指向的下一个节点</li></ul><p><a href="https://www.jianshu.com/p/230e6fde9c75" target="_blank" rel="noopener">上篇</a></p><p><a href="https://www.jianshu.com/p/42f81846c0fb" target="_blank" rel="noopener">下篇</a></p><h3 id="栈与队列"><a href="#栈与队列" class="headerlink" title="栈与队列"></a>栈与队列</h3><h4 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h4><ul><li>push-进栈，pop-出栈，后进先出</li></ul><h4 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h4><ul><li>front前端进行删除，后端rear进行插入，先进先出</li></ul><h3 id="树与二叉树"><a href="#树与二叉树" class="headerlink" title="树与二叉树"></a>树与二叉树</h3><h4 id="树"><a href="#树" class="headerlink" title="树"></a>树</h4><ul><li>n个有限节点组成的集合</li><li>具有层次关系</li><li>每个节点有0-n个子节点</li><li>有0个或者1个父节点</li><li>如果没有父节点，则是根节点</li></ul><h4 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h4><ul><li>树的一种</li><li>每个节点最多只有两个子节点</li><li>便利方法：<ul><li>每一个的三个基本单元：根节点，左子树，右子树</li><li>先序遍历：<ul><li>若二叉树为空，则空操作</li><li>否则县访问根节点，再先序遍历左子树，然后先序遍历右子树</li></ul></li><li>中序遍历：<ul><li>若二叉树为空，则空操作</li><li>否则先中序遍历左子树，然后访问根节点，然后中序遍历右子树</li></ul></li><li>后序遍历<ul><li>若二叉树为空，则空操作</li><li>否则先后序遍历左子树，然后后序遍历右子树，然后访问根节点</li></ul></li></ul></li><li>二叉查找树<ul><li>左子树上所有节点的值均小于根节点</li><li>右子树上所有节点的值均大于他的根节点</li><li>没有两个节点的值相等</li></ul></li><li>平衡二叉树<ul><li>AVL树，左子树右子树都是平衡二叉树</li><li>左子树右子树深度之差的绝对值不超过1</li></ul></li><li>红黑树</li></ul><h3 id="图"><a href="#图" class="headerlink" title="图"></a>图</h3><h2 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h2><ul><li>时间复杂度： 问题规模n的某个函数，算法时间度量T（n）</li><li>空间复杂度： 某个算法运行过程中占用存储空间大小的度量</li></ul><h3 id="查找算法"><a href="#查找算法" class="headerlink" title="查找算法"></a>查找算法</h3><ul><li>顺序查找</li><li>二分查找</li></ul><h3 id="排序算法"><a href="#排序算法" class="headerlink" title="排序算法"></a>排序算法</h3><p><img src="https://upload-images.jianshu.io/upload_images/2243690-da1c8b997a16c17c.png" alt=""></p><h3 id="其他算法"><a href="#其他算法" class="headerlink" title="其他算法"></a>其他算法</h3><ul><li>递归算法</li><li>分治算法</li><li>动态规划</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;数据结构&quot;&gt;&lt;a href=&quot;#数据结构&quot; class=&quot;headerlink&quot; title=&quot;数据结构&quot;&gt;&lt;/a&gt;数据结构&lt;/h2&gt;&lt;h3 id=&quot;线性表&quot;&gt;&lt;a href=&quot;#线性表&quot; class=&quot;headerlink&quot; title=&quot;线性表&quot;&gt;&lt;/a&gt;线性
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-当我在谈跑步时</title>
+    <link href="http://houx15.github.io/2018/02/18/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BD%93%E6%88%91%E5%9C%A8%E8%B0%88%E8%B7%91%E6%AD%A5%E6%97%B6/"/>
+    <id>http://houx15.github.io/2018/02/18/读书笔记-当我在谈跑步时/</id>
+    <published>2018-02-18T14:58:58.000Z</published>
+    <updated>2018-03-07T05:59:03.410Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-新参者</title>
+    <link href="http://houx15.github.io/2018/02/18/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%96%B0%E5%8F%82%E8%80%85/"/>
+    <id>http://houx15.github.io/2018/02/18/读书笔记-新参者/</id>
+    <published>2018-02-18T14:58:42.000Z</published>
+    <updated>2018-03-07T05:58:31.552Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-同级生</title>
+    <link href="http://houx15.github.io/2018/02/18/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%90%8C%E7%BA%A7%E7%94%9F/"/>
+    <id>http://houx15.github.io/2018/02/18/读书笔记-同级生/</id>
+    <published>2018-02-18T14:58:34.000Z</published>
+    <updated>2018-03-07T05:59:14.088Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-解忧杂货店</title>
+    <link href="http://houx15.github.io/2018/02/18/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E8%A7%A3%E5%BF%A7%E6%9D%82%E8%B4%A7%E5%BA%97/"/>
+    <id>http://houx15.github.io/2018/02/18/读书笔记-解忧杂货店/</id>
+    <published>2018-02-18T14:57:49.000Z</published>
+    <updated>2018-03-07T05:59:24.965Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-白夜行</title>
+    <link href="http://houx15.github.io/2018/02/18/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E7%99%BD%E5%A4%9C%E8%A1%8C/"/>
+    <id>http://houx15.github.io/2018/02/18/读书笔记-白夜行/</id>
+    <published>2018-02-18T14:57:39.000Z</published>
+    <updated>2018-03-07T05:59:33.338Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-饥饿游戏</title>
+    <link href="http://houx15.github.io/2018/02/18/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E9%A5%A5%E9%A5%BF%E6%B8%B8%E6%88%8F/"/>
+    <id>http://houx15.github.io/2018/02/18/读书笔记-饥饿游戏/</id>
+    <published>2018-02-18T14:57:27.000Z</published>
+    <updated>2018-03-07T05:59:49.012Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-芳华</title>
+    <link href="http://houx15.github.io/2018/02/18/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E8%8A%B3%E5%8D%8E/"/>
+    <id>http://houx15.github.io/2018/02/18/读书笔记-芳华/</id>
+    <published>2018-02-18T14:57:17.000Z</published>
+    <updated>2018-03-07T06:00:01.606Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-一粒红尘</title>
+    <link href="http://houx15.github.io/2018/01/31/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E4%B8%80%E7%B2%92%E7%BA%A2%E5%B0%98/"/>
+    <id>http://houx15.github.io/2018/01/31/读书笔记-一粒红尘/</id>
+    <published>2018-01-31T07:12:41.000Z</published>
+    <updated>2018-03-07T05:58:22.263Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记-守护故事的人</title>
+    <link href="http://houx15.github.io/2018/01/31/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%AE%88%E6%8A%A4%E6%95%85%E4%BA%8B%E7%9A%84%E4%BA%BA/"/>
+    <id>http://houx15.github.io/2018/01/31/读书笔记-守护故事的人/</id>
+    <published>2018-01-31T07:12:29.000Z</published>
+    <updated>2018-03-07T06:00:12.788Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><h3 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li>xxx</li><li>xxx</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;h3 id=&quot;标题&quot;&gt;&lt;a href=&quot;#标题&quot; class=&quot;headerlink&quot; title=&quot;标题&quot;&gt;&lt;/a&gt;标题&lt;/h3&gt;&lt;h3 id
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>如何做好项目管理</title>
+    <link href="http://houx15.github.io/2018/01/30/%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86/"/>
+    <id>http://houx15.github.io/2018/01/30/如何做好项目管理/</id>
+    <published>2018-01-30T05:45:07.000Z</published>
+    <updated>2018-01-30T09:09:16.379Z</updated>
+    
+    <content type="html"><![CDATA[<p>从一张图开始</p><p><img src="https://pic4.zhimg.com/80/v2-ca7b99ff83bb035c68e6323edd065117_hd.jpg" alt=""></p><h3 id="开发管理"><a href="#开发管理" class="headerlink" title="开发管理"></a>开发管理</h3><ul><li>需求管理</li><li>项目规划</li><li>任务开发跟踪监控</li></ul><h3 id="测试管理"><a href="#测试管理" class="headerlink" title="测试管理"></a>测试管理</h3><ul><li>功能性测试</li><li>系统性测试<ul><li>性能测试</li><li>安全测试</li></ul></li></ul><h3 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h3><p>将项目管理流程分为了四个阶段：</p><p>项目启动-项目计划-项目执行和监控-项目收尾</p><h4 id="项目启动"><a href="#项目启动" class="headerlink" title="项目启动"></a>项目启动</h4><ul><li>明确几个问题：<ul><li>为什么要立项：迭代，开发等</li><li>项目目标是：找到最核心的</li><li>相关人员是？<ul><li>PACE： 参与者，审批者，顾问，执行者</li><li>一般互联网公司：老板，产品经理，设计，开发，测试，运维</li><li>每个成员的核心KPI</li></ul></li><li>怎么启动：传达以上几个信息</li></ul></li></ul><h4 id="项目计划"><a href="#项目计划" class="headerlink" title="项目计划"></a>项目计划</h4><ul><li>工作任务分解<ul><li>分解到不能再细分为止</li><li>明确的工作量，工期，工作范围与目标</li><li>以可交付成果为导向对项目要素进行的分组。</li></ul></li><li>任务优先级安排<ul><li>依赖关系</li><li>紧急程度</li><li>KANO模型</li></ul></li><li>计划呈现<ul><li>管理软件</li></ul></li><li>风险控制<ul><li>客户不参与项目</li><li>需求不明确不完整</li><li>团队精神状态</li><li>领导变更需求</li><li>技术踩坑，未知领域</li></ul></li></ul><h4 id="项目执行和监控"><a href="#项目执行和监控" class="headerlink" title="项目执行和监控"></a>项目执行和监控</h4><ul><li>过程跟踪<ul><li>成员，任务，开支</li><li>管事：监控项目任务<ul><li>每日站会，适度施加压力<ul><li>昨天完成了什么</li><li>今天即将做什么</li><li>遇到了什么困难</li></ul></li><li>让所有成员知晓项目进展</li></ul></li><li>管人：监控项目成员<ul><li>了解项目组成员表现</li></ul></li><li>管钱：监控项目开支<ul><li>记录流水</li></ul></li></ul></li><li>例行项目会议<ul><li>固定沟通渠道<ul><li>紧急-电话</li><li>次要-微信</li><li>常规-站会</li></ul></li></ul></li><li>阶段性交付物审核<ul><li>需求清单（产品经理）<ul><li>模块，功能，特性，需求描述，商业价值，优先级描述</li></ul></li><li>任务清单（产品经理）<ul><li>对于需求清单的任务分解（分包）</li></ul></li><li>项目周报<ul><li>项目组的每周工作内容总结，下周工作计划安排</li></ul></li></ul></li><li>里程碑报告<ul><li>需求分析</li><li>详细设计</li><li>系统开发</li><li>系统测试</li><li>正式发布</li></ul></li></ul><h4 id="项目收尾"><a href="#项目收尾" class="headerlink" title="项目收尾"></a>项目收尾</h4><ul><li>功能bug测试<ul><li>编写测试计划，规划方案，编写测试用例</li><li>搭建并维护测试环境</li><li>进行测试，提交测试报告</li><li>对于问题进行分析</li><li>解决缺陷</li></ul></li><li>开发人员走查<ul><li>高位函数扫描</li><li>安全漏洞扫描</li><li>内存泄露扫描</li><li>是否删除不必要的log</li><li>系统压力评估，并发性评估</li><li>相关模块影响评估</li></ul></li><li>产品走查<ul><li>需求清单是否有调整或者更新，每个功能特性的输入、处理、输出</li><li>需求文档是否补充完整，及时更新？（设计图，交互图）</li><li>产品页面文案是否已经检查</li><li>已有功能、表示的改动，是否在相关地方覆盖完整</li><li>数据统计需求是否明确</li></ul></li><li>交互和设计走查</li><li>产品运营人员走查<ul><li>产品冷启动，种子用户招募工作</li><li>内容运营的规划，内容的更新机制</li><li>活动运营</li><li>用户运营</li><li>新媒体运营</li></ul></li><li>项目收尾总结</li></ul><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.zhihu.com/question/19798220/answer/139474093" target="_blank" rel="noopener">你的团队内部是如何进行项目管理和协作的？具体流程如何？使用什么工具呢？ - 姑婆的回答 - 知乎</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;从一张图开始&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://pic4.zhimg.com/80/v2-ca7b99ff83bb035c68e6323edd065117_hd.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;开发管理&quot;&gt;&lt;a href=&quot;#开发管理&quot; c
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 学习资料整理</title>
+    <link href="http://houx15.github.io/2018/01/30/Golang-%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99%E6%95%B4%E7%90%86/"/>
+    <id>http://houx15.github.io/2018/01/30/Golang-学习资料整理/</id>
+    <published>2018-01-30T01:24:50.000Z</published>
+    <updated>2018-01-30T01:26:18.808Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="教程类"><a href="#教程类" class="headerlink" title="教程类"></a>教程类</h3><ol><li><a href="https://zhuanlan.zhihu.com/p/25743387" target="_blank" rel="noopener">GO包管理</a></li><li><a href="http://frankorz.com/2017/04/03/go-learning-source/" target="_blank" rel="noopener">GO资源合集</a></li><li><a href="https://gobyexample.com/" target="_blank" rel="noopener">GO基本语法</a></li></ol><h3 id="任务类"><a href="#任务类" class="headerlink" title="任务类"></a>任务类</h3><ol><li><a href="http://exercism.io/dashboard" target="_blank" rel="noopener">Exercism</a></li></ol><h3 id="参考代码"><a href="#参考代码" class="headerlink" title="参考代码"></a>参考代码</h3>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;教程类&quot;&gt;&lt;a href=&quot;#教程类&quot; class=&quot;headerlink&quot; title=&quot;教程类&quot;&gt;&lt;/a&gt;教程类&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://zhuanlan.zhihu.com/p/25743387&quot; target=&quot;_bla
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>算法学习资料整理</title>
+    <link href="http://houx15.github.io/2018/01/29/%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E8%B5%84%E6%96%99%E6%95%B4%E7%90%86/"/>
+    <id>http://houx15.github.io/2018/01/29/算法学习资料整理/</id>
+    <published>2018-01-29T12:28:44.000Z</published>
+    <updated>2018-01-30T01:26:36.303Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="教程类"><a href="#教程类" class="headerlink" title="教程类"></a>教程类</h3><ol><li><a href="https://www.geeksforgeeks.org/greedy-algorithms-set-6-dijkstras-shortest-path-algorithm/" target="_blank" rel="noopener">GeeksForGeeks</a></li><li><a href="http://www.cnblogs.com/bitzhuwei/p/4869462.html" target="_blank" rel="noopener">算法与数据结构入门资料</a></li><li><a href="https://www.jianshu.com/p/d239714cca82" target="_blank" rel="noopener">算法和数据结构入门</a></li><li>​</li></ol><h3 id="任务类"><a href="#任务类" class="headerlink" title="任务类"></a>任务类</h3><ol><li><a href="https://leetcode.com/" target="_blank" rel="noopener">Leetcode</a></li><li><a href="https://www.kaggle.com/" target="_blank" rel="noopener">Kaggle</a></li><li><a href="https://www.shiyanlou.com/courses/20" target="_blank" rel="noopener">实验楼</a></li><li><a href="http://exercism.io/dashboard" target="_blank" rel="noopener">Exercism</a></li></ol><h3 id="参考代码"><a href="#参考代码" class="headerlink" title="参考代码"></a>参考代码</h3>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;教程类&quot;&gt;&lt;a href=&quot;#教程类&quot; class=&quot;headerlink&quot; title=&quot;教程类&quot;&gt;&lt;/a&gt;教程类&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.geeksforgeeks.org/greedy-algorithms-set
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>其他-开源许可协议</title>
+    <link href="http://houx15.github.io/2018/01/28/%E5%85%B6%E4%BB%96-%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E5%8D%8F%E8%AE%AE/"/>
+    <id>http://houx15.github.io/2018/01/28/其他-开源许可协议/</id>
+    <published>2018-01-28T14:04:20.000Z</published>
+    <updated>2018-01-28T16:11:21.635Z</updated>
+    
+    <content type="html"><![CDATA[<p>常用的开源协议有六种：GPL, LGPL, BSD, Apache, Mozilla, MIT</p><p><img src="https://upload-images.jianshu.io/upload_images/4048192-4396bb85f072a39e.jpeg" alt=""></p><h3 id="常用协议介绍"><a href="#常用协议介绍" class="headerlink" title="常用协议介绍"></a>常用协议介绍</h3><h4 id="BSD（original-BSC-license-FreeBSD-license-Original-BSD-license）"><a href="#BSD（original-BSC-license-FreeBSD-license-Original-BSD-license）" class="headerlink" title="BSD（original BSC license, FreeBSD license, Original BSD license）"></a>BSD（original BSC license, FreeBSD license, Original BSD license）</h4><p>“为所欲为”：可自由使用，修改源代码，修改后可作为私有的或者开源的发布。</p><p>发布BSD协议的代码或者基于BSD修改开发时，需要：</p><ul><li>修改后包含的源代码仍然要有BSD协议</li><li>如果再发布的是二进制库或软件，版权声明中要说明包含原来的BSD协议</li><li>不可以用开源代码的名字、作者或机构信息进行推广</li></ul><h4 id="Apache-Licence-2-0-Apache-License-Version-2-0-、Apache-License-Version-1-1-、Apache-License-Version-1-0"><a href="#Apache-Licence-2-0-Apache-License-Version-2-0-、Apache-License-Version-1-1-、Apache-License-Version-1-0" class="headerlink" title="Apache Licence 2.0(Apache License, Version 2.0 、Apache License, Version 1.1 、Apache License, Version 1.0)"></a>Apache Licence 2.0(Apache License, Version 2.0 、Apache License, Version 1.1 、Apache License, Version 1.0)</h4><p>非盈利开源组织Apache采用的协议，鼓励代码共享，允许修改与再发布为商业或开源的</p><ul><li>向再发布的代码的用户提供一份Apache Licence</li><li>如果对于代码进行了修改，需要在被修改的文件中进行说明<ul><li>怎么说明？</li></ul></li><li>延伸代码中要带有原来代码的协议，商标，专利声明以及其他作者规定的要包含的说明</li><li>Notice文件（如有）需要带有Apache Licence，可以在其中增加自己的许可，不可以修改AL</li></ul><h4 id="GPL-GNU-General-Public-License"><a href="#GPL-GNU-General-Public-License" class="headerlink" title="GPL(GNU General Public License)"></a>GPL(GNU General Public License)</h4><p>GPL不允许修改后的、衍生的代码作为闭源商用软件，但是有传染性</p><ul><li>“传染性”：只要一个软件中使用了GPL协议的代码，这个软件也必须GPL-开源、免费</li><li>不适合商业使用</li></ul><h4 id="LGPL-GNU-Lesser-General-Public-License"><a href="#LGPL-GNU-Lesser-General-Public-License" class="headerlink" title="LGPL(GNU Lesser General Public License)"></a>LGPL(GNU Lesser General Public License)</h4><ul><li>允许商业软件通过类库引用（link）的方式，使用LGPL类库，但是不需要开源商业软件代码<ul><li>类库应用？</li></ul></li><li>如果是修改、衍生的LGPL代码，则必须是LGPL协议</li><li>适合作为第三方库引用</li></ul><h4 id="MIT-The-MIT-License"><a href="#MIT-The-MIT-License" class="headerlink" title="MIT (The MIT License)"></a>MIT (The MIT License)</h4><ul><li>类似于BSD，作者只需要保留版权，没有任何其他限制</li></ul><h4 id="MPL-Mozilla-Public-License"><a href="#MPL-Mozilla-Public-License" class="headerlink" title="MPL (Mozilla Public License)"></a>MPL (Mozilla Public License)</h4><ul><li>免费重发布，免费修改</li><li>修改后代码版权归软件的发起者</li></ul><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ol><li><a href="https://www.jianshu.com/p/a57c13631d5e" target="_blank" rel="noopener">开源协议了解这些就够了</a></li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;常用的开源协议有六种：GPL, LGPL, BSD, Apache, Mozilla, MIT&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://upload-images.jianshu.io/upload_images/4048192-4396bb85f072a39e.
+      
     
     </summary>
     
       <category term="技术栈" scheme="http://houx15.github.io/categories/technology/"/>
     
     
-      <category term="python" scheme="http://houx15.github.io/tags/python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>读书笔记-认知心理学（三-注意力）</title>
-    <link href="http://houx15.github.io/2018/01/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E8%AE%A4%E7%9F%A5%E5%BF%83%E7%90%86%E5%AD%A6%EF%BC%88%E4%B8%89-%E6%B3%A8%E6%84%8F%E5%8A%9B%EF%BC%89/"/>
-    <id>http://houx15.github.io/2018/01/12/读书笔记-认知心理学（三-注意力）/</id>
-    <published>2018-01-12T01:31:08.000Z</published>
-    <updated>2018-01-13T07:32:40.336Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>你耳机里面放着歌，但你还是可以在这里做数学题。你现在屏幕里面有很多窗口，而你的眼睛除了看着这个屏幕，还看见了很多周围的东西，但你可以保持专注于现在这一行文字内容……相反，每一次我们在课堂上打瞌睡、聊天，老师总是会说我们“注意力不集中”。注意力，到底是个什么东西呢？</p><blockquote><p>注意，是一种聚焦于特定刺激或者特定位置的能力。</p></blockquote><p>我们的感觉器官总是同时收集到来自世界的多个渠道的信息，信息有的重要有的不重要，有的强有的弱，而你的注意，总是会帮助你找到那个你需要的东西——这种聚焦的能力大多数是通过我们的<a href="https://en.wikipedia.org/wiki/Attentional_control" target="_blank" rel="noopener"><strong>选择性注意</strong></a>实现的。</p><h3 id="两个效应"><a href="#两个效应" class="headerlink" title="两个效应"></a>两个效应</h3><p>真正开始介绍注意力的理论之前，先介绍两个相关的心理学效应：鸡尾酒会效应和斯特鲁效应。</p><h4 id="鸡尾酒会效应"><a href="#鸡尾酒会效应" class="headerlink" title="鸡尾酒会效应"></a>鸡尾酒会效应</h4><p><a href="https://en.wikipedia.org/wiki/Cocktail_party_effect" target="_blank" rel="noopener">鸡尾酒会效应</a>，是指一个人在某个嘈杂的房间或者聚会中的时候，他的听觉系统能够过滤掉很多乱七八糟的刺激而专注于一个特定的刺激的现象。听者可以将嘈杂声音中不同种类的声音区分开来，并且决定哪一个是自己需要的。</p><h4 id="斯特鲁效应"><a href="#斯特鲁效应" class="headerlink" title="斯特鲁效应"></a>斯特鲁效应</h4><p><a href="https://en.wikipedia.org/wiki/Stroop_effect" target="_blank" rel="noopener">斯特鲁效应</a>，来源于一个心理学实验。这个实验是一个对于任务反应时间的干扰的案例，实验中要求被试说出单词的颜色，比如：<span style="{color:" red}="">哈哈</span> ；<span style="{color:" blue}="">呵呵</span>, 则需要报告红色、蓝色。</p><p>而斯特鲁效应，则是指当单词的颜色与单词本身的含义不相符的时候（比如：<span style="{color:" red}="">蓝色</span>；<span style="{color:" blue}="">红色</span> ），被试需要更长的时间才能给出单词的颜色。</p><h3 id="选择性注意的三个模型"><a href="#选择性注意的三个模型" class="headerlink" title="选择性注意的三个模型"></a>选择性注意的三个模型</h3><p>上述的两个效应都和我们的选择性注意有关。选择性注意让我们真正需要的刺激变得明显，而让那些无关紧要的刺激越来越远。这个能力的内在机制到底是什么了？心理学界有三个相关理论。</p><h4 id="过滤器理论（Filter-Model）"><a href="#过滤器理论（Filter-Model）" class="headerlink" title="过滤器理论（Filter Model）"></a>过滤器理论（Filter Model）</h4><p>过滤器理论是Broadbent在1958年提出的一个早期选择模型。这个理论基于当时的一个<a href="https://baike.baidu.com/item/%E5%8F%8C%E8%80%B3%E5%88%86%E5%90%AC%E5%AE%9E%E9%AA%8C/2927846?fr=aladdin" target="_blank" rel="noopener">“双耳分听”实验</a>。模型基本内容为：感受器接收刺激之后，感觉记忆短暂的保存所有的传入信息，并将它们传入下一个阶段——过滤器。过滤器根据刺激的物理特性等识别进入的信息，只让注意到的信息进入到下一个阶段——探测器。探测器对于信息的意义等进行加工，并将加工的结果全部输入短时记忆。</p><h4 id="衰减模型（Attenuation-Model）"><a href="#衰减模型（Attenuation-Model）" class="headerlink" title="衰减模型（Attenuation Model）"></a>衰减模型（Attenuation Model）</h4><p>研究者后来发现，被试有时候也能够接收到哪些不能通过物理刺激辨识，却能够通过意义辨识的消息。1964年，Treisman修正了Broadbent的过滤器理论，提出了<a href="https://en.wikipedia.org/wiki/Attenuation_theory" target="_blank" rel="noopener">衰减器理论</a>——选择性注意包括三个阶段。</p><ul><li>就刺激的物理属性进行分析与分解。这个分解过程并行进行。<ul><li>如果刺激展现出了我们目标刺激的相关属性，则能通过衰减器进入下一阶段；</li><li>如果刺激没有展现出目标刺激相关属性，则刺激将被弱化然后传入下一阶段；</li></ul></li><li>就刺激的语言、模式等方面的属性进行分析。<ul><li>如果其属性与我们的目标刺激一致，能够通过衰减器进入下一阶段</li><li>如果不一致，那么只有一个弱化版的刺激能够被传入下一阶段。</li></ul></li><li>对于传到此阶段的刺激，我们投以足够的注意力。为他们赋予特定的意义，执行一系列加工过程</li></ul><p>这个理论也被称作是“有漏洞的过滤器模型”</p><h4 id="晚期选择模型（Late-selection-Model）"><a href="#晚期选择模型（Late-selection-Model）" class="headerlink" title="晚期选择模型（Late-selection Model）"></a>晚期选择模型（Late-selection Model）</h4><p>上述的两个模型都认为选择性注意中的“选择”发生在信息加工的早期阶段。也有一些其他的观点，比如说MacKay在1968年提出来的晚期选择模型——大部分输入的信息在被选择进行进一步加工之前都会经历有意义加工。但是只有加工之后呈现出有意义信息的刺激才会导致回应。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;p&gt;你耳机里面放着歌，但你还是可以在这里做数学题。你现在屏幕里面有很多窗口，而你的眼睛除了看着这个屏幕，还看见了很多周围的东西，但你可以保持专注
-      
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
-    
-      <category term="心理学" scheme="http://houx15.github.io/categories/reading/psychology/"/>
-    
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="psychology" scheme="http://houx15.github.io/tags/psychology/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>hexo-进阶之七牛图床</title>
-    <link href="http://houx15.github.io/2018/01/11/hexo-%E8%BF%9B%E9%98%B6%E4%B9%8B%E4%B8%83%E7%89%9B%E5%9B%BE%E5%BA%8A/"/>
-    <id>http://houx15.github.io/2018/01/11/hexo-进阶之七牛图床/</id>
-    <published>2018-01-11T12:11:12.000Z</published>
-    <updated>2018-01-11T15:40:21.233Z</updated>
-    
-    <content type="html"><![CDATA[<p>这是hexo博客搭建日志的进阶篇，本篇介绍如何将七牛作为图床存储你的照片。</p><p>博客使用的时间长了，会有很多图片，甚至视频等大文件，全部都使用github作为存储空间，会因为io页面本身的大小限制带来麻烦，以及在部署的时候也会影响速度。于是我找了一个云存储空间作为图床。</p><p>国内比较好用的就是七牛，每个月免费的10GB存储空间以及20GB下载流量，10万次PUT与100万次GET，用在我的小博客上也是足够了。</p><h4 id="STEP1：-一个hexo博客"><a href="#STEP1：-一个hexo博客" class="headerlink" title="STEP1： 一个hexo博客"></a>STEP1： 一个hexo博客</h4><p>本文实现的图片上传功能是用于我的博客搭建的（非常想拥有照片墙功能啊）。所以你需要现有一个博客啦，如果不会的话可以参加博主前面的文档</p><ul><li>mark</li></ul><p>当然，本文相对独立的介绍了怎么用javascript一键上传多张图片到七牛云，你也可以无视这个博客</p><h4 id="STEP2：-一个七牛云账户"><a href="#STEP2：-一个七牛云账户" class="headerlink" title="STEP2： 一个七牛云账户"></a>STEP2： 一个七牛云账户</h4><p>嗯，注册一个七牛云账户。</p><p>注册相对容易，大概是需要拍两张身份证照片认证一下。</p><p>注册完之后，点击进入“管理控制台”。点击左侧的“对象存储”，建立一个bucket（相当于一个文件夹）。</p><blockquote><p>此处注意，建立bucket的时候要选择是公开的还是私有的文件夹，区别在于，如果是私有的文件夹，每次获取文件的时候也需要认证。（其余的上传、删除等操作都是必需要token认证的）</p></blockquote><p>这里有几个参数是你之后会要用到的：</p><ul><li>密钥管理页面有一个ACCESS_KEY和SECRET_KEY，作为你的上传密钥</li><li>bucket的名字</li><li>你的url（七牛会提供一个测试域名，在性能方面有限制，你也可以使用自己的域名，注意，需要公安部备案之后的域名）</li></ul><h4 id="STEP3：-一个本地上传脚本"><a href="#STEP3：-一个本地上传脚本" class="headerlink" title="STEP3： 一个本地上传脚本"></a>STEP3： 一个本地上传脚本</h4><p>有了七牛云账户，有了自己的存储空间，你已经可以在网页中一个个的上传图片了。</p><p>不过这样的话，你每次智能上传一个文件，比较麻烦。写一个脚本的好处，在于一次可以上传一打文件。</p><p>在网上找了很多现有的代码，或许是七牛官方版本更新了？找到的多为2016年甚至更早的，而且<strong>都不能用！！</strong> 最后决定依着官方文档自己造了一个轮子。</p><blockquote><p>项目地址： <a href="https://github.com/houx15/qiniu-node-upload.git" target="_blank" rel="noopener">https://github.com/houx15/qiniu-node-upload.git</a></p></blockquote><h5 id="功能描述"><a href="#功能描述" class="headerlink" title="功能描述"></a>功能描述</h5><p>一键上传文件夹中所有图片到七牛云。</p><h5 id="使用流程"><a href="#使用流程" class="headerlink" title="使用流程"></a>使用流程</h5><ul><li>确保已经安装node</li><li>安装qiniu的官方插件: npm install qiniu</li><li>获取代码 git clone</li><li>更改 qiniu-node-uploader.js 中相关参数<ul><li>七牛的 AK, SK, BUCKET, URL</li><li>本地文件夹的路径</li></ul></li><li>打开shell, node qiniu-node-uploader.js</li></ul><h5 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h5><ul><li>与markdown文件结合，直接自动上传并替换md中的图片为链接</li></ul><h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><ul><li><a href="https://yq.aliyun.com/articles/8608" target="_blank" rel="noopener">Hexo折腾记——性能优化篇</a></li><li><a href="https://developer.qiniu.com/kodo/sdk/1289/nodejs" target="_blank" rel="noopener">七牛官方文档</a></li></ul>]]></content>
-    
-    <summary type="html">
-    
-      node实现一键上传多张图片到七牛云并且将图片的url以json格式输出。可以在将七牛作为hexo博客的图床的时候使用。
-    
-    </summary>
-    
-      <category term="技术栈" scheme="http://houx15.github.io/categories/technology/"/>
-    
-    
-      <category term="hexo" scheme="http://houx15.github.io/tags/hexo/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>读书笔记-奥丁的子女</title>
-    <link href="http://houx15.github.io/2018/01/11/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%A5%A5%E4%B8%81%E7%9A%84%E5%AD%90%E5%A5%B3/"/>
-    <id>http://houx15.github.io/2018/01/11/读书笔记-奥丁的子女/</id>
-    <published>2018-01-11T11:21:36.000Z</published>
-    <updated>2018-01-11T15:48:36.534Z</updated>
-    
-    <content type="html"><![CDATA[<p>自从看了龙族二之后，一直都想仔细了解一下北欧神话。这一次正好阅读了《奥丁的子女》，从阿斯加尔德的辉煌，到诸神的黄昏，也算是完整了解了一道。</p><p>总的说来，这一个神话集并没有想象之中那么精彩，没有自己一直都爱读的童话故事精彩，更没有引人入胜的小说那么精彩。为什么呢？虽然神话中发生了很多很多的事情，但是这一史诗般的叙述，都只是平铺直叙的将事情记录下来而已，没有细致的描写，也不会尝试去抓取人的心灵瞬间。</p><p>仿佛是在让故事本身来讲述一切。</p><p>因此神话中可以一句话就讲完了勇士屠龙的过程，可以不用去解释为什么巨人会相信神族，可以不用去解释为什么洛基突然杀死水獭，也可以一句话说完巴尔德的死。</p><p>甚至诸神的黄昏那么深刻的宏达的画面，也不过一个段落全部说尽罢了。</p><p>或许是为了给我们更多想想的空间吧。</p>]]></content>
-    
-    <summary type="html">
-    
-      自从看了龙族二之后，一直都想仔细了解一下北欧神话。这一次正好阅读了《奥丁的子女》，从阿斯加尔德的辉煌，到诸神的黄昏，也算是完整了解了一道。
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
-    
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="literature" scheme="http://houx15.github.io/tags/literature/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>音乐-一纸流年</title>
-    <link href="http://houx15.github.io/2018/01/09/%E9%9F%B3%E4%B9%90-%E4%B8%80%E7%BA%B8%E6%B5%81%E5%B9%B4/"/>
-    <id>http://houx15.github.io/2018/01/09/音乐-一纸流年/</id>
-    <published>2018-01-09T15:35:06.000Z</published>
-    <updated>2018-01-09T15:41:40.345Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>若我落笔写与你 那锦绣山河</p><p>可否馈我这一路 青川和暮色</p><p>从江南十里烟波到西北大漠</p><p>一程风雨又婆娑</p><p>我将屋檐下红烛点亮 在等谁回家</p><p>重复的歌谣还在唱 不甘心作罢</p><p>年华指间沙 留不住离去的他</p><p>我还提盏灯 望啊</p><p>那年雨后 燃尽 的香落下</p><p>灼痛在谁 的 心上</p><p>烧却流年 勾勒 出的过往</p><p>落在 坟前人 掌上</p><p>梦中听见 是谁 在轻轻唱</p><p>那年 熟悉的 唱腔</p><p>披衣坐起 窗外 月色微凉</p><p>又是 第几夜 惆怅</p><p>寒月长亭我撰下 那两行对和</p><p>留小楷蹉跎年岁 流离与颠簸</p><p>门前落青雪 葬尽旧时杨花落</p><p>门里 你唱第 几折？</p><p>那年雨后 燃尽 的香落下</p><p>灼痛在谁 的 心上</p><p>烧却流年 勾勒 出的过往</p><p>落在 坟前人 掌上</p><p>梦中听见 是谁 在轻轻唱</p><p>那年 熟悉的 唱腔</p><p>披衣坐起 窗外 月色微凉</p><p>又是 第几夜 惆怅</p><p>焚香点蜡 仿佛你还在那</p><p>我临摹罢 你便提一行话</p><p>笔搁下谁的泪错晕开两三朵墨花</p><p>开在那 等 离人摘它</p><p>那年雨后 坟前 唱到喑哑</p><p>自嘲 曲词缺 几行</p><p>正是到你 轻声 应和回荡</p><p>今朝 只余我 空想</p><p>我烫壶酒 驱散 回忆的寒</p><p>昂首 也饮尽 悲伤</p><p>沧海桑田 也输 一纸流年</p><p>今夜 我宿你 坟前</p><p>明夜 我拥你 渡忘川</p></blockquote>]]></content>
-    
-    <summary type="html">
-    
-      分享一首歌的歌词
-    
-    </summary>
-    
-      <category term="戳中摘录" scheme="http://houx15.github.io/categories/extraction/"/>
-    
-    
-      <category term="music" scheme="http://houx15.github.io/tags/music/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>读书笔记-认知心理学（二-认知与知觉）</title>
-    <link href="http://houx15.github.io/2018/01/09/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E8%AE%A4%E7%9F%A5%E5%BF%83%E7%90%86%E5%AD%A6%EF%BC%88%E4%BA%8C-%E8%84%91%E4%B8%8E%E8%AE%A4%E7%9F%A5%EF%BC%89/"/>
-    <id>http://houx15.github.io/2018/01/09/读书笔记-认知心理学（二-脑与认知）/</id>
-    <published>2018-01-09T01:59:12.000Z</published>
-    <updated>2018-01-12T01:26:48.838Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>待更新</p><h3 id="脑？我们怎么研究脑？"><a href="#脑？我们怎么研究脑？" class="headerlink" title="脑？我们怎么研究脑？"></a>脑？我们怎么研究脑？</h3><p>这里介绍大脑的基本结构与心理学上研究的大脑的方法的原理。</p><h4 id="大脑的微观结构-神经元"><a href="#大脑的微观结构-神经元" class="headerlink" title="大脑的微观结构-神经元"></a>大脑的微观结构-神经元</h4><p>大脑的微观结构由一个又一个的神经元构成，这个大家在高中生物就已经接触过，应该并不陌生。一个又一个的神经元互相连接，内部用电信号，外部用神经递质互相传递信号，从而形成巨大的神经网络，完成复杂的功能。</p><h4 id="脑组织的基本原则-功能定位"><a href="#脑组织的基本原则-功能定位" class="headerlink" title="脑组织的基本原则-功能定位"></a>脑组织的基本原则-功能定位</h4><blockquote><p>功能定位，即特定的脑区有特定的功能。</p></blockquote><p>大脑的一大精妙之处在于，虽然不同神经元交错相连，分工却十分清晰——这里主要说负责认知功能的大脑皮层。</p><p>先要说明的是感觉的初级感受区（大脑皮层接收各种感觉器官传来的感觉信号的区域）。听觉感受区位于颞叶，视觉感受区在枕叶，皮肤觉则在顶叶，嗅觉在颞叶下方，味觉则在额叶下面的一小部分。额叶作为认知的核心，主要接收并整合这些信号。</p><p>语言的定位则由位于额叶的布洛卡区（与语言生成直接联系）与位于颞叶的威尔尼克区（与语言理解有直接联系）。</p><p>因为大脑功能定位的特点，特定脑区损伤的人也会表现出特定的失语症、面孔失认症等。布洛卡失语症的患者能够理解他人所说的话，但是没有办法生成有意义的语言。威尔尼克失语症的病人则连理解都困难。</p><h4 id="加工方式-分布式加工"><a href="#加工方式-分布式加工" class="headerlink" title="加工方式-分布式加工"></a>加工方式-分布式加工</h4><p>多种信号同时进入大脑？</p><h4 id="怎么研究大脑"><a href="#怎么研究大脑" class="headerlink" title="怎么研究大脑"></a>怎么研究大脑</h4><ul><li>正电子发射断层扫描 PET<ul><li>个体完成一项任务时，任务所激活的脑区血流量会增加。放入小剂量的示踪剂，用PET扫描就可以得到结果</li></ul></li><li>fMRI 功能性核磁共振成像<ul><li>测量血流量。不需要注射示踪剂。利用血液中携氧血红蛋白分子含有铁分子，具有磁性的特点。当某个脑区活动增强，这里的血红蛋白分子就会失去一部分氧气。磁性更强。</li></ul></li><li>事件相关电位 ERP<ul><li>快速记录信号，难以对于电信号进行溯源。由许多波组成——没太懂这个地方</li></ul></li></ul><h3 id="感觉，知觉与认知"><a href="#感觉，知觉与认知" class="headerlink" title="感觉，知觉与认知"></a>感觉，知觉与认知</h3><blockquote><p>通过刺激感觉器官而产生的体验称为知觉。</p></blockquote><p>或许有一天你走在路上，远远的看到一个背影，觉得很像你认识的某个人，走近之后，才发现原来自己认错了。在这样一个常见的过程中，其实就包含了很多知觉相关的论题。</p><p>首先，随着你逐渐走近这个人，外部信息逐渐增加（或者逐渐清晰），知觉也会发生相应的改变（其实如果你内部的经验改变，知觉也会改变，比如说一个你很熟悉的人你就能够更快认出来）。其次，知觉是需要涉及到我们的记忆的，是需要我们进行推理以及问题解决的过程——眼睛收集到一个背影的信号，记忆提取出可能相关的人的特征，进行推理判断这个人是否是xx，这些过程都发生在一瞬间，就像自动化的。</p><p>这便是知觉，讨论知觉，要面对的第一个问题是——知觉是按照什么方向加工的？心理学有两大观点：自上而下加工，和自下而上加工</p><hr><h4 id="自下而上加工途径"><a href="#自下而上加工途径" class="headerlink" title="自下而上加工途径"></a>自下而上加工途径</h4><p>什么是自下而上加工呢？形象一点，上是指我们的思维、大脑，而下，则是指世间客观存在的万物。自下而上加工，也就是指我们获取周围的信号，一系列的整合分析之后进入我们的大脑进行加工处理。</p><p>这个想起来都是很合理的——我们的知觉不就是“通过刺激感觉器官产生的体验”嘛，感觉器官，就是在不断地搜集外界信息的刺激信号，经过一系列转换之后送到我们的大脑的。但是这里有一个需要思考的问题——看见一个东西，我们是怎么把它识别出特定的物品的？</p><h5 id="模式匹配理论"><a href="#模式匹配理论" class="headerlink" title="模式匹配理论"></a>模式匹配理论</h5><ul><li>模板匹配模型<ul><li>这个理论说，我们的大脑中存储了很多视网膜图像的pattern，每一次有信号过来了，我们就去与这些pattern做比较，把那个最相似的给拿出来。</li><li>但这就有个问题了——比如说给你一个字母，如果是按照模板匹配的话，那么一个写大了点的字母、写歪的字母，笔风不一样的字母，你都需要存储一个新模板吗？这必然会造成过大的数据集和过低的检索效率。错误率也会非常高。</li><li>但是事实却是，人类的模式识别非常的灵活，容错率也很高。</li></ul></li><li>原型模型<ul><li>于是又有了原型模型——prototype。这个理论说，我们的大脑中存储了很多的关于事物的prototype，所谓prototype，不是一个具体的事物，而是一个抽象的概念，它是某事物的特征的集合。</li><li>信号传入时，我们进行原型的匹配，如果匹配失败，我们可以形成新的原型。</li><li>但是即使如此，我们依然需要存储很多的原型。而且这个模型并不是很具体——什么才叫做事物的特征？一件事物是不能被完全描述的，哪些特征才是真正重要的？</li></ul></li><li>区别性特征模型<ul><li>于是有了第三个模型，第三个模型的最小单位比原型模型的更加抽象——特征。我们记忆中存储了多个特征，通过对于事物多个特征的匹配，以及对于匹配结果的分析，再去寻找相应的模板</li><li>由于是根据特征进行匹配，所以更加容易更加迅速，并且容易找到最优结果。同时，避免了多个原型有相同特征导致的空间冗余。</li></ul></li><li>混战场模型<ul><li>这个理论又将认知的过程分为了多个轨（demon）：图像，特征，认知，决策，他们之间顺序执行<ul><li>图像轨：位于视网膜，进行图像采集与识别</li><li>特征轨：对于采集到的图像进行分析，得到其中的特征及其重要性</li><li>认知轨：加工，识别特征的组合方式</li><li>决策轨：根据认知轨的结果查看混战场中的激活水平，匹配最优结果</li></ul></li></ul></li></ul><h5 id="计算途径"><a href="#计算途径" class="headerlink" title="计算途径"></a>计算途径</h5><ul><li><p>成分识别理论 RBC</p><blockquote><p>个体通过感知一些基本特征来知觉客体，这些基本特征又被称作几盒子。类似于知觉积木，可以组合起来构成客体。</p></blockquote></li></ul><hr><h4 id="自上而下加工"><a href="#自上而下加工" class="headerlink" title="自上而下加工"></a>自上而下加工</h4><p>上面的说的很顺畅——知觉，就是感知觉引起的体验嘛，为什么还会有自上而下加工？</p><p>虽然知觉是通过感知觉引起，但最后的“体验”的结果，是必然会有你的记忆、你的推理参与其中的，这种基于个体的先验知识或者期望的加工，就叫做自上而下加工。</p><p>知觉其实一共有三种信息决定：</p><ul><li>感官刺激信息</li><li>客体情景信息</li><li>个体知识、经验、期待</li></ul><h5 id="无意识推理理论"><a href="#无意识推理理论" class="headerlink" title="无意识推理理论"></a>无意识推理理论</h5><blockquote><p>赫尔姆霍兹：我们的某些知觉源于我们对于环境做出的无意识假设。</p><p>似然原理：我们会将客体感知为与我们以往感知过的刺激模式最接近的客体</p></blockquote><h5 id="知觉组织的完形法则"><a href="#知觉组织的完形法则" class="headerlink" title="知觉组织的完形法则"></a>知觉组织的完形法则</h5><p>连续律，简洁律，相似律，熟悉律</p><h5 id="启发式与算法式"><a href="#启发式与算法式" class="headerlink" title="启发式与算法式"></a>启发式与算法式</h5>]]></content>
-    
-    <summary type="html">
-    
-      2018年上了认知心理学的课程，教材十分有意思。但是直到期末才有时间好好进行阅读。从概述开始，将读书笔记记录于此。本篇介绍大脑的结构和其与认知的关系。
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
-    
-      <category term="心理学" scheme="http://houx15.github.io/categories/reading/psychology/"/>
-    
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="psychology" scheme="http://houx15.github.io/tags/psychology/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>读书笔记-认知心理学（一-概述）</title>
-    <link href="http://houx15.github.io/2018/01/09/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E8%AE%A4%E7%9F%A5%E5%BF%83%E7%90%86%E5%AD%A6%EF%BC%88%E4%B8%80-%E6%A6%82%E8%BF%B0%EF%BC%89/"/>
-    <id>http://houx15.github.io/2018/01/09/读书笔记-认知心理学（一-概述）/</id>
-    <published>2018-01-09T01:16:43.000Z</published>
-    <updated>2018-01-09T01:58:09.155Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>xxx</p><h3 id="什么是认知心理学"><a href="#什么是认知心理学" class="headerlink" title="什么是认知心理学"></a>什么是认知心理学</h3><blockquote><p>认知心理学是心理学的一个分支学科，它主要关注的是有关心智的科学研究。</p></blockquote><p>嗯，一如往常的什么都没说。</p><p>认知心理学既然是研究心智的，那么心智又是什么呢？</p><blockquote><p>心智是产生和控制知觉、注意、记忆、情绪、语言、决策、思维和推理等心理机能的成分。心智是形成客观世界表征的系统，促使人们采取行动以实现目标。</p></blockquote><p>向来定义都是严格抽象的。真正理解一件事物还是要靠与生活有关的例子。这一刻，读者你正在阅读这篇文章，你脑海中浮现出来的场景叫做表象，你赋予这篇文章的注意力，你眼睛感知到的文字信息被转化成的可以理解的信号，你会想起过去自己的经历，你正在思考着怎么理解“认知”这个概念——这一瞬间思维发生的繁复的过程，就是认知心理学要研究的内容。</p><p>人类的认知过程十分复杂，认知心理学从不同的角度来理解与研究它。怎么研究它却是一个大难题，因为内心的活动过程没有办法测量——19世纪普遍认为“心智不可研究”。</p><h3 id="认知心理学发展简史"><a href="#认知心理学发展简史" class="headerlink" title="认知心理学发展简史"></a>认知心理学发展简史</h3><p>心理学的实验研究从1868年开始，认知心理学元年在1956年。期间经历了比较漫长的发展过程，从开始的唐德斯反应时实验与艾宾浩斯节省发，到了冯特的第一个心理学实验室，再到华生用行为主义颠覆了心智研究，到后来又渐渐有人开始关注行为背后的心理学过程，再到计算机出现之后，信息加工模型提出，人们开始将心智阶段化。认知心理学仍然处在一个不断深入的过程中。</p><p>简单将认知心理学的发展史列举此处：</p><ul><li>1868 - 唐德斯 - 反应时实验 - 第一个认知心理学实验，通过行为反应推测心理过程</li><li>1878 - 冯特 - 内省分析法，第一个科学心理学实验</li><li>1885 - 艾宾浩斯 - 节省法 - 一个开创性的记忆研究方法</li><li>1890 - 威廉·詹姆斯 - 心理学原理 - 第一次对于心智进行系统分析</li><li>1913 - 华生 - 行为主义 - 经典条件反射，不涉及心智也可以分析行为，改变了心理学的重心</li><li>1938 - 斯金纳 - 操作性条件反射 - 积极强化与消极强化，不关心心智过程，只关心刺激如何影响行为</li><li>1938 - 托曼 - 认知地图 - 研究行为并且分析行为背后的心智过程</li><li>1959 - 乔姆斯基 - 怒怼《言语行为》 - 语言是心智构建过程的产物</li><li>20世纪50年代 - 认知革命的开端 - 信息加工观</li><li>1953 - Colin Cherry - 选择性注意</li><li>1958 - 第一个展示心智运作方式的流程示意图</li><li>1956 - “夏季人工智能研究计划” - 认知科学诞生元年</li></ul><h3 id="怎么研究心理学"><a href="#怎么研究心理学" class="headerlink" title="怎么研究心理学"></a>怎么研究心理学</h3><p>现有的心理学研究方法，有两个角度：行为学方法与生理学研究方法。</p><p>行为学研究方法偏行为主义，通过操作实验中各个组不同的行为，观察实验的结果。但是行为学研究方法只能得到结论，对于过程是如何发生的、本质是什么，却难以做出解释。</p><p>生理学方法则是通过脑成像、fMRI等技术研究大脑的活动状态，甚至通过药物注射等干扰相应蛋白质功能，来探究某一心理现象的生理本质。</p>]]></content>
-    
-    <summary type="html">
-    
-      2018年上了认知心理学的课程，教材十分有意思。但是直到期末才有时间好好进行阅读。从概述开始，将读书笔记记录于此。
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
-    
-      <category term="心理学" scheme="http://houx15.github.io/categories/reading/psychology/"/>
-    
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="psychology" scheme="http://houx15.github.io/tags/psychology/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>读书笔记-我承认我不曾经历沧桑</title>
-    <link href="http://houx15.github.io/2018/01/08/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E6%88%91%E6%89%BF%E8%AE%A4%E6%88%91%E4%B8%8D%E6%9B%BE%E7%BB%8F%E5%8E%86%E6%B2%A7%E6%A1%91/"/>
-    <id>http://houx15.github.io/2018/01/08/读书笔记-我承认我不曾经历沧桑/</id>
-    <published>2018-01-08T07:16:42.000Z</published>
-    <updated>2018-01-09T01:18:50.052Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>第二本书，蒋方舟的《我承认我不曾经历沧桑》。这本书是蒋学姐的文集，毕业一年，写作五年的感慨。</p><blockquote><p>回首过去五年，课业之外，作者亦经常参与公共话题的讨论以及多种社会活动，生活不可谓不丰富不精彩。然而在忙碌与喧腾背后，作者却渐感迷失与困惑：参与的讨论越多，离真相仿佛越远；战斗檄文式的文章越写越多，却越来越不喜欢自己剑拔弩张的嘴脸。</p></blockquote><p>于是有了这本书，沉淀了五年的内容，回避了各种最热门的议论，而回到了成长这个话题，回到了记录本身。书本分为三个部分，“被绑架的一代”中记录了几个高中大学时代青年成长的故事——处在一个时代变革，互联网、经济发展冲击着一个个个体的时间节点上，明明之比我早了七年，读起来却感觉这像是隔世的光阴；“记录本身，即已是反抗”中则讲了多个作家的故事，有国内的，也有国外的，却不是在对于作家们进行巡回礼赞。一个个写出来的，是作家的梦魇，仿佛文学是一次次磨难之后大彻大悟的产物，而那些磨难与故事，都被记录在这里；“审判童年”从一个很奇怪的角度梳理着童年的故事，兄弟姐妹、祖父祖母、父亲母亲、保姆和幼儿园，多个角度，读起来却感觉过于阴暗与沉重——对不起，我实在是没能接受这个部分的内容。或许在自己的心中，童年终究还是一个童话的世界，一个阳光的世界，一点点的笑容之外的阴暗声音，我都难以适应。</p><h3 id="时代冲击-“被绑架的一代”"><a href="#时代冲击-“被绑架的一代”" class="headerlink" title="时代冲击-“被绑架的一代”"></a>时代冲击-“被绑架的一代”</h3><p>被绑架的一代，被什么绑架？答曰，被时代绑架。</p><p>从某个时间点开始，我们好像进入了一个指数爆炸式发展的年代，进入了一个一天变个样的时代——互联网进入了生活，游戏厅、网吧、电脑、手机挨个挨个站了出来，社会竞争的激烈，和优胜劣汰的机制，经济差异与品牌效应，人口流动与地区歧视……这个时代像是多了一万种让人们生活更加方便的东西，和多了一百万种让生活更加复杂的情感，和让生活更加艰难的状态。</p><p>或许我不算处于这个跨时代节点的人吧，那个时候自己还在幼儿园中蹒跚学步，比我大九岁的学姐算是清楚遍历了千年的转变。</p><p>青春期的少年们，暗藏着的对于社会与现实的厌烦与不满，恰好被新出现的游戏厅与网吧所捕捉到，整个人被从现实抽离出去。青春期的少年进入了虚拟的世界，现实世界中的人把他们称作冷漠，也有北大的老教授把这一代叫做“调侃的一代”。</p><blockquote><p>“调侃的一代”——自以为把什么都看透了，不相信世上还有真诚的东西，所以对什么都调侃，已经没有敬畏之心了</p></blockquote><p>那之后了？在下能够看见的，是电脑与手机逐渐深入到了我们的血液之中，当然，这种调侃与冷漠也深入血液了。</p><p>于是走在路上的，坐在车里的人们，整张脸都被牢牢吸附在了屏幕上面。网络世界越发的丰富了，现实世界的吸引力也就越发的弱化了。我可以在整个网络中构建我自己的伊甸园，为什么不呢？</p><p>但是，我总觉得，是失去了点什么的。</p><p>网络冲击算是一个，社会竞争则是另外一个。</p><p>攀比心理这个词出现了，举着身上穿着的名牌互相的比较是一种竞争，这是不被众人所鼓励的竞争。当然，有另一种大家都十分支持的，所有人还在不断激化着的——高考。</p><p>作者文中讲到高中时期为了学习逐渐变得孤僻的经历，讲到“两耳不闻窗外事”的过往，讲到了那个寓言——玫瑰很美丽，但是没用，于是玫瑰变成了卷心菜——为了有用，为了利益。</p><blockquote><p>青春这个大园子，有点美丽，有点诱惑，有点危险，就是没有用。但若是全拔了无用的劳什子，改种饱腹的卷心菜，伊甸园变成菜园子，未免也太可惜了。</p></blockquote><p>但是，现在这个现象好像只是在不断的恶化？</p><p>记得小学的时候自己还是楼下花坛中玩耍的常客，学习只是生活的half，作业也是如此，不敢想象现在必须要每周去学习奥数学习音乐学习绘画生活忙碌不堪的孩子们。逐渐失真的童年，以及从来都逃不脱的压力——为了有用。</p><p>反正，因为我们的教育成了一种筛选。</p><p>我们不断的创造资源，为了让教育资源不要那么的紧张，这样的话高考这些选拔也不会再是一个唯一的独木桥。但是与此同时，这些资源被用来去不断提高起跑线的标准，压力不减反增。</p><p>为什么会这样了？因为这毕竟是一个优胜劣汰的社会吧。</p><p>每个人都幻想着一个不需要竞争的乌托邦，却每个人都喜欢去追求那个“仅我一个”的优越感与巅峰体验。就像书中不断奔跑着的圆谷幸吉，世界中的人都是对手，你只能去当第一，没有成为第一的时候你必须用尽整个生命地去奔跑，成为了第一之后你也不断奔跑，为了给自己挣得更多的不能花费但是让人心安的余地。</p><p>于是，没有余地。</p><blockquote><p>也是那时，我发现自己也不如了圆谷幸吉的跑道，永远跑在自我训练的途中，永远跑在全是对手的竞争里。</p><p>于是，没有余地。</p></blockquote><p>总体说来，关于这个时代的述说最戳中我心。我也常常自己质问，人们奔波那么久，每个人都说要为了更好的生活，但是生活真的更好了吗？为什么我越来越少的看见笑容呢？</p><p>我不懂得，我还需要持续思考。</p><p>当然，也有其他内容，比如说描写“南方科技大学追逐学术自由”这一场变革的。</p><blockquote><p>盗火者是被绑缚的，也是被绑架的。这几乎是所有改革或者革命者的宿命，骑虎难下，革命者们用一贯洪亮激昂的调门控诉当下，构造乌托邦；戏假情真，革命者们眼里常含泪水，眼泪也为自己而流。</p></blockquote><p>暂且说至此处，罢了，罢了。</p><h3 id="笔中千秋-“记录本身，即已是反抗”"><a href="#笔中千秋-“记录本身，即已是反抗”" class="headerlink" title="笔中千秋-“记录本身，即已是反抗”"></a>笔中千秋-“记录本身，即已是反抗”</h3><p>待完善</p><blockquote><p>可以通过顺从，把苦役和惩罚变得荒谬，这绝不是简单的精神胜利法。</p><p>作家真正该恐惧的，是被国家巨大力量所魇住，被它的荣誉和拥抱售卖，被它逐渐走向开明包容的幻想所欺骗。因为那将让他失去自我。</p><p>记录本身，即已是反抗。</p><p>故乡是用来怀念的，故乡是用来美化的，故乡是用来失望的。</p><p>人生如戏，人人都在扮演着一定角色。有人没有意识到自己在演戏，把戏演完；另一种人，发现生活原来是一出戏，就努力离开舞台。第二种人错了，因为剧院以外，什么都没有，没有另一类生活在等着你。这场戏是唯一的演出。</p><p>我想，大概是伊拉斯谟错了。努力离开舞台很难，但是并非不可能。</p><p>虽然很难，虽然根本不被任何人看见，虽然努力的效果微乎其微，他把他们叫做“针尖上的天使”。</p><p>然而离开是为了回来，追忆也是一种归来，用《芒果街上的小屋》里的话说：“为了那些我留在身后的人。为了那些无法出去的人。”</p></blockquote>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h3 id=&quot;序言&quot;&gt;&lt;a href=&quot;#序言&quot; class=&quot;headerlink&quot; title=&quot;序言&quot;&gt;&lt;/a&gt;序言&lt;/h3&gt;&lt;p&gt;第二本书，蒋方舟的《我承认我不曾经历沧桑》。这本书是蒋学姐的文集，毕业一年，写作五年的感慨。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;回首过
-      
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
-    
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="literature" scheme="http://houx15.github.io/tags/literature/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>读书笔记-西方哲学精神探源</title>
-    <link href="http://houx15.github.io/2018/01/08/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E8%A5%BF%E6%96%B9%E5%93%B2%E5%AD%A6%E7%B2%BE%E7%A5%9E%E6%8E%A2%E6%BA%90/"/>
-    <id>http://houx15.github.io/2018/01/08/读书笔记-西方哲学精神探源/</id>
-    <published>2018-01-08T01:10:22.000Z</published>
-    <updated>2018-01-08T14:29:50.253Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>年初的时候立下了今年要读98本书的flag，期末考正好临近，就偷懒用一本《西方哲学精神探源》作为开始吧。</p><p>《西方哲学精神探源》对于古希腊与古罗马哲学做了一个比较粗略的介绍，开头的导论部分从历史背景和地理背景讲述了那个时代的希腊与罗马的故事，而后面则是从求是、求本、求真等十二个不同的角度解读其哲学底蕴。本质内容与老师在MOOC中讲解的内容相似。但是这样体系特征不明显、没有时间贯穿的碎片化西方哲学，终究与自己一直向往着的西方哲学有一些落差。</p><p>这篇读书笔记不谈书本，不谈哲学，只想说说自己对于西方哲学残留的念想。</p><h3 id="不是哲学，而是文明"><a href="#不是哲学，而是文明" class="headerlink" title="不是哲学，而是文明"></a>不是哲学，而是文明</h3><p>我本身对于哲学没有什么兴趣。</p><p>这片神秘的大陆吸引我的，是一个叫做庞贝古城的地方。那个公元79年维苏威火山大爆发掩埋了的文明，残垣断壁，以及失落的国度。吸引我的，是特洛伊木马和他们像是传奇一样的战争。是淹没了的巴比伦文化。当然，还有奥林匹斯星传中众神的生活。</p><p>文明对于一个人总是会有巨大的吸引力的，哲学又是这块文明中的瑰宝，就像是从哲学诞生那一刻开始，人类的深邃思维诞生了。《西哲》中提到，哲学家们第一次用自然去解释自然，第一次让人去思考事物本身而不是其表象。就像是从那一刻开始，从哲学家开始思考的那一刻，从逻辑诞生那一刻，所有人开始用逻辑去编织这个世界巨大的entity网络，于是有了知识体系，有了复杂的精神世界。</p><h3 id="知识与真理"><a href="#知识与真理" class="headerlink" title="知识与真理"></a>知识与真理</h3><p>哲学中，最感兴趣的命题，是知识，也就是书中的“求知”，“求实”的部分。</p><p>是从什么时候开始，着迷于整个人类知识产生与认知发展的体系。从哲学到数学到科学，从三段论到科学哲学，范式、范畴论、普遍怀疑、覆盖率模型，演绎与归纳，这些字眼一次又一次的让人觉得兴奋。</p><p><em>Metaphors We Live By</em> ，想起来了这本书。</p><p>我们赖以生存的隐喻——人类认知的构建就是通过这逐层的隐喻发展而来。你知道了一个东西，当你要学习一个新东西的时候，我们通过将新事物与过去旧的事物进行联系来进行学习，因而我们的脑中是神经网络，因而我们有了建构主义的模型。</p><p>当然，范式转移也是一个让人震惊的的东西——绝对唯一真理的幻想破灭之后，哥德尔不完备性定理到来之后，人们用范式找到了出路——每一个科学体系有着自己的作用域，也就是范式，范式中有一个或多个由于归纳法而得到的公理，以及内部演绎推理得到的多个命题以及定理。因而我们许许多多这样的体系内部则是完全逻辑自洽的。不断找到更加底层的知识，通过覆盖率模型发展这个体系，或者突然之间产生一些突破性的发现，导致范式转移，从而带来科技革命。</p><p>我们还走在不断革新知识体系的路上。</p><p>人类现在知道的终究还是太少了，感觉我们离真理依然很远。现有的知识传授方式又不够高效，想要获得人类已有的知识都需要花费多少时间啊！人类的知识体系发展越庞杂，前进的包袱就越重。</p><p>到底怎么样才能打破这个僵局呢？</p>]]></content>
-    
-    <summary type="html">
-    
-      2018第一篇读书笔记
-    
-    </summary>
-    
-      <category term="读书笔记" scheme="http://houx15.github.io/categories/reading/"/>
-    
-    
-      <category term="reading" scheme="http://houx15.github.io/tags/reading/"/>
-    
-      <category term="philosophy" scheme="http://houx15.github.io/tags/philosophy/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="http://houx15.github.io/2018/01/08/hello-world/"/>
-    <id>http://houx15.github.io/2018/01/08/hello-world/</id>
-    <published>2018-01-08T01:01:41.743Z</published>
-    <updated>2018-01-08T01:01:41.743Z</updated>
-    
-    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.
-      
-    
-    </summary>
-    
+      <category term="others" scheme="http://houx15.github.io/tags/others/"/>
     
   </entry>
   
