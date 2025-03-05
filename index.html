@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Welcome to Yuxin's Homepage</title><meta name="author" content="Yuxin Hou"><meta name="copyright" content="Yuxin Hou"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta property="og:type" content="website">
+<meta property="og:title" content="Welcome to Yuxin&#39;s Homepage">
+<meta property="og:url" content="http://blog.monkey-h.xyz/index.html">
+<meta property="og:site_name" content="Welcome to Yuxin&#39;s Homepage">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s2.loli.net/2025/03/05/KuBpkW4oGVlHtne.png">
+<meta property="article:author" content="Yuxin Hou">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2025/03/05/KuBpkW4oGVlHtne.png"><link rel="shortcut icon" href="https://s2.loli.net/2025/03/05/tpNP4QrgOivcmah.png"><link rel="canonical" href="http://blog.monkey-h.xyz/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Welcome to Yuxin\'s Homepage',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 5.4.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://s2.loli.net/2025/03/05/KuBpkW4oGVlHtne.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/gallery/"><i class="fa-fw fas fa-fan"></i><span> Gallery</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header" style="background-image: url(https://s2.loli.net/2025/03/05/4rqMSOhsA86W5gK.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="https://s2.loli.net/2025/03/05/tpNP4QrgOivcmah.png" alt="Logo"><span class="site-name">Welcome to Yuxin's Homepage</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/gallery/"><i class="fa-fw fas fa-fan"></i><span> Gallery</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="site-info"><h1 id="site-title">Welcome to Yuxin's Homepage</h1><div id="site_social_icons"><a class="social-icon" href="https://github.com/houx15" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:houyx15@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://scholar.google.com/citations?user=NX7qkNAAAAAJ" target="_blank" title="Google Scholar"><i class="fa-brands fa-google-scholar"></i></a><a class="social-icon" href="https://orcid.org/0000-0003-1368-7326" target="_blank" title="ORCID"><i class="fa-brands fa-orcid"></i></a></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="post_cover left"><a href="/2022/05/18/%E9%98%85%E8%AF%BB-%E5%A4%A7%E8%90%A7%E6%9D%A1%E7%9A%84%E5%AD%A9%E5%AD%90%E4%BB%AC/" title="阅读-大萧条的孩子们"><img class="post-bg" src="https://images.childrenstheatre.org/uploads/2021/09/Untitled-design-3.png?resize=955%2C597&amp;gravity" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="阅读-大萧条的孩子们"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/05/18/%E9%98%85%E8%AF%BB-%E5%A4%A7%E8%90%A7%E6%9D%A1%E7%9A%84%E5%AD%A9%E5%AD%90%E4%BB%AC/" title="阅读-大萧条的孩子们">阅读-大萧条的孩子们</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-05-18T07:45:13.000Z" title="Created 2022-05-18 15:45:13">2022-05-18</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/">reading</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/social-theory/">social theory</a></span></div><div class="content">封面来源 Cite this book: [美]G.H. 埃尔德.大萧条的孩子们[M].上海：译林出版社，2002. 拿起这本书的时候，我没有多想——我读他，是因为好奇所谓的生命历程理论(life course theory)是什么，可以如何来做研究，是因为想要学习一种方法——所以我没有关注大萧条，也没有关注孩子。想象之中，我会去关注研究者如何抽样，如何做研究，记录什么数据，如何推导结论。 放下这本书的时候，我长叹一口气：我们，又何尝不是处在一种大萧条之中呢？我们是疫情时期的孩子，也许也会有一本《新冠时期的爱情》，不管是《大萧条的孩子们》，还是《鼠疫》，还是《霍乱时期的爱情》……到最后，所有的书本变成了真正的生活；到最后，我们活过的每一刻就是行进之中的历史。 所以我觉得需要重新看一下，什么是“大萧条”。 1.关于大萧条维基百科说，“大萧条(Great...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2022/05/15/%E9%98%85%E8%AF%BB-%E8%B0%81%E5%BF%B5%E8%81%8C%E6%A0%A1/" title="阅读-谁念职校"><img class="post-bg" src="https://images-na.ssl-images-amazon.com/images/I/41vcY1HVoSL._SX348_BO1,204,203,200_.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="阅读-谁念职校"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/05/15/%E9%98%85%E8%AF%BB-%E8%B0%81%E5%BF%B5%E8%81%8C%E6%A0%A1/" title="阅读-谁念职校">阅读-谁念职校</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-05-15T08:00:07.000Z" title="Created 2022-05-15 16:00:07">2022-05-15</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/">reading</a></span></div><div class="content">摘要 背景： 一个矛盾：国家强调“大力发展中等职业教育” and 严重的技工荒 问题：人们为何不愿选择职业学校？一直是这样的吗？   本文如何回答： 1.样本地区中职生现状调查 2.中等职业学校教育对象历史性考察   结论： 中等职业教育从“大多数人的理想选择”变为“弱势人群的无奈选择” 变化背后“国家经济社会发展过程中的矛盾问题 职教政策的变化：原有优惠政策失灵；新政策执行不力 -&gt; 就业升学不易   文化观念影响个体教育选择 职校内部人力物力薄弱，教学质量难保证，声誉下降 - 间接影响 家庭因素对个体选择的影响 （家庭对各类资本的占有量）    前言1.背景-中等职业教育的矛盾现状：政策推动，需求旺盛，无人选择 P2-3  政策 - 2002年以来历次全国职业教育工作会议：要大力发展中等职业教育（“百万扩招”） 需求 - 劳动力市场供求状况：技术工人、高级技术工人供不应求；产业结构升级、企业技术进步，劳动力的文化和技能需求不断提高，社会性技工断层。 选择 -...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2022/05/12/%E9%98%85%E8%AF%BB-%E6%89%B9%E5%88%A4%E6%95%99%E8%82%B2%E7%A4%BE%E4%BC%9A%E5%AD%A6%E4%B9%9D%E8%AE%B2/" title="阅读-批判教育社会学九讲"><img class="post-bg" src="https://images-na.ssl-images-amazon.com/images/I/51QgE89NijL._SX344_BO1,204,203,200_.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="阅读-批判教育社会学九讲"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/05/12/%E9%98%85%E8%AF%BB-%E6%89%B9%E5%88%A4%E6%95%99%E8%82%B2%E7%A4%BE%E4%BC%9A%E5%AD%A6%E4%B9%9D%E8%AE%B2/" title="阅读-批判教育社会学九讲">阅读-批判教育社会学九讲</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-05-12T14:30:26.000Z" title="Created 2022-05-12 22:30:26">2022-05-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/">reading</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/social-theory/">social theory</a></span></div><div class="content">Cite this book: 黄庭康.批判教育社会学九讲[M].北京：社会科学文献出版社，2017. 本书是清华社会学讲义系列四本中的一本，书的编排也是课程形式，在九部分内容中阐述批判教育社会学理论的不同著作和思想，每一部分包括了对于作者和对应文本写作背景的介绍、主要内容的概括以及对于内容的评价。 而读批判教育社会学讲义，首先要搞懂什么是批判教育社会学，要搞懂什么是批判教育社会学，就需要理解什么是教育社会学(educational sociology)。 1.什么是批判教育社会学 from: L.J. Saha, in International Encyclopedia of the Social &amp; Behavioral Sciences, 2001 “Educational sociology is the study of the social factors that influence and are influenced by all educational structures and processes, both within and...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2022/05/12/%E5%B8%83%E8%BF%AA%E5%8E%84%E8%AF%BB%E4%B9%A6%E4%BC%9A02-Basic%20definitions/" title="布迪厄读书会02-Basic definitions.md"><img class="post-bg" src="https://www.azquotes.com/picture-quotes/quote-the-point-of-my-work-is-to-show-that-culture-and-education-arent-simply-hobbies-or-minor-pierre-bourdieu-122-2-0269.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="布迪厄读书会02-Basic definitions.md"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/05/12/%E5%B8%83%E8%BF%AA%E5%8E%84%E8%AF%BB%E4%B9%A6%E4%BC%9A02-Basic%20definitions/" title="布迪厄读书会02-Basic definitions.md">布迪厄读书会02-Basic definitions.md</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-05-12T14:27:43.000Z" title="Created 2022-05-12 22:27:43">2022-05-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/">reading</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/social-theory/">social theory</a></span></div><div class="content">(封面来源) 过往文章：  session01: A Glance at Bourdieu   布迪厄共学 第二期 共学计划：  必读内容： a. Theory of Symbolic Domination (“Structures, Habitus, Practices,” pp.52-65 in The Logic of Practice [1980]) 或 《实践感》P79-100（译林出版社, 2003） b. Reflexivity (“A Science that Makes Trouble,” pp.8-19 in Sociology in Question [1980]) c. Public Sociology (“Outcasts on the Inside,” with Patrick Champagne, pp.421-426 in The Weight of the World [1993]) 或《世界的苦难（下卷）》P729-734（中国人民出版社, 2017）（另附《世界的苦难（上卷）》）   选读内容： d. An Invitation to...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2022/05/12/%E5%B8%83%E8%BF%AA%E5%8E%84%E8%AF%BB%E4%B9%A6%E4%BC%9A01-A%20Glance%20at%20Bourdieu/" title="布迪厄读书会01-A Glance at Bourdieu"><img class="post-bg" src="https://www.azquotes.com/picture-quotes/quote-the-point-of-my-work-is-to-show-that-culture-and-education-arent-simply-hobbies-or-minor-pierre-bourdieu-122-2-0269.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="布迪厄读书会01-A Glance at Bourdieu"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/05/12/%E5%B8%83%E8%BF%AA%E5%8E%84%E8%AF%BB%E4%B9%A6%E4%BC%9A01-A%20Glance%20at%20Bourdieu/" title="布迪厄读书会01-A Glance at Bourdieu">布迪厄读书会01-A Glance at Bourdieu</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-05-12T06:37:20.000Z" title="Created 2022-05-12 14:37:20">2022-05-12</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/">reading</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/social-theory/">social theory</a></span></div><div class="content">(封面来源) 皮埃尔·布迪厄（1930-2002）是最著名的社会学家之一。他持续用批判性的眼光审视教育制度、社会制度和社会结构，并持续致力于阐明社会不平等的出现、再生产机制，尝试解读各个社会阶层、场域之间的关系。他的著作繁多，从艺术到科学，从经济到文学，从大众生活到学术领域，这些著作大多读起来晦涩难懂，在Michael Burawoy教授在UC Berkeley开设的Introducing Pierre Bourdieu中说”He was rugby player, so tackling Bourdieu is difficult”，”his writing is often arcane and inaccessible”, “his books are frustrating incomplete, and replete with multiple digressions”，并使用了grapple with Bourdieu’s...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2022/04/14/%E6%A6%82%E8%BF%B0%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AF%E9%95%BF%E6%9C%9F%E8%BF%BD%E8%B8%AA%E7%A0%94%E7%A9%B6%EF%BC%9F/" title="概述：什么是长期追踪研究？"><img class="post-bg" src="https://resources.pollfish.com/wp-content/uploads/2020/12/Diving_Into_Longitudinal_Surveys_-_in_content_2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="概述：什么是长期追踪研究？"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/04/14/%E6%A6%82%E8%BF%B0%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AF%E9%95%BF%E6%9C%9F%E8%BF%BD%E8%B8%AA%E7%A0%94%E7%A9%B6%EF%BC%9F/" title="概述：什么是长期追踪研究？">概述：什么是长期追踪研究？</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-04-14T04:03:29.000Z" title="Created 2022-04-14 12:03:29">2022-04-14</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/">reading</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/reading/research-methods/">research methods</a></span></div><div class="content">(封面来源：https://resources.pollfish.com/market-research/diving-into-longitudinal-surveys/) 长期追踪研究(longitudinal study) 是对一群研究对象进行长时间观察或资料收集的研究方式，主要探讨研究对象在不同时期的变化，现在也应用于变化测量、解释因果关系等研究。此类研究的数据收集往往会覆盖一段时间中的多个时间点，有的研究时间跨度甚至超过10年。 根据研究对象的选择方式可以分为三种类型：  时间序列研究time-series research: 研究者每隔一段时间收集一次相同横断面的样本资料。研究对象不需要是同样的人群或样本 追踪研究panel study：在不同时间点针对同样的人群或样本进行横断面资料收集，难度更高 世代研究cohort study：针对在特定时间有相似生命经验的人进行长时间的研究  下面的问题讨论将结合本次文献综述中具体阅读和讨论的文献展开，为了方便，后续指代具体文献将以数字编号代替，具体编号含义如下表所示。    1 voice of hope    2 A...</div></div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://s2.loli.net/2025/03/05/KuBpkW4oGVlHtne.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yuxin Hou</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/houx15"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/houx15" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:houyx15@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://scholar.google.com/citations?user=NX7qkNAAAAAJ" target="_blank" title="Google Scholar"><i class="fa-brands fa-google-scholar"></i></a><a class="social-icon" href="https://orcid.org/0000-0003-1368-7326" target="_blank" title="ORCID"><i class="fa-brands fa-orcid"></i></a></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/18/%E9%98%85%E8%AF%BB-%E5%A4%A7%E8%90%A7%E6%9D%A1%E7%9A%84%E5%AD%A9%E5%AD%90%E4%BB%AC/" title="阅读-大萧条的孩子们"><img src="https://images.childrenstheatre.org/uploads/2021/09/Untitled-design-3.png?resize=955%2C597&amp;gravity" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="阅读-大萧条的孩子们"/></a><div class="content"><a class="title" href="/2022/05/18/%E9%98%85%E8%AF%BB-%E5%A4%A7%E8%90%A7%E6%9D%A1%E7%9A%84%E5%AD%A9%E5%AD%90%E4%BB%AC/" title="阅读-大萧条的孩子们">阅读-大萧条的孩子们</a><time datetime="2022-05-18T07:45:13.000Z" title="Created 2022-05-18 15:45:13">2022-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/15/%E9%98%85%E8%AF%BB-%E8%B0%81%E5%BF%B5%E8%81%8C%E6%A0%A1/" title="阅读-谁念职校"><img src="https://images-na.ssl-images-amazon.com/images/I/41vcY1HVoSL._SX348_BO1,204,203,200_.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="阅读-谁念职校"/></a><div class="content"><a class="title" href="/2022/05/15/%E9%98%85%E8%AF%BB-%E8%B0%81%E5%BF%B5%E8%81%8C%E6%A0%A1/" title="阅读-谁念职校">阅读-谁念职校</a><time datetime="2022-05-15T08:00:07.000Z" title="Created 2022-05-15 16:00:07">2022-05-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/12/%E9%98%85%E8%AF%BB-%E6%89%B9%E5%88%A4%E6%95%99%E8%82%B2%E7%A4%BE%E4%BC%9A%E5%AD%A6%E4%B9%9D%E8%AE%B2/" title="阅读-批判教育社会学九讲"><img src="https://images-na.ssl-images-amazon.com/images/I/51QgE89NijL._SX344_BO1,204,203,200_.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="阅读-批判教育社会学九讲"/></a><div class="content"><a class="title" href="/2022/05/12/%E9%98%85%E8%AF%BB-%E6%89%B9%E5%88%A4%E6%95%99%E8%82%B2%E7%A4%BE%E4%BC%9A%E5%AD%A6%E4%B9%9D%E8%AE%B2/" title="阅读-批判教育社会学九讲">阅读-批判教育社会学九讲</a><time datetime="2022-05-12T14:30:26.000Z" title="Created 2022-05-12 22:30:26">2022-05-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/12/%E5%B8%83%E8%BF%AA%E5%8E%84%E8%AF%BB%E4%B9%A6%E4%BC%9A02-Basic%20definitions/" title="布迪厄读书会02-Basic definitions.md"><img src="https://www.azquotes.com/picture-quotes/quote-the-point-of-my-work-is-to-show-that-culture-and-education-arent-simply-hobbies-or-minor-pierre-bourdieu-122-2-0269.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="布迪厄读书会02-Basic definitions.md"/></a><div class="content"><a class="title" href="/2022/05/12/%E5%B8%83%E8%BF%AA%E5%8E%84%E8%AF%BB%E4%B9%A6%E4%BC%9A02-Basic%20definitions/" title="布迪厄读书会02-Basic definitions.md">布迪厄读书会02-Basic definitions.md</a><time datetime="2022-05-12T14:27:43.000Z" title="Created 2022-05-12 22:27:43">2022-05-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/05/12/%E5%B8%83%E8%BF%AA%E5%8E%84%E8%AF%BB%E4%B9%A6%E4%BC%9A01-A%20Glance%20at%20Bourdieu/" title="布迪厄读书会01-A Glance at Bourdieu"><img src="https://www.azquotes.com/picture-quotes/quote-the-point-of-my-work-is-to-show-that-culture-and-education-arent-simply-hobbies-or-minor-pierre-bourdieu-122-2-0269.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="布迪厄读书会01-A Glance at Bourdieu"/></a><div class="content"><a class="title" href="/2022/05/12/%E5%B8%83%E8%BF%AA%E5%8E%84%E8%AF%BB%E4%B9%A6%E4%BC%9A01-A%20Glance%20at%20Bourdieu/" title="布迪厄读书会01-A Glance at Bourdieu">布迪厄读书会01-A Glance at Bourdieu</a><time datetime="2022-05-12T06:37:20.000Z" title="Created 2022-05-12 14:37:20">2022-05-12</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>Categories</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/reading/"><span class="card-category-list-name">reading</span><span class="card-category-list-count">6</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/reading/research-methods/"><span class="card-category-list-name">research methods</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/reading/social-theory/"><span class="card-category-list-name">social theory</span><span class="card-category-list-count">4</span></a></li></ul></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/Bourdieu/" style="font-size: 1.5em; color: #99a9bf">Bourdieu</a> <a href="/tags/longitudinal-study/" style="font-size: 1.1em; color: #999">longitudinal study</a> <a href="/tags/educational-sociology/" style="font-size: 1.1em; color: #999">educational sociology</a> <a href="/tags/life-course/" style="font-size: 1.1em; color: #999">life course</a> <a href="/tags/vocational-education/" style="font-size: 1.1em; color: #999">vocational education</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>Archives</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2022/05/">
+            <span class="card-archive-list-date">
+              May 2022
+            </span>
+            <span class="card-archive-list-count">5</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2022/04/">
+            <span class="card-archive-list-date">
+              April 2022
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Website Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article Count :</div><div class="item-count">6</div></div><div class="webinfo-item"><div class="item-name">Unique Visitors :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Page Views :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Last Update :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-03-05T06:27:14.202Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By Yuxin Hou</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 5.4.2</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
