@@ -4103,7 +4103,7 @@ figure.highlight pre .javascript .function {
   top: calc(50% - 7px);
   left: 0;
   color: #42a1b4;
-  content: '0c1';
+  content: '\f0c1';
   line-height: 1.6;
   -webkit-transition: all 0.2s ease-out;
   -moz-transition: all 0.2s ease-out;
@@ -4147,6 +4147,13 @@ figure.highlight pre .javascript .function {
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
   margin-right: 3px;
+}
+.container h2:after {
+  display: inline-block;
+  content: "";
+  vertical-align: bottom;
+  border-bottom: 1.25rem solid #efebe9;
+  border-right: 1.25rem solid transparent;
 }
 .container h3 {
   padding-left: 30px;
