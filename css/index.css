@@ -4150,7 +4150,7 @@ figure.highlight pre .javascript .function {
   display: inline-block;
   background: #42a1b4;
   color: #fff;
-  padding: 3px 10px 1px;
+  padding: 3px 30px 1px;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
   margin-right: 3px;
@@ -4158,7 +4158,7 @@ figure.highlight pre .javascript .function {
 .container h3 {
   padding-left: 34px;
   border-left: 5px solid #42a1b4;
-  padding: 3px 10px 1px;
+  padding: 3px 30px 1px;
 }
 .container h3:before {
   font-size: 20px;
@@ -4169,7 +4169,7 @@ figure.highlight pre .javascript .function {
 .container h4 {
   padding-left: 32px;
   border-left: 5px solid #42a1b4;
-  padding: 3px 10px 1px;
+  padding: 3px 30px 1px;
 }
 .container h4:before {
   font-size: 18px;
