@@ -4128,7 +4128,7 @@ figure.highlight pre .javascript .function {
   color: #42a1b4;
 }
 .container h1 {
-  padding-left: 34px;
+  padding-left: 38px;
 }
 .container h1:before {
   font-size: 24px;
@@ -4137,7 +4137,7 @@ figure.highlight pre .javascript .function {
   padding-left: 38px;
 }
 .container h2 {
-  padding-left: 32px;
+  padding-left: 36px;
   border-bottom: 2px solid #42a1b4;
 }
 .container h2:before {
@@ -4155,15 +4155,8 @@ figure.highlight pre .javascript .function {
   border-top-left-radius: 3px;
   margin-right: 3px;
 }
-.container h2:after {
-  display: inline-block;
-  content: "";
-  vertical-align: bottom;
-  border-bottom: 1.25rem solid #efebe9;
-  border-right: 1.25rem solid transparent;
-}
 .container h3 {
-  padding-left: 30px;
+  padding-left: 34px;
   border-left: 5px solid #42a1b4;
   padding: 3px 10px 1px;
 }
@@ -4174,7 +4167,7 @@ figure.highlight pre .javascript .function {
   padding-left: 34px;
 }
 .container h4 {
-  padding-left: 28px;
+  padding-left: 32px;
   border-left: 5px solid #42a1b4;
   padding: 3px 10px 1px;
 }
@@ -4185,7 +4178,7 @@ figure.highlight pre .javascript .function {
   padding-left: 32px;
 }
 .container h5 {
-  padding-left: 26px;
+  padding-left: 30px;
 }
 .container h5:before {
   font-size: 16px;
@@ -4194,7 +4187,7 @@ figure.highlight pre .javascript .function {
   padding-left: 30px;
 }
 .container h6 {
-  padding-left: 26px;
+  padding-left: 30px;
 }
 .container h6:before {
   font-size: 16px;
