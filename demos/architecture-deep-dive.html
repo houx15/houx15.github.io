@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Architecture Deep Dive</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #050508;
+  --surface: #0a0a10;
+  --border: #1a1a2e;
+  --cyan: #00e5ff;
+  --cyan-dim: #00e5ff44;
+  --green: #39ff14;
+  --green-dim: #39ff1433;
+  --amber: #ffab00;
+  --amber-dim: #ffab0033;
+  --magenta: #ff006e;
+  --magenta-dim: #ff006e33;
+  --violet: #8b5cf6;
+  --violet-dim: #8b5cf633;
+  --coral: #ff6b6b;
+  --coral-dim: #ff6b6b33;
+  --teal: #2dd4bf;
+  --teal-dim: #2dd4bf33;
+  --rose: #f472b6;
+  --rose-dim: #f472b633;
+  --gold: #fbbf24;
+  --gold-dim: #fbbf2433;
+  --sky: #38bdf8;
+  --sky-dim: #38bdf833;
+  --text: #e0e0e8;
+  --text-dim: #8888a0;
+  --font-cn: 'Noto Serif SC', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: center; gap: 2px;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #050508ee 60%, transparent);
+  backdrop-filter: blur(8px);
+}
+nav a {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 500;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+nav a:hover, nav a.active {
+  color: var(--cyan);
+  border-color: var(--cyan-dim);
+  background: #00e5ff08;
+}
+
+/* SECTIONS */
+section {
+  min-height: 100vh;
+  scroll-snap-align: start;
+  padding: 80px 60px 60px;
+  position: relative;
+  overflow: hidden;
+}
+section::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+}
+
+/* SECTION HEADER */
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 120px;
+  font-weight: 700;
+  position: absolute;
+  top: 40px; right: 60px;
+  line-height: 1;
+  -webkit-text-stroke: 1px;
+  opacity: 0.04;
+  user-select: none;
+}
+.section-title {
+  font-family: var(--font-cn);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 900;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+  line-height: 1.3;
+}
+.section-subtitle {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+
+/* ACCENT COLORS PER SECTION */
+#s1 .section-title, #s1 .accent { color: var(--cyan); }
+#s1 .section-num { color: var(--cyan); }
+#s1 .glow-line { background: var(--cyan); box-shadow: 0 0 20px var(--cyan-dim); }
+#s1 .node-accent { border-color: var(--cyan); }
+#s1 .box-accent { border-color: var(--cyan-dim); background: #00e5ff06; }
+
+#s2 .section-title, #s2 .accent { color: var(--green); }
+#s2 .section-num { color: var(--green); }
+#s2 .glow-line { background: var(--green); box-shadow: 0 0 20px var(--green-dim); }
+#s2 .node-accent { border-color: var(--green); }
+#s2 .box-accent { border-color: var(--green-dim); background: #39ff1406; }
+
+#s3 .section-title, #s3 .accent { color: var(--coral); }
+#s3 .section-num { color: var(--coral); }
+#s3 .glow-line { background: var(--coral); box-shadow: 0 0 20px var(--coral-dim); }
+#s3 .node-accent { border-color: var(--coral); }
+#s3 .box-accent { border-color: var(--coral-dim); background: #ff6b6b06; }
+
+#s4 .section-title, #s4 .accent { color: var(--amber); }
+#s4 .section-num { color: var(--amber); }
+#s4 .glow-line { background: var(--amber); box-shadow: 0 0 20px var(--amber-dim); }
+#s4 .node-accent { border-color: var(--amber); }
+#s4 .box-accent { border-color: var(--amber-dim); background: #ffab0006; }
+
+#s5 .section-title, #s5 .accent { color: var(--violet); }
+#s5 .section-num { color: var(--violet); }
+#s5 .glow-line { background: var(--violet); box-shadow: 0 0 20px var(--violet-dim); }
+#s5 .node-accent { border-color: var(--violet); }
+#s5 .box-accent { border-color: var(--violet-dim); background: #8b5cf606; }
+
+#s6 .section-title, #s6 .accent { color: var(--magenta); }
+#s6 .section-num { color: var(--magenta); }
+#s6 .glow-line { background: var(--magenta); box-shadow: 0 0 20px var(--magenta-dim); }
+#s6 .node-accent { border-color: var(--magenta); }
+#s6 .box-accent { border-color: var(--magenta-dim); background: #ff006e06; }
+
+#s7 .section-title, #s7 .accent { color: var(--teal); }
+#s7 .section-num { color: var(--teal); }
+#s7 .glow-line { background: var(--teal); box-shadow: 0 0 20px var(--teal-dim); }
+#s7 .node-accent { border-color: var(--teal); }
+#s7 .box-accent { border-color: var(--teal-dim); background: #2dd4bf06; }
+
+#s8 .section-title, #s8 .accent { color: var(--rose); }
+#s8 .section-num { color: var(--rose); }
+#s8 .glow-line { background: var(--rose); box-shadow: 0 0 20px var(--rose-dim); }
+#s8 .node-accent { border-color: var(--rose); }
+#s8 .box-accent { border-color: var(--rose-dim); background: #f472b606; }
+
+#s9 .section-title, #s9 .accent { color: var(--gold); }
+#s9 .section-num { color: var(--gold); }
+#s9 .glow-line { background: var(--gold); box-shadow: 0 0 20px var(--gold-dim); }
+#s9 .node-accent { border-color: var(--gold); }
+#s9 .box-accent { border-color: var(--gold-dim); background: #fbbf2406; }
+
+#s10 .section-title, #s10 .accent { color: var(--sky); }
+#s10 .section-num { color: var(--sky); }
+#s10 .glow-line { background: var(--sky); box-shadow: 0 0 20px var(--sky-dim); }
+#s10 .node-accent { border-color: var(--sky); }
+#s10 .box-accent { border-color: var(--sky-dim); background: #38bdf806; }
+
+.glow-line {
+  width: 60px; height: 2px;
+  margin-bottom: 32px;
+  border-radius: 1px;
+}
+
+/* LAYOUT */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  max-width: 1400px;
+}
+.content-grid.three-col {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.content-grid.full {
+  grid-template-columns: 1fr;
+}
+
+/* FLOW DIAGRAM */
+.flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.flow-node {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--surface);
+}
+.flow-node.node-accent {
+  border-width: 1.5px;
+}
+.flow-arrow {
+  color: var(--text-dim);
+  font-size: 16px;
+  padding: 0 6px;
+  user-select: none;
+}
+.flow-arrow.down {
+  transform: rotate(90deg);
+  display: block;
+  text-align: center;
+  width: 100%;
+  padding: 4px 0;
+}
+
+/* CARDS */
+.card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+  background: var(--surface);
+  transition: border-color 0.3s ease;
+}
+.card:hover {
+  border-color: #2a2a4e;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.card p, .card li {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--text-dim);
+}
+.card li { margin-left: 16px; list-style: none; position: relative; }
+.card li::before {
+  content: '>';
+  position: absolute;
+  left: -14px;
+  opacity: 0.4;
+}
+
+/* CODE REFS */
+.file-ref {
+  font-size: 11px;
+  color: var(--text-dim);
+  opacity: 0.6;
+  font-style: italic;
+  display: block;
+  margin-top: 8px;
+  word-break: break-all;
+}
+code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 6px;
+  background: #12121e;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+}
+
+/* PIPELINE */
+.pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 12px 0;
+}
+.pipe-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-left: 2px solid var(--border);
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+.pipe-step:hover { background: #0e0e18; }
+.pipe-num {
+  font-weight: 700;
+  font-size: 10px;
+  opacity: 0.4;
+  min-width: 18px;
+}
+.pipe-label { color: var(--text-dim); }
+.pipe-step.active { border-left-width: 3px; }
+
+/* MATRIX TABLE */
+.matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin: 12px 0;
+}
+.matrix th {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.matrix td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #0e0e18;
+  color: var(--text-dim);
+  vertical-align: top;
+}
+.matrix tr:hover td { background: #0a0a14; }
+
+/* TAG */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 2px 2px;
+}
+.tag-cyan { background: var(--cyan-dim); color: var(--cyan); }
+.tag-green { background: var(--green-dim); color: var(--green); }
+.tag-amber { background: var(--amber-dim); color: var(--amber); }
+.tag-coral { background: var(--coral-dim); color: var(--coral); }
+.tag-violet { background: var(--violet-dim); color: var(--violet); }
+.tag-magenta { background: var(--magenta-dim); color: var(--magenta); }
+
+/* VERTICAL FLOW */
+.vflow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+.vflow::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 20px;
+  bottom: 20px;
+  width: 1px;
+  background: var(--border);
+}
+.vflow-node {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 10px 0;
+  position: relative;
+  z-index: 1;
+}
+.vflow-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700;
+}
+.vflow-content {
+  padding-top: 2px;
+}
+.vflow-content strong {
+  font-size: 12px;
+  display: block;
+  margin-bottom: 4px;
+}
+.vflow-content span {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* GRID BOXES */
+.arch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+.arch-box {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--surface);
+  transition: all 0.2s ease;
+}
+.arch-box:hover { transform: translateY(-2px); }
+.arch-box small {
+  display: block;
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+/* SHIELD LAYERS */
+.shield-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.shield-layer {
+  padding: 14px 20px;
+  border: 1px solid;
+  border-radius: 6px;
+  margin: -1px 0;
+  position: relative;
+  font-size: 12px;
+}
+.shield-layer .shield-title {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.shield-layer .shield-desc {
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* ANIMATIONS */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.animate-in {
+  animation: fadeSlideUp 0.6s ease-out both;
+}
+
+/* GRID NOISE TEXTURE */
+section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, #ffffff03 1px, transparent 0);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* SCROLL INDICATOR */
+.scroll-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--text-dim);
+  opacity: 0.4;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: pulse 2s ease-in-out infinite;
+  z-index: 50;
+}
+
+/* INSIGHT PARAGRAPH */
+.insight {
+  max-width: 1000px;
+  font-size: 13.5px;
+  line-height: 2;
+  color: #9999b0;
+  margin-bottom: 36px;
+  padding: 16px 20px;
+  border-left: 2px solid #1a1a2e;
+  background: linear-gradient(to right, #0a0a1208, transparent);
+  letter-spacing: 0.2px;
+}
+.insight strong { color: var(--text); font-weight: 600; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  section { padding: 80px 24px 40px; }
+  .content-grid, .content-grid.three-col { grid-template-columns: 1fr; }
+  .section-num { font-size: 80px; right: 24px; }
+  nav { gap: 0; padding: 8px 10px; flex-wrap: wrap; }
+  nav a { font-size: 9px; padding: 4px 8px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#s1">01 SKILL</a>
+  <a href="#s2">02 AGENT</a>
+  <a href="#s3">03 SANDBOX</a>
+  <a href="#s4">04 PLAN</a>
+  <a href="#s5">05 WEB</a>
+  <a href="#s6">06 TASK</a>
+  <a href="#s7">07 CONTEXT</a>
+  <a href="#s8">08 REMOTE</a>
+  <a href="#s9">09 TEAM</a>
+  <a href="#s10">10 COMMANDS</a>
+</nav>
+
+<div class="scroll-hint">scroll to navigate</div>
+
+<!-- ========== SECTION 1: SKILL ========== -->
+<section id="s1">
+  <div class="section-num">01</div>
+  <h1 class="section-title">技能调用逻辑</h1>
+  <p class="section-subtitle accent">Skill Invocation Pipeline</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">Skill 系统的核心设计思路是<strong>将 Markdown 文件当作可执行的 prompt 模板</strong>。每个 Skill 本质上是一个 <code>SKILL.md</code> 文件，通过 frontmatter 声明元数据（名字、触发条件、可用工具、模型偏好），正文就是注入给模型的指令。加载时，系统会从多个目录（<code>~/.claude/skills/</code>、项目本地 <code>.claude/skills/</code>、内置打包）扫描并合并所有 Skill，去重后注册为 Command 对象。当用户输入 <code>/skill-name</code> 或模型调用 SkillTool 时，系统找到对应的 Command，执行变量替换和内嵌 shell 命令，最终将处理后的 Markdown 作为 user message 注入对话上下文——模型"看到"这段内容后就按照指令执行。对于标记了 <code>context: 'fork'</code> 的 Skill，则会启动一个独立的 sub-agent 来执行，避免污染主会话的 token 预算。</p>
+
+  <div class="flow" style="margin-bottom: 32px;">
+    <div class="flow-node node-accent">User: /skill-name</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">processSlashCommand()</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">findCommand()</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node node-accent">getPromptForCommand()</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">Content Injection</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node node-accent">Model Executes</div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card box-accent">
+      <div class="card-title accent">Skill Loading</div>
+      <ul>
+        <li><code>loadSkillsFromSkillsDir()</code> reads <code>skill-name/SKILL.md</code></li>
+        <li>Parses frontmatter: name, description, whenToUse, allowedTools, model, hooks</li>
+        <li><code>createSkillCommand()</code> creates Command object</li>
+        <li>Bundled skills via <code>registerBundledSkill()</code></li>
+        <li>Memoized by <code>getSkillDirCommands()</code></li>
+      </ul>
+      <span class="file-ref">skills/loadSkillsDir.ts &bull; skills/bundledSkills.ts</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Registration & Discovery</div>
+      <ul>
+        <li><code>getCommands()</code> merges all skill sources</li>
+        <li>Sources: <code>~/.claude/skills/</code>, <code>.claude/skills/</code>, bundled, MCP</li>
+        <li>Deduplication via <code>uniqBy()</code></li>
+        <li>SkillTool.ts provides model-facing interface</li>
+        <li>Schema: <code>{ skill: string, args?: string }</code></li>
+      </ul>
+      <span class="file-ref">commands.ts &bull; tools/SkillTool/SkillTool.ts</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Execution Paths</div>
+      <div class="pipeline">
+        <div class="pipe-step active" style="border-left-color: var(--cyan);">
+          <span class="pipe-num">A</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Inline</strong> &mdash; Content injected directly into conversation as user message blocks</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--cyan);">
+          <span class="pipe-num">B</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Forked</strong> &mdash; <code>context: 'fork'</code> spawns sub-agent via <code>executeForkedSkill()</code> with isolated token budget</span>
+        </div>
+      </div>
+      <span class="file-ref">tools/SkillTool/SkillTool.ts:580 (call) &bull; :122 (fork)</span>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Content Processing</div>
+      <ul>
+        <li><code>substituteArguments()</code> — replaces arg placeholders</li>
+        <li><code>executeShellCommandsInPrompt()</code> — runs <code>!</code>...<code></code> blocks</li>
+        <li>Variable substitution: <code>${CLAUDE_SKILL_DIR}</code>, <code>${CLAUDE_SESSION_ID}</code></li>
+        <li>Returns <code>ContentBlockParam[]</code> as user message</li>
+        <li>Tracked via <code>addInvokedSkill()</code> for compaction</li>
+      </ul>
+      <span class="file-ref">skills/loadSkillsDir.ts:344-399</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 2: AGENT ========== -->
+<section id="s2">
+  <div class="section-num">02</div>
+  <h1 class="section-title">子代理架构</h1>
+  <p class="section-subtitle accent">Subagent Architecture & Dispatch</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">Sub-agent 架构的精妙之处在于<strong>工具池继承与过滤</strong>机制。父会话拥有全量工具集，每个 agent 类型通过 <code>tools</code>（白名单）和 <code>disallowedTools</code>（黑名单）声明自己需要的能力子集——Explore agent 只能读不能写，Plan agent 同理，而 general-purpose 拥有全部权限。分发时，<code>resolveAgentTools()</code> 从父会话的工具池中筛选出该 agent 可用的工具集，连同动态生成的 system prompt 一起传给 API。执行模式分为三种：<strong>inline</strong>（双向 SendMessage 循环，适合交互式任务）、<strong>background</strong>（注册为 LocalAgentTask 异步运行，完成后通知主会话）、<strong>remote</strong>（通过 CCR 远程执行）。Fork 机制更巧妙——它继承父会话完整的 <code>renderedSystemPrompt</code> 字节流来命中 prompt cache，避免重复计算，同时通过检测 <code>&lt;fork_boilerplate_tag&gt;</code> 防止递归 fork。</p>
+
+  <div class="content-grid" style="margin-bottom: 28px;">
+    <div class="card box-accent" style="grid-column: span 2;">
+      <div class="card-title accent">Agent Type Registry</div>
+      <table class="matrix">
+        <tr>
+          <th>Type</th><th>Model</th><th>Tools</th><th>Mode</th><th>Purpose</th>
+        </tr>
+        <tr>
+          <td><code>general-purpose</code></td>
+          <td>inherit</td>
+          <td><span class="tag tag-green">*</span></td>
+          <td>interactive</td>
+          <td>Full-access multi-step research & execution</td>
+        </tr>
+        <tr>
+          <td><code>Explore</code></td>
+          <td>haiku</td>
+          <td>read-only</td>
+          <td>one-shot</td>
+          <td>Fast codebase search, file pattern matching</td>
+        </tr>
+        <tr>
+          <td><code>Plan</code></td>
+          <td>inherit</td>
+          <td>read-only</td>
+          <td>one-shot</td>
+          <td>Architecture design, implementation blueprints</td>
+        </tr>
+        <tr>
+          <td><code>verification</code></td>
+          <td>inherit</td>
+          <td>read-only</td>
+          <td>one-shot</td>
+          <td>Test implementations, find edge cases</td>
+        </tr>
+        <tr>
+          <td><code>claude-code-guide</code></td>
+          <td>inherit</td>
+          <td>Glob, Grep, Read, WebFetch, WebSearch</td>
+          <td>one-shot</td>
+          <td>CLI usage guidance</td>
+        </tr>
+        <tr>
+          <td><code>statusline-setup</code></td>
+          <td>inherit</td>
+          <td>Read, Edit</td>
+          <td>one-shot</td>
+          <td>Configure status line</td>
+        </tr>
+      </table>
+      <span class="file-ref">tools/AgentTool/builtInAgents.ts &bull; tools/AgentTool/built-in/*.ts</span>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card">
+      <div class="card-title accent">Agent Definition Schema</div>
+      <div class="pipeline">
+        <div class="pipe-step"><span class="pipe-num">.</span><span class="pipe-label"><code>agentType: string</code> — unique identifier</span></div>
+        <div class="pipe-step"><span class="pipe-num">.</span><span class="pipe-label"><code>tools: string[] | '*'</code> — tool access</span></div>
+        <div class="pipe-step"><span class="pipe-num">.</span><span class="pipe-label"><code>disallowedTools: string[]</code> — blacklist</span></div>
+        <div class="pipe-step"><span class="pipe-num">.</span><span class="pipe-label"><code>model: string | 'inherit'</code></span></div>
+        <div class="pipe-step"><span class="pipe-num">.</span><span class="pipe-label"><code>permissionMode: 'bubble' | 'ask'</code></span></div>
+        <div class="pipe-step"><span class="pipe-num">.</span><span class="pipe-label"><code>isolation: 'worktree' | 'remote'</code></span></div>
+        <div class="pipe-step"><span class="pipe-num">.</span><span class="pipe-label"><code>getSystemPrompt: () => string</code></span></div>
+      </div>
+      <span class="file-ref">tools/AgentTool/loadAgentsDir.ts</span>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Lifecycle &amp; Dispatch</div>
+      <div class="vflow">
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--green);">1</div>
+          <div class="vflow-content">
+            <strong>Validate &amp; Resolve</strong>
+            <span>Check agent exists, resolve tools via <code>resolveAgentTools()</code>, filter parent's tool pool</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--green);">2</div>
+          <div class="vflow-content">
+            <strong>System Prompt Build</strong>
+            <span>Render <code>getSystemPrompt()</code> with context, init MCP servers, clone file state cache</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--green);">3</div>
+          <div class="vflow-content">
+            <strong>Execute</strong>
+            <span><strong>Inline</strong>: bidirectional SendMessage loop<br><strong>Background</strong>: <code>LocalAgentTask</code> + notification<br><strong>Remote</strong>: CCR session via <code>teleportToRemote()</code></span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--green);">4</div>
+          <div class="vflow-content">
+            <strong>Return &amp; Cleanup</strong>
+            <span>Unregister MCP, kill shells, record transcript, emit <code>enqueueAgentNotification</code></span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">tools/AgentTool/runAgent.ts &bull; AgentTool.tsx</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 24px; max-width: 1400px;">
+    <div class="card-title accent">Fork Subagent (Implicit Clone)</div>
+    <div class="flow">
+      <div class="flow-node">Omit <code>subagent_type</code></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node node-accent">FORK_SUBAGENT gate</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">Inherit full parent context</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node">FORK_AGENT type</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node node-accent">One-shot background</div>
+    </div>
+    <p style="font-size:11px;color:var(--text-dim);margin-top:8px;">Shares parent's <code>renderedSystemPrompt</code> byte-exact for cache parity. Recursive fork guard via <code>&lt;fork_boilerplate_tag&gt;</code> detection.</p>
+    <span class="file-ref">tools/AgentTool/forkSubagent.ts</span>
+  </div>
+</section>
+
+<!-- ========== SECTION 3: BASH SECURITY ========== -->
+<section id="s3">
+  <div class="section-num">03</div>
+  <h1 class="section-title">命令行安全机制</h1>
+  <p class="section-subtitle accent">Bash Security & Sandbox Architecture</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">Bash 安全的核心挑战是：<strong>模型生成的命令本质上是不可信的用户输入</strong>，必须在执行前多层验证。第一道防线是用 tree-sitter 将命令解析为 AST（抽象语法树），如果命令过于复杂无法解析，则回退到正则匹配——这比单纯的字符串匹配更可靠，因为它能理解 shell 语法结构。第二道是 22 种注入模式检测，覆盖了 <code>$()</code>、反引号、进程替换等所有 shell 展开语法，以及 zsh 特有的危险内置命令。第三道是权限规则引擎，支持精确匹配、前缀通配、全通配三种模式，按 DENY > ASK > ALLOW 优先级决策。只读模式通过白名单实现——不是"禁止危险命令"，而是"只允许已知安全的命令"，并且细化到 flag 级别（比如 <code>git checkout</code> 允许，但带 <code>--force</code> 就不行）。最后一道是运行时沙盒，即使前面所有检查都通过了，命令仍然在进程级隔离环境中执行。</p>
+
+  <div class="content-grid" style="margin-bottom: 28px;">
+    <div class="card box-accent" style="grid-column: span 2;">
+      <div class="card-title accent">Defense-in-Depth: Security Layers</div>
+      <div class="shield-layers">
+        <div class="shield-layer" style="border-color: var(--coral); z-index:5; background: #ff6b6b08;">
+          <div class="shield-title" style="color:var(--coral);">Layer 1 &mdash; AST-Based Security Parse</div>
+          <div class="shield-desc">Tree-sitter parses command into AST. If too complex → fallback to regex. Each subcommand checked independently for compound commands.</div>
+        </div>
+        <div class="shield-layer" style="border-color: #ff6b6b88; z-index:4; margin: 0 12px; background: #ff6b6b06;">
+          <div class="shield-title" style="color:var(--coral);">Layer 2 &mdash; Command Injection Detection (22+ patterns)</div>
+          <div class="shield-desc">Blocks: <code>$()</code>, <code>${}</code>, backticks, <code>&lt;()</code>, <code>&gt;()</code>, <code>=()</code>, IFS injection, control chars, newline embedding, zsh dangerous builtins (<code>zmodload</code>, <code>zpty</code>, <code>ztcp</code>, <code>sysopen</code>...)</div>
+        </div>
+        <div class="shield-layer" style="border-color: #ff6b6b66; z-index:3; margin: 0 24px; background: #ff6b6b04;">
+          <div class="shield-title" style="color:var(--coral);">Layer 3 &mdash; Permission Rule Matching</div>
+          <div class="shield-desc">Exact match → Prefix/wildcard → Default. Priority: DENY > ASK > ALLOW. Patterns: <code>Bash(exact)</code>, <code>Bash(prefix:*)</code>, <code>Bash(*wildcard*)</code></div>
+        </div>
+        <div class="shield-layer" style="border-color: #ff6b6b44; z-index:2; margin: 0 36px; background: #ff6b6b02;">
+          <div class="shield-title" style="color:var(--coral);">Layer 4 &mdash; Read-Only Validation</div>
+          <div class="shield-desc">Whitelist-based: 100+ safe commands. Validates flags at flag level (<code>-x/--exec</code> rejected). Separate lists: git, gh, docker, pyright, external tools.</div>
+        </div>
+        <div class="shield-layer" style="border-color: #ff6b6b22; z-index:1; margin: 0 48px; background: #ff6b6b01;">
+          <div class="shield-title" style="color:var(--coral);">Layer 5 &mdash; Sandbox Runtime</div>
+          <div class="shield-desc">Execution-time enforcement via <code>@anthropic-ai/sandbox-runtime</code>. Platform-level process isolation. Final guard before shell execution.</div>
+        </div>
+      </div>
+      <span class="file-ref">tools/BashTool/bashSecurity.ts (2,592 lines) &bull; bashPermissions.ts (2,621 lines) &bull; readOnlyValidation.ts (68KB)</span>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card">
+      <div class="card-title accent">Sandbox Decision Logic</div>
+      <div class="vflow">
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--coral);">?</div>
+          <div class="vflow-content">
+            <strong>isSandboxingEnabled()?</strong>
+            <span>Check platform support, dependencies, enabledPlatforms</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--coral);">?</div>
+          <div class="vflow-content">
+            <strong>dangerouslyDisableSandbox?</strong>
+            <span>Only if <code>allowUnsandboxedCommands: true</code> in settings</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--coral);">?</div>
+          <div class="vflow-content">
+            <strong>containsExcludedCommand()?</strong>
+            <span>Some commands incompatible with sandbox</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--coral);">!</div>
+          <div class="vflow-content">
+            <strong>Apply Sandbox</strong>
+            <span>Process isolation via sandbox-runtime adapter</span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">tools/BashTool/shouldUseSandbox.ts:130</span>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Read-Only Command Categories</div>
+      <div class="arch-grid">
+        <div class="arch-box" style="border-color: var(--coral-dim);">
+          GIT_READ_ONLY
+          <small>log, diff, show, status, branch, tag...</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--coral-dim);">
+          GH_READ_ONLY
+          <small>pr list/view, issue list, repo view...</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--coral-dim);">
+          EXTERNAL_READONLY
+          <small>xargs, fd, jq, ripgrep, wc, sort...</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--coral-dim);">
+          DOCKER_READ_ONLY
+          <small>ps, images, inspect, logs...</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--coral-dim);">
+          PYRIGHT_READ_ONLY
+          <small>Static analysis commands</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--coral-dim);">
+          PATH_VALIDATION
+          <small>Block UNC paths, enforce constraints</small>
+        </div>
+      </div>
+      <span class="file-ref">utils/shell/readOnlyCommandValidation.ts &bull; pathValidation.ts</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 4: PLAN/EXECUTION/REVIEW ========== -->
+<section id="s4">
+  <div class="section-num">04</div>
+  <h1 class="section-title">规划与执行流程</h1>
+  <p class="section-subtitle accent">Plan → Approve → Execute → Review</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">Plan 模式的设计哲学是<strong>"先想清楚再动手"</strong>，通过权限降级来强制实现。进入 Plan 模式后，<code>toolPermissionContext.mode</code> 被设为 <code>'plan'</code>，此时 Edit、Write 等写入工具被禁用，模型只能用 Glob、Grep、Read、Bash（只读）来探索代码库。计划写入磁盘文件 <code>~/.claude/plans/{slug}.md</code>，slug 用词组拼接（如 "swift-noble-piano"）保证可读性。退出时有三种路径：用户自愿退出直接恢复全量权限；队友模式下通过 mailbox 发送审批请求等待 team lead 确认；UltraPlan 则更激进——在远程 CCR 会话中用 30 分钟深度规划，经历 <code>running → needs_input → ready</code> 三个阶段，用户可以在浏览器中编辑计划后选择本地执行（teleport 回来）或远程继续（结果直接变成 PR）。Review 同样分两档：本地用 <code>gh</code> CLI 快速检视，或启动 UltraReview 远程 bughunter agent 做 10-20 分钟的深度审查。</p>
+
+  <div class="flow" style="margin-bottom: 32px;">
+    <div class="flow-node node-accent">EnterPlanMode</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">Read-Only Exploration</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">Write Plan to Disk</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node node-accent">ExitPlanMode</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">Approval Gate</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node node-accent">Full Tool Access</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">Review</div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card box-accent">
+      <div class="card-title accent">Plan Mode Mechanics</div>
+      <ul>
+        <li><strong>Enter:</strong> Sets <code>toolPermissionContext.mode = 'plan'</code></li>
+        <li><strong>Effect:</strong> Restricts to read-only (Glob, Grep, Read, Bash)</li>
+        <li><strong>Storage:</strong> <code>~/.claude/plans/{slug}.md</code></li>
+        <li><strong>Slug:</strong> Word-based (e.g. "swift-noble-piano"), 10 retries for uniqueness</li>
+        <li><strong>Subagent plans:</strong> <code>{slug}-agent-{agentId}.md</code></li>
+        <li><strong>Exit:</strong> Restores <code>prePlanMode</code>, clears context</li>
+      </ul>
+      <span class="file-ref">tools/EnterPlanModeTool/ &bull; tools/ExitPlanModeTool/ &bull; utils/plans.ts</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Approval Flows</div>
+      <div class="pipeline">
+        <div class="pipe-step active" style="border-left-color: var(--amber);">
+          <span class="pipe-num">A</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Voluntary</strong> — User exits plan mode, restores default mode immediately</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--amber);">
+          <span class="pipe-num">B</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Teammate</strong> — <code>plan_approval_request</code> sent to team lead via mailbox, waits for approval</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--amber);">
+          <span class="pipe-num">C</span>
+          <span class="pipe-label"><strong style="color:var(--text)">UltraPlan</strong> — Remote CCR session, user edits in browser, chooses local or remote execution</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">UltraPlan (Remote Planning)</div>
+      <div class="vflow">
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--amber);">1</div>
+          <div class="vflow-content">
+            <strong>Launch RemoteAgentTask</strong>
+            <span>30-min timeout, seed plan + ultraplan instructions</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--amber);">2</div>
+          <div class="vflow-content">
+            <strong>Phase Transitions</strong>
+            <span><code>'running' → 'needs_input' → 'ready'</code></span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--amber);">3</div>
+          <div class="vflow-content">
+            <strong>Execution Target</strong>
+            <span><strong>Local:</strong> teleport plan to local session<br><strong>Remote:</strong> continue in CCR, results land as PR</span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">commands/ultraplan.tsx</span>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Review Mechanisms</div>
+      <div class="pipeline">
+        <div class="pipe-step active" style="border-left-color: var(--amber);">
+          <span class="pipe-num">L</span>
+          <span class="pipe-label"><strong style="color:var(--text)">LocalReview</strong> — <code>gh pr list → gh pr view → gh pr diff</code> with local analysis</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--amber);">
+          <span class="pipe-num">U</span>
+          <span class="pipe-label"><strong style="color:var(--text)">UltraReview</strong> — Remote bughunter agent (~10-20 min), fee-based quota, runs on Claude Code web</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--amber);">
+          <span class="pipe-num">A</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Agent Review</strong> — Plan agent (read-only) outputs step-by-step plan + 3-5 critical files</span>
+        </div>
+      </div>
+      <span class="file-ref">commands/review.ts &bull; services/api/ultrareviewQuota.ts &bull; tools/AgentTool/built-in/planAgent.ts</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 5: WEB ========== -->
+<section id="s5">
+  <div class="section-num">05</div>
+  <h1 class="section-title">网络获取与搜索</h1>
+  <p class="section-subtitle accent">WebFetch & WebSearch Implementation</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">WebFetch 和 WebSearch 虽然都是"上网"，但<strong>架构完全不同</strong>。WebFetch 是客户端实现——用 Axios 发 HTTP 请求，拿到 HTML 后用 Turndown.js 转成 Markdown，再调用 Haiku 小模型根据用户 prompt 提取关键信息，最终返回不超过 100K 字符的结果。安全上做了三层防护：先查 Anthropic 的域名黑名单 API（5 分钟缓存），再检查是否在 100+ 个预批准域名（各种文档站点）列表中，最后限制只跟随同域重定向、拒绝 URL 中的凭据。内容缓存用 LRU 策略，15 分钟 TTL、50MB 上限。WebSearch 则完全不同——它是<strong>服务端原生能力</strong>，调用 Claude API 的 <code>web_search_20250305</code> beta tool，搜索在 Anthropic 服务器上执行，客户端只负责流式解析返回的 <code>server_tool_use</code> 和 <code>web_search_tool_result</code> 事件块。每个会话限 8 次搜索。两者都设置了 <code>shouldDefer: true</code>，意味着它们的执行可以被延迟以优化 UX。</p>
+
+  <div class="content-grid">
+    <div class="card box-accent">
+      <div class="card-title accent">WebFetch Architecture</div>
+      <div class="vflow">
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--violet);">1</div>
+          <div class="vflow-content">
+            <strong>Domain Blocklist Preflight</strong>
+            <span>API call: <code>api.anthropic.com/api/web/domain_info?domain=</code><br>5-min LRU cache, enterprise skip via settings</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--violet);">2</div>
+          <div class="vflow-content">
+            <strong>Permission Check</strong>
+            <span>100+ preapproved hosts (Anthropic, React, Django, Node.js docs...)<br>Non-approved domains require user confirmation</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--violet);">3</div>
+          <div class="vflow-content">
+            <strong>Axios HTTP Fetch</strong>
+            <span>Max 10 redirects (same-domain only), 60s timeout, 10MB max content<br>Blocks credentials in URLs, checks egress proxy headers</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--violet);">4</div>
+          <div class="vflow-content">
+            <strong>HTML → Markdown</strong>
+            <span>Turndown.js library (~1.4MB, lazy-loaded singleton)<br>Result cached: LRU with 15-min TTL, 50MB limit</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--violet);">5</div>
+          <div class="vflow-content">
+            <strong>Haiku Post-Processing</strong>
+            <span><code>queryHaiku()</code> applies user prompt to markdown (truncated to 100K chars)<br>Binary content (PDFs) saved to disk via <code>persistBinaryContent()</code></span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">tools/WebFetchTool/WebFetchTool.ts &bull; utils.ts</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">WebSearch Architecture</div>
+      <div class="vflow">
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--violet);">1</div>
+          <div class="vflow-content">
+            <strong>Native API Tool</strong>
+            <span>Server-side <code>web_search_20250305</code> beta tool<br>No third-party search API — built into Claude API</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--violet);">2</div>
+          <div class="vflow-content">
+            <strong>Domain Filtering</strong>
+            <span><code>allowed_domains</code> / <code>blocked_domains</code> (mutually exclusive)<br>Max 8 searches per session</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--violet);">3</div>
+          <div class="vflow-content">
+            <strong>Streaming Response</strong>
+            <span>Tracks <code>server_tool_use</code>, <code>web_search_tool_result</code>, text blocks<br>Real-time JSON parsing for progress events</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--violet);">4</div>
+          <div class="vflow-content">
+            <strong>Result Format</strong>
+            <span><code>(SearchResult | string)[]</code> with title/URL pairs<br>Mandatory "Sources:" section in output</span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">tools/WebSearchTool/WebSearchTool.ts</span>
+
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+        <div class="card-title accent" style="font-size: 11px;">Key Design Decisions</div>
+        <table class="matrix">
+          <tr><th>Aspect</th><th>WebFetch</th><th>WebSearch</th></tr>
+          <tr><td>Engine</td><td>Axios + Turndown</td><td>Claude API native</td></tr>
+          <tr><td>Caching</td><td>LRU client-side</td><td>Server-side</td></tr>
+          <tr><td>Processing</td><td>Haiku secondary model</td><td>Inline streaming</td></tr>
+          <tr><td>Deferral</td><td colspan="2"><code>shouldDefer: true</code> for both</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 6: TASK ========== -->
+<section id="s6">
+  <div class="section-num">06</div>
+  <h1 class="section-title">任务管理系统</h1>
+  <p class="section-subtitle accent">Task System & Lifecycle Management</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">Task 系统实际上是<strong>两套独立的机制共存</strong>。第一套是<strong>后台任务系统</strong>，管理 shell 命令、agent、工作流等异步进程的生命周期——每个任务有唯一 ID（类型前缀 + 8 字节随机数），输出流写入磁盘文件，框架每秒轮询一次读取增量，通过 circular buffer（1000 行内存）+ 8MB 溢出到磁盘的策略平衡性能和内存。卡住检测很聪明：45 秒超时后检查输出尾部是否匹配交互式提示（如 "y/n"、"Press Enter"），区分真正卡住和只是运行慢。第二套是 <strong>V2 Todo 系统</strong>，纯粹的持久化检查清单，用 JSON 文件存储在 <code>~/.claude/tasks/{taskListId}/</code>，通过 <code>proper-lockfile</code> 实现多 agent 并发安全。两套系统在 Swarm（多 agent 团队协作）场景下汇合：任务列表以 team name 为 ID，队友共享 leader 的任务列表，通过 <code>owner</code> 字段追踪认领关系，<code>writeToMailbox()</code> 实现所有权变更通知，<code>claimTask()</code> 用原子忙检查防止重复认领。</p>
+
+  <div class="content-grid" style="margin-bottom: 28px;">
+    <div class="card box-accent" style="grid-column: span 2;">
+      <div class="card-title accent">Dual Task Systems</div>
+      <div class="content-grid" style="gap: 20px;">
+        <div>
+          <p style="font-size: 13px; font-weight: 700; color: var(--magenta); margin-bottom: 12px;">Background Task System</p>
+          <p style="font-size: 11px; color: var(--text-dim); line-height: 1.8;">
+            Manages async processes: shell commands, agents, workflows, MCP monitors.<br>
+            Types: <code>local_bash</code>, <code>local_agent</code>, <code>remote_agent</code>, <code>in_process_teammate</code>, <code>local_workflow</code>, <code>monitor_mcp</code>, <code>dream</code><br>
+            Status flow: <span class="tag tag-magenta">pending</span> → <span class="tag tag-magenta">running</span> → <span class="tag tag-magenta">completed</span> | <span class="tag tag-coral">failed</span> | <span class="tag tag-coral">killed</span>
+          </p>
+          <span class="file-ref">Task.ts &bull; tasks/types.ts</span>
+        </div>
+        <div>
+          <p style="font-size: 13px; font-weight: 700; color: var(--magenta); margin-bottom: 12px;">V2 Todo / Checklist System</p>
+          <p style="font-size: 11px; color: var(--text-dim); line-height: 1.8;">
+            Persistent user-facing task tracking. Independent from background tasks.<br>
+            Stored: <code>~/.claude/tasks/{taskListId}/</code> with <code>proper-lockfile</code> for swarm safety.<br>
+            Status flow: <span class="tag tag-magenta">pending</span> → <span class="tag tag-magenta">in_progress</span> → <span class="tag tag-magenta">completed</span>
+          </p>
+          <span class="file-ref">utils/tasks.ts</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid three-col">
+    <div class="card">
+      <div class="card-title accent">Background Task Lifecycle</div>
+      <div class="vflow">
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--magenta);">1</div>
+          <div class="vflow-content">
+            <strong>Create</strong>
+            <span><code>generateTaskId()</code> — type prefix + 8 random bytes<br>Register in <code>AppState.tasks</code> map</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--magenta);">2</div>
+          <div class="vflow-content">
+            <strong>Execute</strong>
+            <span>Output → disk: <code>/project-temp/{sessionId}/tasks/{taskId}.output</code><br>Dual mode: file (stdio fd) or pipe (in-memory + spillover)</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--magenta);">3</div>
+          <div class="vflow-content">
+            <strong>Monitor</strong>
+            <span><code>pollTasks()</code> every 1s, reads output delta<br>Stall detection at 45s (interactive prompt detection)</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--magenta);">4</div>
+          <div class="vflow-content">
+            <strong>Complete</strong>
+            <span>Terminal state + <code>notified</code> flag → evict from memory<br>3s grace period for coordinator panel</span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">utils/task/framework.ts &bull; diskOutput.ts</span>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Task Tools API</div>
+      <div class="arch-grid" style="grid-template-columns: 1fr;">
+        <div class="arch-box" style="border-color: var(--magenta-dim); text-align: left;">
+          <strong>TaskCreate</strong>
+          <small>Creates V2 task, triggers TaskCreated hooks</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--magenta-dim); text-align: left;">
+          <strong>TaskUpdate</strong>
+          <small>Status/owner/blocks, cascades ownership via mailbox, triggers TaskCompleted hooks</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--magenta-dim); text-align: left;">
+          <strong>TaskGet</strong>
+          <small>Read single task by ID</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--magenta-dim); text-align: left;">
+          <strong>TaskList</strong>
+          <small>List all tasks, filter resolved blockers</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--magenta-dim); text-align: left;">
+          <strong>TaskStop</strong>
+          <small>Kill running task via Task.kill()</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--magenta-dim); text-align: left;">
+          <strong>TaskOutput</strong>
+          <small>Circular buffer (1000 lines) + disk spillover at 8MB, max 5GB</small>
+        </div>
+      </div>
+      <span class="file-ref">tools/TaskCreateTool &bull; TaskUpdateTool &bull; TaskGetTool &bull; TaskListTool &bull; TaskStopTool</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Swarm & Teammate Integration</div>
+      <ul>
+        <li>Task list ID resolves to <strong>team name</strong></li>
+        <li>Teammates share leader's task list</li>
+        <li><code>owner</code> field tracks agent name/ID</li>
+        <li><code>writeToMailbox()</code> on ownership change</li>
+        <li><code>claimTask()</code> with atomic busy-check</li>
+        <li><code>unassignTeammateTasks()</code> on terminate</li>
+        <li>High water mark prevents ID reuse after deletion</li>
+        <li><code>blockedBy[]</code> / <code>blocks[]</code> for dependency DAG</li>
+      </ul>
+      <span class="file-ref">utils/tasks.ts &bull; tasks/InProcessTeammateTask/types.ts</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 7: CONTEXT / MEMORY ========== -->
+<section id="s7">
+  <div class="section-num">07</div>
+  <h1 class="section-title">上下文与记忆管理</h1>
+  <p class="section-subtitle accent">Context Window, Compaction & Memory Architecture</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">上下文管理要解决的核心矛盾是：<strong>对话可以无限长，但模型的上下文窗口是有限的</strong>（200K 或 1M tokens）。系统用三层策略应对。第一层是<strong>精确的 token 预算追踪</strong>——<code>tokenCountWithEstimation()</code> 实时计算当前上下文占用，当距离窗口上限还剩 13K tokens 时触发自动压缩。第二层是<strong>对话压缩（Compaction）</strong>——启动一个 forked sub-agent 将历史对话摘要为不超过 20K tokens 的总结，插入 <code>SystemCompactBoundaryMessage</code> 标记，旧消息被丢弃但关键信息保留。第三层是<strong>持久化记忆</strong>——<code>memdir/</code> 系统维护一个 <code>MEMORY.md</code> 索引文件（限 200 行 / 25KB）指向独立的记忆文件，每次对话开始时用 Sonnet 模型语义匹配最多 5 条相关记忆注入上下文。还有 <code>SessionMemory</code> 在后台周期性运行，当上下文用量超过 50% 时开始记录会话笔记到 <code>.claude-sessions/{sessionId}/session-memory.md</code>，确保即使发生压缩也不会丢失关键上下文。</p>
+
+  <div class="flow" style="margin-bottom: 32px;">
+    <div class="flow-node node-accent">User Query</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">getUserContext() + getSystemContext()</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">buildEffectiveSystemPrompt()</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node node-accent">tokenCountWithEstimation()</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">Threshold Check</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node node-accent">compactConversation()</div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card box-accent">
+      <div class="card-title accent">Token Budget & Thresholds</div>
+      <table class="matrix">
+        <tr><th>Threshold</th><th>Buffer</th><th>Action</th></tr>
+        <tr><td>Auto-compact</td><td>13,000 tokens</td><td>Fork agent to summarize conversation</td></tr>
+        <tr><td>Warning</td><td>20,000 tokens</td><td>Warn user context is filling up</td></tr>
+        <tr><td>Error</td><td>20,000 tokens</td><td>Block further messages</td></tr>
+        <tr><td>Manual compact</td><td>3,000 tokens</td><td>User-triggered <code>/compact</code></td></tr>
+        <tr><td>Circuit breaker</td><td>3 failures</td><td>Stop retrying compaction</td></tr>
+      </table>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:10px;">Context windows: 200K default, 1M for Sonnet-4 / Opus-4.6<br>Disable 1M via <code>CLAUDE_CODE_DISABLE_1M_CONTEXT</code></p>
+      <span class="file-ref">services/compact/autoCompact.ts &bull; utils/context.ts</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Compaction Engine</div>
+      <div class="vflow">
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--teal);">1</div>
+          <div class="vflow-content">
+            <strong>Trigger</strong>
+            <span>Context ≥ (window - 13K). Also <code>/compact</code> manual trigger.</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--teal);">2</div>
+          <div class="vflow-content">
+            <strong>Pre-Compact Hooks</strong>
+            <span><code>executePreCompactHooks()</code> — user-defined side effects</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--teal);">3</div>
+          <div class="vflow-content">
+            <strong>Forked Agent Summarizes</strong>
+            <span><code>runForkedAgent()</code> produces ≤20K token summary<br>Preserves: tool results, file attachments, plan state</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--teal);">4</div>
+          <div class="vflow-content">
+            <strong>Boundary Marker</strong>
+            <span><code>SystemCompactBoundaryMessage</code> inserted, old messages dropped</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--teal);">5</div>
+          <div class="vflow-content">
+            <strong>Post-Compact Hooks</strong>
+            <span><code>executePostCompactHooks()</code> — cleanup, state refresh</span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">services/compact/compact.ts &bull; microCompact.ts</span>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Persistent Memory (memdir/)</div>
+      <ul>
+        <li><strong>MEMORY.md</strong> — index file, max 200 lines / 25KB, auto-truncated</li>
+        <li>Each memory = standalone <code>.md</code> with frontmatter (name, type, description)</li>
+        <li>Types: <span class="tag tag-teal">user</span> <span class="tag tag-teal">feedback</span> <span class="tag tag-teal">project</span> <span class="tag tag-teal">reference</span></li>
+        <li><code>findRelevantMemories()</code> — Sonnet selects ≤5 relevant memories per query</li>
+        <li><code>memoryScan.ts</code> — scans up to 200 files, reads 30-line frontmatter</li>
+        <li>Directories: <code>~/.claude/projects/{path}/memory/</code></li>
+      </ul>
+      <span class="file-ref">memdir/memdir.ts &bull; memoryScan.ts &bull; findRelevantMemories.ts</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">System Prompt Priority</div>
+      <div class="pipeline">
+        <div class="pipe-step active" style="border-left-color: var(--teal);">
+          <span class="pipe-num">1</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Override</strong> — loop mode, replaces all</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--teal);">
+          <span class="pipe-num">2</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Coordinator</strong> — coordinator prompt</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--teal);">
+          <span class="pipe-num">3</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Agent</strong> — agent-specific instructions</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--teal);">
+          <span class="pipe-num">4</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Custom</strong> — <code>--system-prompt</code> flag</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--teal);">
+          <span class="pipe-num">5</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Default</strong> — standard Claude Code prompt</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--teal);">
+          <span class="pipe-num">6</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Append</strong> — always added last</span>
+        </div>
+      </div>
+      <span class="file-ref">utils/systemPrompt.ts</span>
+
+      <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <div class="card-title accent" style="font-size:11px;">Session Memory (Background)</div>
+        <p style="font-size:11px;color:var(--text-dim);line-height:1.8;">
+          <code>SessionMemory</code> runs as background forked agent. Initializes when context ≥ 50%. Periodically updates <code>.claude-sessions/{sessionId}/session-memory.md</code>. Survives compaction events.
+        </p>
+        <span class="file-ref">services/SessionMemory/sessionMemory.ts</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 8: REMOTE CONTROL ========== -->
+<section id="s8">
+  <div class="section-num">08</div>
+  <h1 class="section-title">远程控制与协作</h1>
+  <p class="section-subtitle accent">Remote Session Management & Teleportation</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">Remote Control 系统让 Claude Code 能将<strong>计算密集型任务"传送"到云端执行</strong>，本地 CLI 变成一个轻量级的控制面板。整个流程的起点是 <code>teleportWithProgress()</code>：先验证 Git 状态，然后通过两种方式将代码同步到远端——默认从 GitHub origin 克隆，或者在没有远程仓库时创建 <code>git bundle --all</code> 上传。远端 CCR（Claude Code Remote）容器启动后，本地通过 WebSocket 订阅事件流（<code>/v1/sessions/ws/{id}/subscribe</code>），实现双向通信。最精妙的是<strong>权限委托机制</strong>：远端 agent 需要执行危险操作时，通过 <code>SDKControlRequest</code> 将权限请求推送到本地，用户在本地 CLI 看到工具调用对话框做出决策，响应通过 <code>SDKControlResponse</code> 回传——远端永远不会绕过本地用户的权限控制。断线重连用指数退避（2s→4s→8s→16s），任务元数据持久化到 sidecar 文件确保 CLI 重启后能恢复。</p>
+
+  <div class="flow" style="margin-bottom: 32px;">
+    <div class="flow-node node-accent">Local CLI</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">teleportWithProgress()</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">Git Bundle / GitHub Clone</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node node-accent">CCR Container</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">WebSocket Subscribe</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node node-accent">Bidirectional Stream</div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card box-accent">
+      <div class="card-title accent">Session Lifecycle</div>
+      <div class="vflow">
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--rose);">1</div>
+          <div class="vflow-content">
+            <strong>Create</strong>
+            <span>POST <code>/v1/sessions</code> with git source + context<br>OAuth token + <code>x-organization-uuid</code> auth</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--rose);">2</div>
+          <div class="vflow-content">
+            <strong>Connect</strong>
+            <span>WebSocket subscribe + auth handshake<br>Ping/pong keepalive every 30s</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--rose);">3</div>
+          <div class="vflow-content">
+            <strong>Run</strong>
+            <span>Poll events via GET <code>/v1/sessions/{id}/events</code><br>Max 50 pages per poll, cursor-based pagination</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--rose);">4</div>
+          <div class="vflow-content">
+            <strong>Archive</strong>
+            <span>POST <code>/v1/sessions/{id}/archive</code> — fire-and-forget cleanup</span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">remote/RemoteSessionManager.ts &bull; utils/teleport/api.ts</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Permission Bridge</div>
+      <div style="padding: 16px; border: 1px solid var(--border); border-radius: 6px; background: #0a0a10; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 20px; justify-content: center; flex-wrap: wrap;">
+          <div style="text-align: center;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--rose); margin-bottom: 4px;">REMOTE</div>
+            <div style="font-size: 10px; color: var(--text-dim);">Agent needs<br>tool permission</div>
+          </div>
+          <div style="font-size: 20px; color: var(--rose);">⟶</div>
+          <div style="text-align: center; padding: 8px 12px; border: 1px solid var(--rose-dim); border-radius: 4px;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--rose);">SDKControlRequest</div>
+            <div style="font-size: 9px; color: var(--text-dim);">can_use_tool</div>
+          </div>
+          <div style="font-size: 20px; color: var(--rose);">⟶</div>
+          <div style="text-align: center;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 4px;">LOCAL</div>
+            <div style="font-size: 10px; color: var(--text-dim);">User sees dialog,<br>approves / denies</div>
+          </div>
+          <div style="font-size: 20px; color: var(--rose);">⟶</div>
+          <div style="text-align: center; padding: 8px 12px; border: 1px solid var(--rose-dim); border-radius: 4px;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--rose);">SDKControlResponse</div>
+            <div style="font-size: 9px; color: var(--text-dim);">success / deny</div>
+          </div>
+          <div style="font-size: 20px; color: var(--rose);">⟶</div>
+          <div style="text-align: center;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--rose); margin-bottom: 4px;">REMOTE</div>
+            <div style="font-size: 10px; color: var(--text-dim);">Proceeds or<br>aborts</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size: 11px; color: var(--text-dim); line-height: 1.6;">Creates synthetic <code>AssistantMessage</code> for remote tool uses. Generates tool stubs for unknown MCP tools. Remote agent <strong>never bypasses</strong> local user permission control.</p>
+      <span class="file-ref">remote/remotePermissionBridge.ts</span>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Remote Task Types</div>
+      <div class="arch-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="arch-box" style="border-color: var(--rose-dim);">
+          remote-agent
+          <small>General purpose remote execution</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--rose-dim);">
+          ultraplan
+          <small>30-min deep planning session</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--rose-dim);">
+          ultrareview
+          <small>Bughunter code review agent</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--rose-dim);">
+          autofix-pr
+          <small>Auto-fix PR review comments</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--rose-dim);">
+          background-pr
+          <small>Background PR creation</small>
+        </div>
+      </div>
+      <span class="file-ref">tasks/RemoteAgentTask/RemoteAgentTask.tsx</span>
+
+      <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <div class="card-title accent" style="font-size: 11px;">Resilience</div>
+        <table class="matrix">
+          <tr><th>Mechanism</th><th>Detail</th></tr>
+          <tr><td>Reconnect</td><td>Exponential backoff: 2s → 4s → 8s → 16s</td></tr>
+          <tr><td>Session-not-found</td><td>3 retries (handles compaction window)</td></tr>
+          <tr><td>Cold start timeout</td><td>2.6s for first message POST</td></tr>
+          <tr><td>Task persistence</td><td>Sidecar metadata files survive CLI restart</td></tr>
+          <tr><td>Restore</td><td><code>restoreRemoteAgentTasks()</code> on session resume</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Git Seeding Strategies</div>
+      <div class="pipeline">
+        <div class="pipe-step active" style="border-left-color: var(--rose);">
+          <span class="pipe-num">A</span>
+          <span class="pipe-label"><strong style="color:var(--text)">GitHub Mode</strong> (default) — CCR clones from repo origin URL. Requires GitHub app installed.</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--rose);">
+          <span class="pipe-num">B</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Bundle Mode</strong> — <code>git bundle --all</code> uploaded via Files API. Triggered by <code>CCR_FORCE_BUNDLE=1</code> or no remote.</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <div class="card-title accent" style="font-size: 11px;">Transport Modes</div>
+        <div class="pipeline">
+          <div class="pipe-step active" style="border-left-color: var(--rose);">
+            <span class="pipe-num">1</span>
+            <span class="pipe-label"><strong style="color:var(--text)">OAuth WebSocket</strong> — Standard auth via <code>SessionsWebSocket</code>, beta header <code>ccr-byoc-2025-07-29</code></span>
+          </div>
+          <div class="pipe-step active" style="border-left-color: var(--rose);">
+            <span class="pipe-num">2</span>
+            <span class="pipe-label"><strong style="color:var(--text)">Direct Connect</strong> — Bearer token alternative via <code>directConnectManager.ts</code></span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">remote/SessionsWebSocket.ts &bull; server/directConnectManager.ts</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 9: TEAM MODE ========== -->
+<section id="s9">
+  <div class="section-num">09</div>
+  <h1 class="section-title">团队模式与协同</h1>
+  <p class="section-subtitle accent">Coordinator / Teammate / Swarm Architecture</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">团队模式的本质是<strong>让多个 AI agent 像人类团队一样协作</strong>，有明确的角色分工和通信机制。系统支持两种模式：<strong>Coordinator 模式</strong>是上下级关系——Coordinator 作为 supervisor 通过 Agent tool 派发 worker，worker 只有有限的工具访问权（Bash、Read、Edit），不能再创建团队或发消息，完成后通过 task notification 汇报；<strong>Team 模式</strong>是对等的 swarm——通过 <code>TeamCreate</code> 创建团队，成员信息存储在 <code>~/.claude/teams/{team_name}/</code>，每个 teammate 有独立的 inbox JSON 文件实现异步通信。通信用文件锁（<code>proper-lockfile</code>）保证并发安全，支持 10+ agent 同时操作。Teammate 可以在同一进程内运行（<code>AsyncLocalStorage</code> 隔离上下文）或在外部终端面板运行（tmux/iTerm2）。权限流最巧妙：teammate 要执行危险操作时，将 <code>permission_request</code> 写入 leader 的 mailbox，leader 在自己的 UI 上弹出对话框让用户决策，结果写回 teammate 的 mailbox——整个链路中用户始终保有最终控制权。</p>
+
+  <div class="content-grid" style="margin-bottom: 28px;">
+    <div class="card box-accent" style="grid-column: span 2;">
+      <div class="card-title accent">Two Collaboration Patterns</div>
+      <div class="content-grid" style="gap: 20px;">
+        <div>
+          <p style="font-size: 14px; font-weight: 700; color: var(--gold); margin-bottom: 10px;">Coordinator Mode</p>
+          <div style="padding: 14px; border: 1px solid var(--border); border-radius: 6px; background: #0a0a10; text-align: center; margin-bottom: 12px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--gold); border: 1px solid var(--gold-dim); display: inline-block; padding: 6px 18px; border-radius: 4px; margin-bottom: 10px;">COORDINATOR (Supervisor)</div>
+            <div style="color: var(--text-dim); font-size: 16px;">↓ Agent tool &nbsp;&nbsp;&nbsp; ↑ Task notification</div>
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 10px;">
+              <div style="font-size: 11px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; color: var(--text-dim);">Worker A</div>
+              <div style="font-size: 11px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; color: var(--text-dim);">Worker B</div>
+              <div style="font-size: 11px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; color: var(--text-dim);">Worker C</div>
+            </div>
+          </div>
+          <p style="font-size: 11px; color: var(--text-dim); line-height: 1.8;">
+            Hierarchical. Workers get limited tools (Bash, Read, Edit + MCP).<br>
+            Forbidden: TeamCreate, TeamDelete, SendMessage.<br>
+            Workers run autonomously, coordinator synthesizes findings.
+          </p>
+          <span class="file-ref">coordinator/coordinatorMode.ts</span>
+        </div>
+        <div>
+          <p style="font-size: 14px; font-weight: 700; color: var(--gold); margin-bottom: 10px;">Team / Swarm Mode</p>
+          <div style="padding: 14px; border: 1px solid var(--border); border-radius: 6px; background: #0a0a10; text-align: center; margin-bottom: 12px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--gold); border: 1px solid var(--gold-dim); display: inline-block; padding: 6px 18px; border-radius: 4px; margin-bottom: 10px;">LEADER (Peer)</div>
+            <div style="color: var(--text-dim); font-size: 16px;">↕ Mailbox &nbsp;&nbsp;&nbsp; ↕ Shared Tasks</div>
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 10px;">
+              <div style="font-size: 11px; padding: 5px 12px; border: 1px solid var(--gold-dim); border-radius: 4px; color: var(--gold);">Teammate A</div>
+              <div style="font-size: 11px; padding: 5px 12px; border: 1px solid var(--gold-dim); border-radius: 4px; color: var(--gold);">Teammate B</div>
+              <div style="font-size: 11px; padding: 5px 12px; border: 1px solid var(--gold-dim); border-radius: 4px; color: var(--gold);">Teammate C</div>
+            </div>
+          </div>
+          <p style="font-size: 11px; color: var(--text-dim); line-height: 1.8;">
+            Peer-to-peer. Teammates share task list under team name.<br>
+            <code>TeamCreate</code> initializes <code>~/.claude/teams/{name}/</code>.<br>
+            Members: agentId, model, color, cwd, subscriptions.
+          </p>
+          <span class="file-ref">tools/TeamCreateTool/TeamCreateTool.ts</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid three-col">
+    <div class="card">
+      <div class="card-title accent">Mailbox System</div>
+      <div class="vflow">
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--gold);">1</div>
+          <div class="vflow-content">
+            <strong>File-Based Inbox</strong>
+            <span><code>~/.claude/teams/{name}/inboxes/{agent}.json</code><br>Lockfile-safe for 10+ concurrent agents</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--gold);">2</div>
+          <div class="vflow-content">
+            <strong>Message Types</strong>
+            <span>permission_request / response, peer DMs, shutdown requests, idle notifications</span>
+          </div>
+        </div>
+        <div class="vflow-node">
+          <div class="vflow-dot" style="border-color:var(--gold);">3</div>
+          <div class="vflow-content">
+            <strong>Polling Priority</strong>
+            <span>Leader mailbox polled first to prevent starvation</span>
+          </div>
+        </div>
+      </div>
+      <span class="file-ref">utils/teammateMailbox.ts</span>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Teammate Backends</div>
+      <div class="pipeline">
+        <div class="pipe-step active" style="border-left-color: var(--gold);">
+          <span class="pipe-num">A</span>
+          <span class="pipe-label"><strong style="color:var(--text)">In-Process</strong> — Same Node.js process, <code>AsyncLocalStorage</code> context isolation. Shares API client & MCP connections with leader.</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--gold);">
+          <span class="pipe-num">B</span>
+          <span class="pipe-label"><strong style="color:var(--text)">Tmux Pane</strong> — External process in tmux split. Priority: in-tmux → iTerm2 → tmux fallback.</span>
+        </div>
+        <div class="pipe-step active" style="border-left-color: var(--gold);">
+          <span class="pipe-num">C</span>
+          <span class="pipe-label"><strong style="color:var(--text)">iTerm2 Pane</strong> — Uses <code>it2</code> CLI for native iTerm2 pane splitting.</span>
+        </div>
+      </div>
+      <span class="file-ref">utils/swarm/backends/InProcessBackend.ts &bull; backends/registry.ts</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Permission Delegation</div>
+      <div style="padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: #0a0a10; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <div style="text-align: center;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--gold);">TEAMMATE</div>
+            <div style="font-size: 9px; color: var(--text-dim);">needs permission</div>
+          </div>
+          <div style="font-size: 14px; color: var(--gold);">⟶</div>
+          <div style="text-align: center; padding: 4px 8px; border: 1px solid var(--gold-dim); border-radius: 3px;">
+            <div style="font-size: 9px; color: var(--gold);">leader inbox</div>
+          </div>
+          <div style="font-size: 14px; color: var(--gold);">⟶</div>
+          <div style="text-align: center;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--text);">LEADER</div>
+            <div style="font-size: 9px; color: var(--text-dim);">user decides</div>
+          </div>
+          <div style="font-size: 14px; color: var(--gold);">⟶</div>
+          <div style="text-align: center; padding: 4px 8px; border: 1px solid var(--gold-dim); border-radius: 3px;">
+            <div style="font-size: 9px; color: var(--gold);">teammate inbox</div>
+          </div>
+          <div style="font-size: 14px; color: var(--gold);">⟶</div>
+          <div style="text-align: center;">
+            <div style="font-size: 10px; font-weight: 700; color: var(--gold);">PROCEED</div>
+          </div>
+        </div>
+      </div>
+      <ul>
+        <li><code>isPlanModeRequired()</code> enforces leader approval for writes</li>
+        <li><code>LeaderPermissionBridge</code> uses leader's <code>setToolUseConfirmQueue</code></li>
+        <li>Fallback: <code>permissionSync.ts</code> for pane-based teammates</li>
+        <li><code>claimTask()</code> with atomic busy-check prevents conflicts</li>
+      </ul>
+      <span class="file-ref">utils/swarm/leaderPermissionBridge.ts &bull; permissionSync.ts</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECTION 10: ALL COMMANDS ========== -->
+<section id="s10" style="min-height: auto; padding-bottom: 80px;">
+  <div class="section-num">10</div>
+  <h1 class="section-title">全部内置命令速查</h1>
+  <p class="section-subtitle accent">Complete Internal Command Reference</p>
+  <div class="glow-line"></div>
+
+  <p class="insight">Claude Code 的命令系统分为三类：<strong>Standard</strong> 是所有用户可用的命令，<strong>Feature-Gated</strong> 需要特定功能开关或订阅才能使用，<strong>Internal</strong> 仅限 Anthropic 内部员工（通过 <code>USER_TYPE = 'ant'</code> 判断）。命令本身也有三种类型：<code>local-jsx</code> 渲染交互式 Ink UI 组件（如 /config 打开设置面板），<code>local</code> 输出纯文本（如 /cost 显示费用），<code>prompt</code> 展开为发送给模型的 prompt（本质上就是 Skill）。每个命令可以声明 aliases（别名）、availability（需要的认证类型）、isHidden（隐藏不显示在帮助中）、isImmediate（跳过确认直接执行）等属性。</p>
+
+  <div class="content-grid" style="max-width: 1400px;">
+    <div class="card box-accent">
+      <div class="card-title accent">Session & Navigation</div>
+      <table class="matrix">
+        <tr><th style="width:130px">Command</th><th>Description</th></tr>
+        <tr><td><code>/clear</code></td><td>Clear conversation history, free context <span class="tag tag-sky">/reset</span> <span class="tag tag-sky">/new</span></td></tr>
+        <tr><td><code>/compact</code></td><td>Summarize and compress conversation context</td></tr>
+        <tr><td><code>/resume</code></td><td>Resume a previous conversation <span class="tag tag-sky">/continue</span></td></tr>
+        <tr><td><code>/branch</code></td><td>Create conversation branch at this point <span class="tag tag-sky">/fork</span></td></tr>
+        <tr><td><code>/rename</code></td><td>Rename the current conversation</td></tr>
+        <tr><td><code>/rewind</code></td><td>Restore code/conversation to a prior point <span class="tag tag-sky">/checkpoint</span></td></tr>
+        <tr><td><code>/exit</code></td><td>Exit the REPL <span class="tag tag-sky">/quit</span></td></tr>
+        <tr><td><code>/btw</code></td><td>Quick side question without interrupting main flow</td></tr>
+        <tr><td><code>/tag</code></td><td>Toggle a searchable tag on the session</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Configuration & Settings</div>
+      <table class="matrix">
+        <tr><th style="width:150px">Command</th><th>Description</th></tr>
+        <tr><td><code>/config</code></td><td>Open config panel <span class="tag tag-sky">/settings</span></td></tr>
+        <tr><td><code>/model</code></td><td>Set the AI model</td></tr>
+        <tr><td><code>/effort</code></td><td>Set effort level for model usage</td></tr>
+        <tr><td><code>/fast</code></td><td>Toggle fast mode</td></tr>
+        <tr><td><code>/permissions</code></td><td>Manage tool permission rules <span class="tag tag-sky">/allowed-tools</span></td></tr>
+        <tr><td><code>/theme</code></td><td>Change the UI theme</td></tr>
+        <tr><td><code>/color</code></td><td>Set prompt bar color for session</td></tr>
+        <tr><td><code>/vim</code></td><td>Toggle Vim / Normal editing mode</td></tr>
+        <tr><td><code>/keybindings</code></td><td>Open keybindings configuration</td></tr>
+        <tr><td><code>/terminal-setup</code></td><td>Setup Option+Enter / Shift+Enter bindings</td></tr>
+        <tr><td><code>/sandbox</code></td><td>Configure code sandbox settings</td></tr>
+        <tr><td><code>/privacy-settings</code></td><td>View and update privacy settings</td></tr>
+        <tr><td><code>/hooks</code></td><td>View hook configurations</td></tr>
+      </table>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Information & Diagnostics</div>
+      <table class="matrix">
+        <tr><th style="width:140px">Command</th><th>Description</th></tr>
+        <tr><td><code>/help</code></td><td>Show help and available commands</td></tr>
+        <tr><td><code>/status</code></td><td>Version, model, account, API connectivity</td></tr>
+        <tr><td><code>/cost</code></td><td>Total cost and duration of session</td></tr>
+        <tr><td><code>/usage</code></td><td>Show plan usage limits</td></tr>
+        <tr><td><code>/context</code></td><td>Visualize context usage as colored grid</td></tr>
+        <tr><td><code>/files</code></td><td>List all files currently in context</td></tr>
+        <tr><td><code>/diff</code></td><td>View uncommitted changes and per-turn diffs</td></tr>
+        <tr><td><code>/tasks</code></td><td>List and manage background tasks <span class="tag tag-sky">/bashes</span></td></tr>
+        <tr><td><code>/doctor</code></td><td>Diagnose installation and settings</td></tr>
+        <tr><td><code>/stats</code></td><td>Usage statistics and activity</td></tr>
+        <tr><td><code>/release-notes</code></td><td>View release notes</td></tr>
+        <tr><td><code>/version</code></td><td>Print the running version</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Git & GitHub</div>
+      <table class="matrix">
+        <tr><th style="width:160px">Command</th><th>Description</th></tr>
+        <tr><td><code>/commit</code></td><td>Create a git commit</td></tr>
+        <tr><td><code>/commit-push-pr</code></td><td>Commit, push, and open a PR</td></tr>
+        <tr><td><code>/pr-comments</code></td><td>Get comments from a GitHub PR</td></tr>
+        <tr><td><code>/review</code></td><td>Review a pull request</td></tr>
+        <tr><td><code>/install-github-app</code></td><td>Set up Claude GitHub Actions</td></tr>
+        <tr><td><code>/security-review</code></td><td>Security review of pending changes on branch</td></tr>
+      </table>
+
+      <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <div class="card-title accent" style="font-size: 11px;">Account & Auth</div>
+        <table class="matrix">
+          <tr><td><code>/login</code></td><td>Sign in with Anthropic account</td></tr>
+          <tr><td><code>/logout</code></td><td>Sign out</td></tr>
+          <tr><td><code>/upgrade</code></td><td>Upgrade to Max for higher limits</td></tr>
+          <tr><td><code>/extra-usage</code></td><td>Configure extra usage beyond limits</td></tr>
+          <tr><td><code>/passes</code></td><td>Share free week / referral rewards</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card box-accent">
+      <div class="card-title accent">Integration & Platform</div>
+      <table class="matrix">
+        <tr><th style="width:140px">Command</th><th>Description</th></tr>
+        <tr><td><code>/mcp</code></td><td>Manage MCP servers</td></tr>
+        <tr><td><code>/plugin</code></td><td>Manage plugins <span class="tag tag-sky">/marketplace</span></td></tr>
+        <tr><td><code>/reload-plugins</code></td><td>Activate pending plugin changes</td></tr>
+        <tr><td><code>/skills</code></td><td>List available skills</td></tr>
+        <tr><td><code>/agents</code></td><td>Manage agent configurations</td></tr>
+        <tr><td><code>/ide</code></td><td>Manage IDE integrations</td></tr>
+        <tr><td><code>/add-dir</code></td><td>Add a working directory</td></tr>
+        <tr><td><code>/memory</code></td><td>Edit Claude memory files</td></tr>
+        <tr><td><code>/desktop</code></td><td>Continue session in Claude Desktop <span class="tag tag-sky">/app</span></td></tr>
+        <tr><td><code>/chrome</code></td><td>Claude in Chrome settings (Beta)</td></tr>
+        <tr><td><code>/install-slack-app</code></td><td>Install the Claude Slack app</td></tr>
+        <tr><td><code>/mobile</code></td><td>QR code for mobile app <span class="tag tag-sky">/ios</span> <span class="tag tag-sky">/android</span></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title accent">Output & Export</div>
+      <table class="matrix">
+        <tr><th style="width:130px">Command</th><th>Description</th></tr>
+        <tr><td><code>/copy</code></td><td>Copy last response to clipboard (<code>/copy N</code> for Nth-latest)</td></tr>
+        <tr><td><code>/export</code></td><td>Export conversation to file or clipboard</td></tr>
+        <tr><td><code>/plan</code></td><td>Enable plan mode or view current plan</td></tr>
+        <tr><td><code>/feedback</code></td><td>Submit feedback <span class="tag tag-sky">/bug</span></td></tr>
+        <tr><td><code>/stickers</code></td><td>Order Claude Code stickers</td></tr>
+      </table>
+
+      <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border);">
+        <div class="card-title accent" style="font-size: 11px;">Feature-Gated Commands</div>
+        <table class="matrix">
+          <tr><td><code>/voice</code></td><td>Toggle voice mode <span class="tag tag-amber">subscription</span></td></tr>
+          <tr><td><code>/remote-control</code></td><td>Connect for remote-control <span class="tag tag-amber">BRIDGE_MODE</span></td></tr>
+          <tr><td><code>/ultraplan</code></td><td>Extended remote planning <span class="tag tag-amber">ULTRAPLAN</span></td></tr>
+          <tr><td><code>/ultrareview</code></td><td>Remote code review <span class="tag tag-amber">BUGHUNTER</span></td></tr>
+          <tr><td><code>/web-setup</code></td><td>Setup Claude Code on web <span class="tag tag-amber">CCR</span></td></tr>
+          <tr><td><code>/brief</code></td><td>Toggle brief-only mode <span class="tag tag-amber">KAIROS</span></td></tr>
+          <tr><td><code>/workflows</code></td><td>Workflow scripts <span class="tag tag-amber">WORKFLOW_SCRIPTS</span></td></tr>
+          <tr><td><code>/buddy</code></td><td>Buddy mode <span class="tag tag-amber">BUDDY</span></td></tr>
+          <tr><td><code>/torch</code></td><td>Torch command <span class="tag tag-amber">TORCH</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card box-accent" style="grid-column: span 2;">
+      <div class="card-title accent">Internal / Debug Commands <span style="font-size:9px;color:var(--text-dim);text-transform:none;font-weight:400;letter-spacing:0;">(Anthropic employees only, USER_TYPE = 'ant')</span></div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/advisor</code>
+          <small>Configure advisor model</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/ant-trace</code>
+          <small>Internal tracing</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/autofix-pr</code>
+          <small>Auto-fix PR issues</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/backfill-sessions</code>
+          <small>Backfill session data</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/break-cache</code>
+          <small>Break cache for testing</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/bridge-kick</code>
+          <small>Inject failure states for testing</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/bughunter</code>
+          <small>Internal bug hunter</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/ctx-viz</code>
+          <small>Context visualization</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/debug-tool-call</code>
+          <small>Debug tool calls</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/env</code>
+          <small>Environment variables</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/good-claude</code>
+          <small>Good Claude mode</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/heapdump</code>
+          <small>Dump JS heap to ~/Desktop</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/init-verifiers</code>
+          <small>Initialize verifiers</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/issue</code>
+          <small>Issue tracking</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/mock-limits</code>
+          <small>Mock rate limits for testing</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/oauth-refresh</code>
+          <small>OAuth token refresh</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/onboarding</code>
+          <small>Onboarding flow</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/perf-issue</code>
+          <small>Performance issue tracking</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/share</code>
+          <small>Share session</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/summary</code>
+          <small>Summarize conversation</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/teleport</code>
+          <small>Teleport to remote</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/thinkback</code>
+          <small>2025 Year in Review</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/insights</code>
+          <small>Session analysis report</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/agents-platform</code>
+          <small>Agents platform</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/remote-env</code>
+          <small>Configure remote env defaults</small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/session</code>
+          <small>Show remote session URL + QR <span class="tag tag-sky" style="font-size:8px">/remote</span></small>
+        </div>
+        <div class="arch-box" style="border-color: var(--sky-dim); font-size: 10px; padding: 8px;">
+          <code>/subscribe-pr</code>
+          <small>Subscribe to PR webhooks</small>
+        </div>
+      </div>
+      <p style="font-size: 10px; color: var(--text-dim); margin-top: 12px; line-height: 1.6;">
+        Command types: <span class="tag tag-sky">local-jsx</span> renders Ink UI &nbsp;
+        <span class="tag tag-sky">local</span> text output &nbsp;
+        <span class="tag tag-sky">prompt</span> expands to model prompt (skill) &nbsp;
+        Properties: <code>isHidden</code>, <code>isImmediate</code>, <code>aliases[]</code>, <code>availability</code>
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+// Intersection Observer for nav active state
+const sections = document.querySelectorAll('section');
+const navLinks = document.querySelectorAll('nav a');
+const scrollHint = document.querySelector('.scroll-hint');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.4 });
+
+sections.forEach(s => observer.observe(s));
+
+// Fade scroll hint
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 200) scrollHint.style.opacity = '0';
+  else scrollHint.style.opacity = '0.4';
+}, { passive: true });
+
+// Animate elements on scroll
+const animObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('animate-in');
+      animObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.card, .shield-layer, .vflow-node').forEach(el => {
+  animObserver.observe(el);
+});
+</script>
+</body>
+</html>
