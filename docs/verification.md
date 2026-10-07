@@ -25,6 +25,8 @@ Final result: passed for the local site and report template. Remote deployment i
 
 ## Publishing workflow
 
-- Nine local automated tests passed, including report/article and project/product commands, update-date preservation, immutable slugs, duplicate/path rejection, failed-publication rollback, and skill installation/update behavior.
+- Ten local automated tests passed, including report/article and project/product commands, update-date preservation, immutable slugs, duplicate/path rejection, failed-publication rollback, skill installation/update behavior, and repeated draft-preview edits.
 - Both the repository skill and its installed copy passed the skill creator's validator; their files match.
 - Live deployments expose `build-info.json` so the publishing workflow can verify the exact deployed commit rather than infer success from a push.
+
+The preview regression test exposed output-directory caching during watch mode. Production builds still clean their output completely; preview rebuilds preserve directories and remove stale content files. The regression test edits a draft twice and verifies removal of an entry on the next rebuild, with no missing-directory errors.

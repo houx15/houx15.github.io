@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { load } from 'cheerio';
 import { loadContent, validate, validDate } from '../lib/content.mjs';
 import { checkSite } from '../scripts/check.mjs';
@@ -100,4 +100,52 @@ test('images without descriptions and invalid math are rejected', async t => {
   await writeEntry(dir, 'reports', 'bad-math', { body: '$\\invalidcommand{x}$' });
   t.mock.method(console, 'error', () => {});
   await assert.rejects(loadContent(dir));
+});
+
+test('draft preview survives repeated edits and removes stale entries on rebuild', { timeout: 20000 }, async t => {
+  const cleanups = [];
+  const dir = await workspace({ after: fn => cleanups.push(fn) });
+  const folder = await writeEntry(dir, 'reports', 'watch-test', { draft: true });
+  const child = spawn(process.execPath, [cli, '--watch'], {
+    cwd: dir, env: { ...process.env, SITE_DRAFTS: '1' }, stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let log = '';
+  child.stdout.on('data', data => { log += data; });
+  child.stderr.on('data', data => { log += data; });
+  t.after(async () => {
+    if (child.exitCode === null) {
+      await new Promise(resolve => { child.once('exit', resolve); child.kill('SIGTERM'); });
+    }
+    for (const cleanup of cleanups) await cleanup();
+  });
+  async function until(predicate) {
+    const deadline = Date.now() + 5000;
+    while (Date.now() < deadline) {
+      if (await predicate()) return;
+      if (child.exitCode !== null) throw new Error(log);
+      await new Promise(resolve => setTimeout(resolve, 40));
+    }
+    throw new Error(`Watch did not produce the expected output.\n${log}`);
+  }
+  const output = path.join(dir, '_preview/reports/watch-test/index.html');
+  await until(() => log.includes('Watching'));
+  // Eleventy logs Watching just before chokidar finishes its initial subscription.
+  await new Promise(resolve => setTimeout(resolve, 400));
+  for (const text of ['First revision.', 'Second revision.']) {
+    const builds = log.match(/Watching/g)?.length || 0;
+    await fs.appendFile(path.join(folder, 'index.md'), `\n${text}\n`);
+    await until(async () => (log.match(/Watching/g)?.length || 0) > builds && (await fs.readFile(output, 'utf8').catch(() => '')).includes(text));
+    await checkSite(path.join(dir, '_preview'), { preview: true });
+  }
+  const completedBuilds = log.match(/Watching/g)?.length || 0;
+  await fs.rm(folder, { recursive: true });
+  // Eleventy queues removals until the next change event.
+  await fs.appendFile(path.join(dir, 'src/index.njk'), '\n');
+  await until(async () => {
+    const html = await fs.readFile(path.join(dir, '_preview/reports/index.html'), 'utf8').catch(() => '');
+    return (log.match(/Watching/g)?.length || 0) > completedBuilds && html.length > 0 && !html.includes('/reports/watch-test/');
+  });
+  await assert.rejects(fs.access(output));
+  await checkSite(path.join(dir, '_preview'), { preview: true });
+  assert.doesNotMatch(log, /ENOENT|Problem writing|Error:/);
 });

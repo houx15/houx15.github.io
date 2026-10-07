@@ -29,6 +29,8 @@ bun run preview
 
 Preview runs at `http://localhost:8081/` and includes drafts. `bun run dev` at `http://localhost:8080/` contains published entries only. Draft preview writes `_preview/`; production writes `_site/`. Draft pages and their attachments are excluded from production, its listings, and sitemap. **This repository is public: committed drafts are still visible on GitHub.** Keep confidential material outside the repository.
 
+Edits trigger preview rebuilds automatically. After deleting a content folder, restart preview (or save another source file) to refresh the listing; Eleventy queues file removals until the next change event.
+
 Each entry is a folder:
 
 ```text
