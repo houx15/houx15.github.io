@@ -34,7 +34,9 @@ p { margin: 0 0 1.2em; }
 .intro h1 span { display: inline-block; font-size: 22px; font-weight: 400; color: var(--muted); margin-left: 10px; letter-spacing: .03em; }
 .intro p { font-size: 19px; color: var(--muted); margin-bottom: 18px; }
 .intro-links { display: flex; gap: 24px; font-size: 15px; }
-.intro-links a { text-decoration: none; }
+.intro-links a { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; text-decoration: none; }
+.link-icon { width: 16px; height: 16px; flex: none; stroke-width: 1.6; }
+.intro-links a:hover span, .site-footer a:hover span { text-decoration: underline; text-underline-offset: .2em; }
 .home-section + .home-section { margin-top: 48px; }
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--rule); padding-bottom: 14px; }
 .section-heading h2 { margin: 0; font-size: 23px; }
@@ -52,7 +54,8 @@ p { margin: 0 0 1.2em; }
 .entry time, .article-meta, .updated { color: var(--muted); font-size: 13px; }
 .site-footer { padding-block: 24px 30px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font-size: 13px; }
 .site-footer div { display: flex; gap: 22px; }
-.site-footer a { color: var(--muted); text-decoration: none; }
+.site-footer a { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; }
+.site-footer .link-icon { width: 14px; height: 14px; }
 .skip-link { position: fixed; top: -100px; left: 16px; background: white; padding: 10px 20px; z-index: 5; }
 .skip-link:focus { top: 12px; }
 .article-heading { margin-bottom: 30px; }

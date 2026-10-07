@@ -5,7 +5,11 @@ layout: base.njk
 <section class="intro" aria-labelledby="intro-title">
   <h1 id="intro-title">{{ site.name }} <span lang="zh-CN">{{ site.nameChinese }}</span></h1>
   <p>Projects and technical reports.</p>
-  <div class="intro-links"><a href="mailto:{{ site.email }}">Email</a><a href="{{ site.github }}">GitHub</a><a href="/about/">About</a></div>
+  <div class="intro-links">
+    <a href="mailto:{{ site.email }}">{% include 'icons/mail.njk' %}<span>Email</span></a>
+    <a href="{{ site.github }}">{% include 'icons/github.njk' %}<span>GitHub</span></a>
+    <a href="/about/">{% include 'icons/user.njk' %}<span>About</span></a>
+  </div>
 </section>
 <section class="home-section" aria-labelledby="projects-title">
   <div class="section-heading"><h2 id="projects-title">Projects</h2><a href="/projects/">All projects <span aria-hidden="true">→</span></a></div>
