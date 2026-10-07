@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import { markdown } from './lib/markdown.mjs';
 import { loadContent, copyPublishedAssets } from './lib/content.mjs';
 
@@ -18,8 +19,24 @@ export default function (config) {
   config.addFilter('xml', value => markdown.utils.escapeHtml(String(value)));
   config.addPassthroughCopy({ 'src/assets': 'assets' });
   config.addPassthroughCopy({ 'node_modules/katex/dist/katex.min.css': 'assets/katex/katex.min.css', 'node_modules/katex/dist/fonts': 'assets/katex/fonts' });
-  config.on('eleventy.before', async ({ dir }) => {
-    await fs.rm(dir.output, { recursive: true, force: true });
+  config.on('eleventy.before', async ({ dir, runMode }) => {
+    if (runMode === 'build') {
+      await fs.rm(dir.output, { recursive: true, force: true });
+    } else {
+      // Eleventy caches created directories during watch mode. Preserve them;
+      // remove only entry files so deleted drafts/assets do not linger in preview.
+      async function clearFiles(directory) {
+        for (const item of await fs.readdir(directory, { withFileTypes: true }).catch(error => {
+          if (error.code === 'ENOENT') return [];
+          throw error;
+        })) {
+          const target = path.join(directory, item.name);
+          if (item.isDirectory()) await clearFiles(target);
+          else await fs.unlink(target);
+        }
+      }
+      for (const section of ['projects', 'reports']) await clearFiles(path.join(dir.output, section));
+    }
     await fs.mkdir(dir.output, { recursive: true });
     await copyPublishedAssets(await loadContent(), dir.output);
   });
