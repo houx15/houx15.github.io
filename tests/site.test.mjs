@@ -137,10 +137,14 @@ test('draft preview survives repeated edits and removes stale entries on rebuild
     await until(async () => (log.match(/Watching/g)?.length || 0) > builds && (await fs.readFile(output, 'utf8').catch(() => '')).includes(text));
     await checkSite(path.join(dir, '_preview'), { preview: true });
   }
+  const completedBuilds = log.match(/Watching/g)?.length || 0;
   await fs.rm(folder, { recursive: true });
   // Eleventy queues removals until the next change event.
   await fs.appendFile(path.join(dir, 'src/index.njk'), '\n');
-  await until(async () => !(await fs.readFile(path.join(dir, '_preview/reports/index.html'), 'utf8').catch(() => 'watch-test')).includes('/reports/watch-test/'));
+  await until(async () => {
+    const html = await fs.readFile(path.join(dir, '_preview/reports/index.html'), 'utf8').catch(() => '');
+    return (log.match(/Watching/g)?.length || 0) > completedBuilds && html.length > 0 && !html.includes('/reports/watch-test/');
+  });
   await assert.rejects(fs.access(output));
   await checkSite(path.join(dir, '_preview'), { preview: true });
   assert.doesNotMatch(log, /ENOENT|Problem writing|Error:/);
