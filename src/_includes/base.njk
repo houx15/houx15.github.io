@@ -11,7 +11,7 @@
   <meta property="og:title" content="{{ title or site.name }}">
   <meta property="og:description" content="{{ description or site.description }}">
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
-  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/style.css?v={{ stylesheetVersion }}">
   {% if article %}<link rel="stylesheet" href="/assets/katex/katex.min.css">{% endif %}
 </head>
 <body>

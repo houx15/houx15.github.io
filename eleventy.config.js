@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { markdown } from './lib/markdown.mjs';
 import { loadContent, copyPublishedAssets } from './lib/content.mjs';
 
@@ -9,6 +10,7 @@ export default function (config) {
   config.addWatchTarget('content/');
   config.addGlobalData('preview', () => process.env.SITE_DRAFTS === '1');
   config.addGlobalData('year', () => new Date().getUTCFullYear());
+  config.addGlobalData('stylesheetVersion', async () => createHash('sha256').update(await fs.readFile('src/assets/style.css')).digest('hex').slice(0, 12));
   config.addFilter('section', (entries, type) => entries.filter(item => item.type === type));
   config.addFilter('selected', entries => {
     const selected = entries.filter(item => item.featured);

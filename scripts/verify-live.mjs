@@ -5,7 +5,7 @@ const { values } = parseArgs({ options: { revision: { type: 'string' }, path: { 
 const origin = 'https://houx15.github.io';
 const suffix = `verification=${Date.now()}`;
 async function request(route) {
-  const response = await fetch(`${origin}${route}?${suffix}`, { signal: AbortSignal.timeout(20000), cache: 'no-store' });
+  const response = await fetch(`${origin}${route}${route.includes('?') ? '&' : '?'}${suffix}`, { signal: AbortSignal.timeout(20000), cache: 'no-store' });
   if (!response.ok) throw new Error(`${route}: HTTP ${response.status}`);
   return response;
 }
@@ -21,7 +21,9 @@ try {
   for (const route of routes) {
     const $ = load(await (await request(route)).text());
     if ($('h1').length !== 1 || $('.preview-notice,.draft-label').length) throw new Error(`${route}: unexpected page or draft content.`);
-    if ($('nav[aria-label="Main navigation"] a').length !== 3 || !$('link[href="/assets/style.css"]').length) throw new Error(`${route}: expected site layout missing.`);
+    const stylesheet = $('link[rel="stylesheet"]').toArray().map(link => $(link).attr('href')).find(href => /^\/assets\/style\.css\?v=[a-f0-9]{12}$/.test(href));
+    if ($('nav[aria-label="Main navigation"] a').length !== 3 || !stylesheet) throw new Error(`${route}: expected site layout missing.`);
+    await request(stylesheet);
     for (const image of $('img[src]').toArray()) {
       const src = $(image).attr('src');
       const url = new URL(src, `${origin}${route}`);
