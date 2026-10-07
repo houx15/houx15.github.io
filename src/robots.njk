@@ -1,0 +1,6 @@
+---
+permalink: /robots.txt
+---
+User-agent: *
+{% if preview %}Disallow: /{% else %}Allow: /
+Sitemap: {{ site.url }}/sitemap.xml{% endif %}

@@ -1,0 +1,30 @@
+{
+  "name": "yuxin-hou-personal-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "bun@1.4.2",
+  "scripts": {
+    "dev": "eleventy --serve --watch",
+    "preview": "SITE_DRAFTS=1 eleventy --serve --watch --port=8081",
+    "build": "eleventy",
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "verify": "bun run test && bun run build && bun run check",
+    "content": "node scripts/content.mjs"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "3.1.6",
+    "@mdit/plugin-katex": "^1.1.3",
+    "cheerio": "^1.2.0",
+    "gray-matter": "^4.0.3",
+    "highlight.js": "^11.12.0",
+    "katex": "0.18.11",
+    "markdown-it": "^15.0.2",
+    "markdown-it-anchor": "^10.0.0",
+    "markdown-it-footnote": "^4.0.0"
+  }
+}

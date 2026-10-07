@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="{{ lang or 'en' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if title %}{{ title }} · {% endif %}{{ site.name }}</title>
+  <meta name="description" content="{{ description or site.description }}">
+  {% if preview or noindex %}<meta name="robots" content="noindex, nofollow">{% endif %}
+  <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+  <meta property="og:type" content="{% if article %}article{% else %}website{% endif %}">
+  <meta property="og:title" content="{{ title or site.name }}">
+  <meta property="og:description" content="{{ description or site.description }}">
+  <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+  <link rel="stylesheet" href="/assets/style.css">
+  {% if article %}<link rel="stylesheet" href="/assets/katex/katex.min.css">{% endif %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="site-name" href="/"{% if page.url == '/' %} aria-current="page"{% endif %}>{{ site.name }}</a>
+    <nav aria-label="Main navigation">
+      <a href="/projects/"{% if section == 'projects' %} aria-current="page"{% endif %}>Projects</a>
+      <a href="/reports/"{% if section == 'reports' %} aria-current="page"{% endif %}>Reports</a>
+      <a href="/about/"{% if section == 'about' %} aria-current="page"{% endif %}>About</a>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1">
+    {% if preview %}<p class="preview-notice">Local preview — unpublished content may be included.</p>{% endif %}
+    {{ content | safe }}
+  </main>
+  <footer class="site-footer">
+    <span>© {{ year }} {{ site.name }}</span>
+    <div><a href="mailto:{{ site.email }}">Email</a><a href="{{ site.github }}">GitHub</a></div>
+  </footer>
+</body>
+</html>

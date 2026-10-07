@@ -1,0 +1,19 @@
+---
+layout: base.njk
+---
+{% from 'entries.njk' import entryList %}
+<section class="intro" aria-labelledby="intro-title">
+  <h1 id="intro-title">{{ site.name }} <span lang="zh-CN">{{ site.nameChinese }}</span></h1>
+  <p>Projects and technical reports.</p>
+  <div class="intro-links"><a href="mailto:{{ site.email }}">Email</a><a href="{{ site.github }}">GitHub</a><a href="/about/">About</a></div>
+</section>
+<section class="home-section" aria-labelledby="projects-title">
+  <div class="section-heading"><h2 id="projects-title">Projects</h2><a href="/projects/">All projects <span aria-hidden="true">→</span></a></div>
+  {% set projects = entries | section('projects') | selected %}
+  {% if projects.length %}{{ entryList(projects, 'h3') }}{% else %}<p class="empty-state">No projects published yet.</p>{% endif %}
+</section>
+<section class="home-section" aria-labelledby="reports-title">
+  <div class="section-heading"><h2 id="reports-title">Technical Reports</h2><a href="/reports/">All reports <span aria-hidden="true">→</span></a></div>
+  {% set reports = entries | section('reports') | firstEntries %}
+  {% if reports.length %}{{ entryList(reports, 'h3') }}{% else %}<p class="empty-state">No reports published yet.</p>{% endif %}
+</section>
