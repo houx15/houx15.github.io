@@ -1,0 +1,4 @@
+interface:
+  display_name: "Personal Website Publishing"
+  short_description: "Draft and publish projects and technical reports"
+  default_prompt: "Use $publish-personal-site to prepare my material for the website, check the text and figures, and show a preview."

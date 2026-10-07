@@ -21,6 +21,8 @@ Write Markdown in `content/projects/<slug>/index.md` or `content/reports/<slug>/
 
 The website starts with no projects or reports. Test fixtures are generated in temporary directories and never published as personal work.
 
+See [Writing and publishing](docs/publishing.md) for the complete workflow. Use `bun run content new report <slug> --title "Title"` to start a draft, and `bun run skill:install` to install the reusable Codex skill.
+
 Identity and contact information: `src/_data/site.json`. About text: `src/about.njk`. Templates: `src/_includes/`. Styling: `src/assets/style.css`.
 
 ## Deployment
