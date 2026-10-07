@@ -14,7 +14,9 @@
     "check": "node scripts/check.mjs",
     "test": "node --test tests/*.test.mjs",
     "verify": "bun run test && bun run build && bun run check",
-    "content": "node scripts/content.mjs"
+    "content": "node scripts/content.mjs",
+    "verify:live": "node scripts/verify-live.mjs",
+    "skill:install": "node scripts/install-skill.mjs"
   },
   "devDependencies": {
     "@11ty/eleventy": "3.1.6",
