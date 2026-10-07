@@ -1,0 +1,9 @@
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{% for url in ['/', '/projects/', '/reports/', '/about/'] %}<url><loc>{{ site.url }}{{ url }}</loc></url>{% endfor %}
+{% for entry in entries %}{% if not entry.draft %}<url><loc>{{ site.url }}{{ entry.url }}</loc><lastmod>{{ entry.updated or entry.date }}</lastmod></url>{% endif %}{% endfor %}
+</urlset>

@@ -1,0 +1,11 @@
+---
+layout: base.njk
+title: Projects
+section: projects
+permalink: /projects/
+description: Projects by Yuxin Hou.
+---
+{% from 'entries.njk' import entryList %}
+<header class="page-heading"><h1>Projects</h1></header>
+{% set items = entries | section('projects') %}
+{% if items.length %}{{ entryList(items) }}{% else %}<p class="empty-state">No projects published yet.</p>{% endif %}

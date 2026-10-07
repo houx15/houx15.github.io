@@ -1,0 +1,29 @@
+---
+layout: base.njk
+pagination:
+  data: entries
+  size: 1
+  alias: entry
+permalink: "{{ entry.url }}"
+eleventyComputed:
+  title: "{{ entry.title }}"
+  description: "{{ entry.summary }}"
+  section: "{{ entry.type }}"
+  lang: "{{ entry.lang }}"
+article: true
+---
+<article>
+  <header class="article-heading">
+    <a class="back-link" href="/{{ entry.type }}/">{% if entry.type == 'projects' %}Projects{% else %}Technical Reports{% endif %}</a>
+    <h1>{{ entry.title }}</h1>
+    <p class="article-summary">{{ entry.summary }}</p>
+    <div class="article-meta"><span>{{ site.name }}</span><time datetime="{{ entry.date }}">{{ entry.date | dateLabel }}</time><span>{{ entry.readingTime }} min read</span>{% if entry.draft %}<span class="draft-label">Draft</span>{% endif %}</div>
+    {% if entry.updated %}<p class="updated">Updated <time datetime="{{ entry.updated }}">{{ entry.updated | dateLabel }}</time></p>{% endif %}
+    {% if entry.links.length %}<ul class="project-links">{% for link in entry.links %}<li><a href="{{ link.url }}">{{ link.label }}</a></li>{% endfor %}</ul>{% endif %}
+  </header>
+  {% if entry.headings.length > 1 %}
+  <details class="toc" open><summary>Contents</summary><nav aria-label="Table of contents"><ul>{% for heading in entry.headings %}<li class="toc-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ul></nav></details>
+  {% endif %}
+  <div class="prose" lang="{{ entry.lang }}">{{ entry.html | safe }}</div>
+  <div class="article-end"><a href="/{{ entry.type }}/">{% if entry.type == 'projects' %}All projects{% else %}All reports{% endif %}</a></div>
+</article>

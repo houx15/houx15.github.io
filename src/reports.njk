@@ -1,0 +1,11 @@
+---
+layout: base.njk
+title: Technical Reports
+section: reports
+permalink: /reports/
+description: Technical reports and articles by Yuxin Hou.
+---
+{% from 'entries.njk' import entryList %}
+<header class="page-heading"><h1>Technical Reports</h1><p>Reports and articles.</p></header>
+{% set items = entries | section('reports') %}
+{% if items.length %}{{ entryList(items) }}{% else %}<p class="empty-state">No reports published yet.</p>{% endif %}
