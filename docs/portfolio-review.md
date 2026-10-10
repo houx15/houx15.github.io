@@ -64,3 +64,7 @@ The current biography takes precedence over older CV dates. The owner explicitly
 ## Interactive journey (10 October 2026)
 
 The homepage, About pages, and assistant profile visual now share a seven-stop line-art journey. Mouse hover, focus, click/tap, arrow keys, Home, and End select source-backed details. A full ordered chronology remains available without JavaScript. Dates remain per-role; the path’s vertical position and spacing are explicitly decorative, not life-quality values or elapsed duration. No new biography claims were added. Tests cover input behavior, touch-hover exclusion, keyboard boundaries, isolated repeated chat instances, bilingual markup, and the no-JavaScript fallback. Desktop and mobile browser checks cover selection, readable labels, and overflow.
+
+## NGO separation and qualitative ability profile
+
+Owner-confirmed update: 是光诗歌 and PEER 毅恒挚友 are separate NGO experiences. Each uses the supplied shared 2020–2023 period, with no invented individual subdates or assignment of shared duties to a specific NGO. The journey now has eight stops. The nine-axis radar uses two named self-assessment bands: product thinking, AI techniques (especially NLP), statistics, big data analysis, and management are strengths; design, marketing, sales, and financing have less experience. Radii encode these categories only, not precise scores. Numbered axes refer to the adjacent bilingual list. Homepage, assistant answers/visual, and About provenance are consistent. Original execution host confirmed as Mac mini (Mac18,5); no device switch.

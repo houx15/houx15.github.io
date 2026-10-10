@@ -52,8 +52,9 @@ test('browser demo has no outbound model calls, storage, or geolocation and rend
   assert.doesNotMatch(js,/fetch\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|geolocation|innerHTML|eval\(/);
   assert.match(js,/body\.textContent = text/);
   const portfolio=JSON.parse(await fs.readFile('src/_data/portfolio.json','utf8'));
-  assert.equal(portfolio.domains.length,portfolio.illustrativeScores.length);
-  assert.ok(portfolio.illustrativeScores.every(x=>x>=0&&x<=5));
+  assert.equal(portfolio.domains.length,portfolio.abilityBands.length);
+  assert.equal(portfolio.domains.length,9);
+  assert.deepEqual(portfolio.abilityBands,['strength','strength','strength','strength','strength','less','less','less','less']);
 });
 
 test('Chinese answers preserve project routing, citations, and uncertainty', () => {

@@ -36,10 +36,10 @@ test('empty site has all routes and no fabricated entries', async t => {
   assert.equal($('.empty-state').length, 1);
   assert.equal($('#radar').closest('details, [hidden]').length, 0);
   assert.ok($('#radar-shape').attr('points').length > 20);
-  assert.equal($('#radar-grid polygon').length, 5);
-  assert.equal($('.life-timeline li').length, 7);
+  assert.equal($('#radar-grid polygon').length, 2);
+  assert.equal($('.life-timeline li').length, 8);
   assert.equal($('.life-timeline').closest('details, [hidden]').length, 0);
-  assert.match($('.profile-figure').text(), /not Evie’s self-ratings/);
+  assert.match($('.profile-figure').text(), /Self-assessment/);
   assert.match($('.life-timeline').text(), /September 2024–present/);
 });
 
@@ -239,18 +239,23 @@ test('work and education timeline retains every overlapping period in both langu
     }
   }
   assert.match(en('[data-milestone="startup"]').text(),/2016–2022/);
-  assert.match(en('[data-milestone="nonprofits"]').text(),/2020–2023/);
+  assert.match(en('[data-milestone="shiguang"]').text(),/2020–2023/);
   assert.match(en('[data-milestone="consulting"]').text(),/2025–2026/);
   assert.match(en('.timeline-figure figcaption').text(),/overlap/);
   for(const $ of [en,zh]) {
-    assert.equal($('.journey-map button').length,7);
+    assert.equal($('.journey-map button').length,8);
+    assert.equal($('.ability-key li').length,9);
+    assert.equal($('.ability-key [data-band=strength]').length,5);
+    assert.equal($('.ability-key [data-band=less]').length,4);
+    assert.ok($('[data-milestone=peer]').text().includes('2020–2023'));
+    assert.equal($('[data-domain]').length,0);
     assert.equal($('.journey-map[hidden]').length,1);
     assert.equal($('.journey-fallback[hidden]').length,0);
     assert.equal($('.journey-detail[aria-live=polite]').length,1);
     assert.ok($('.journey-map button').toArray().every(button=>$(button).attr('aria-label')));
   }
   const chat=load(await fs.readFile(path.join(dir,'_site/chat/index.html'),'utf8'));
-  assert.equal(load(chat('#visual-profile').html())('[data-milestone]').length,7);
+  assert.equal(load(chat('#visual-profile').html())('[data-milestone]').length,8);
   const about=load(await fs.readFile(path.join(dir,'_site/about/index.html'),'utf8'));
   assert.match(about('.prose').text(),/supplied and confirmed on 10 October 2026/);
 });

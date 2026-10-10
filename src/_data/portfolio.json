@@ -92,18 +92,15 @@
     }
   ],
   "domains": [
-    "Sociology",
-    "AI engineering",
-    "Data analysis",
     "Product thinking",
-    "Writing"
-  ],
-  "illustrativeScores": [
-    4,
-    3,
-    3,
-    2,
-    4
+    "AI techniques · especially NLP",
+    "Statistics",
+    "Big data analysis",
+    "Management",
+    "Design",
+    "Marketing",
+    "Sales",
+    "Financing"
   ],
   "education": "My path began in mechanical engineering and education at Tsinghua, before I joined Peking University’s Center for Social Research in September 2024.",
   "research": [
@@ -151,5 +148,16 @@
         "name": "意见动态"
       }
     }
+  ],
+  "abilityBands": [
+    "strength",
+    "strength",
+    "strength",
+    "strength",
+    "strength",
+    "less",
+    "less",
+    "less",
+    "less"
   ]
 }

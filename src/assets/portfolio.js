@@ -21,18 +21,6 @@ if(heroForm) {
   const legacyTopic=new URLSearchParams(window.location.search).get('topic');
   if(Object.hasOwn(topicQuestions[language],legacyTopic)) window.location.replace(`${ui.prefix}/chat/#topic=${legacyTopic}`);
 }
-const controls=[...document.querySelectorAll('[data-domain]')];
-if(controls.length) {
-  const initial=controls.map(input=>input.value);
-  function point(index,radius){const angle=(index*72-90)*Math.PI/180;return [190+Math.cos(angle)*radius,143+Math.sin(angle)*radius];}
-  function draw(){
-    document.querySelector('#radar-shape').setAttribute('points',controls.map((input,i)=>point(i,Number(input.value)*19).join(',')).join(' '));
-    controls.forEach(input=>input.nextElementSibling.textContent=`${input.value}/5`);
-    document.querySelector('#radar-desc').textContent=ui.radarNote+' '+controls.map((input,i)=>`${ui.domains[i]} ${input.value}/5`).join(', ');
-  }
-  controls.forEach(input=>input.addEventListener('input',draw));
-  document.querySelector('#reset-radar').addEventListener('click',()=>{controls.forEach((input,i)=>input.value=initial[i]);draw();});draw();
-}
 const form=document.querySelector('#chat-form');
 if(form) setupChat();
 function setupChat() {

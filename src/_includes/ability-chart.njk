@@ -1,0 +1,8 @@
+<div class="ability-chart">
+<svg {% if radarId %}id="{{ radarId }}"{% endif %} viewBox="0 0 300 280" role="img" aria-label="{{ ui.radar }}. {{ ui.radarCaption }}">
+<g {% if radarId %}id="{{ radarId }}-grid"{% endif %}>{% for ring in visualizations.rings %}<polygon points="{{ ring.points }}" fill="none" stroke="currentColor" opacity=".25"/>{% endfor %}{% for axis in visualizations.axes %}<line x1="150" y1="140" x2="{{ axis.end.x }}" y2="{{ axis.end.y }}" stroke="currentColor" opacity=".15"/>{% endfor %}</g>
+<polygon {% if radarId %}id="{{ radarId }}-shape"{% endif %} points="{{ visualizations.initialPoints }}" fill="currentColor" fill-opacity=".09" stroke="currentColor" stroke-width="1.5"/>
+<g font-size="13" text-anchor="middle" fill="currentColor">{% for axis in visualizations.axes %}<text x="{{ axis.labelPoint.x }}" y="{{ axis.labelPoint.y + 4 }}">{{ loop.index }}</text>{% endfor %}</g>
+</svg>
+<ol class="ability-key">{% for axis in visualizations.axes %}<li data-band="{{ axis.band }}"><span class="ability-number" aria-hidden="true">{{ loop.index }}</span><span>{{ ui.domains[loop.index0] }}</span><span class="ability-band">{% if axis.band == 'strength' %}{{ ui.bandStrength }}{% else %}{{ ui.bandLess }}{% endif %}</span></li>{% endfor %}</ol>
+</div>

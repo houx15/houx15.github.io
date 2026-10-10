@@ -213,3 +213,11 @@ body:not(.home-page) .selected-projects {grid-template-columns:1fr}.selected-pro
 .journey-detail h4 {font-size:15px;line-height:1.5;margin:0 0 8px}.journey-detail p {font-size:13px;line-height:1.7;margin:0;color:var(--muted)}
 @media(max-width:760px) {.journey-map{height:270px}.journey-detail{grid-template-columns:1fr;gap:10px;min-height:205px}.journey-detail .timeline-label{flex-direction:row;flex-wrap:wrap;gap:5px 12px}.journey-name{font-size:10px}}
 @media(prefers-reduced-motion:reduce) {.journey-dot{transition:none}}
+/* Eight chronological stops; NGO dates intentionally share a period. */
+.journey-stop.stop-6 {left:62%}.journey-stop.stop-7 {left:37%}.journey-stop.stop-8 {left:12%;top:70.714%}
+.radar-figure{display:block}.ability-chart{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}.ability-chart svg{display:block;width:100%;max-width:300px;margin:0 auto;color:#667257}
+.ability-key{list-style:none!important;padding:0!important;margin:0!important;font-size:12px}
+.ability-key li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:baseline;border-bottom:1px solid var(--rule);padding:7px 0}
+.ability-number{font:11px ui-monospace,monospace;color:var(--muted)}.ability-band{font-size:10px;color:#657157}.ability-key [data-band=less] .ability-band{color:var(--muted)}
+.radar-figure figcaption{margin-top:14px}.answer-visual .ability-key{font-size:12px}.answer-visual .ability-band{font-size:10px}
+@media(min-width:1100px){.ability-chart{grid-template-columns:minmax(150px,1fr) minmax(260px,1.15fr);align-items:center}.answer-visual .ability-chart{grid-template-columns:1fr}}

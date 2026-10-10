@@ -58,20 +58,24 @@ export const locales = [
     "princeton": "Princeton University",
     "visit": "One-year Visiting Student Research Collaborator",
     "timelineNote": "Work and education overlap. Each entry has its own dates; the path follows their starting order, with Princeton shown as a current visit. Spacing and height are layout only, not duration or life-quality scores. Exact degree-completion and Princeton visit dates are not specified.",
-    "radar": "Areas of work",
-    "illustrative": "Illustrative values",
-    "radarNote": "Editable example scores on a 0–5 scale. These are not Evie’s self-ratings or objective proficiency measurements.",
+    "radar": "Ability profile",
+    "illustrative": "Self-assessment",
+    "radarNote": "Two qualitative bands supplied by Evie: strengths and areas with less experience.",
     "domains": [
-      "Sociology",
-      "AI engineering",
-      "Data analysis",
       "Product thinking",
-      "Writing"
+      "AI techniques · especially NLP",
+      "Statistics",
+      "Big data analysis",
+      "Management",
+      "Design",
+      "Marketing",
+      "Sales",
+      "Financing"
     ],
     "edit": "Edit example values",
     "reset": "Reset examples",
     "localEdits": "Edits stay in this page and reset on reload.",
-    "radarCaption": "Self-assessment pending. This shape demonstrates the chart, not actual capability.",
+    "radarCaption": "Outer band: strength. Inner band: less experienced. Band positions encode categories, not numerical scores; abilities within a band are not ranked.",
     "selected": "Projects",
     "projectIntro": "Learning applications and agent software. Each entry identifies its available implementation and release status.",
     "read": "Details",
@@ -117,7 +121,9 @@ export const locales = [
     "backReports": "All notes",
     "publicRepo": "Public repository",
     "research": "Research",
-    "researchIntro": "Survey simulation, opinion correlation, and opinion dynamics."
+    "researchIntro": "Survey simulation, opinion correlation, and opinion dynamics.",
+    "bandStrength": "Strength",
+    "bandLess": "Less experienced"
   },
   {
     "lang": "zh-CN",
@@ -178,20 +184,24 @@ export const locales = [
     "princeton": "普林斯顿大学",
     "visit": "为期一年的访问学生研究合作者（VSRC）",
     "timelineNote": "工作与求学存在重叠，各条目分别保留日期；路径按开始时间排列，普林斯顿标为当前访问。间距与高低仅用于排版，不代表时长或生活状态评分。学位完成年份与普林斯顿访问的确切起止日期尚未列明。",
-    "radar": "工作领域",
-    "illustrative": "示例数值",
-    "radarNote": "可编辑的 0–5 分示例。这些数值不是 Evie 的自评，也不是客观能力测量。",
+    "radar": "能力全貌",
+    "illustrative": "本人自评",
+    "radarNote": "依据 Evie 本人描述，分为「优势」与「经验较少」两个定性层级。",
     "domains": [
-      "社会学",
-      "AI 工程",
-      "数据分析",
-      "产品思考",
-      "写作"
+      "产品思维",
+      "AI 技术 · 尤其 NLP",
+      "统计学",
+      "大数据分析",
+      "管理",
+      "设计",
+      "市场营销",
+      "销售",
+      "融资"
     ],
     "edit": "编辑示例数值",
     "reset": "重置示例",
     "localEdits": "修改只保留在当前页面，刷新后重置。",
-    "radarCaption": "等待本人自评。这一图形演示图表的呈现方式，不代表真实能力。",
+    "radarCaption": "外圈：优势。内圈：经验较少。圈层仅表示类别，不是数值评分；同一圈层内不作排名。",
     "selected": "项目",
     "projectIntro": "学习应用与智能体软件。各条目分别说明实现内容和发布状态。",
     "read": "详情",
@@ -237,7 +247,9 @@ export const locales = [
     "backReports": "所有笔记",
     "publicRepo": "公开仓库",
     "research": "研究",
-    "researchIntro": "调查模拟、意见关联与意见动态。"
+    "researchIntro": "调查模拟、意见关联与意见动态。",
+    "bandStrength": "优势",
+    "bandLess": "经验较少"
   }
 ];
 export const getUI = language => locales[language === "zh-CN" ? 1 : 0];

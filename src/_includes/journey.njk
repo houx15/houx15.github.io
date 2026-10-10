@@ -2,7 +2,7 @@
 <p class="journey-hint" hidden>{{ ui.journeyHint }}</p>
 <div class="journey-map" hidden>
 <svg viewBox="0 0 600 280" preserveAspectRatio="none" aria-hidden="true"><path class="journey-line" d="M72 56 H522 C600 56 600 198 522 198 H72"/><path class="journey-direction" d="m285 51 7 5-7 5 M300 193 l-7 5 7 5"/></svg>
-{% if ui.prefix %}{% set stops = ['2015','2016–22','2020–23','2023','2024–今','2025–26','目前'] %}{% set labels = ['清华','创业 / CTO','公益实习','UNICEF','北大博士','AI 咨询','普林斯顿'] %}{% else %}{% set stops = ['2015','2016–22','2020–23','2023','2024–now','2025–26','Now'] %}{% set labels = ['Tsinghua','Startup / CTO','Nonprofits','UNICEF','PKU PhD','AI consulting','Princeton'] %}{% endif %}
+{% if ui.prefix %}{% set stops = ['2015','2016–22','2020–23','2020–23','2023','2024–今','2025–26','目前'] %}{% set labels = ['清华','创业 / CTO','是光诗歌','PEER','UNICEF','北大博士','AI 咨询','普林斯顿'] %}{% else %}{% set stops = ['2015','2016–22','2020–23','2020–23','2023','2024–now','2025–26','Now'] %}{% set labels = ['Tsinghua','Startup / CTO','是光诗歌','PEER','UNICEF','PKU PhD','AI consulting','Princeton'] %}{% endif %}
 {% for milestone in biography %}<button type="button" class="journey-stop stop-{{ loop.index }}" data-stop="{{ milestone.id }}" aria-label="{{ milestone[ui.lang].period }} · {{ milestone[ui.lang].title }}"><span class="journey-dot" aria-hidden="true"></span><span class="journey-year">{{ stops[loop.index0] }}</span><span class="journey-name">{{ labels[loop.index0] }}</span></button>{% endfor %}
 </div>
 <div class="journey-detail" hidden aria-live="polite" aria-atomic="true"></div>

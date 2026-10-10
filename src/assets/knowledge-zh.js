@@ -1,7 +1,7 @@
 import { biographyText } from './biography.js';
 // Translations of the reviewed public facts.
 export const chineseFacts = {
-  startup:biographyText('startup','zh-CN'), nonprofits:biographyText('nonprofits','zh-CN'), unicef:biographyText('unicef','zh-CN'), consulting:biographyText('consulting','zh-CN'),
+  startup:biographyText('startup','zh-CN'), nonprofits:biographyText('shiguang','zh-CN')+' '+biographyText('peer','zh-CN'), unicef:biographyText('unicef','zh-CN'), consulting:biographyText('consulting','zh-CN'),
   "engineering": "Mind Imprint 的一项提交修复了项目级卡片的完成流程：仅在卡片操作需要源材料时要求材料引用，并增加完成流程级测试。提交署名为 houx15，同时记录了 AI 共同作者。",
   "methods": "公开研究使用调查模拟、经验 copula 迁移、意见的两两相关、议题语义相似度与有效维度分析。SSDataAgent 和意见关联属于研究；Mind Imprint、Knoweia 与 OrgClaw 属于应用或软件原型。",
   "failure": "Mind Imprint 的公开补丁修复了阻断项目级卡片完成的材料引用校验。SSDataAgent 当前的提交工具把缺失的时序验证记录为警告与未验证标记，并未执行部分旧文档描述的硬性门槛。",
@@ -9,7 +9,7 @@ export const chineseFacts = {
   "attitudes": "AI attitudes 研究流程标注已提取的微博和 Twitter 数据，验证响应，保存可恢复的 Parquet 分片并生成每日聚合指标。一项存储提交署名为 houx15，同时记录了 AI 共同作者。失败响应与有效的中性或 cannot tell 标签分开。这是研究软件，不是爬虫，也不能单凭共享配置证明跨语言测量等价。",
   "mind": "Mind Imprint（思维印记）的英文官网使用 The Mark of Thinking 名称。该 AI 学习平台提供阅读、写作、课程、研究工作区、思维工具卡与过程记录。官网和应用登录页已上线。一项卡片完成流程修复署名为 houx15，并记录了 AI 共同作者。本次网站整理未测试登录后的学习流程或学习成效。",
   "knowia": "Knoweia 是 llm-course-desktop 中已核实的产品名称。这是课程学习桌面应用，包含流式辅导对话、本地 Python sidecar，以及处理账户、课程内容和进度的 FastAPI 后端。桌面版本已公开发布。本次网站整理未测试安装器，也未核实个人贡献分工。",
-  "interests": "雷达图展示社会学、AI 工程、数据分析、产品思考与写作的可编辑示例值，不是 Evie 已确认的自评。时间线列出工作、实习、教育和访问经历，保留重叠日期，不赋予生活状态评分。",
+  "interests": "Evie 自述优势包括产品思维、AI 技术（尤其 NLP）、统计学、大数据分析与管理；在设计、市场营销、销售与融资方面经验较少。雷达图展示这两个定性自评层级，不是测量分数。时间线列出工作、实习、教育和访问经历，保留重叠日期，不赋予生活状态评分。",
   "profile": "Evie / Yuxin Hou（侯煜欣）是北京大学社会学博士三年级学生，目前在普林斯顿大学进行为期一年的 VSRC 访问。她于 2015 年进入清华大学，2016–2022 年创办公司并担任 CTO，自学编程，带领 20 余人的研发团队。她还在 2020–2023 年于是光诗歌和 PEER 毅恒挚友实习，2023 年 6–12 月在联合国儿童基金会实习，2025–2026 年为三家公司提供产品与 AI 咨询。这些经历存在时间重叠。职业经历时间由本人提供。",
   "projects": "项目包括 Mind Imprint、Knoweia、OrgClaw、AgenTerm 与 LivePad。Mind Imprint 的官网与应用入口已上线；Knoweia 已发布桌面版本；OrgClaw 已公开原型代码。AgenTerm 与 LivePad 仅列名称，不披露未公开的功能细节。研究单独列出：SSDataAgent、意见关联和意见动态。",
   "contact": "可以通过个人网站上已公开的邮箱 houyx15@gmail.com 联系 Evie，也可以浏览她的公开 GitHub 账号。",
