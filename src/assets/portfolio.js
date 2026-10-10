@@ -1,8 +1,10 @@
+import { setupJourneys } from './journey.js';
 import { answerQuestion } from './knowledge.js';
 import { assistantOrigin } from './assistant-config.js';
 import { createLiveClient, validOrigin } from './assistant-client.js';
 import { getUI } from './ui.js';
 import { initialQuestion, questionFragment, topicQuestions } from './navigation.js';
+setupJourneys(document);
 const language=document.documentElement.lang==='zh-CN'?'zh-CN':'en';
 const ui=getUI(language);
 const languageLink=document.querySelector('#language-switch');
@@ -65,6 +67,7 @@ function setupChat() {
     const visual=ids.map(id=>document.getElementById(`visual-${mapped[id] || id}`)).find(Boolean);
     if(visual) box.append(document.importNode(visual.content,true));
     conversation.append(box);
+    setupJourneys(box);
     while(conversation.children.length>12) conversation.firstElementChild.remove();
   }
   async function ask(text,{focus=true}={}) {

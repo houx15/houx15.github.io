@@ -242,6 +242,13 @@ test('work and education timeline retains every overlapping period in both langu
   assert.match(en('[data-milestone="nonprofits"]').text(),/2020–2023/);
   assert.match(en('[data-milestone="consulting"]').text(),/2025–2026/);
   assert.match(en('.timeline-figure figcaption').text(),/overlap/);
+  for(const $ of [en,zh]) {
+    assert.equal($('.journey-map button').length,7);
+    assert.equal($('.journey-map[hidden]').length,1);
+    assert.equal($('.journey-fallback[hidden]').length,0);
+    assert.equal($('.journey-detail[aria-live=polite]').length,1);
+    assert.ok($('.journey-map button').toArray().every(button=>$(button).attr('aria-label')));
+  }
   const chat=load(await fs.readFile(path.join(dir,'_site/chat/index.html'),'utf8'));
   assert.equal(load(chat('#visual-profile').html())('[data-milestone]').length,7);
   const about=load(await fs.readFile(path.join(dir,'_site/about/index.html'),'utf8'));

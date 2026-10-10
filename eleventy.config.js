@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { markdown } from './lib/markdown.mjs';
 import { loadContent, copyPublishedAssets } from './lib/content.mjs';
 
-const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js', 'knowledge-zh.js', 'ui.js', 'navigation.js', 'biography.js'];
+const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js', 'knowledge-zh.js', 'ui.js', 'navigation.js', 'biography.js', 'journey.js'];
 async function assistantVersion() {
   const sources = await Promise.all(assistantModules.map(name => fs.readFile(`src/assets/${name}`, 'utf8')));
   return createHash('sha256').update(sources.join('\0')).digest('hex').slice(0, 12);
