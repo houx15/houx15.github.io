@@ -1,53 +1,55 @@
-# Portfolio implementation and review
+# Portfolio implementation and source review
 
-## Implementation
+## Current content
 
-The Eleventy / GitHub Pages site now has paired English and Chinese versions, with a three-screen homepage: a large introduction and hand-sketched computer/brain chat entry; biography alongside timeline and radar; then a project gallery and notes. Desktop uses spacious columns; mobile uses natural content height and stacked sections. The illustration is hand-authored SVG with uneven contour lines, no mascot or emoji. Warm paper colors, editorial headings, and simple rules replace rounded cards. Reduced-motion preferences disable animation. No dependencies, external fonts, analytics, or geolocation were added.
+The accepted Eleventy layout is retained: introduction and illustrated chat entry, academic background with timeline/radar, and the work sections. Research and Projects now have separate homepage sections and bilingual listing routes (`/research/`, `/projects/`, and `/zh/` equivalents). Mobile navigation wraps onto its own row to accommodate Research. Existing article URLs remain stable, including SSDataAgent under `/projects/ssdata-agent/`; its navigation and listing classification are Research.
 
-The published assistant is **a local topic-matching demo, not a live LLM**. `src/assets/knowledge.js` is its explicit public allowlist. Input is rendered as text. The demo makes no model requests and uses no site storage. The latest question travels in a URL fragment when entering chat or switching languages; fragments are not sent to the server but can remain in browser history or a copied link, which the privacy page explains. Unknown questions return an honest fallback. There is no visitor-accessible filesystem, credential, tool, or network execution path. Keyword filtering is a usability feature; absence of privileged capabilities is the actual boundary.
+Research: SSDataAgent, opinion correlation, opinion dynamics. Projects: Mind Imprint, Knoweia, OrgClaw, AgenTerm, LivePad. AI-attitudes remains accessible as supplementary research software, outside the product gallery. The copy describes questions, methods, implemented components, availability, and documented contributions. Metaphorical headings and inferred cross-project narratives have been removed from both languages and the assistant.
 
-A disabled Node adapter and opt-in client are implemented; see [assistant-backend.md](assistant-backend.md). Tests use a mock provider. No successful real model response or paid call has been verified. Activation needs an approved server-side host, provider key/model, and nonzero daily usage budget. The static Pages deployment cannot hold secrets. No credentials from other projects were inspected or reused.
+AgenTerm and LivePad are name-only entries. Opinion dynamics is a named research area supported by the user's classification and earlier public profile; its exact repository is unresolved. No private repository contents were used in public descriptions. No papers, numerical results, performance guarantees, or individual roles were invented.
 
-## Editing and reader journey
+## Source map
 
-- `src/_data/portfolio.json`: project summaries in both languages, domain names, illustrative values.
-- `src/assets/ui.js`: shared bilingual interface and biography text, consumed by templates and the browser.
-- `content/**/index.zh.md`: complete Chinese article translations, inheriting publication metadata and retaining fixed-revision sources.
-- `content/projects/`: SSDataAgent, Mind Imprint, and AI-attitudes case studies, including fixed-revision evidence and contribution commits.
-- `content/reports/evaluation-and-information-access/`: explicitly labeled repository reading note, not a new experiment.
-- `src/assets/knowledge.js`: synchronized source-backed answers; specific engineering, research-method, and failure questions.
-- `src/index.njk`: three-screen homepage; `src/chat.njk`: dedicated conversation; `src/_data/visualizations.js` renders the radar at build time.
-- `src/entry.njk`: article contents and related-reading/assistant paths.
+Inspected 10 October 2026. Public repository snapshots were read in `/tmp/portfolio-source-review/`; none of those checkout contents are copied into the website. Available local coding directories did not contain the named project checkouts. Public source files resolve the user's `llm-learning-platform` directory clue.
 
-The homepage project summaries lead to local case studies and public code. The assistant's citations lead to those same case studies. A project’s “Ask” link carries a reviewed topic to the dedicated chat page. The hero carries a bounded question in a fragment. Arrival answers in local demo mode only; no navigation opts into live AI. Answers include source links and relevant conceptual flow diagrams, an academic path, or the explicitly illustrative radar. Language switching preserves the same route and latest question; it does not persist a full conversation. Unmatched article heading fragments are dropped rather than linking to a nonexistent translated heading. Case studies do not repeat as duplicate homepage listings. Knowia’s unresolved source is documented on About and in the assistant rather than occupying the main project list.
+| Item | Sources and revision | Supported description / status |
+| --- | --- | --- |
+| Profile | User-supplied PhD year and Princeton visit; archived website `40acdb33c13f878907e88f86319442715c398b3d/about/index.html` | Tsinghua B.E. Mechanical Engineering and M.A. Education; PKU Center for Social Research from September 2024; current one-year Princeton VSRC. Exact degree and visit dates remain unspecified. |
+| SSDataAgent | `houx15/SSDataAgent` at `f84416d0d119585d5189c6fd8b691acfe23e26f2`; README, July 15/29 reports, commit tool | Public research code and reports on synthetic survey data, information settings, and copying checks. Empirical-copula contribution: `4c7b2f5109600df0a3d85cdcbc24191f5f0cc5c6`, attributed to houx15. Numerical findings not reproduced. |
+| Opinion correlation | `houx15/opinion-structure-across-societies` at `dc98fb1b410e9e9791a27c791b2637baa52bba87`, README | Nine policy topics; survey/social-media comparison across US, Europe, China; correlations, semantic similarity, dimensionality. Public README explicitly identifies `opinion_correlation` as the earlier working directory. No private source needed. No publication or authorship breakdown claimed. |
+| Opinion dynamics | User classification; archived profile above | Social-media opinion dynamics as research area only. Exact repository, methods, and results unconfirmed. |
+| Mind Imprint | `houx15/mind-imprint` at `14cefb80211bb49bba8888eceeada57813465d62`; README, card lifecycle, `apps/site-v2/README.md` | Learning web application; public website uses The Mark of Thinking. `https://mind.uni-robot.cn/` and its linked `https://mind-web.uni-robot.cn/` login were verified in Chrome. No login, learning session, or paid call. Card fix `958a05a7d3e4381761917449651299bf5cd0622d` attributed to houx15 with AI coauthor. |
+| Knoweia | `houx15/llm-course-desktop` at `c4dc8cb21685f18e6c2594efc3c8fcebf36c76d1` (package, interface, README); backend at `a0242d8fc0b5e6fcd38a97c4dc475ca301a2bcd7` | Product name verified as **Knoweia**, correcting prior transcription. Electron course application, local Python sidecar, FastAPI/PostgreSQL services. Public releases include v0.3.0; installer not run. Backend plans reference the original `llm-learning-platform` parent directory. No individual role inferred. |
+| OrgClaw | `houx15/OrgClaw` at `5962afbb6ee1053a410ca76c1d8e1d56da496ba3`; server, loop, tool registry, providers, architecture | Public agent-runtime prototype. Model adapters, tools, chat endpoint, session storage are present in code. Broader organizational messaging integrations are plans, not verified deployments. No public demo or individual role established. |
+| AgenTerm / LivePad | Names explicitly supplied by user | Names only. Private-source feature descriptions require precise approval before publication. |
+| AI-attitudes | `houx15/ai-attitudes-social-media` at `52ef184923a34ccf6c229a2ab199a8c273ff9a10` | Research labeling pipeline; storage commit `19a097795f879db3568f746131ed2f1e707f4c5f` attributed to houx15 with AI coauthor. Shared configuration is not evidence of measurement equivalence. |
 
-The radar's five values remain conspicuously illustrative pending actual owner ratings. Browser edits are temporary. The timeline has no inferred life-status values or scaled durations: it shows Tsinghua degrees before September 2024, PKU from September 2024, and Princeton as a concurrent current visit. Exact degree-completion and visit dates remain unspecified.
+Each public detail page includes fixed-revision citations. Repository ownership is not treated as proof of sole authorship. No private datasets, credentials, application materials, or chat histories are included. No applicable AGENTS.md or memory_summary.md was found in the website checkout/local Codex sources during the initial inspection.
 
-## Source provenance
+## Editing
 
-Inspected October 10, 2026. Only public GitHub content and the user's supplied profile were used:
+- `src/_data/portfolio.json`: bilingual Research and Projects lists, summaries, verified product links, illustrative radar values.
+- `src/assets/ui.js`: bilingual introduction, biography, headings, and interface labels.
+- `content/projects/*/index.md` and `index.zh.md`: full paired descriptions. `category: research` or `research-software` controls listing and back-navigation without changing existing URLs.
+- `content/reports/`: notes; the SSDataAgent note summarizes sources without adding experiments.
+- `src/assets/knowledge.js` and `knowledge-zh.js`: explicit public assistant facts and translations. Named subjects take precedence over generic contribution/failure terms.
 
-- Existing `src/_data/site.json`: name, Chinese name, public email and GitHub.
-- User brief: Evie alias, third-year Sociology PhD, current one-year Princeton VSRC, curiosity/rapid learning as desired editable self-description.
-- Archived public website, revision `40acdb33c13f878907e88f86319442715c398b3d`, `about/index.html`: Tsinghua B.E. Mechanical Engineering and M.A. Education; PKU Center for Social Research entry September 2024.
-- SSDataAgent revision `f84416d0d119585d5189c6fd8b691acfe23e26f2`: README, July 15 and July 29 reports, current commit tool. The current chronology check is **advisory**, correcting older hard-gate prose. Contribution evidence: empirical-copula commit `4c7b2f5109600df0a3d85cdcbc24191f5f0cc5c6`, attributed to houx15. No numerical superiority or privacy guarantee is claimed.
-- Mind Imprint revision `14cefb80211bb49bba8888eceeada57813465d62`: README, card lifecycle and tests. Contribution: completion guard fix `958a05a7d3e4381761917449651299bf5cd0622d`, attributed to houx15 with AI coauthor. Branding commit `b5b7b367cb9a22b8a26a2b2e90e833e8080e9e58` names the UI The Mark of Thinking. The exact repository is `mind-imprint`, matching the likely spoken reference; owner can confirm that connection.
-- AI-attitudes revision `52ef184923a34ccf6c229a2ab199a8c273ff9a10`: README, OpenRouter client, tests. Contribution: partitioned storage commit `19a097795f879db3568f746131ed2f1e707f4c5f`, attributed to houx15 with AI coauthor. Shared labeling is not described as proof of representativeness or eliminated language/model bias.
-- Knowia is the owner-confirmed name; public repository/code searches and candidate READMEs did not establish its exact source. No guessed description or link.
+The radar remains visibly illustrative, not an approved self-rating. Timeline milestones do not infer emotional or life-status values.
 
-These sources substantiate documented design and specific commits, not sole project authorship, independent deployment tests, research reproduction, or measured learning outcomes. No private datasets or application materials were included.
+## Assistant status
 
-No applicable AGENTS.md or memory_summary.md was found in the inspected checkout/local Codex directories; the local memory database had no tables. Personal chat/session histories were not mined.
+The published assistant remains an explicitly labeled **local topic-matching demo**, not a live LLM. It has no filesystem, credential, geolocation, private-history, or tool access. Questions render as text. The latest question can appear in a URL fragment when entering chat or switching languages; it is not transmitted to the server but may remain in browser history or a copied link. No full transcript is stored.
 
-## Verification and publication
+The optional server adapter is disabled. It selects only approved fact IDs and returns server-owned wording and citations. Mock-provider tests cover boundaries and failure handling. Activation still needs approved hosting, model/key, and budget; no paid model call was made. See [assistant-backend.md](assistant-backend.md).
 
-Use the bundled Node runtime on this Mac:
+## Verification and publishing
+
+Use the bundled Node runtime:
 
 ```sh
 PATH=/Users/monkey/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH bun run verify
-PATH=/Users/monkey/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH bun run preview
 ```
 
-All 29 tests pass, covering content isolation, publication workflow, source grounding, unsupported/private questions, named-project precedence for contribution/failure questions, unknown-role refusal, cache invalidation across assistant modules, safe client errors/citations, server boundaries, mock provider behavior, durable budgets, and quotas. Build/link checks cover 20 HTML pages, including complete English/Chinese route pairs. Browser review covers desktop and 390px mobile, keyboard radar changes, hero → chat → source → home navigation, language/context switching, unknown/private input, and response visuals. An isolated local preview with an unavailable backend verified explicit consent, service errors without demo substitution, and consent revocation. No provider request was made. Screenshots are kept in ignored `.verification/portfolio/`.
+31 tests cover content isolation, bilingual routing, separate research/product listings, stable legacy URLs, named-subject routing, privacy boundaries, and optional-server behavior. Production contains 28 HTML pages. Browser review includes desktop/mobile, research and product navigation, language switching, Knoweia answers, and the verified Mind Imprint website/application links. Screenshots are saved in ignored `.verification/portfolio/`.
 
-Preview: `http://localhost:8081/`. Main pushes trigger existing GitHub Pages CI. The user subsequently authorized committing and pushing to main; no deployment configuration or access policy was changed. Match the deployed `/build-info.json` revision to the pushed commit before claiming publication is complete.
+Local preview: `http://localhost:8081/`. The user authorized main-branch commits and pushes; the existing Pages workflow deploys main. Verify the exact revision in `/build-info.json` and the matching Actions run after each push. No deployment configuration or access policy was changed.

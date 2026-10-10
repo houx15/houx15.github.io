@@ -1,0 +1,17 @@
+---
+layout: base.njk
+pagination:
+  data: locales
+  size: 1
+  alias: locale
+permalink: "{{ locale.prefix }}/research/"
+section: research
+eleventyComputed:
+  lang: "{{ locale.lang }}"
+  title: "{{ locale.research }}"
+---
+{% set ui = locale %}
+{% from 'entries.njk' import entryList %}
+<header class="page-heading"><p class="eyebrow">{{ ui.name }}</p><h1>{{ ui.research }}</h1><p>{{ ui.researchIntro }}</p></header>
+{% set cards = portfolio.research %}{% include 'project-cards.njk' %}
+<section class="notes-block"><h2>{{ '研究软件' if ui.prefix else 'Research software' }}</h2>{% set items = entries | localized(ui) | researchSoftware %}{{ entryList(items,'h3',ui) }}</section>

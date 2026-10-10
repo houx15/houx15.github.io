@@ -8,19 +8,20 @@ permalink: "{{ entry.url }}"
 eleventyComputed:
   title: "{{ entry.title }}"
   description: "{{ entry.summary }}"
-  section: "{{ entry.type }}"
+  section: "{{ 'research' if entry.category == 'research' or entry.category == 'research-software' else entry.type }}"
   lang: "{{ entry.lang }}"
 article: true
 ---
 {% set ui = locales[1] if entry.isTranslation else locales[0] %}
+{% set listing = "research" if entry.category == "research" or entry.category == "research-software" else entry.type %}
 <article>
   <header class="article-heading">
-    <a class="back-link" href="{{ ui.prefix }}/{{ entry.type }}/">{% if entry.type == 'projects' %}{{ ui.projects }}{% else %}{{ ui.notes }}{% endif %}</a>
+    <a class="back-link" href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'research' %}{{ ui.research }}{% elif entry.type == 'projects' %}{{ ui.projects }}{% else %}{{ ui.notes }}{% endif %}</a>
     <h1>{{ entry.title }}</h1>
     <p class="article-summary">{{ entry.summary }}</p>
     <div class="article-meta"><span>{{ ui.name }}</span><time datetime="{{ entry.date }}">{{ entry.date | dateLabel(ui.lang) }}</time><span>{{ entry.readingTime }} {{ ui.minRead }}</span>{% if entry.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}</div>
     {% if entry.updated %}<p class="updated">{{ ui.updated }} <time datetime="{{ entry.updated }}">{{ entry.updated | dateLabel(ui.lang) }}</time></p>{% endif %}
-    {% if entry.links.length %}<ul class="project-links">{% for link in entry.links %}<li><a href="{{ link.url }}">{{ ui.publicRepo if ui.prefix else link.label }}</a></li>{% endfor %}</ul>{% endif %}
+    {% if entry.links.length %}<ul class="project-links">{% for link in entry.links %}<li><a href="{{ link.url }}">{{ link.label }}</a></li>{% endfor %}</ul>{% endif %}
   </header>
   {% if entry.headings.length > 1 %}
   <details class="toc" open><summary>{{ ui.contents }}</summary><nav aria-label="{{ ui.contents }}"><ul>{% for heading in entry.headings %}<li class="toc-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ul></nav></details>
@@ -28,5 +29,5 @@ article: true
   <div class="prose" lang="{{ entry.lang }}">{{ entry.html | safe }}</div>
   {% if entry.relatedReport %}<p class="related-reading"><a href="{{ ui.prefix }}{{ entry.relatedReport }}">{{ ui.relatedNote }}</a></p>{% endif %}
   {% if entry.assistantTopic %}<p class="related-reading"><a href="{{ ui.prefix }}/chat/#topic={{ entry.assistantTopic }}">{{ ui.askProject }}</a></p>{% endif %}
-  <div class="article-end"><a href="{{ ui.prefix }}/{{ entry.type }}/">{% if entry.type == 'projects' %}{{ ui.backProjects }}{% else %}{{ ui.backReports }}{% endif %}</a></div>
+  <div class="article-end"><a href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'research' %}{{ ui.research }}{% elif entry.type == 'projects' %}{{ ui.backProjects }}{% else %}{{ ui.backReports }}{% endif %}</a></div>
 </article>

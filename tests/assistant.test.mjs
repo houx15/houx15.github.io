@@ -112,7 +112,7 @@ test('default deployment is disabled and accepts only explicit bounded configura
 test('optional live selection returns reviewed Chinese wording and localized citations',()=>{
   const request=validateInput({kind:'answer',question:'介绍一下 SSDataAgent',language:'zh-CN'});
   const result=validateModelResult({factIds:['ssdata']},request);
-  assert.match(result.text,/SSDataAgent 探索/);
+  assert.match(result.text,/SSDataAgent 使用 LLM/);
   assert.equal(result.sources[0].url,'/zh/projects/ssdata-agent/');
   assert.match(validateModelResult({greetingId:'welcome'},{kind:'greeting',daypart:'morning',language:'zh-CN'}).text,/早上好/);
   assert.match(validateModelResult({factIds:[]},request).text,/没有经过确认/);

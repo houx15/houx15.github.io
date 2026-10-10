@@ -4,6 +4,6 @@ eleventyExcludeFromCollections: true
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{% for url in ['/', '/projects/', '/reports/', '/about/', '/chat/', '/zh/', '/zh/projects/', '/zh/reports/', '/zh/about/', '/zh/chat/'] %}<url><loc>{{ site.url }}{{ url }}</loc></url>{% endfor %}
+{% for url in ['/', '/research/', '/projects/', '/reports/', '/about/', '/chat/', '/zh/', '/zh/research/', '/zh/projects/', '/zh/reports/', '/zh/about/', '/zh/chat/'] %}<url><loc>{{ site.url }}{{ url }}</loc></url>{% endfor %}
 {% for entry in articleEntries %}{% if not entry.draft %}<url><loc>{{ site.url }}{{ entry.url }}</loc><lastmod>{{ entry.updated or entry.date }}</lastmod></url>{% endif %}{% endfor %}
 </urlset>

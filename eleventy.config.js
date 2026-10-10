@@ -25,6 +25,8 @@ export default function (config) {
     const entry = entries.find(item=>item.url===url);
     return entry && !entry.zh ? `/zh/${entry.type}/` : `/zh${url}`;
   });
+  config.addFilter('products', entries => entries.filter(item => item.category !== 'research' && item.category !== 'research-software'));
+  config.addFilter('researchSoftware', entries => entries.filter(item => item.category === 'research-software'));
   config.addFilter('section', (entries, type) => entries.filter(item => item.type === type));
   config.addFilter('projectBySlug', (entries, slug) => entries.find(item => item.type === 'projects' && item.slug === slug));
   config.addFilter('otherProjects', (entries, projects) => entries.filter(item => !projects.some(project => project.slug === item.slug)));

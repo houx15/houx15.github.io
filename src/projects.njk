@@ -13,4 +13,4 @@ eleventyComputed:
 {% set ui = locale %}
 {% from 'entries.njk' import entryList %}
 <header class="page-heading"><p class="eyebrow">{{ ui.name }}</p><h1>{{ ui.projects }}</h1></header>
-{% include 'project-cards.njk' %}{% set allProjects = entries | localized(ui) | section('projects') %}{% set items = allProjects | otherProjects(portfolio.projects) %}{% if items.length %}{{ entryList(items,'h2',ui) }}{% elif not allProjects.length %}<p class="empty-state">{{ ui.noProjects }}</p>{% endif %}
+{% set cards = portfolio.projects %}{% set showDiagrams = true %}{% include 'project-cards.njk' %}{% set allProjects = entries | localized(ui) | section('projects') | products %}{% set items = allProjects | otherProjects(portfolio.projects) %}{% if items.length %}{{ entryList(items,'h2',ui) }}{% elif not allProjects.length %}<p class="empty-state">{{ ui.noProjects }}</p>{% endif %}

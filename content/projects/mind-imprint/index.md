@@ -1,38 +1,38 @@
 ---
-title: 'Mind Imprint: structured thinking workflows'
+title: Mind Imprint
 summary: >-
-  An AI learning system that offers structured thinking tools while keeping the
-  student responsible for the work.
+  An AI learning platform with reading, writing, courses, research workspaces,
+  and structured thinking tools.
 date: '2026-10-10'
 draft: false
 lang: en
-featured: true
-assistantTopic: mind
 links:
-  - label: Public repository
+  - label: Source code
     url: 'https://github.com/houx15/mind-imprint'
+  - label: Product website
+    url: 'https://mind.uni-robot.cn/'
+  - label: Open application
+    url: 'https://mind-web.uni-robot.cn/'
+assistantTopic: mind
+updated: '2026-10-10'
 ---
 
-## The product question
+## Application
 
-How can an AI system help students think without doing the thinking for them? The `mind-imprint` repository describes a learning platform with structured thinking cards, research workspaces, and records of the learning process. This page uses the repository name; a later [public branding commit](https://github.com/houx15/mind-imprint/commit/b5b7b367cb9a22b8a26a2b2e90e833e8080e9e58) updates the English interface name to **The Mark of Thinking**.
+Mind Imprint (思维印记) provides reading, writing, guided courses, and research-project workspaces. Its English product website uses the name **The Mark of Thinking**. The public website and web application login were accessible on 10 October 2026.
 
-The [README](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/README.md) describes a React/TypeScript interface, a Go API, PostgreSQL storage, and schema-defined cards. Its design separates model decisions, card rendering, and persisted process records.
+The application combines AI dialogue with structured thinking cards. Users open and complete cards; the system stores those actions and conversation records for later review and process assessment. Teacher interfaces present student activity and class reports.
 
-## From a suggestion to a recorded action
+## Implementation
 
-The [card lifecycle code](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/apps/api/internal/agent/card_lifecycle.go) shows a concrete boundary: surfacing a card creates a proposed instance and records an event. Offering a card does not itself force the student to complete it. The product’s documented rule leaves opening the card to the student.
+The public repository contains a React/TypeScript frontend, Go API, and PostgreSQL storage. Card definitions determine their forms and completion effects. A project-level card can be completed without referring to a single source document; material-specific effects require that reference.
 
-Completion then connects the submitted work to graph effects and stored framework information. A card about an entire project need not refer to one source document; a card that promotes material into evidence does need that reference. These are different interactions, not just different labels on the same form.
+## Contribution and status
 
-## A documented contribution
+The [card-completion fix](https://github.com/houx15/mind-imprint/commit/958a05a7d3e4381761917449651299bf5cd0622d), attributed to `houx15` with an AI coauthor, corrects the material-reference requirement and adds completion-level tests.
 
-An earlier guard required a material reference for every completed card. Project-level cards correctly had none, so fully completing those cards caused a server error. The [July 21 fix](https://github.com/houx15/mind-imprint/commit/958a05a7d3e4381761917449651299bf5cd0622d) makes the requirement depend on the graph effect: material-consuming effects retain the guard, while project-level effects can proceed without a material ID.
+The product has a live website and application entry point. This website review checked those public pages, without logging in or running a learning session. Learning gains and assessment validity are not established by this review.
 
-GitHub attributes this commit to `houx15` and records an AI coauthor. The commit includes completion-level tests; the [public test file](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/apps/api/internal/agent/card_lifecycle_test.go) is available for inspection. This is a specific documented contribution, not a claim of sole product authorship.
+## Sources
 
-## Scope and limits
-
-This review inspected public documentation, implementation, and a corrective patch. It did not run the application or establish adoption, learning gains, or assessment validity. The README identifies the repository as an internal demo and includes unfinished roadmap items; its deployment claims are not independently verified here.
-
-Useful questions include how a thinking card becomes a backend event, what student confirmation changes, and why testing helper functions alone missed a failure between them.
+[Public system documentation](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/README.md) · [Website implementation and deployment record](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/apps/site-v2/README.md).

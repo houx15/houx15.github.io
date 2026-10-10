@@ -1,28 +1,26 @@
 ---
-title: "Mind Imprint：结构化思考流程"
-summary: "用结构化思考工具辅助学习，同时让学生保留对思考过程的责任。"
+title: "Mind Imprint · 思维印记"
+summary: "提供阅读、写作、课程、研究工作区与结构化思维工具的 AI 学习平台。"
+lang: "zh-CN"
+links: [{"label": "源代码", "url": "https://github.com/houx15/mind-imprint"}, {"label": "产品官网", "url": "https://mind.uni-robot.cn/"}, {"label": "打开应用", "url": "https://mind-web.uni-robot.cn/"}]
 ---
 
-## 产品问题
+## 应用功能
 
-AI 如何帮助学生思考，而不是替学生完成思考？`mind-imprint` 仓库描述了一个包含思考卡片、研究工作区和学习过程记录的平台。本页沿用仓库名称；后续[品牌命名提交](https://github.com/houx15/mind-imprint/commit/b5b7b367cb9a22b8a26a2b2e90e833e8080e9e58) 将英文界面名称改为 **The Mark of Thinking**。
+Mind Imprint（思维印记）提供阅读、写作、引导式课程与研究项目工作区。英文产品官网使用 **The Mark of Thinking** 这一名称。2026 年 10 月 10 日检查时，公开官网与 Web 应用登录页均可访问。
 
-[README](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/README.md) 描述了 React/TypeScript 前端、Go API、PostgreSQL 存储和以 schema 定义的卡片。设计将模型决策、卡片渲染和持久化的过程记录分开。
+应用将 AI 对话与结构化思维工具卡结合。用户打开并完成卡片，系统保存操作和对话记录，用于后续回顾与过程评估。教师端提供学生活动与班级报告。
 
-## 从建议到被记录的行动
+## 实现
 
-[卡片生命周期代码](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/apps/api/internal/agent/card_lifecycle.go) 展示了一条具体边界：推荐卡片会创建一个待接受的实例，并记录事件，但推荐本身不会强制学生完成卡片。产品文档将是否打开卡片的决定留给学生。
+公开仓库包含 React/TypeScript 前端、Go API 与 PostgreSQL 存储。卡片定义决定表单与完成后的操作。项目级卡片不必关联单篇材料；涉及具体材料的操作需要材料引用。
 
-完成卡片时，提交内容会关联到图操作与已存储的思考框架。面向整个项目的卡片不一定引用某一篇材料；将材料提升为证据的卡片则需要材料引用。这是两种不同的交互，而不只是同一表单上的不同标签。
+## 贡献与状态
 
-## 一项可追溯的贡献
+[卡片完成流程修复](https://github.com/houx15/mind-imprint/commit/958a05a7d3e4381761917449651299bf5cd0622d) 调整了材料引用要求，并增加完成流程级测试。该提交署名为 `houx15`，同时记录了 AI 共同作者。
 
-早期的校验要求所有卡片完成时都必须提供材料引用。项目级卡片原本就没有该引用，因此在完整执行完成流程时会出现服务器错误。[7 月 21 日修复](https://github.com/houx15/mind-imprint/commit/958a05a7d3e4381761917449651299bf5cd0622d) 将这一要求改为由图操作决定：消耗材料的操作仍保留校验，项目级操作则可以不携带材料 ID。
+产品官网与应用入口已上线。本次网站整理检查了这些公开页面，未登录或运行学习会话，也未验证学习成效或评估效度。
 
-GitHub 将该提交归于 `houx15`，并记录了一位 AI 共同作者。提交包含完成流程级别的测试；[公开测试文件](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/apps/api/internal/agent/card_lifecycle_test.go) 可供检查。这是一项有记录的具体贡献，不代表对整个产品的独立作者身份。
+## 来源
 
-## 范围与限制
-
-本次整理检查了公开文档、实现和修复补丁，没有运行应用，也没有验证用户采用、学习增益或评估有效性。README 将其标为内部演示，并包含尚未完成的路线图事项；其中的部署说明未在这里独立核实。
-
-值得继续追问：思考卡片如何成为后端事件？学生确认改变了什么？为什么仅测试辅助函数会漏掉函数衔接处的故障？
+[公开系统文档](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/README.md) · [官网实现与部署记录](https://github.com/houx15/mind-imprint/blob/14cefb80211bb49bba8888eceeada57813465d62/apps/site-v2/README.md)。

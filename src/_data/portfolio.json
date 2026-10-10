@@ -1,45 +1,93 @@
 {
-  "intro": "I’m Evie (Yuxin) Hou, a sociology researcher working across social research and AI.",
-  "approach": "I like learning unfamiliar things, trying ideas quickly, and following a good question across disciplines.",
+  "intro": "I’m Evie Hou, a Sociology PhD student. I study social opinions and survey simulation, and develop AI learning tools.",
+  "approach": "I learn new methods through implementation and use prototypes to test ideas.",
   "role": "Third-year Sociology PhD student at Peking University · Visiting Student Research Collaborator at Princeton for one year.",
   "projects": [
     {
-      "name": "SSDataAgent",
-      "summary": "How should an agent simulate a survey population—and what does a good benchmark score actually tell us?",
-      "note": "Empirical-copula transfer, information-access constraints, and the difference between statistical fidelity and record copying.",
-      "url": "https://github.com/houx15/SSDataAgent",
-      "tag": "Computational social science",
-      "slug": "ssdata-agent",
-      "zh": {
-        "tag": "社会研究与模拟",
-        "summary": "如何让智能体模拟调查总体？更高的基准分数，又究竟说明了什么？",
-        "note": "经验 copula 迁移、信息访问约束，以及统计保真度与记录复制的区别。"
-      }
-    },
-    {
       "name": "Mind Imprint",
-      "summary": "How can AI offer students structured thinking tools while leaving them responsible for the thinking?",
-      "note": "Schema-defined cards, recorded learning actions, and a concrete fix for completing project-level cards without a source document.",
-      "url": "https://github.com/houx15/mind-imprint",
-      "tag": "AI learning systems",
       "slug": "mind-imprint",
+      "url": "https://github.com/houx15/mind-imprint",
+      "tag": "Web application",
+      "summary": "An AI learning platform for reading, writing, courses, and research projects, with structured thinking cards and process records.",
+      "note": "Public website and application entry point are live. English product branding: The Mark of Thinking.",
+      "links": [
+        {
+          "label": "Website",
+          "zh": "官网",
+          "url": "https://mind.uni-robot.cn/"
+        },
+        {
+          "label": "Open app",
+          "zh": "打开应用",
+          "url": "https://mind-web.uni-robot.cn/"
+        }
+      ],
       "zh": {
-        "tag": "AI 与学习",
-        "summary": "AI 如何提供结构化思考工具，同时把思考的主动权留给学生？",
-        "note": "以 schema 定义卡片、记录学习行动，以及一次项目级卡片完成流程的具体修复。"
+        "tag": "Web 应用",
+        "summary": "支持阅读、写作、课程与研究项目的 AI 学习平台，提供结构化思维工具卡并记录学习过程。",
+        "note": "官网与应用入口已上线。英文产品名称为 The Mark of Thinking。"
       }
     },
     {
-      "name": "AI attitudes across social media",
-      "summary": "How can social-media labeling stay inspectable when model responses fail and long runs need to resume?",
-      "note": "Explicit label validation, provider provenance, and partitioned Parquet outputs for resumable Weibo/Twitter processing.",
-      "url": "https://github.com/houx15/ai-attitudes-social-media",
-      "tag": "Research infrastructure",
-      "slug": "ai-attitudes",
+      "name": "Knoweia",
+      "slug": "knoweia",
+      "url": "https://github.com/houx15/llm-course-desktop",
+      "tag": "Desktop application",
+      "summary": "A course-learning application with streamed tutoring dialogue, local Python agent execution, and synchronized course progress.",
+      "note": "Public desktop releases; Electron frontend, Python sidecar, and FastAPI backend.",
+      "links": [
+        {
+          "label": "Releases",
+          "zh": "下载版本",
+          "url": "https://github.com/houx15/llm-course-desktop/releases"
+        }
+      ],
       "zh": {
-        "tag": "研究基础设施",
-        "summary": "模型响应失败、长任务需要恢复时，社交媒体标注如何保持可检查？",
-        "note": "显式的标签验证、服务来源记录，以及可恢复的微博 / Twitter 分片 Parquet 输出。"
+        "tag": "桌面应用",
+        "summary": "课程学习应用，提供流式辅导对话、本地 Python 智能体执行与课程进度同步。",
+        "note": "桌面版本已发布；由 Electron 前端、Python sidecar 和 FastAPI 后端组成。"
+      }
+    },
+    {
+      "name": "OrgClaw",
+      "slug": "orgclaw",
+      "url": "https://github.com/houx15/OrgClaw",
+      "tag": "Prototype",
+      "summary": "An agent runtime with model-provider adapters, tool execution, session memory, and a chat API.",
+      "note": "Public prototype code. Organizational messaging integrations are architecture plans, not verified deployed features.",
+      "links": [],
+      "zh": {
+        "tag": "原型",
+        "summary": "智能体运行时，包含模型服务适配、工具执行、会话记忆与聊天 API。",
+        "note": "原型代码已公开。组织通讯集成属于架构规划，尚未核实为已部署功能。"
+      }
+    },
+    {
+      "name": "AgenTerm",
+      "slug": null,
+      "url": null,
+      "tag": "Project",
+      "summary": "AgenTerm.",
+      "note": "Project description and release status are not public on this page.",
+      "links": [],
+      "zh": {
+        "tag": "项目",
+        "summary": "AgenTerm。",
+        "note": "本页未公开项目说明与发布状态。"
+      }
+    },
+    {
+      "name": "LivePad",
+      "slug": null,
+      "url": null,
+      "tag": "Project",
+      "summary": "LivePad.",
+      "note": "Project description and release status are not public on this page.",
+      "links": [],
+      "zh": {
+        "tag": "项目",
+        "summary": "LivePad。",
+        "note": "本页未公开项目说明与发布状态。"
       }
     }
   ],
@@ -57,5 +105,51 @@
     2,
     4
   ],
-  "education": "My path began in mechanical engineering and education at Tsinghua, before I joined Peking University’s Center for Social Research in September 2024."
+  "education": "My path began in mechanical engineering and education at Tsinghua, before I joined Peking University’s Center for Social Research in September 2024.",
+  "research": [
+    {
+      "name": "SSDataAgent",
+      "slug": "ssdata-agent",
+      "url": "https://github.com/houx15/SSDataAgent",
+      "tag": "Survey simulation",
+      "summary": "An LLM agent fits and evaluates generators of synthetic survey data.",
+      "note": "Research code and experiment reports; includes empirical-copula transfer and checks for record copying.",
+      "links": [],
+      "zh": {
+        "tag": "调查模拟",
+        "summary": "使用 LLM 智能体拟合和评估社会调查数据生成器。",
+        "note": "公开研究代码与实验报告，包含经验 copula 迁移和记录复制检查。"
+      }
+    },
+    {
+      "name": "Opinion correlation",
+      "slug": "opinion-correlation",
+      "url": "https://github.com/houx15/opinion-structure-across-societies",
+      "tag": "Comparative opinion research",
+      "summary": "Compares associations among nine policy opinions in surveys and social media across the US, Europe, and China.",
+      "note": "Pairwise correlations, semantic similarity, and effective dimensionality. Public analysis code.",
+      "links": [],
+      "zh": {
+        "tag": "比较意见研究",
+        "summary": "比较美国、欧洲与中国的调查及社交媒体数据中，九类政策意见之间的关联。",
+        "note": "方法包括两两相关、语义相似度与有效维度。分析代码已公开。",
+        "name": "意见关联"
+      }
+    },
+    {
+      "name": "Opinion dynamics",
+      "slug": null,
+      "url": null,
+      "tag": "Research",
+      "summary": "Opinion dynamics on social media.",
+      "note": "Research area; project methods and results are not listed here.",
+      "links": [],
+      "zh": {
+        "tag": "研究",
+        "summary": "社交媒体中的意见动态。",
+        "note": "此处列出研究方向，未列出具体项目方法与结果。",
+        "name": "意见动态"
+      }
+    }
+  ]
 }

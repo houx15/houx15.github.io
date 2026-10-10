@@ -181,3 +181,5 @@ body:not(.home-page) .selected-projects {grid-template-columns:1fr}.selected-pro
 .display-line {display:block}
 .radar-figure {grid-template-columns:3fr 2fr}.radar-figure svg {max-width:340px}.radar-figure figcaption {grid-column:1/-1}
 @media (max-width:760px) {.radar-figure {grid-template-columns:1fr}.radar-figure svg {width:100%;max-width:350px;margin:auto}.score-editor {grid-column:1;grid-row:auto;margin-top:0;font-size:12px}.score-editor label {grid-template-columns:1fr 28px}.radar-figure figcaption {grid-column:1}.radar-figure > .source-note,.profile-figure figcaption {font-size:11px}:lang(zh-CN) .profile-copy h2 {font-size:30px}}
+
+@media (max-width:460px) { .site-header {grid-template-columns:1fr auto;gap:0;padding-block:14px} .site-header nav {grid-row:2;grid-column:1/-1;padding-top:10px;padding-bottom:4px} .language-switch {grid-row:1;grid-column:2;border:0} }

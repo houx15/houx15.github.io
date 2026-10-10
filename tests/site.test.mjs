@@ -30,10 +30,10 @@ async function writeEntry(dir, type, slug, { draft = false, title = 'A technical
 
 test('empty site has all routes and no fabricated entries', async t => {
   const dir = await workspace(t); build(dir);
-  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 12);
+  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 14);
   const $ = load(await fs.readFile(path.join(dir, '_site/index.html'), 'utf8'));
   assert.equal($('.entry').length, 0);
-  assert.equal($('.empty-state').length, 2);
+  assert.equal($('.empty-state').length, 1);
   assert.equal($('#radar').closest('details, [hidden]').length, 0);
   assert.ok($('#radar-shape').attr('points').length > 20);
   assert.equal($('#radar-grid polygon').length, 5);
@@ -78,7 +78,7 @@ test('reports and products render and are discoverable; drafts and their files s
   const draft = await writeEntry(dir, 'reports', 'unpublished-report', { draft: true });
   await fs.writeFile(path.join(draft, 'attachment.pdf'), 'draft-only attachment');
   build(dir);
-  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 14);
+  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 16);
   const $ = load(await fs.readFile(path.join(dir, '_site/reports/test-report/index.html'), 'utf8'));
   assert.equal($('h1').text(), 'Methods & Results <2026>');
   assert.equal($('html').attr('lang'), 'zh-CN');
@@ -95,7 +95,7 @@ test('reports and products render and are discoverable; drafts and their files s
   assert.equal(home('.entry').length, 2);
   assert.equal(load(await fs.readFile(path.join(dir, '_site/projects/test-product/index.html'), 'utf8'))('.project-links a').attr('href'), 'https://github.com/houx15');
   build(dir, true);
-  assert.equal((await checkSite(path.join(dir, '_preview'), { preview: true })).pages, 15);
+  assert.equal((await checkSite(path.join(dir, '_preview'), { preview: true })).pages, 17);
   await fs.access(path.join(dir, '_preview/reports/unpublished-report/attachment.pdf'));
   const preview = load(await fs.readFile(path.join(dir, '_preview/reports/unpublished-report/index.html'), 'utf8'));
   assert.equal(preview('meta[name="robots"]').attr('content'), 'noindex, nofollow');
@@ -197,10 +197,32 @@ test('bilingual pages keep route context and translate full articles without dup
   assert.equal(home('#hero-form').attr('action'),'/zh/chat/');
   assert.equal(home('#chat-form').length,0);
   assert.equal(home('.entry h3').text(),'中文项目');
-  assert.equal(home('section.screen').length,3);
-  assert.equal((await checkSite(path.join(dir,'_site'))).pages,14);
+  assert.equal(home('section.screen').length,4);
+  assert.equal((await checkSite(path.join(dir,'_site'))).pages,16);
   const chat=load(await fs.readFile(path.join(dir,'_site/zh/chat/index.html'),'utf8'));
   assert.equal(chat('#chat-form').length,1);
   assert.ok(chat('#visual-ssdata').length);
   assert.equal(chat('#live-options[hidden]').length,1);
+});
+
+test('research is discoverable separately from products and legacy article URLs stay valid',async t=>{
+  const dir=await workspace(t);
+  await writeEntry(dir,'projects','ssdata-agent',{title:'SSDataAgent',extra:'category: research\n'});
+  await writeEntry(dir,'projects','mind-imprint',{title:'Mind Imprint'});
+  await writeEntry(dir,'projects','ai-attitudes',{title:'AI attitudes',extra:'category: research-software\n'});
+  build(dir);
+  const research=load(await fs.readFile(path.join(dir,'_site/research/index.html'),'utf8'));
+  const projects=load(await fs.readFile(path.join(dir,'_site/projects/index.html'),'utf8'));
+  const article=load(await fs.readFile(path.join(dir,'_site/projects/ssdata-agent/index.html'),'utf8'));
+  assert.ok(research('a[href="/projects/ssdata-agent/"]').length);
+  assert.ok(research('a[href="/projects/ai-attitudes/"]').length);
+  assert.equal(projects('a[href="/projects/ssdata-agent/"]').length,0);
+  assert.equal(projects('a[href="/projects/ai-attitudes/"]').length,0);
+  assert.ok(projects('a[href="/projects/mind-imprint/"]').length);
+  assert.equal(article('.back-link').attr('href'),'/research/');
+  assert.equal(research('#language-switch').attr('href'),'/zh/research/');
+  const chinese=load(await fs.readFile(path.join(dir,'_site/zh/research/index.html'),'utf8'));
+  assert.equal(chinese('h1').text(),'研究');
+  assert.ok(projects('a[href="https://mind-web.uni-robot.cn/"]').length);
+  await checkSite(path.join(dir,'_site'));
 });

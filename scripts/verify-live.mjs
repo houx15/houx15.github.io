@@ -14,7 +14,7 @@ try {
   const info = await (await request('/build-info.json')).json();
   if (!values.revision || !/^[a-f0-9]{40}$/.test(values.revision)) throw new Error('Provide --revision with the exact deployed commit SHA.');
   if (info.revision !== values.revision) throw new Error(`Live revision is ${info.revision}; expected ${values.revision}. The CDN may still be updating.`);
-  const routes = new Set(['/', '/projects/', '/reports/', '/about/', '/chat/', '/zh/', '/zh/projects/', '/zh/reports/', '/zh/about/', '/zh/chat/']);
+  const routes = new Set(['/', '/research/', '/projects/', '/reports/', '/about/', '/chat/', '/zh/', '/zh/research/', '/zh/projects/', '/zh/reports/', '/zh/about/', '/zh/chat/']);
   for(const entry of await loadContent()) { routes.add(entry.url); if(entry.zh) routes.add(entry.zh.url); }
   if (values.path) {
     if (!/^\/(?:zh\/)?(projects|reports)\/[a-z0-9-]+\/$/.test(values.path)) throw new Error('--path must be a project or report URL path.');

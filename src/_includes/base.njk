@@ -20,6 +20,7 @@
   <header class="site-header">
     <a class="site-name" href="{{ ui.prefix }}/"{% if page.url == '/' %} aria-current="page"{% endif %}>{{ ui.name }}</a>
     <nav aria-label="{{ '主导航' if ui.prefix else 'Main navigation' }}">
+      <a href="{{ ui.prefix }}/research/"{% if section == 'research' %} aria-current="page"{% endif %}>{{ ui.research }}</a>
       <a href="{{ ui.prefix }}/projects/"{% if section == 'projects' %} aria-current="page"{% endif %}>{{ ui.projects }}</a>
       <a href="{{ ui.prefix }}/reports/"{% if section == 'reports' %} aria-current="page"{% endif %}>{{ ui.notes }}</a>
       <a href="{{ ui.prefix }}/about/"{% if section == 'about' %} aria-current="page"{% endif %}>{{ ui.about }}</a>

@@ -6,7 +6,7 @@ import { initialQuestion, questionFragment, topicQuestions } from './navigation.
 const language=document.documentElement.lang==='zh-CN'?'zh-CN':'en';
 const ui=getUI(language);
 const languageLink=document.querySelector('#language-switch');
-if(languageLink && (/^#(?:q|topic)=/.test(window.location.hash) || ['#main','#interests','#projects'].includes(window.location.hash))) languageLink.hash=window.location.hash;
+if(languageLink && (/^#(?:q|topic)=/.test(window.location.hash) || ['#main','#interests','#research','#projects'].includes(window.location.hash))) languageLink.hash=window.location.hash;
 const heroForm=document.querySelector('#hero-form');
 if(heroForm) {
   heroForm.addEventListener('submit',event=>{
