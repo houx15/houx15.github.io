@@ -5,3 +5,7 @@ _preview/
 .cache/
 .verification/
 *.log
+.env
+.env.*
+!.env.example
+.assistant-state/

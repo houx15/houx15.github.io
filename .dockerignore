@@ -1,0 +1,10 @@
+**
+!server/
+!server/**
+!src/
+!src/assets/
+!src/assets/knowledge.js
+!package.json
+**/.env
+**/.env.*
+!server/.env.example
