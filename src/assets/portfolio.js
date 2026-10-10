@@ -26,7 +26,7 @@ const livePanel = document.querySelector('#live-options');
 const liveConsent = document.querySelector('#live-consent');
 const liveButton = document.querySelector('#enable-live');
 const demoButton = document.querySelector('#enable-demo');
-const controlsToDisable = [...form.elements, ...document.querySelectorAll('[data-question]'), liveButton, demoButton];
+const controlsToDisable = [...form.elements, ...document.querySelectorAll('[data-question]'), liveButton, demoButton, liveConsent];
 function setBusy(value) {
   busy=value;
   form.setAttribute('aria-busy',String(value));
@@ -70,11 +70,13 @@ if (validOrigin(assistantOrigin)) {
       status.textContent='Could not connect to live AI. No model greeting was produced. Try later or switch to the local demo.';
     } finally {setBusy(false);}
   });
-  demoButton.addEventListener('click',()=>{
+  function useDemo() {
     mode='demo';liveConsent.checked=false;modeLabel.textContent='Local demo';
-    document.querySelector('#greeting').textContent='Hi, I’m Evie’s local portfolio guide. Where shall we start?';
+    document.querySelector('#greeting').textContent='Local portfolio assistant. Ask about Evie’s background or projects.';
     status.textContent='Local demo active. New questions will not be sent or saved.';
-  });
+  }
+  demoButton.addEventListener('click',useDemo);
+  liveConsent.addEventListener('change',()=>{if(!liveConsent.checked) useDemo();});
 }
 const svgNS='http://www.w3.org/2000/svg';
 const grid=document.querySelector('#radar-grid');
