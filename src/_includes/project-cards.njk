@@ -1,0 +1,24 @@
+<div class="project-grid">
+{% for project in portfolio.projects %}
+<article class="project-card {{ project.class }}">
+  <div class="project-art" aria-hidden="true">{% if project.class == 'mind' %}<div class="thought-card">a question<span>↘</span>
+<div>a little structure<span>↘</span>
+<div>a new perspective <b>✧</b>
+</div>
+</div>
+</div>{% else %}<span class="noir-word">Noir<span>✦</span>
+</span>
+<span class="noir-caption">A story still taking shape.</span>{% endif %}</div>
+  <div class="project-copy">
+<span class="eyebrow">{{ project.tag }}</span>
+<h3>{{ project.name }} <span>{{ project.chinese }}</span>
+</h3>
+<p>{{ project.summary }}</p>
+<p class="source-note">{{ project.note }}</p>
+<a href="{{ project.url }}">{{ project.link }} <span aria-hidden="true">↗</span>
+</a>
+<span class="project-status">{{ project.status }}</span>
+</div>
+</article>
+{% endfor %}
+</div>

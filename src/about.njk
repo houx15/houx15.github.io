@@ -3,11 +3,37 @@ layout: base.njk
 title: About
 section: about
 permalink: /about/
-description: About Yuxin Hou.
+description: About Evie (Yuxin) Hou, sociology researcher exploring AI.
 ---
-<header class="page-heading"><h1>About</h1></header>
+<header class="page-heading">
+<p class="eyebrow">NICE TO MEET YOU</p>
+<h1>Evie / Yuxin Hou <span lang="zh-CN">侯煜欣</span>
+</h1>
+</header>
 <div class="prose">
-  <p>My name is Yuxin Hou (<span lang="zh-CN">侯煜欣</span>). This website contains my projects and technical reports.</p>
-  <h2>Contact</h2>
-  <dl class="contact-list"><dt>Email</dt><dd><a href="mailto:{{ site.email }}">{{ site.email }}</a></dd><dt>GitHub</dt><dd><a href="{{ site.github }}">github.com/houx15</a></dd></dl>
+<p>{{ portfolio.intro }}</p>
+<p>{{ portfolio.role }}</p>
+<p>{{ portfolio.approach }}</p>
+<h2>Contact</h2>
+<dl class="contact-list">
+<dt>Email</dt>
+<dd>
+<a href="mailto:{{ site.email }}">{{ site.email }}</a>
+</dd>
+<dt>GitHub</dt>
+<dd>
+<a href="{{ site.github }}">github.com/houx15</a>
+</dd>
+</dl>
+<h2 id="sources">Sources &amp; limitations</h2>
+<p>This portfolio uses a deliberately small public knowledge base. Academic status and the visiting appointment were supplied by Evie for this site; exact dates have not been supplied. The introduction’s statement of approach is editable self-description, not a measured achievement.</p>
+<ul>
+<li>
+<a href="https://github.com/houx15/mind-imprint#readme">Mind Imprint’s public README</a> supplies the project description. Its exact repository name is <code>mind-imprint</code>. The connection to the spoken name “My Name Print,” individual contribution, and outcomes need owner review.</li>
+<li>“Noir” is a user-supplied project name. Its repository has not yet been verified. No functionality or results are asserted.</li>
+<li>The radar contains clearly labeled illustrative values. It is not an objective capability rating. The milestone view has no invented dates, wellbeing values, or inferred emotional history.</li>
+</ul>
+<h2>About the AI portfolio assistant</h2>
+<p>The current assistant is an interactive local demo with authored, topic-matched answers. It does not call an LLM. Questions stay in this page’s memory and disappear on reload. It cannot access the computer, private files, secrets, personal chat history, or location. Device time is used locally to select a greeting.</p>
+<p>Only curated facts and explicitly listed source links are available to the guide. For anything outside those facts, it says it does not know. A live model would require a separately configured server-side integration and a review of privacy, limits, and costs.</p>
 </div>

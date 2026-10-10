@@ -1,23 +1,178 @@
 ---
 layout: base.njk
+home: true
+description: Evie Hou — sociology, AI, and curiosity across disciplines. Explore projects and meet her portfolio assistant.
 ---
 {% from 'entries.njk' import entryList %}
-<section class="intro" aria-labelledby="intro-title">
-  <h1 id="intro-title">{{ site.name }} <span lang="zh-CN">{{ site.nameChinese }}</span></h1>
-  <p>Projects and technical reports.</p>
-  <div class="intro-links">
-    <a href="mailto:{{ site.email }}">{% include 'icons/mail.njk' %}<span>Email</span></a>
-    <a href="{{ site.github }}">{% include 'icons/github.njk' %}<span>GitHub</span></a>
-    <a href="/about/">{% include 'icons/user.njk' %}<span>About</span></a>
-  </div>
+<div class="portfolio-home">
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-copy">
+<p class="eyebrow">
+<span class="small-star">✳</span> SOCIOLOGY · AI · THINGS IN BETWEEN</p>
+<h1 id="hero-title">A curious mind.<br>A work in <em>progress.</em>
+</h1>
+<p class="hero-intro">{{ portfolio.intro }}</p>
+<p class="hero-role">{{ portfolio.role }}</p>
+<div class="hero-links">
+<a class="button primary" href="#projects">Explore my work <span aria-hidden="true">↘</span>
+</a>
+<a href="/about/">A little about me <span aria-hidden="true">↗</span>
+</a>
+</div>
+<p class="hand-note">Learning by asking. Learning by making.</p>
+</div>
+  <section class="assistant-card" aria-labelledby="assistant-title">
+<div class="assistant-top">
+<span>
+<span class="status-dot">
+</span> AI PORTFOLIO ASSISTANT</span>
+<span class="demo-pill">Local demo</span>
+</div>
+<div class="mascot" aria-hidden="true">
+<span class="mascot-spark">✧</span>
+<div class="mascot-body">
+<i>
+</i>
+<i>
+</i>
+<span class="smile">
+</span>
+<b class="cheek left">
+</b>
+<b class="cheek right">
+</b>
+</div>
+<span class="mascot-shadow">
+</span>
+</div>
+<h2 id="assistant-title">A little hello goes a long way.</h2>
+<p id="greeting">Hi, I’m Evie’s portfolio guide. Where shall we start?</p>
+<div id="conversation" class="conversation" role="log" aria-label="Portfolio conversation" aria-live="polite" aria-relevant="additions">
+</div>
+<div class="suggestions">
+<button type="button" data-question="Tell me about Evie">Meet Evie</button>
+<button type="button" data-question="Tell me about Mind Imprint">Mind Imprint ↗</button>
+<button type="button" data-question="Show me her interests">Explore her interests</button>
+</div>
+<form id="chat-form">
+<label class="sr-only" for="question">Ask about Evie or her projects</label>
+<div class="chat-input">
+<input id="question" name="question" placeholder="Ask about me or my projects…" maxlength="400" required autocomplete="off">
+<button type="submit" aria-label="Send question">↑</button>
+</div>
+</form>
+<p id="chat-status" class="source-note" role="status">Curated answers, not live AI. Nothing you type is sent or saved.</p>
+<details class="privacy-details">
+<summary>What can this guide see?</summary>
+<p>Only the public facts selected for this portfolio. No private files, chat history, account access, or location. Greetings use your device’s time locally. This demo uses topic matching, not a language model.</p>
+<a href="/about/#sources">Sources &amp; limitations</a>
+</details>
+<noscript>
+<p>Enable JavaScript for the local guide. All portfolio content and sources remain available below.</p>
+</noscript>
 </section>
-<section class="home-section" aria-labelledby="projects-title">
-  <div class="section-heading"><h2 id="projects-title">Projects</h2><a href="/projects/">All projects <span aria-hidden="true">→</span></a></div>
-  {% set projects = entries | section('projects') | selected %}
-  {% if projects.length %}{{ entryList(projects, 'h3') }}{% else %}<p class="empty-state">No projects published yet.</p>{% endif %}
 </section>
-<section class="home-section" aria-labelledby="reports-title">
-  <div class="section-heading"><h2 id="reports-title">Technical Reports</h2><a href="/reports/">All reports <span aria-hidden="true">→</span></a></div>
-  {% set reports = entries | section('reports') | firstEntries %}
-  {% if reports.length %}{{ entryList(reports, 'h3') }}{% else %}<p class="empty-state">No reports published yet.</p>{% endif %}
+<div class="interest-strip">
+<span>Currently at the intersection of</span>
+<span>People <b>↔</b> Data <b>↔</b> Intelligent tools</span>
+<span aria-hidden="true">✳</span>
+</div>
+<section id="about" class="home-section">
+<div class="section-heading">
+<div>
+<span class="eyebrow">01 / A LITTLE CONTEXT</span>
+<h2>Serious questions. Open possibilities.</h2>
+</div>
+<a href="/about/">More about me ↗</a>
+</div>
+<p class="approach">{{ portfolio.approach }}</p>
+<div class="visual-grid">
+<section id="interests" class="visual-card">
+<div class="card-heading">
+<h3>Across disciplines</h3>
+<span class="demo-pill">Illustrative</span>
+</div>
+<p class="source-note">An editable radar sketch, not a proficiency assessment. Every score below is a placeholder.</p>
+<svg id="radar" viewBox="0 0 380 290" role="img" aria-labelledby="radar-title radar-desc">
+<title id="radar-title">Illustrative domain radar</title>
+<desc id="radar-desc">Placeholder values on a scale of 0 to 5; not Evie’s ratings. Use the labeled controls to explore.</desc>
+<g id="radar-grid">
+</g>
+<polygon id="radar-shape" points="190,51 255,126 230,205 163,188 103,119" fill="#b9cda9" fill-opacity=".48" stroke="#55724b" stroke-width="2">
+</polygon>
+<g id="radar-labels">
+</g>
+</svg>
+<details class="score-editor">
+<summary>Edit this illustrative sketch</summary>
+<p class="source-note">Changes last only until you reload. Owner-approved ratings have not been supplied.</p>{% for domain in portfolio.domains %}<label>{{ domain }} <input type="range" min="0" max="5" step="1" value="{{ portfolio.illustrativeScores[loop.index0] }}" data-domain="{{ loop.index0 }}">
+<output>{{ portfolio.illustrativeScores[loop.index0] }}/5</output>
+</label>{% endfor %}<button id="reset-radar" type="button">Reset placeholders</button>
+</details>
 </section>
+<section class="visual-card journey">
+<div class="card-heading">
+<h3>A path in progress</h3>
+<span aria-hidden="true">↗</span>
+</div>
+<p class="source-note">Selected milestones, as shared by Evie. Exact dates are awaiting review; no life-status ratings are implied.</p>
+<ol class="milestones">
+<li>
+<span class="milestone-dot">
+</span>
+<span class="eyebrow">DOCTORAL RESEARCH</span>
+<h4>Peking University</h4>
+<p>Third-year PhD student in Sociology.</p>
+</li>
+<li>
+<span class="milestone-dot">
+</span>
+<span class="eyebrow">VISITING CHAPTER</span>
+<h4>Princeton University</h4>
+<p>One-year Visiting Student Research Collaborator.</p>
+</li>
+<li>
+<span class="milestone-dot open">
+</span>
+<span class="eyebrow">AN OPEN QUESTION</span>
+<h4>What could I make next?</h4>
+<p>Exploring the space between sociology and AI.</p>
+</li>
+</ol>
+<p class="source-note">Milestone view · Calendar and self-described trajectory can be added after review.</p>
+</section>
+</div>
+</section>
+<section id="projects" class="home-section">
+<div class="section-heading">
+<div>
+<span class="eyebrow">02 / SELECTED PROJECTS</span>
+<h2>Questions turned into things.</h2>
+</div>
+<a href="/projects/">All projects ↗</a>
+</div>{% include 'project-cards.njk' %}{% set projects = entries | section('projects') | selected %}{% if projects.length %}{{ entryList(projects, 'h3') }}{% else %}<p class="empty-state">Full project case studies are being prepared.</p>{% endif %}</section>
+<section class="home-section notes">
+<div class="section-heading">
+<div>
+<span class="eyebrow">03 / NOTES &amp; TECHNICAL REPORTS</span>
+<h2>Thinking, out in the open.</h2>
+</div>
+<a href="/reports/">All reports ↗</a>
+</div>{% set reports = entries | section('reports') | firstEntries %}{% if reports.length %}{{ entryList(reports, 'h3') }}{% else %}<div class="notes-empty">
+<span aria-hidden="true">↳</span>
+<div>
+<h3>Room for the next good question.</h3>
+<p class="empty-state">No notes or technical reports published yet.</p>
+</div>
+</div>{% endif %}</section>
+<section class="contact-banner">
+<span class="small-star" aria-hidden="true">✳</span>
+<div>
+<h2>Have a question worth exploring?</h2>
+<p>I’d love to hear it.</p>
+</div>
+<a class="button primary" href="mailto:{{ site.email }}">Say hello ↗</a>
+</section>
+</div>
+<script type="module" src="/assets/portfolio.js">
+</script>

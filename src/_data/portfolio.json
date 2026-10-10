@@ -1,0 +1,11 @@
+{
+  "intro": "I’m Evie, also known as Yuxin Hou (侯煜欣). A sociology researcher exploring what happens when social questions meet AI tools.",
+  "approach": "I like learning unfamiliar things, trying ideas quickly, and following a good question across disciplines.",
+  "role": "Third-year Sociology PhD student at Peking University · Visiting Student Research Collaborator at Princeton for one year.",
+  "projects": [
+    {"name": "Mind Imprint", "chinese": "思维印记", "tag": "AI × LEARNING", "class": "mind", "summary": "An AI learning platform built around the thinking process: structured thinking cards, research workspaces, and process-based reflection.", "note": "Description from the public README. Personal contribution and outcomes still need review.", "url": "https://github.com/houx15/mind-imprint", "link": "Explore the repository", "status": "Repository verified"},
+    {"name": "Noir", "chinese": "More to come", "tag": "PROJECT IN REVIEW", "class": "noir", "summary": "A project I’d like to share here. Its exact repository, story, and contribution are still being confirmed.", "note": "User-supplied project name; no matching public repository verified. No features or results claimed.", "url": "https://github.com/houx15", "link": "Browse my GitHub", "status": "Details awaiting review"}
+  ],
+  "domains": ["Sociology", "AI engineering", "Data analysis", "Product thinking", "Writing"],
+  "illustrativeScores": [4, 3, 3, 2, 4]
+}
