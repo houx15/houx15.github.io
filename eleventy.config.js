@@ -4,11 +4,18 @@ import { createHash } from 'node:crypto';
 import { markdown } from './lib/markdown.mjs';
 import { loadContent, copyPublishedAssets } from './lib/content.mjs';
 
+const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js'];
+async function assistantVersion() {
+  const sources = await Promise.all(assistantModules.map(name => fs.readFile(`src/assets/${name}`, 'utf8')));
+  return createHash('sha256').update(sources.join('\0')).digest('hex').slice(0, 12);
+}
+
 export default function (config) {
   config.setNunjucksEnvironmentOptions({ autoescape: true });
   config.setLibrary('md', markdown);
   config.addWatchTarget('content/');
   config.addGlobalData('preview', () => process.env.SITE_DRAFTS === '1');
+  config.addGlobalData('assistantVersion', assistantVersion);
   config.addGlobalData('year', () => new Date().getUTCFullYear());
   config.addGlobalData('stylesheetVersion', async () => createHash('sha256').update(await fs.readFile('src/assets/style.css')).digest('hex').slice(0, 12));
   config.addFilter('section', (entries, type) => entries.filter(item => item.type === type));
@@ -43,6 +50,17 @@ export default function (config) {
     }
     await fs.mkdir(dir.output, { recursive: true });
     await copyPublishedAssets(await loadContent(), dir.output);
+  });
+  // Version every module edge, not just the entry script: cached imports otherwise
+  // keep returning outdated public facts even after a new HTML deployment.
+  config.on('eleventy.after', async ({ dir }) => {
+    const version = await assistantVersion();
+    for (const name of assistantModules) {
+      const source = await fs.readFile(`src/assets/${name}`, 'utf8');
+      const output = source.replace(/from (['"])\.\/([\w-]+\.js)\1/g, (match, quote, dependency) =>
+        assistantModules.includes(dependency) ? `from ${quote}./${dependency}?v=${version}${quote}` : match);
+      await fs.writeFile(path.join(dir.output, 'assets', name), output);
+    }
   });
   return { dir: { input: 'src', output: process.env.SITE_DRAFTS === '1' ? '_preview' : '_site' }, markdownTemplateEngine: false, htmlTemplateEngine: 'njk' };
 }

@@ -84,4 +84,4 @@ description: Evie (Yuxin) Hou — sociology, AI systems, research infrastructure
   {% set reports = entries | section('reports') | firstEntries %}
   {% if reports.length %}{{ entryList(reports, 'h3') }}{% else %}<p class="empty-state">No notes or technical reports published yet.</p>{% endif %}
 </section>
-<script type="module" src="/assets/portfolio.js"></script>
+<script type="module" src="/assets/portfolio.js?v={{ assistantVersion }}"></script>

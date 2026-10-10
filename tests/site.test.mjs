@@ -43,6 +43,30 @@ test('empty site has all routes and no fabricated entries', async t => {
   assert.match($('.academic-timeline').text(), /September 2024–present/);
 });
 
+test('assistant updates invalidate the entry script and all imported modules', async t => {
+  const dir = await workspace(t);
+  async function versionAfterBuild() {
+    build(dir);
+    const $ = load(await fs.readFile(path.join(dir, '_site/index.html'), 'utf8'));
+    const entry = $('script[type="module"]').attr('src');
+    assert.match(entry, /^\/assets\/portfolio\.js\?v=[a-f0-9]{12}$/);
+    const version = entry.split('?v=')[1];
+    for (const name of ['portfolio.js','assistant-client.js']) {
+      const output = await fs.readFile(path.join(dir,'_site/assets',name),'utf8');
+      const imports = [...output.matchAll(/from ['"]\.\/([\w-]+\.js)([^'"]*)['"]/g)];
+      assert.ok(imports.length);
+      for (const [,dependency,query] of imports) {
+        assert.equal(query,`?v=${version}`);
+        await fs.access(path.join(dir,'_site/assets',dependency));
+      }
+    }
+    return version;
+  }
+  const before = await versionAfterBuild();
+  await fs.appendFile(path.join(dir,'src/assets/knowledge.js'),'\n// Updated public corpus.\n');
+  assert.notEqual(await versionAfterBuild(),before);
+});
+
 test('reports and products render and are discoverable; drafts and their files stay out', async t => {
   const dir = await workspace(t);
   const folder = await writeEntry(dir, 'reports', 'test-report', {
