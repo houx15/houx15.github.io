@@ -30,6 +30,7 @@ const controlsToDisable = [...form.elements, ...document.querySelectorAll('[data
 function setBusy(value) {
   busy=value;
   form.setAttribute('aria-busy',String(value));
+  document.querySelector('.assistant-panel').classList.toggle('is-thinking',value);
   controlsToDisable.forEach(control=>control.disabled=value);
 }
 async function ask(text) {
@@ -78,15 +79,9 @@ if (validOrigin(assistantOrigin)) {
   demoButton.addEventListener('click',useDemo);
   liveConsent.addEventListener('change',()=>{if(!liveConsent.checked) useDemo();});
 }
-const svgNS='http://www.w3.org/2000/svg';
-const grid=document.querySelector('#radar-grid');
-const labels=document.querySelector('#radar-labels');
 const controls=[...document.querySelectorAll('[data-domain]')];
 const initial=controls.map(input=>input.value);
 function point(index, radius){const angle=(index*72-90)*Math.PI/180;return [190+Math.cos(angle)*radius,143+Math.sin(angle)*radius];}
-function element(tag,attrs,parent){const node=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([key,value])=>node.setAttribute(key,value));parent.append(node);return node;}
-for(let level=1;level<=5;level++) element('polygon',{points:controls.map((_,i)=>point(i,level*19).join(',')).join(' '),fill:'none',stroke:'#dce1e6','stroke-width':1},grid);
-controls.forEach((input,i)=>{const p=point(i,95);element('line',{x1:190,y1:143,x2:p[0],y2:p[1],stroke:'#dce1e6'},grid);const l=point(i,125);const text=element('text',{x:l[0],y:l[1]+4,'text-anchor':'middle',fill:'#636972','font-size':11},labels);text.textContent=input.parentElement.childNodes[0].textContent.trim();});
 function draw(){document.querySelector('#radar-shape').setAttribute('points',controls.map((input,i)=>point(i,Number(input.value)*19).join(',')).join(' '));controls.forEach(input=>input.nextElementSibling.textContent=`${input.value}/5`);document.querySelector('#radar-desc').textContent=`Illustrative placeholders, not Evie’s ratings: ${controls.map(input=>`${input.parentElement.childNodes[0].textContent.trim()} ${input.value} of 5`).join(', ')}.`;}
 controls.forEach(input=>input.addEventListener('input',draw));
 document.querySelector('#reset-radar').addEventListener('click',()=>{controls.forEach((input,i)=>input.value=initial[i]);draw();});draw();

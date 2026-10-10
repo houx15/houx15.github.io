@@ -184,3 +184,44 @@ summary { cursor: pointer; padding-block: 4px; }
   .chat-input button { padding-inline: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+/* Visible, source-labeled profile charts. */
+.profile-figure { margin: 30px 0 0; padding-top: 24px; border-top: 1px solid var(--rule); }
+.figure-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.figure-heading h3 { font-size: 18px; margin: 0; }
+.chart-status, .timeline-date { font: 11px ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--muted); }
+.profile-figure figcaption { font-size: 12px; line-height: 1.65; color: var(--muted); margin-top: 14px; }
+.control-heading { font-size: 12px; font-weight: 550; margin: 0 0 8px; }
+.score-editor > .source-note { margin: 9px 0 0; }
+.academic-timeline { display: grid; grid-template-columns: 1fr 1fr; list-style: none; padding: 0; margin: 30px 0 22px; }
+.academic-timeline li { position: relative; border-top: 1px solid #8d9ba7; padding: 22px 26px 0 0; }
+.academic-timeline li::before { content: ""; position: absolute; left: 0; top: -5px; height: 9px; border-left: 2px solid var(--link); }
+.academic-timeline h4 { font-size: 16px; margin: 9px 0 7px; }
+.academic-timeline p { font-size: 14px; color: var(--muted); margin: 0; }
+@media (max-width: 600px) {
+  .figure-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+  .radar-layout svg { max-width: 380px; justify-self: center; }
+  .academic-timeline { grid-template-columns: 1fr; margin-left: 4px; }
+  .academic-timeline li { border-top: 0; border-left: 1px solid #8d9ba7; padding: 0 0 26px 22px; }
+  .academic-timeline li:last-child { padding-bottom: 3px; }
+  .academic-timeline li::before { left: -5px; top: 7px; width: 9px; height: 0; border-left: 0; border-top: 2px solid var(--link); }
+}
+
+/* A functional agent identity: cursor focus and actual request activity. */
+.agent-identity { display: flex; align-items: center; gap: 16px; }
+.agent-computer { width: 74px; height: 64px; flex: none; color: #44515b; }
+.pencil-echo { opacity: .2; stroke-width: .6; }
+.agent-subtitle { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+.agent-processing { opacity: .25; }
+.assistant-panel:focus-within .agent-cursor { animation: cursor-signal 1.5s steps(1) infinite; }
+.assistant-panel.is-thinking .agent-processing { opacity: 1; stroke-dasharray: 25; animation: processing-line 1.2s linear infinite; }
+.assistant-heading { align-items: center; }
+@keyframes cursor-signal { 0%, 55% { opacity: 1; } 56%, 100% { opacity: .15; } }
+@keyframes processing-line { from { stroke-dashoffset: 50; } to { stroke-dashoffset: 0; } }
+@media (max-width: 600px) {
+  .agent-computer { width: 58px; height: 51px; }
+  .agent-identity { gap: 12px; }
+  .assistant-heading { align-items: center; }
+  .agent-subtitle { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) { .agent-cursor, .agent-processing { animation: none !important; } }

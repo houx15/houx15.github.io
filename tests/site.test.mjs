@@ -34,6 +34,13 @@ test('empty site has all routes and no fabricated entries', async t => {
   const $ = load(await fs.readFile(path.join(dir, '_site/index.html'), 'utf8'));
   assert.equal($('.entry').length, 0);
   assert.equal($('.empty-state').length, 2);
+  assert.equal($('#radar').closest('details, [hidden]').length, 0);
+  assert.ok($('#radar-shape').attr('points').length > 20);
+  assert.equal($('#radar-grid polygon').length, 5);
+  assert.equal($('.academic-timeline li').length, 2);
+  assert.equal($('.academic-timeline').closest('details, [hidden]').length, 0);
+  assert.match($('.profile-figure').text(), /not Evie’s self-ratings/);
+  assert.match($('.academic-timeline').text(), /Dates to confirm/);
 });
 
 test('reports and products render and are discoverable; drafts and their files stay out', async t => {

@@ -2,7 +2,7 @@
 
 ## What is implemented
 
-The existing Eleventy / GitHub Pages site now has a restrained technical portfolio homepage, a plain source-linked conversation interface, source-backed project summaries, an optional illustrative radar, an academic background listing, notes, and a source/privacy page. The design restores the original white background, system typography, and rule-separated layout; it contains no mascot, emoji decoration, or decorative project cards. No added dependencies, external fonts, analytics, geolocation, or model services.
+The existing Eleventy / GitHub Pages site now has a restrained technical portfolio homepage, a plain source-linked conversation interface, source-backed project summaries, a visible editable illustrative radar, an academic milestone timeline, notes, and a source/privacy page. The design restores the original white background, system typography, and rule-separated layout; it contains no mascot, emoji decoration, or decorative project cards. No added dependencies, external fonts, analytics, geolocation, or model services.
 
 The assistant is **not a live LLM**. It uses an explicit allowlist in `src/assets/knowledge.js`. It matches topics and returns authored text with links. Visitor input is inserted as text, never HTML; it is neither persisted nor transmitted. Unknown questions return an honest fallback. Private-file and credential requests return a boundary message. There is no file, tool, or network execution path for visitor instructions. Keyword filtering is a usability feature, not a security sandbox; the lack of privileged capabilities is the actual boundary.
 
@@ -54,3 +54,9 @@ Selected from public repository READMEs, inspected October 10, 2026:
 - [AI-attitudes social-media pipeline](https://github.com/houx15/ai-attitudes-social-media#readme): provides evidence of attention to measurement comparability, provider provenance, and reproducible processing. The site explicitly says it processes extracted data rather than crawling it.
 
 Knowia remains pending exact public-repository identification. No private repository information was used. Public GitHub repository contents are the source of project descriptions, not evidence that all functionality was independently tested.
+
+## Visible charts (latest revision)
+
+Both the radar and academic timeline are visible by default. The radar is rendered at build time, has a labeled 0–5 scale, visible numeric controls, and explicit placeholder captions. The timeline displays the two owner-supplied academic milestones; dates are marked pending, no durations are represented by spacing, and no life-status values are inferred. It changes from a horizontal milestone line on desktop to a vertical line on mobile.
+
+The dialogue includes a restrained pencil-line computer SVG. Its cursor responds to input focus; processing strokes animate only while the request handler is busy. Reduced-motion settings disable both effects. The live/demo label remains separate and explicit.
