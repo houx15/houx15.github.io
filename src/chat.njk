@@ -1,0 +1,19 @@
+---
+layout: base.njk
+pagination:
+  data: locales
+  size: 1
+  alias: locale
+permalink: "{{ locale.prefix }}/chat/"
+pageClass: chat-page
+eleventyComputed:
+  lang: "{{ locale.lang }}"
+  title: "{{ locale.chat }}"
+---
+{% set ui = locale %}
+<div class="chat-layout"><aside class="chat-aside"><a class="back-link" href="{{ ui.prefix }}/">← {{ ui.home }}</a>{% include 'sketch.njk' %}<p class="eyebrow">{{ ui.name }}</p><p>{{ ui.assistantNote }}</p><div class="chat-starters"><p class="source-note">{{ ui.tryLabel }}</p>{% for question in ui.starters %}<button type="button" data-question="{{ question }}">{{ ui.starterLabels[loop.index0] }} <span aria-hidden="true">↗</span></button>{% endfor %}</div><a class="source-link" href="{{ ui.prefix }}/projects/">{{ ui.allProjects }}</a></aside>
+<section class="assistant-panel" aria-labelledby="assistant-title"><div class="assistant-heading"><span class="eyebrow">{{ ui.chat }}</span><span id="assistant-mode" class="mode-label">{{ ui.demo }}</span></div><h1 id="assistant-title">{{ ui.chatTitle }}</h1><p id="greeting">{{ ui.chatIntro }}</p><div id="conversation" class="conversation" role="log" aria-label="{{ ui.chatLog }}" aria-live="polite" aria-relevant="additions"></div>
+<form id="chat-form"><label class="sr-only" for="question">{{ ui.askLabel }}</label><div class="chat-input"><input id="question" name="question" placeholder="{{ ui.placeholder }}" maxlength="400" required autocomplete="off"><button type="submit">{{ ui.send }} <span aria-hidden="true">↗</span></button></div></form><p id="chat-status" class="source-note" role="status">{{ ui.chatReady }}</p>
+<div id="live-options" class="live-options" hidden><label><input id="live-consent" type="checkbox"> {{ ui.consent }}</label><div><button id="enable-live" type="button">{{ ui.connect }}</button><button id="enable-demo" type="button">{{ ui.useDemo }}</button></div></div>
+<details class="privacy-details"><summary>{{ ui.privacy }}</summary><p>{{ ui.privacyText }}</p><a href="{{ ui.prefix }}/about/#sources">{{ ui.sourceTitle }}</a></details><noscript><p>{{ ui.nojs }}</p><a href="{{ ui.prefix }}/projects/">{{ ui.allProjects }}</a></noscript></section></div>
+{% include 'answer-visuals.njk' %}

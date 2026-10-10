@@ -1,13 +1,16 @@
 ---
 layout: base.njk
-title: Projects
+pagination:
+  data: locales
+  size: 1
+  alias: locale
+permalink: "{{ locale.prefix }}/projects/"
 section: projects
-permalink: /projects/
-description: Projects by Yuxin Hou.
+eleventyComputed:
+  lang: "{{ locale.lang }}"
+  title: "{{ locale.projects }}"
 ---
+{% set ui = locale %}
 {% from 'entries.njk' import entryList %}
-<header class="page-heading"><h1>Projects</h1></header>
-{% include 'project-cards.njk' %}
-{% set allProjects = entries | section('projects') %}
-{% set items = allProjects | otherProjects(portfolio.projects) %}
-{% if items.length %}{{ entryList(items) }}{% elif not allProjects.length %}<p class="empty-state">No projects published yet.</p>{% endif %}
+<header class="page-heading"><p class="eyebrow">{{ ui.name }}</p><h1>{{ ui.projects }}</h1></header>
+{% include 'project-cards.njk' %}{% set allProjects = entries | localized(ui) | section('projects') %}{% set items = allProjects | otherProjects(portfolio.projects) %}{% if items.length %}{{ entryList(items,'h2',ui) }}{% elif not allProjects.length %}<p class="empty-state">{{ ui.noProjects }}</p>{% endif %}

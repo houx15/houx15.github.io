@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { markdown } from './lib/markdown.mjs';
 import { loadContent, copyPublishedAssets } from './lib/content.mjs';
 
-const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js'];
+const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js', 'knowledge-zh.js', 'ui.js', 'navigation.js'];
 async function assistantVersion() {
   const sources = await Promise.all(assistantModules.map(name => fs.readFile(`src/assets/${name}`, 'utf8')));
   return createHash('sha256').update(sources.join('\0')).digest('hex').slice(0, 12);
@@ -18,6 +18,13 @@ export default function (config) {
   config.addGlobalData('assistantVersion', assistantVersion);
   config.addGlobalData('year', () => new Date().getUTCFullYear());
   config.addGlobalData('stylesheetVersion', async () => createHash('sha256').update(await fs.readFile('src/assets/style.css')).digest('hex').slice(0, 12));
+  config.addFilter('isChinese', url => url.startsWith('/zh/'));
+  config.addFilter('localized', (entries, locale) => locale.prefix ? entries.filter(item=>item.zh).map(item=>item.zh) : entries);
+  config.addFilter('switchLanguage', (url, entries) => {
+    if (url.startsWith('/zh/')) return url.slice(3);
+    const entry = entries.find(item=>item.url===url);
+    return entry && !entry.zh ? `/zh/${entry.type}/` : `/zh${url}`;
+  });
   config.addFilter('section', (entries, type) => entries.filter(item => item.type === type));
   config.addFilter('projectBySlug', (entries, slug) => entries.find(item => item.type === 'projects' && item.slug === slug));
   config.addFilter('otherProjects', (entries, projects) => entries.filter(item => !projects.some(project => project.slug === item.slug)));
@@ -26,7 +33,7 @@ export default function (config) {
     return (selected.length ? selected : entries).slice(0, 3);
   });
   config.addFilter('firstEntries', entries => entries.slice(0, 4));
-  config.addFilter('dateLabel', value => new Date(`${value}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }));
+  config.addFilter('dateLabel', (value, language = 'en') => new Date(`${value}T12:00:00Z`).toLocaleDateString(language === 'zh-CN' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }));
   config.addFilter('xml', value => markdown.utils.escapeHtml(String(value)));
   config.addPassthroughCopy({ 'src/assets': 'assets' });
   config.addPassthroughCopy({ 'node_modules/katex/dist/katex.min.css': 'assets/katex/katex.min.css', 'node_modules/katex/dist/fonts': 'assets/katex/fonts' });
@@ -46,7 +53,7 @@ export default function (config) {
           else await fs.unlink(target);
         }
       }
-      for (const section of ['projects', 'reports']) await clearFiles(path.join(dir.output, section));
+      for (const section of ['projects', 'reports', 'zh/projects', 'zh/reports']) await clearFiles(path.join(dir.output, section));
     }
     await fs.mkdir(dir.output, { recursive: true });
     await copyPublishedAssets(await loadContent(), dir.output);

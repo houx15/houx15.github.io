@@ -1,39 +1,42 @@
+{% set ui = locales[1] if page.url | isChinese else locales[0] %}
 <!doctype html>
-<html lang="{{ lang or 'en' }}">
+<html lang="{{ lang or ui.lang }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% if title %}{{ title }} · {% endif %}{{ site.name }}</title>
-  <meta name="description" content="{{ description or site.description }}">
+  <title>{% if title %}{{ title }} · {% endif %}{{ ui.name }}</title>
+  <meta name="description" content="{{ description or ui.heroText }}">
   {% if preview or noindex %}<meta name="robots" content="noindex, nofollow">{% endif %}
   <link rel="canonical" href="{{ site.url }}{{ page.url }}">
   <meta property="og:type" content="{% if article %}article{% else %}website{% endif %}">
-  <meta property="og:title" content="{{ title or site.name }}">
-  <meta property="og:description" content="{{ description or site.description }}">
+  <meta property="og:title" content="{{ title or ui.name }}">
+  <meta property="og:description" content="{{ description or ui.heroText }}">
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
   <link rel="stylesheet" href="/assets/style.css?v={{ stylesheetVersion }}">
   {% if article %}<link rel="stylesheet" href="/assets/katex/katex.min.css">{% endif %}
 </head>
-<body>
-  <a class="skip-link" href="#main">Skip to content</a>
+<body class="{{ pageClass }}">
+  <a class="skip-link" href="#main">{{ ui.skip }}</a>
   <header class="site-header">
-    <a class="site-name" href="/"{% if page.url == '/' %} aria-current="page"{% endif %}>{{ site.name }}</a>
-    <nav aria-label="Main navigation">
-      <a href="/projects/"{% if section == 'projects' %} aria-current="page"{% endif %}>Projects</a>
-      <a href="/reports/"{% if section == 'reports' %} aria-current="page"{% endif %}>Notes</a>
-      <a href="/about/"{% if section == 'about' %} aria-current="page"{% endif %}>About</a>
+    <a class="site-name" href="{{ ui.prefix }}/"{% if page.url == '/' %} aria-current="page"{% endif %}>{{ ui.name }}</a>
+    <nav aria-label="{{ '主导航' if ui.prefix else 'Main navigation' }}">
+      <a href="{{ ui.prefix }}/projects/"{% if section == 'projects' %} aria-current="page"{% endif %}>{{ ui.projects }}</a>
+      <a href="{{ ui.prefix }}/reports/"{% if section == 'reports' %} aria-current="page"{% endif %}>{{ ui.notes }}</a>
+      <a href="{{ ui.prefix }}/about/"{% if section == 'about' %} aria-current="page"{% endif %}>{{ ui.about }}</a>
     </nav>
+    <a class="language-switch" id="language-switch" href="{{ page.url | switchLanguage(entries) }}" hreflang="{{ 'en' if ui.prefix else 'zh-CN' }}" lang="{{ 'en' if ui.prefix else 'zh-CN' }}" aria-label="{{ ui.languageLabel }}">{{ ui.language }}</a>
   </header>
   <main id="main" tabindex="-1">
-    {% if preview %}<p class="preview-notice">Local preview — unpublished content may be included.</p>{% endif %}
+    {% if preview %}<p class="preview-notice">{{ ui.preview }}</p>{% endif %}
     {{ content | safe }}
   </main>
   <footer class="site-footer">
-    <span>© {{ year }} {{ site.name }}</span>
+    <span>© {{ year }} {{ ui.name }}</span>
     <div>
-      <a href="mailto:{{ site.email }}">{% include 'icons/mail.njk' %}<span>Email</span></a>
+      <a href="mailto:{{ site.email }}">{% include 'icons/mail.njk' %}<span>{{ ui.email }}</span></a>
       <a href="{{ site.github }}">{% include 'icons/github.njk' %}<span>GitHub</span></a>
     </div>
   </footer>
+  <script type="module" src="/assets/portfolio.js?v={{ assistantVersion }}"></script>
 </body>
 </html>

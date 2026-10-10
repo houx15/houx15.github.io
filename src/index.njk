@@ -1,87 +1,25 @@
 ---
 layout: base.njk
-description: Evie (Yuxin) Hou — sociology, AI systems, research infrastructure, projects and notes.
+pagination:
+  data: locales
+  size: 1
+  alias: locale
+permalink: "{{ locale.prefix }}/"
+pageClass: home-page
+eleventyComputed:
+  lang: "{{ locale.lang }}"
+  description: "{{ locale.heroText }}"
 ---
+{% set ui = locale %}
 {% from 'entries.njk' import entryList %}
-<section class="intro" aria-labelledby="intro-title">
-  <h1 id="intro-title">Yuxin Hou <span lang="zh-CN">侯煜欣</span></h1>
-  <p>{{ portfolio.intro }}</p>
-  <p class="academic-role">{{ portfolio.role }}</p>
-  <div class="intro-links"><a href="#projects">Explore the work</a><a href="mailto:{{ site.email }}">Email</a><a href="{{ site.github }}">GitHub</a><a href="/about/">About</a></div>
-</section>
-<section class="assistant-panel" aria-labelledby="assistant-title">
-  <div class="assistant-heading">
-    <div class="agent-identity">
-      <svg class="agent-computer" viewBox="0 0 88 76" role="img" aria-labelledby="computer-title"><title id="computer-title">Portfolio assistant: pencil-line computer</title>
-        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <path class="pencil-echo" d="M13 9 L75 10 L76 53 L12 52 Z M9 67 L80 67"/>
-          <path d="M12 8 L75 9 L75 53 L12 52 Z" stroke-width="1.3"/>
-          <path d="M18 15 L69 15 L68 44 L18 44 Z" stroke-width="1"/>
-          <path d="M36 53 L35 62 M51 53 L52 62 M28 63 L59 63 M10 68 L78 68" stroke-width="1.2"/>
-          <path d="M24 25 L29 29 L24 33" stroke-width="1.4"/>
-          <path class="agent-cursor" d="M35 33 L43 33" stroke-width="1.5"/>
-          <path class="agent-processing" d="M35 25 L60 25 M35 29 L55 29" stroke-width="1"/>
-          <path d="M15 56 L20 57 M15 59 L24 60 M65 56 L70 57 M63 59 L70 60" stroke-width=".65" opacity=".45"/>
-        </g>
-      </svg>
-      <div><h2 id="assistant-title">Portfolio assistant</h2><p class="agent-subtitle">Questions, grounded in public sources.</p></div>
-    </div>
-    <span id="assistant-mode" class="mode-label">Local demo</span>
-  </div>
-  <p id="greeting">Ask about my background, projects, or research interests.</p>
-  <div id="conversation" class="conversation" role="log" aria-label="Portfolio conversation" aria-live="polite" aria-relevant="additions"></div>
-  <form id="chat-form"><label class="sr-only" for="question">Ask about Evie or her projects</label><div class="chat-input"><input id="question" name="question" placeholder="Ask a question about my work" maxlength="400" required autocomplete="off"><button type="submit">Send</button></div></form>
-  <div class="suggestions"><span>Try:</span><button type="button" data-question="Show me a concrete engineering example">Engineering example</button><button type="button" data-question="How does sociology inform these systems?">Sociology and AI</button><button type="button" data-question="What changed after a failure?">Learning from failure</button></div>
-  <p id="chat-status" class="source-note" role="status">Curated answers, not live AI. Nothing you type is sent or saved.</p>
-  <div id="live-options" class="live-options" hidden>
-    <label><input id="live-consent" type="checkbox"> Use live AI: send my submitted questions and a time-of-day category to this site’s server and DeepSeek. Don’t include private information. Provider retention policies apply.</label>
-    <div><button id="enable-live" type="button">Connect to live AI</button><button id="enable-demo" type="button">Use local demo</button></div>
-  </div>
-  <details class="privacy-details"><summary>Sources and privacy</summary><p>This AI portfolio assistant uses only the reviewed public facts on this site. The current local demo uses topic matching, not a language model. Optional live mode requires explicit opt-in. Neither mode has access to private files, account credentials, location, or chat history.</p><a href="/about/#sources">Read the source and privacy notes</a></details>
-  <noscript><p>The interactive guide requires JavaScript. All profile information and source links are available below.</p></noscript>
-</section>
-<section id="projects" class="home-section">
-  <div class="section-heading"><h2>Selected projects</h2><a href="/projects/">All projects</a></div>
-  <p class="section-intro">Three ways of connecting social research with working AI systems. Each project links a concrete design decision to public code and contribution evidence.</p>
-  {% include 'project-cards.njk' %}
-  {% set allProjects = entries | section('projects') %}
-  {% set projects = allProjects | otherProjects(portfolio.projects) | selected %}
-  {% if projects.length %}{{ entryList(projects, 'h3') }}{% elif not allProjects.length %}<p class="empty-state">Detailed project case studies are being prepared.</p>{% endif %}
-</section>
-<section id="interests" class="home-section">
-  <div class="section-heading"><h2>Background and interests</h2><a href="/about/">About</a></div>
-  <p class="section-intro">{{ portfolio.education }} {{ portfolio.approach }}</p>
-  <figure class="profile-figure" aria-labelledby="domain-heading">
-    <div class="figure-heading"><h3 id="domain-heading">Domain self-assessment</h3><span class="chart-status">Illustrative values</span></div>
-    <p class="source-note">Editable example scores on a 0–5 scale. These are not Evie’s self-ratings or objective proficiency measurements.</p>
-    <div class="radar-layout">
-      <svg id="radar" viewBox="0 0 380 290" role="img" aria-labelledby="radar-title radar-desc">
-        <title id="radar-title">Domain radar — illustrative example values</title>
-        <desc id="radar-desc">{{ visualizations.description }}</desc>
-        <g id="radar-grid">
-          {% for ring in visualizations.rings %}<polygon points="{{ ring.points }}" fill="none" stroke="#dce1e6" stroke-width="1"/>{% endfor %}
-          {% for axis in visualizations.axes %}<line x1="190" y1="143" x2="{{ axis.end.x }}" y2="{{ axis.end.y }}" stroke="#dce1e6"/>{% endfor %}
-        </g>
-        <polygon id="radar-shape" points="{{ visualizations.initialPoints }}" fill="#285a83" fill-opacity=".1" stroke="#285a83" stroke-width="1.5"/>
-        <g id="radar-labels" fill="#636972" font-size="12" text-anchor="middle">{% for axis in visualizations.axes %}<text x="{{ axis.labelPoint.x }}" y="{{ axis.labelPoint.y + 4 }}">{{ axis.label }}</text>{% endfor %}</g>
-        <g fill="#636972" font-size="10" text-anchor="start"><text x="195" y="147">0</text>{% for ring in visualizations.rings %}<text x="195" y="{{ ring.y + 4 }}">{{ ring.level }}</text>{% endfor %}</g>
-      </svg>
-      <div class="score-editor"><p class="control-heading">Edit example values</p>{% for domain in portfolio.domains %}<label>{{ domain }} <input type="range" min="0" max="5" step="1" value="{{ portfolio.illustrativeScores[loop.index0] }}" data-domain="{{ loop.index0 }}"><output>{{ portfolio.illustrativeScores[loop.index0] }}/5</output></label>{% endfor %}<button id="reset-radar" type="button">Reset placeholders</button><p class="source-note">Edits stay in this page and reset on reload.</p></div>
-    </div>
-    <figcaption>Self-assessment pending. The plotted shape demonstrates the chart; it makes no claim about actual capability.</figcaption>
-  </figure>
-  <figure class="profile-figure" aria-labelledby="timeline-heading">
-    <div class="figure-heading"><h3 id="timeline-heading">Academic path</h3><span class="chart-status">Milestones</span></div>
-    <ol class="academic-timeline" aria-label="Education and current appointments">
-      <li><span class="timeline-date">Before September 2024</span><h4>Tsinghua University</h4><p>B.E. in Mechanical Engineering<br>M.A. in Education</p></li>
-      <li><span class="timeline-date">September 2024–present</span><h4>Peking University</h4><p>Sociology PhD · Center for Social Research</p><div class="concurrent-appointment"><span class="timeline-date">Current · alongside the PhD</span><h4>Princeton University</h4><p>One-year Visiting Student Research Collaborator</p></div></li>
-    </ol>
-    <figcaption>Milestones, not a scaled time axis or a life-status rating. Degree completion years and the visit’s exact dates are not specified. <a href="/about/#sources">Profile sources</a>.</figcaption>
-  </figure>
-</section>
-<section class="home-section">
-  <div class="section-heading"><h2>Notes and technical reports</h2><a href="/reports/">All reports</a></div>
-  {% set reports = entries | section('reports') | firstEntries %}
-  {% if reports.length %}{{ entryList(reports, 'h3') }}{% else %}<p class="empty-state">No notes or technical reports published yet.</p>{% endif %}
-</section>
-<script type="module" src="/assets/portfolio.js?v={{ assistantVersion }}"></script>
+<section class="screen hero" aria-labelledby="intro-title"><div class="screen-inner hero-grid">
+<div class="hero-copy"><p class="eyebrow">{{ ui.heroLabel }}</p><h1 id="intro-title">{% if ui.prefix %}<span class="display-line">让好奇心，</span><span class="display-line">跨越学科。</span>{% else %}{{ ui.heroTitle }}{% endif %}</h1><p class="hero-intro">{{ ui.heroText }}</p><p class="academic-role">{{ ui.role }}</p><a class="text-link" href="#projects">{{ ui.explore }} <span aria-hidden="true">↗</span></a></div>
+<div class="hero-chat"><div class="sketch-wrap">{% include 'sketch.njk' %}<span class="sketch-note">{{ ui.sketchNote }}</span></div><div class="chat-entry-heading"><h2>{{ ui.assistant }}</h2><span class="mode-label">{{ ui.demo }}</span></div><p class="source-note">{{ ui.assistantNote }}</p>
+<form id="hero-form" action="{{ ui.prefix }}/chat/"><label class="sr-only" for="hero-question">{{ ui.askLabel }}</label><fieldset disabled><div class="chat-input"><input id="hero-question" name="q" placeholder="{{ ui.placeholder }}" required maxlength="400" autocomplete="off"><button type="submit">{{ ui.start }} <span aria-hidden="true">↗</span></button></div></fieldset></form>
+<div class="suggestions">{% for question in ui.starters %}<a href="{{ ui.prefix }}/chat/#topic={{ ['methods','ssdata','mind'][loop.index0] }}">{{ ui.starterLabels[loop.index0] }}</a>{% endfor %}</div><p class="source-note">{{ ui.demoNote }}</p><noscript><p>{{ ui.nojs }}</p></noscript></div>
+<a class="next-screen" href="#interests"><span>01 / 03</span>{{ ui.meet }} <span aria-hidden="true">↓</span></a>
+</div></section>
+<section id="interests" class="screen profile-screen" aria-labelledby="about-title"><div class="screen-inner profile-grid"><div class="profile-copy"><p class="eyebrow">02 / {{ ui.about }}</p><h2 id="about-title">{% if ui.prefix %}<span class="display-line">问题，</span><span class="display-line">塑造了我的路径。</span>{% else %}{{ ui.aboutTitle }}{% endif %}</h2><p class="lead">{{ ui.aboutText }}</p><p>{{ ui.aboutMore }}</p><p>{{ ui.approach }}</p><a class="text-link" href="{{ ui.prefix }}/about/">{{ ui.about }} <span aria-hidden="true">↗</span></a></div><div class="profile-charts">{% include 'timeline.njk' %}{% include 'radar.njk' %}</div></div></section>
+<section id="projects" class="screen work-screen"><div class="screen-inner"><div class="gallery-heading"><div><p class="eyebrow">03 / {{ ui.projects }}</p><h2>{{ ui.selected }}</h2></div><p>{{ ui.projectIntro }}</p></div>{% include 'project-cards.njk' %}
+{% set allProjects = entries | localized(ui) | section('projects') %}{% set projects = allProjects | otherProjects(portfolio.projects) | selected %}{% if projects.length %}{{ entryList(projects,'h3',ui) }}{% elif not allProjects.length %}<p class="empty-state">{{ ui.noProjects }}</p>{% endif %}
+<div class="notes-block"><div class="section-heading"><h2>{{ ui.notesTitle }}</h2><a href="{{ ui.prefix }}/reports/">{{ ui.allNotes }}</a></div>{% set reports = entries | localized(ui) | section('reports') | firstEntries %}{% if reports.length %}{{ entryList(reports,'h3',ui) }}{% else %}<p class="empty-state">{{ ui.noNotes }}</p>{% endif %}</div></div></section>

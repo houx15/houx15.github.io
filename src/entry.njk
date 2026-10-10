@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 pagination:
-  data: entries
+  data: articleEntries
   size: 1
   alias: entry
 permalink: "{{ entry.url }}"
@@ -12,20 +12,21 @@ eleventyComputed:
   lang: "{{ entry.lang }}"
 article: true
 ---
+{% set ui = locales[1] if entry.isTranslation else locales[0] %}
 <article>
   <header class="article-heading">
-    <a class="back-link" href="/{{ entry.type }}/">{% if entry.type == 'projects' %}Projects{% else %}Technical Reports{% endif %}</a>
+    <a class="back-link" href="{{ ui.prefix }}/{{ entry.type }}/">{% if entry.type == 'projects' %}{{ ui.projects }}{% else %}{{ ui.notes }}{% endif %}</a>
     <h1>{{ entry.title }}</h1>
     <p class="article-summary">{{ entry.summary }}</p>
-    <div class="article-meta"><span>{{ site.name }}</span><time datetime="{{ entry.date }}">{{ entry.date | dateLabel }}</time><span>{{ entry.readingTime }} min read</span>{% if entry.draft %}<span class="draft-label">Draft</span>{% endif %}</div>
-    {% if entry.updated %}<p class="updated">Updated <time datetime="{{ entry.updated }}">{{ entry.updated | dateLabel }}</time></p>{% endif %}
-    {% if entry.links.length %}<ul class="project-links">{% for link in entry.links %}<li><a href="{{ link.url }}">{{ link.label }}</a></li>{% endfor %}</ul>{% endif %}
+    <div class="article-meta"><span>{{ ui.name }}</span><time datetime="{{ entry.date }}">{{ entry.date | dateLabel(ui.lang) }}</time><span>{{ entry.readingTime }} {{ ui.minRead }}</span>{% if entry.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}</div>
+    {% if entry.updated %}<p class="updated">{{ ui.updated }} <time datetime="{{ entry.updated }}">{{ entry.updated | dateLabel(ui.lang) }}</time></p>{% endif %}
+    {% if entry.links.length %}<ul class="project-links">{% for link in entry.links %}<li><a href="{{ link.url }}">{{ ui.publicRepo if ui.prefix else link.label }}</a></li>{% endfor %}</ul>{% endif %}
   </header>
   {% if entry.headings.length > 1 %}
-  <details class="toc" open><summary>Contents</summary><nav aria-label="Table of contents"><ul>{% for heading in entry.headings %}<li class="toc-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ul></nav></details>
+  <details class="toc" open><summary>{{ ui.contents }}</summary><nav aria-label="{{ ui.contents }}"><ul>{% for heading in entry.headings %}<li class="toc-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ul></nav></details>
   {% endif %}
   <div class="prose" lang="{{ entry.lang }}">{{ entry.html | safe }}</div>
-  {% if entry.relatedReport %}<p class="related-reading"><a href="{{ entry.relatedReport }}">Read the related evaluation note</a></p>{% endif %}
-  {% if entry.assistantTopic %}<p class="related-reading"><a href="/?topic={{ entry.assistantTopic }}#assistant-title">Ask the portfolio assistant about this project</a></p>{% endif %}
-  <div class="article-end"><a href="/{{ entry.type }}/">{% if entry.type == 'projects' %}All projects{% else %}All reports{% endif %}</a></div>
+  {% if entry.relatedReport %}<p class="related-reading"><a href="{{ ui.prefix }}{{ entry.relatedReport }}">{{ ui.relatedNote }}</a></p>{% endif %}
+  {% if entry.assistantTopic %}<p class="related-reading"><a href="{{ ui.prefix }}/chat/#topic={{ entry.assistantTopic }}">{{ ui.askProject }}</a></p>{% endif %}
+  <div class="article-end"><a href="{{ ui.prefix }}/{{ entry.type }}/">{% if entry.type == 'projects' %}{{ ui.backProjects }}{% else %}{{ ui.backReports }}{% endif %}</a></div>
 </article>

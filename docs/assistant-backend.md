@@ -57,3 +57,9 @@ The frontend makes no backend request without an explicit click and consent. It 
 ## Tests
 
 `tests/assistant.test.mjs` exercises the provider contract with test doubles, source validation, untrusted input boundaries, timeouts, durable quota restart/lock/failure behavior, per-client/global limits, real local HTTP routing, disabled configuration, CORS, oversized bodies, and the public client's failure handling. Existing content/draft isolation tests remain in the full suite. All test provider responses are mocked and incur no charges.
+
+## Bilingual interface and chat navigation
+
+The static client lives at `/chat/` and `/zh/chat/`. Homepage submissions and case-study topics travel in URL fragments and are answered locally on arrival. They do not activate the provider. The language switch carries the latest question, not the transcript. Fragments can remain in browser history or shared links, as disclosed in the UI.
+
+Requests may include `language: "en"` or `language: "zh-CN"`; other values are rejected. The live model still selects only fact/greeting IDs. The server assembles the reviewed translation and localized source paths, and the client validates both English and Chinese sources against its allowlist. The provider remains disabled in production; bilingual mock contract tests are not evidence of real LLM execution.

@@ -1,11 +1,11 @@
-{% macro entryList(items, heading='h2') %}
+{% macro entryList(items, heading, ui) %}
 <ol class="entry-list">
 {% for item in items %}
   <li>
     <article class="entry">
-      <{{ heading }}><a href="{{ item.url }}">{{ item.title }}</a>{% if item.draft %} <span class="draft-label">Draft</span>{% endif %}</{{ heading }}>
+      <{{ heading }}><a href="{{ item.url }}">{{ item.title }}</a>{% if item.draft %} <span class="draft-label">{{ ui.draft }}</span>{% endif %}</{{ heading }}>
       <p>{{ item.summary }}</p>
-      <time datetime="{{ item.date }}">{{ item.date | dateLabel }}</time>
+      <time datetime="{{ item.date }}">{{ item.date | dateLabel(ui.lang) }}</time>
     </article>
   </li>
 {% endfor %}

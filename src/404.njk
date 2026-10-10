@@ -1,8 +1,14 @@
 ---
 layout: base.njk
-title: Page not found
-permalink: /404.html
+pagination:
+  data: locales
+  size: 1
+  alias: locale
+permalink: "{{ locale.prefix }}/404.html"
 noindex: true
+eleventyComputed:
+  lang: "{{ locale.lang }}"
+  title: "{{ '页面未找到' if locale.prefix else 'Page not found' }}"
 ---
-<header class="page-heading"><h1>Page not found</h1><p>The requested page is not available.</p></header>
-<p><a href="/">Return to the homepage</a></p>
+{% set ui = locale %}
+<header class="page-heading"><h1>{{ '页面未找到' if ui.prefix else 'Page not found' }}</h1><p>{{ '请求的页面暂时不可用。' if ui.prefix else 'The requested page is not available.' }}</p></header><p><a href="{{ ui.prefix }}/">{{ ui.home }}</a></p>

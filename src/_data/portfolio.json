@@ -9,7 +9,12 @@
       "note": "Empirical-copula transfer, information-access constraints, and the difference between statistical fidelity and record copying.",
       "url": "https://github.com/houx15/SSDataAgent",
       "tag": "Computational social science",
-      "slug": "ssdata-agent"
+      "slug": "ssdata-agent",
+      "zh": {
+        "tag": "社会研究与模拟",
+        "summary": "如何让智能体模拟调查总体？更高的基准分数，又究竟说明了什么？",
+        "note": "经验 copula 迁移、信息访问约束，以及统计保真度与记录复制的区别。"
+      }
     },
     {
       "name": "Mind Imprint",
@@ -17,7 +22,12 @@
       "note": "Schema-defined cards, recorded learning actions, and a concrete fix for completing project-level cards without a source document.",
       "url": "https://github.com/houx15/mind-imprint",
       "tag": "AI learning systems",
-      "slug": "mind-imprint"
+      "slug": "mind-imprint",
+      "zh": {
+        "tag": "AI 与学习",
+        "summary": "AI 如何提供结构化思考工具，同时把思考的主动权留给学生？",
+        "note": "以 schema 定义卡片、记录学习行动，以及一次项目级卡片完成流程的具体修复。"
+      }
     },
     {
       "name": "AI attitudes across social media",
@@ -25,7 +35,12 @@
       "note": "Explicit label validation, provider provenance, and partitioned Parquet outputs for resumable Weibo/Twitter processing.",
       "url": "https://github.com/houx15/ai-attitudes-social-media",
       "tag": "Research infrastructure",
-      "slug": "ai-attitudes"
+      "slug": "ai-attitudes",
+      "zh": {
+        "tag": "研究基础设施",
+        "summary": "模型响应失败、长任务需要恢复时，社交媒体标注如何保持可检查？",
+        "note": "显式的标签验证、服务来源记录，以及可恢复的微博 / Twitter 分片 Parquet 输出。"
+      }
     }
   ],
   "domains": [

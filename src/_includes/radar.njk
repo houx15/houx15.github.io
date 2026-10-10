@@ -1,0 +1,12 @@
+<figure class="profile-figure radar-figure" aria-labelledby="domain-heading">
+<div class="figure-heading"><h3 id="domain-heading">{{ ui.radar }}</h3><span class="chart-status">{{ ui.illustrative }}</span></div>
+<p class="source-note">{{ ui.radarNote }}</p>
+<svg id="radar" viewBox="0 0 380 290" role="img" aria-labelledby="radar-title radar-desc">
+<title id="radar-title">{{ ui.radar }} · {{ ui.illustrative }}</title><desc id="radar-desc">{{ ui.radarCaption }}</desc>
+<g id="radar-grid">{% for ring in visualizations.rings %}<polygon points="{{ ring.points }}" fill="none" stroke="currentColor" opacity=".16"/>{% endfor %}{% for axis in visualizations.axes %}<line x1="190" y1="143" x2="{{ axis.end.x }}" y2="{{ axis.end.y }}" stroke="currentColor" opacity=".16"/>{% endfor %}</g>
+<polygon id="radar-shape" points="{{ visualizations.initialPoints }}" fill="currentColor" fill-opacity=".08" stroke="currentColor" stroke-width="1.5"/>
+<g font-size="15" text-anchor="middle" fill="currentColor">{% for axis in visualizations.axes %}<text x="{{ axis.labelPoint.x }}" y="{{ axis.labelPoint.y + 4 }}">{{ ui.domains[loop.index0] }}</text>{% endfor %}</g>
+<g font-size="12" fill="currentColor"><text x="195" y="147">0</text>{% for ring in visualizations.rings %}<text x="195" y="{{ ring.y + 4 }}">{{ ring.level }}</text>{% endfor %}</g>
+</svg>
+<details class="score-editor"><summary>{{ ui.edit }}</summary>{% for domain in ui.domains %}<label>{{ domain }}<input type="range" min="0" max="5" step="1" value="{{ portfolio.illustrativeScores[loop.index0] }}" data-domain="{{ loop.index0 }}"><output>{{ portfolio.illustrativeScores[loop.index0] }}/5</output></label>{% endfor %}<button id="reset-radar" type="button">{{ ui.reset }}</button><p class="source-note">{{ ui.localEdits }}</p></details>
+<figcaption>{{ ui.radarCaption }}</figcaption></figure>

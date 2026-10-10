@@ -38,7 +38,8 @@ export async function checkSite(output = path.resolve('_site'), { preview = fals
       const stat = await fs.stat(target).catch(() => null);
       if (stat?.isDirectory()) target = path.join(target, 'index.html');
       if (!files.includes(target)) { errors.push(`${label}: missing ${raw}`); continue; }
-      if (url.hash && documents.has(target)) {
+      const chatTopic = /^\/(?:zh\/)?chat\/$/.test(url.pathname) && /^#topic=(ssdata|mind|attitudes|methods|profile|interests)$/.test(url.hash);
+      if (url.hash && !chatTopic && documents.has(target)) {
         const targetDoc = documents.get(target), id = decodeURIComponent(url.hash.slice(1));
         if (!targetDoc('[id]').toArray().some(node => targetDoc(node).attr('id') === id)) errors.push(`${label}: missing anchor ${raw}`);
       }

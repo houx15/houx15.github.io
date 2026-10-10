@@ -1,5 +1,5 @@
-import { knowledge } from './knowledge.js';
-const allowedSources=new Set(knowledge.flatMap(fact=>fact.sources.map(source=>source.url)));
+import { knowledge, localizeAnswer } from './knowledge.js';
+const allowedSources=new Set(knowledge.flatMap(fact=>[...fact.sources,...localizeAnswer(fact,'zh-CN').sources].map(source=>source.url)));
 export function validOrigin(origin) {
   if(!origin) return false;
   try {const url=new URL(origin);return url.origin===origin && (url.protocol==='https:' || /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin));} catch{return false;}

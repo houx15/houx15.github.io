@@ -2,22 +2,24 @@
 
 ## Implementation
 
-The existing Eleventy / GitHub Pages site has a restrained technical homepage, source-linked conversation interface, three substantive project case studies, one repository reading note, visible editable illustrative radar, and an academic milestone timeline. The design uses white space, system typography, simple rules, and a small pencil-line computer identity. Focus and processing animations respect reduced motion. No dependencies, external fonts, analytics, or geolocation were added.
+The Eleventy / GitHub Pages site now has paired English and Chinese versions, with a three-screen homepage: a large introduction and hand-sketched computer/brain chat entry; biography alongside timeline and radar; then a project gallery and notes. Desktop uses spacious columns; mobile uses natural content height and stacked sections. The illustration is hand-authored SVG with uneven contour lines, no mascot or emoji. Warm paper colors, editorial headings, and simple rules replace rounded cards. Reduced-motion preferences disable animation. No dependencies, external fonts, analytics, or geolocation were added.
 
-The published assistant is **a local topic-matching demo, not a live LLM**. `src/assets/knowledge.js` is its explicit public allowlist. Input is rendered as text; questions are not persisted or transmitted. Unknown questions return an honest fallback. There is no visitor-accessible filesystem, credential, tool, or network execution path. Keyword filtering is a usability feature; absence of privileged capabilities is the actual boundary.
+The published assistant is **a local topic-matching demo, not a live LLM**. `src/assets/knowledge.js` is its explicit public allowlist. Input is rendered as text. The demo makes no model requests and uses no site storage. The latest question travels in a URL fragment when entering chat or switching languages; fragments are not sent to the server but can remain in browser history or a copied link, which the privacy page explains. Unknown questions return an honest fallback. There is no visitor-accessible filesystem, credential, tool, or network execution path. Keyword filtering is a usability feature; absence of privileged capabilities is the actual boundary.
 
 A disabled Node adapter and opt-in client are implemented; see [assistant-backend.md](assistant-backend.md). Tests use a mock provider. No successful real model response or paid call has been verified. Activation needs an approved server-side host, provider key/model, and nonzero daily usage budget. The static Pages deployment cannot hold secrets. No credentials from other projects were inspected or reused.
 
 ## Editing and reader journey
 
-- `src/_data/portfolio.json`: intro, approach, project summaries, domains, illustrative values.
+- `src/_data/portfolio.json`: project summaries in both languages, domain names, illustrative values.
+- `src/assets/ui.js`: shared bilingual interface and biography text, consumed by templates and the browser.
+- `content/**/index.zh.md`: complete Chinese article translations, inheriting publication metadata and retaining fixed-revision sources.
 - `content/projects/`: SSDataAgent, Mind Imprint, and AI-attitudes case studies, including fixed-revision evidence and contribution commits.
 - `content/reports/evaluation-and-information-access/`: explicitly labeled repository reading note, not a new experiment.
 - `src/assets/knowledge.js`: synchronized source-backed answers; specific engineering, research-method, and failure questions.
-- `src/index.njk`: homepage and milestones; `src/_data/visualizations.js` renders the radar at build time.
+- `src/index.njk`: three-screen homepage; `src/chat.njk`: dedicated conversation; `src/_data/visualizations.js` renders the radar at build time.
 - `src/entry.njk`: article contents and related-reading/assistant paths.
 
-The homepage project summaries lead to local case studies and public code. The assistant's citations lead to those same case studies. A project’s “Ask” link prefills only a reviewed topic; navigation never submits a question or contacts a model. Case studies do not repeat as duplicate homepage listings. Knowia’s unresolved source is documented on About and in the assistant rather than occupying the main project list.
+The homepage project summaries lead to local case studies and public code. The assistant's citations lead to those same case studies. A project’s “Ask” link carries a reviewed topic to the dedicated chat page. The hero carries a bounded question in a fragment. Arrival answers in local demo mode only; no navigation opts into live AI. Answers include source links and relevant conceptual flow diagrams, an academic path, or the explicitly illustrative radar. Language switching preserves the same route and latest question; it does not persist a full conversation. Unmatched article heading fragments are dropped rather than linking to a nonexistent translated heading. Case studies do not repeat as duplicate homepage listings. Knowia’s unresolved source is documented on About and in the assistant rather than occupying the main project list.
 
 The radar's five values remain conspicuously illustrative pending actual owner ratings. Browser edits are temporary. The timeline has no inferred life-status values or scaled durations: it shows Tsinghua degrees before September 2024, PKU from September 2024, and Princeton as a concurrent current visit. Exact degree-completion and visit dates remain unspecified.
 
@@ -46,6 +48,6 @@ PATH=/Users/monkey/.cache/codex-runtimes/codex-primary-runtime/dependencies/node
 PATH=/Users/monkey/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH bun run preview
 ```
 
-All 25 tests pass, covering content isolation, publication workflow, source grounding, unsupported/private questions, named-project precedence for contribution/failure questions, unknown-role refusal, cache invalidation across assistant modules, safe client errors/citations, server boundaries, mock provider behavior, durable budgets, and quotas. Build/link checks cover nine HTML pages. Browser review covers desktop and 390px mobile, keyboard radar changes, project/assistant navigation, empty/unknown/private input, and visible source links. Screenshots are kept in ignored `.verification/portfolio/`.
+All 29 tests pass, covering content isolation, publication workflow, source grounding, unsupported/private questions, named-project precedence for contribution/failure questions, unknown-role refusal, cache invalidation across assistant modules, safe client errors/citations, server boundaries, mock provider behavior, durable budgets, and quotas. Build/link checks cover 20 HTML pages, including complete English/Chinese route pairs. Browser review covers desktop and 390px mobile, keyboard radar changes, hero → chat → source → home navigation, language/context switching, unknown/private input, and response visuals. An isolated local preview with an unavailable backend verified explicit consent, service errors without demo substitution, and consent revocation. No provider request was made. Screenshots are kept in ignored `.verification/portfolio/`.
 
 Preview: `http://localhost:8081/`. Main pushes trigger existing GitHub Pages CI. The user subsequently authorized committing and pushing to main; no deployment configuration or access policy was changed. Match the deployed `/build-info.json` revision to the pushed commit before claiming publication is complete.
