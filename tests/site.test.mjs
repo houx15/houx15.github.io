@@ -37,10 +37,10 @@ test('empty site has all routes and no fabricated entries', async t => {
   assert.equal($('#radar').closest('details, [hidden]').length, 0);
   assert.ok($('#radar-shape').attr('points').length > 20);
   assert.equal($('#radar-grid polygon').length, 5);
-  assert.equal($('.academic-timeline li').length, 2);
-  assert.equal($('.academic-timeline').closest('details, [hidden]').length, 0);
+  assert.equal($('.life-timeline li').length, 7);
+  assert.equal($('.life-timeline').closest('details, [hidden]').length, 0);
   assert.match($('.profile-figure').text(), /not Evie’s self-ratings/);
-  assert.match($('.academic-timeline').text(), /September 2024–present/);
+  assert.match($('.life-timeline').text(), /September 2024–present/);
 });
 
 test('assistant updates invalidate the entry script and all imported modules', async t => {
@@ -225,4 +225,25 @@ test('research is discoverable separately from products and legacy article URLs 
   assert.equal(chinese('h1').text(),'研究');
   assert.ok(projects('a[href="https://mind-web.uni-robot.cn/"]').length);
   await checkSite(path.join(dir,'_site'));
+});
+
+test('work and education timeline retains every overlapping period in both languages',async t=>{
+  const dir=await workspace(t);build(dir);
+  const {milestones}=await import('../src/assets/biography.js');
+  const en=load(await fs.readFile(path.join(dir,'_site/index.html'),'utf8'));
+  const zh=load(await fs.readFile(path.join(dir,'_site/zh/index.html'),'utf8'));
+  for(const entry of milestones) {
+    for(const [$,language] of [[en,'en'],[zh,'zh-CN']]) {
+      const row=$(`[data-milestone="${entry.id}"]`);assert.equal(row.length,1);
+      assert.ok(row.text().includes(entry[language].period));assert.ok(row.text().includes(entry[language].description));
+    }
+  }
+  assert.match(en('[data-milestone="startup"]').text(),/2016–2022/);
+  assert.match(en('[data-milestone="nonprofits"]').text(),/2020–2023/);
+  assert.match(en('[data-milestone="consulting"]').text(),/2025–2026/);
+  assert.match(en('.timeline-figure figcaption').text(),/overlap/);
+  const chat=load(await fs.readFile(path.join(dir,'_site/chat/index.html'),'utf8'));
+  assert.equal(load(chat('#visual-profile').html())('[data-milestone]').length,7);
+  const about=load(await fs.readFile(path.join(dir,'_site/about/index.html'),'utf8'));
+  assert.match(about('.prose').text(),/supplied and confirmed on 10 October 2026/);
 });

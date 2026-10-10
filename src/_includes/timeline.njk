@@ -1,4 +1,4 @@
 <figure class="profile-figure timeline-figure" aria-labelledby="timeline-heading">
 <div class="figure-heading"><h3 id="timeline-heading">{{ ui.path }}</h3><span class="chart-status">{{ ui.milestones }}</span></div>
-<ol class="academic-timeline" aria-label="{{ ui.path }}"><li><span class="timeline-date">{{ ui.before }}</span><h4>{{ ui.tsinghua }}</h4><p>{{ ui.degrees }}</p></li><li><span class="timeline-date">{{ ui.since }}</span><h4>{{ ui.pku }}</h4><p>{{ ui.phd }}</p><div class="concurrent-appointment"><span class="timeline-date">{{ ui.concurrent }}</span><h4>{{ ui.princeton }}</h4><p>{{ ui.visit }}</p></div></li></ol>
+<ol class="life-timeline" aria-label="{{ ui.path }}">{% include 'timeline-items.njk' %}</ol>
 <figcaption>{{ ui.timelineNote }} <a href="{{ ui.prefix }}/about/#sources">{{ ui.sourceLink }}</a>.</figcaption></figure>

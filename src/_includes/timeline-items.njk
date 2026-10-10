@@ -1,0 +1,1 @@
+{% for milestone in biography %}{% set moment = milestone[ui.lang] %}<li data-milestone="{{ milestone.id }}"><div class="timeline-label"><span class="timeline-date">{{ moment.period }}</span><span class="timeline-kind">{{ moment.kind }}</span></div><div class="timeline-description"><h4>{{ moment.title }}</h4><p>{{ moment.description }}</p></div></li>{% endfor %}

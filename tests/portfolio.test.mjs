@@ -83,3 +83,16 @@ test('research and product questions retain exact identity in both languages',()
     assert.deepEqual(fact.sources.map(s=>s.url),['/projects/']);
   }
 });
+
+test('owner-supplied work chronology stays distinct from project-role inference',()=>{
+  for(const [question,id] of [['What was your role as CTO?','startup'],['Tell me about PEER','nonprofits'],['What did you lead at UNICEF?','unicef'],['Which consulting work did you do?','consulting']]) {
+    for(const language of ['en','zh-CN']) {const answer=answerQuestion(question,language);assert.equal(answer.id,id);assert.equal(answer.sources[0].url,`${language==='zh-CN'?'/zh':''}/about/#sources`);}
+  }
+  assert.match(answerQuestion('CTO').text,/2016–2022/);
+  assert.match(answerQuestion('CTO').text,/team of more than 20 people/);
+  assert.doesNotMatch(answerQuestion('CTO').text,/20 teams/);
+  assert.match(answerQuestion('UNICEF').text,/June–December 2023/);
+  assert.match(answerQuestion('UNICEF').text,/video resource program/);
+  assert.match(answerQuestion('consulting').text,/three companies/);
+  assert.equal(answerQuestion('What was your role in Mind Imprint?').id,'mind');
+});
