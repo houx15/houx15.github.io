@@ -4,7 +4,7 @@ import { answerQuestion, knowledge } from '../src/assets/knowledge.js';
 import fs from 'node:fs/promises';
 
 test('guide grounds supported topics in explicit source links', () => {
-  for (const [question,id] of [['Tell me about Evie','profile'],['Mind Imprint','mind'],['Noir','noir'],['Show me her interests','interests'],['contact details','contact'],['technical reports','notes']]) {
+  for (const [question,id] of [['Tell me about Evie','profile'],['Mind Imprint','mind'],['Knowia','knowia'],['Show me her interests','interests'],['contact details','contact'],['technical reports','notes'],['SSDataAgent','ssdata'],['Weibo attitudes','attitudes']]) {
     const answer=answerQuestion(question); assert.equal(answer.id,id); assert.ok(answer.sources.length);
   }
   for(const item of knowledge) for(const source of item.sources) assert.match(source.url,/^(https:\/\/github\.com\/houx15(?:\/|$)|\/(?:about|reports|#))/);

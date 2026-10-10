@@ -1,24 +1,13 @@
-<div class="project-grid">
+<div class="selected-projects">
 {% for project in portfolio.projects %}
-<article class="project-card {{ project.class }}">
-  <div class="project-art" aria-hidden="true">{% if project.class == 'mind' %}<div class="thought-card">a question<span>↘</span>
-<div>a little structure<span>↘</span>
-<div>a new perspective <b>✧</b>
-</div>
-</div>
-</div>{% else %}<span class="noir-word">Noir<span>✦</span>
-</span>
-<span class="noir-caption">A story still taking shape.</span>{% endif %}</div>
-  <div class="project-copy">
-<span class="eyebrow">{{ project.tag }}</span>
-<h3>{{ project.name }} <span>{{ project.chinese }}</span>
-</h3>
-<p>{{ project.summary }}</p>
-<p class="source-note">{{ project.note }}</p>
-<a href="{{ project.url }}">{{ project.link }} <span aria-hidden="true">↗</span>
-</a>
-<span class="project-status">{{ project.status }}</span>
-</div>
+<article class="selected-project">
+  <p class="project-category">{{ project.tag }}</p>
+  <h3><a href="{{ project.url }}">{{ project.name }}</a></h3>
+  <p>{{ project.summary }}</p>
+  <p class="source-note">{{ project.note }}</p>
+  <a class="source-link" href="{{ project.url }}#readme">Source: public repository README</a>
 </article>
 {% endfor %}
 </div>
+<p class="source-note">Repository descriptions establish project scope, not individual contribution or independently verified outcomes.</p>
+<p class="pending-project"><strong>Knowia.</strong> Project name confirmed by Evie. Its exact public repository is still being verified; details will be added once the source is identified.</p>

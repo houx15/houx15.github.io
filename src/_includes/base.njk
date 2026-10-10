@@ -14,10 +14,10 @@
   <link rel="stylesheet" href="/assets/style.css?v={{ stylesheetVersion }}">
   {% if article %}<link rel="stylesheet" href="/assets/katex/katex.min.css">{% endif %}
 </head>
-<body{% if home %} class="is-home"{% endif %}>
+<body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <a class="site-name" href="/"{% if page.url == '/' %} aria-current="page"{% endif %}><span class="brand-mark" aria-hidden="true">e.</span> Evie Hou</a>
+    <a class="site-name" href="/"{% if page.url == '/' %} aria-current="page"{% endif %}>{{ site.name }}</a>
     <nav aria-label="Main navigation">
       <a href="/projects/"{% if section == 'projects' %} aria-current="page"{% endif %}>Projects</a>
       <a href="/reports/"{% if section == 'reports' %} aria-current="page"{% endif %}>Notes</a>

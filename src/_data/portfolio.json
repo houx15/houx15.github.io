@@ -1,11 +1,45 @@
 {
-  "intro": "I’m Evie, also known as Yuxin Hou (侯煜欣). A sociology researcher exploring what happens when social questions meet AI tools.",
+  "intro": "I’m Evie (Yuxin) Hou, a sociology researcher working across social research and AI.",
   "approach": "I like learning unfamiliar things, trying ideas quickly, and following a good question across disciplines.",
   "role": "Third-year Sociology PhD student at Peking University · Visiting Student Research Collaborator at Princeton for one year.",
   "projects": [
-    {"name": "Mind Imprint", "chinese": "思维印记", "tag": "AI × LEARNING", "class": "mind", "summary": "An AI learning platform built around the thinking process: structured thinking cards, research workspaces, and process-based reflection.", "note": "Description from the public README. Personal contribution and outcomes still need review.", "url": "https://github.com/houx15/mind-imprint", "link": "Explore the repository", "status": "Repository verified"},
-    {"name": "Noir", "chinese": "More to come", "tag": "PROJECT IN REVIEW", "class": "noir", "summary": "A project I’d like to share here. Its exact repository, story, and contribution are still being confirmed.", "note": "User-supplied project name; no matching public repository verified. No features or results claimed.", "url": "https://github.com/houx15", "link": "Browse my GitHub", "status": "Details awaiting review"}
+    {
+      "name": "SSDataAgent",
+      "summary": "An LLM data-analyst agent for population-level social-survey simulation. Its public documentation describes a tool loop for inspecting data, fitting generators, and evaluating distributions and event ordering.",
+      "note": "Selected for its direct connection between social-science methods, agent engineering, and evaluation. Benchmark claims have not been independently reproduced here.",
+      "url": "https://github.com/houx15/SSDataAgent",
+      "tag": "Computational social science",
+      "status": "Public README reviewed"
+    },
+    {
+      "name": "Mind Imprint",
+      "summary": "An AI learning platform organized around structured thinking cards, research workspaces, and reflection on the thinking process.",
+      "note": "Selected for its concrete learning workflow and explicit separation of model decisions, interface rendering, and process records.",
+      "url": "https://github.com/houx15/mind-imprint",
+      "tag": "AI learning systems",
+      "status": "Public README reviewed"
+    },
+    {
+      "name": "AI attitudes across social media",
+      "summary": "A Weibo/Twitter analysis pipeline that uses a shared model and prompt, records provider provenance, and exports daily measures for comparison.",
+      "note": "Selected for its attention to comparable measurement and reproducible processing. It processes previously extracted data; it is not a crawler.",
+      "url": "https://github.com/houx15/ai-attitudes-social-media",
+      "tag": "Research infrastructure",
+      "status": "Public README reviewed"
+    }
   ],
-  "domains": ["Sociology", "AI engineering", "Data analysis", "Product thinking", "Writing"],
-  "illustrativeScores": [4, 3, 3, 2, 4]
+  "domains": [
+    "Sociology",
+    "AI engineering",
+    "Data analysis",
+    "Product thinking",
+    "Writing"
+  ],
+  "illustrativeScores": [
+    4,
+    3,
+    3,
+    2,
+    4
+  ]
 }
