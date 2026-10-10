@@ -25,5 +25,7 @@ article: true
   <details class="toc" open><summary>Contents</summary><nav aria-label="Table of contents"><ul>{% for heading in entry.headings %}<li class="toc-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ul></nav></details>
   {% endif %}
   <div class="prose" lang="{{ entry.lang }}">{{ entry.html | safe }}</div>
+  {% if entry.relatedReport %}<p class="related-reading"><a href="{{ entry.relatedReport }}">Read the related evaluation note</a></p>{% endif %}
+  {% if entry.assistantTopic %}<p class="related-reading"><a href="/?topic={{ entry.assistantTopic }}#assistant-title">Ask the portfolio assistant about this project</a></p>{% endif %}
   <div class="article-end"><a href="/{{ entry.type }}/">{% if entry.type == 'projects' %}All projects{% else %}All reports{% endif %}</a></div>
 </article>

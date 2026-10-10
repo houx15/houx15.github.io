@@ -40,7 +40,7 @@ test('empty site has all routes and no fabricated entries', async t => {
   assert.equal($('.academic-timeline li').length, 2);
   assert.equal($('.academic-timeline').closest('details, [hidden]').length, 0);
   assert.match($('.profile-figure').text(), /not Evie’s self-ratings/);
-  assert.match($('.academic-timeline').text(), /Dates to confirm/);
+  assert.match($('.academic-timeline').text(), /September 2024–present/);
 });
 
 test('reports and products render and are discoverable; drafts and their files stay out', async t => {

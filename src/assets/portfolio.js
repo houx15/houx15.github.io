@@ -85,3 +85,11 @@ function point(index, radius){const angle=(index*72-90)*Math.PI/180;return [190+
 function draw(){document.querySelector('#radar-shape').setAttribute('points',controls.map((input,i)=>point(i,Number(input.value)*19).join(',')).join(' '));controls.forEach(input=>input.nextElementSibling.textContent=`${input.value}/5`);document.querySelector('#radar-desc').textContent=`Illustrative placeholders, not Evie’s ratings: ${controls.map(input=>`${input.parentElement.childNodes[0].textContent.trim()} ${input.value} of 5`).join(', ')}.`;}
 controls.forEach(input=>input.addEventListener('input',draw));
 document.querySelector('#reset-radar').addEventListener('click',()=>{controls.forEach((input,i)=>input.value=initial[i]);draw();});draw();
+
+// Only reviewed topic IDs can prefill the input. Navigation never submits a question.
+const topicQuestions = {ssdata:'Tell me about SSDataAgent',mind:'Tell me about Mind Imprint',attitudes:'Tell me about the AI attitudes pipeline'};
+const requestedTopic = new URLSearchParams(window.location.search).get('topic');
+if (Object.hasOwn(topicQuestions,requestedTopic)) {
+  question.value=topicQuestions[requestedTopic];
+  status.textContent='Project question ready. Press Send for a local, source-linked answer.';
+}

@@ -225,3 +225,10 @@ summary { cursor: pointer; padding-block: 4px; }
   .agent-subtitle { font-size: 11px; }
 }
 @media (prefers-reduced-motion: reduce) { .agent-cursor, .agent-processing { animation: none !important; } }
+
+.intro-links { flex-wrap: wrap; column-gap: 24px; row-gap: 0; }
+.project-reading-links { display: flex; gap: 22px; font-size: 14px; }
+.project-reading-links a { display: inline-flex; min-height: 44px; align-items: center; }
+.concurrent-appointment { border-left: 2px solid var(--rule); margin-top: 22px; padding-left: 16px; }
+.concurrent-appointment h4 { margin-top: 8px; }
+.related-reading { font-size: 15px; margin-top: 24px; }

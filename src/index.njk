@@ -7,7 +7,7 @@ description: Evie (Yuxin) Hou — sociology, AI systems, research infrastructure
   <h1 id="intro-title">Yuxin Hou <span lang="zh-CN">侯煜欣</span></h1>
   <p>{{ portfolio.intro }}</p>
   <p class="academic-role">{{ portfolio.role }}</p>
-  <div class="intro-links"><a href="mailto:{{ site.email }}">Email</a><a href="{{ site.github }}">GitHub</a><a href="/about/">About</a></div>
+  <div class="intro-links"><a href="#projects">Explore the work</a><a href="mailto:{{ site.email }}">Email</a><a href="{{ site.github }}">GitHub</a><a href="/about/">About</a></div>
 </section>
 <section class="assistant-panel" aria-labelledby="assistant-title">
   <div class="assistant-heading">
@@ -31,7 +31,7 @@ description: Evie (Yuxin) Hou — sociology, AI systems, research infrastructure
   <p id="greeting">Ask about my background, projects, or research interests.</p>
   <div id="conversation" class="conversation" role="log" aria-label="Portfolio conversation" aria-live="polite" aria-relevant="additions"></div>
   <form id="chat-form"><label class="sr-only" for="question">Ask about Evie or her projects</label><div class="chat-input"><input id="question" name="question" placeholder="Ask a question about my work" maxlength="400" required autocomplete="off"><button type="submit">Send</button></div></form>
-  <div class="suggestions"><span>Try:</span><button type="button" data-question="Tell me about SSDataAgent">SSDataAgent</button><button type="button" data-question="Tell me about Mind Imprint">Mind Imprint</button><button type="button" data-question="Tell me about Evie">Background</button></div>
+  <div class="suggestions"><span>Try:</span><button type="button" data-question="Show me a concrete engineering example">Engineering example</button><button type="button" data-question="How does sociology inform these systems?">Sociology and AI</button><button type="button" data-question="What changed after a failure?">Learning from failure</button></div>
   <p id="chat-status" class="source-note" role="status">Curated answers, not live AI. Nothing you type is sent or saved.</p>
   <div id="live-options" class="live-options" hidden>
     <label><input id="live-consent" type="checkbox"> Use live AI: send my submitted questions and a time-of-day category to this site’s server and DeepSeek. Don’t include private information. Provider retention policies apply.</label>
@@ -42,14 +42,15 @@ description: Evie (Yuxin) Hou — sociology, AI systems, research infrastructure
 </section>
 <section id="projects" class="home-section">
   <div class="section-heading"><h2>Selected projects</h2><a href="/projects/">All projects</a></div>
-  <p class="section-intro">Selected from public GitHub repositories for their relevance to social research, applied AI, and reproducible systems.</p>
+  <p class="section-intro">Three ways of connecting social research with working AI systems. Each project links a concrete design decision to public code and contribution evidence.</p>
   {% include 'project-cards.njk' %}
-  {% set projects = entries | section('projects') | selected %}
-  {% if projects.length %}{{ entryList(projects, 'h3') }}{% else %}<p class="empty-state">Detailed project case studies are being prepared.</p>{% endif %}
+  {% set allProjects = entries | section('projects') %}
+  {% set projects = allProjects | otherProjects(portfolio.projects) | selected %}
+  {% if projects.length %}{{ entryList(projects, 'h3') }}{% elif not allProjects.length %}<p class="empty-state">Detailed project case studies are being prepared.</p>{% endif %}
 </section>
 <section id="interests" class="home-section">
   <div class="section-heading"><h2>Background and interests</h2><a href="/about/">About</a></div>
-  <p class="section-intro">{{ portfolio.approach }}</p>
+  <p class="section-intro">{{ portfolio.education }} {{ portfolio.approach }}</p>
   <figure class="profile-figure" aria-labelledby="domain-heading">
     <div class="figure-heading"><h3 id="domain-heading">Domain self-assessment</h3><span class="chart-status">Illustrative values</span></div>
     <p class="source-note">Editable example scores on a 0–5 scale. These are not Evie’s self-ratings or objective proficiency measurements.</p>
@@ -70,13 +71,12 @@ description: Evie (Yuxin) Hou — sociology, AI systems, research infrastructure
     <figcaption>Self-assessment pending. The plotted shape demonstrates the chart; it makes no claim about actual capability.</figcaption>
   </figure>
   <figure class="profile-figure" aria-labelledby="timeline-heading">
-    <div class="figure-heading"><h3 id="timeline-heading">Academic timeline</h3><span class="chart-status">Dates pending</span></div>
-    <p class="source-note">Milestones from Evie’s supplied profile. Start and end dates have not been confirmed.</p>
-    <ol class="academic-timeline" aria-label="Academic milestones with unconfirmed dates">
-      <li><span class="timeline-date">Dates to confirm</span><h4>Peking University</h4><p>Third-year Sociology PhD student.</p></li>
-      <li><span class="timeline-date">Dates to confirm</span><h4>Princeton University</h4><p>One-year Visiting Student Research Collaborator.</p></li>
+    <div class="figure-heading"><h3 id="timeline-heading">Academic path</h3><span class="chart-status">Milestones</span></div>
+    <ol class="academic-timeline" aria-label="Education and current appointments">
+      <li><span class="timeline-date">Before September 2024</span><h4>Tsinghua University</h4><p>B.E. in Mechanical Engineering<br>M.A. in Education</p></li>
+      <li><span class="timeline-date">September 2024–present</span><h4>Peking University</h4><p>Sociology PhD · Center for Social Research</p><div class="concurrent-appointment"><span class="timeline-date">Current · alongside the PhD</span><h4>Princeton University</h4><p>One-year Visiting Student Research Collaborator</p></div></li>
     </ol>
-    <figcaption>Milestone order only. Spacing does not represent elapsed time; overlapping appointments and life-status ratings are not plotted. <a href="/about/#sources">Source: owner-supplied profile</a>.</figcaption>
+    <figcaption>Milestones, not a scaled time axis or a life-status rating. Degree completion years and the visit’s exact dates are not specified. <a href="/about/#sources">Profile sources</a>.</figcaption>
   </figure>
 </section>
 <section class="home-section">

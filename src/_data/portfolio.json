@@ -5,27 +5,27 @@
   "projects": [
     {
       "name": "SSDataAgent",
-      "summary": "An LLM data-analyst agent for population-level social-survey simulation. Its public documentation describes a tool loop for inspecting data, fitting generators, and evaluating distributions and event ordering.",
-      "note": "Selected for its direct connection between social-science methods, agent engineering, and evaluation. Benchmark claims have not been independently reproduced here.",
+      "summary": "How should an agent simulate a survey population—and what does a good benchmark score actually tell us?",
+      "note": "Empirical-copula transfer, information-access constraints, and the difference between statistical fidelity and record copying.",
       "url": "https://github.com/houx15/SSDataAgent",
       "tag": "Computational social science",
-      "status": "Public README reviewed"
+      "slug": "ssdata-agent"
     },
     {
       "name": "Mind Imprint",
-      "summary": "An AI learning platform organized around structured thinking cards, research workspaces, and reflection on the thinking process.",
-      "note": "Selected for its concrete learning workflow and explicit separation of model decisions, interface rendering, and process records.",
+      "summary": "How can AI offer students structured thinking tools while leaving them responsible for the thinking?",
+      "note": "Schema-defined cards, recorded learning actions, and a concrete fix for completing project-level cards without a source document.",
       "url": "https://github.com/houx15/mind-imprint",
       "tag": "AI learning systems",
-      "status": "Public README reviewed"
+      "slug": "mind-imprint"
     },
     {
       "name": "AI attitudes across social media",
-      "summary": "A Weibo/Twitter analysis pipeline that uses a shared model and prompt, records provider provenance, and exports daily measures for comparison.",
-      "note": "Selected for its attention to comparable measurement and reproducible processing. It processes previously extracted data; it is not a crawler.",
+      "summary": "How can social-media labeling stay inspectable when model responses fail and long runs need to resume?",
+      "note": "Explicit label validation, provider provenance, and partitioned Parquet outputs for resumable Weibo/Twitter processing.",
       "url": "https://github.com/houx15/ai-attitudes-social-media",
       "tag": "Research infrastructure",
-      "status": "Public README reviewed"
+      "slug": "ai-attitudes"
     }
   ],
   "domains": [
@@ -41,5 +41,6 @@
     3,
     2,
     4
-  ]
+  ],
+  "education": "My path began in mechanical engineering and education at Tsinghua, before I joined Peking University’s Center for Social Research in September 2024."
 }

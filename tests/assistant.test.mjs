@@ -14,7 +14,7 @@ const envelope=(result)=>new Response(JSON.stringify({choices:[{finish_reason:'s
 test('model output can select only approved facts and server-owned citations',()=>{
   const result=validateModelResult({factIds:['mind']},input);
   assert.equal(result.text,facts.find(f=>f.id==='mind').text);
-  assert.equal(result.sources[0].url,'https://github.com/houx15/mind-imprint#readme');
+  assert.equal(result.sources[0].url,'/projects/mind-imprint/');
   for(const raw of [{factIds:['unknown']},{factIds:['mind','mind']},{factIds:['mind'],text:'invented award'}, {factIds:['mind'],sources:['https://evil.example']},null]) assert.throws(()=>validateModelResult(raw,input),/invalid_model_response/);
   assert.match(validateModelResult({factIds:[]},input).text,/don’t have approved public facts/);
   assert.match(validateModelResult({greetingId:'welcome'},{kind:'greeting',daypart:'morning'}).text,/Good morning/);

@@ -12,6 +12,8 @@ export default function (config) {
   config.addGlobalData('year', () => new Date().getUTCFullYear());
   config.addGlobalData('stylesheetVersion', async () => createHash('sha256').update(await fs.readFile('src/assets/style.css')).digest('hex').slice(0, 12));
   config.addFilter('section', (entries, type) => entries.filter(item => item.type === type));
+  config.addFilter('projectBySlug', (entries, slug) => entries.find(item => item.type === 'projects' && item.slug === slug));
+  config.addFilter('otherProjects', (entries, projects) => entries.filter(item => !projects.some(project => project.slug === item.slug)));
   config.addFilter('selected', entries => {
     const selected = entries.filter(item => item.featured);
     return (selected.length ? selected : entries).slice(0, 3);

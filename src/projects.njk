@@ -8,5 +8,6 @@ description: Projects by Yuxin Hou.
 {% from 'entries.njk' import entryList %}
 <header class="page-heading"><h1>Projects</h1></header>
 {% include 'project-cards.njk' %}
-{% set items = entries | section('projects') %}
-{% if items.length %}{{ entryList(items) }}{% else %}<p class="empty-state">No projects published yet.</p>{% endif %}
+{% set allProjects = entries | section('projects') %}
+{% set items = allProjects | otherProjects(portfolio.projects) %}
+{% if items.length %}{{ entryList(items) }}{% elif not allProjects.length %}<p class="empty-state">No projects published yet.</p>{% endif %}

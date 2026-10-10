@@ -1,13 +1,12 @@
 <div class="selected-projects">
 {% for project in portfolio.projects %}
+{% set detail = entries | projectBySlug(project.slug) %}
 <article class="selected-project">
   <p class="project-category">{{ project.tag }}</p>
-  <h3><a href="{{ project.url }}">{{ project.name }}</a></h3>
+  <h3><a href="{{ detail.url if detail else project.url }}">{{ project.name }}</a></h3>
   <p>{{ project.summary }}</p>
   <p class="source-note">{{ project.note }}</p>
-  <a class="source-link" href="{{ project.url }}#readme">Source: public repository README</a>
+  <div class="project-reading-links">{% if detail %}<a href="{{ detail.url }}">Read project</a>{% endif %}<a href="{{ project.url }}">Public code</a></div>
 </article>
 {% endfor %}
 </div>
-<p class="source-note">Repository descriptions establish project scope, not individual contribution or independently verified outcomes.</p>
-<p class="pending-project"><strong>Knowia.</strong> Project name confirmed by Evie. Its exact public repository is still being verified; details will be added once the source is identified.</p>
