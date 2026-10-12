@@ -30,7 +30,7 @@ async function writeEntry(dir, type, slug, { draft = false, title = 'A technical
 
 test('empty site has all routes and no fabricated entries', async t => {
   const dir = await workspace(t); build(dir);
-  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 14);
+  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 16);
   const $ = load(await fs.readFile(path.join(dir, '_site/index.html'), 'utf8'));
   assert.equal($('.entry').length, 0);
   assert.equal($('.empty-state').length, 1);
@@ -78,7 +78,7 @@ test('reports and products render and are discoverable; drafts and their files s
   const draft = await writeEntry(dir, 'reports', 'unpublished-report', { draft: true });
   await fs.writeFile(path.join(draft, 'attachment.pdf'), 'draft-only attachment');
   build(dir);
-  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 16);
+  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 18);
   const $ = load(await fs.readFile(path.join(dir, '_site/reports/test-report/index.html'), 'utf8'));
   assert.equal($('h1').text(), 'Methods & Results <2026>');
   assert.equal($('html').attr('lang'), 'zh-CN');
@@ -95,7 +95,7 @@ test('reports and products render and are discoverable; drafts and their files s
   assert.equal(home('.entry').length, 2);
   assert.equal(load(await fs.readFile(path.join(dir, '_site/projects/test-product/index.html'), 'utf8'))('.project-links a').attr('href'), 'https://github.com/houx15');
   build(dir, true);
-  assert.equal((await checkSite(path.join(dir, '_preview'), { preview: true })).pages, 17);
+  assert.equal((await checkSite(path.join(dir, '_preview'), { preview: true })).pages, 19);
   await fs.access(path.join(dir, '_preview/reports/unpublished-report/attachment.pdf'));
   const preview = load(await fs.readFile(path.join(dir, '_preview/reports/unpublished-report/index.html'), 'utf8'));
   assert.equal(preview('meta[name="robots"]').attr('content'), 'noindex, nofollow');
@@ -198,7 +198,7 @@ test('bilingual pages keep route context and translate full articles without dup
   assert.equal(home('#chat-form').length,0);
   assert.equal(home('.entry h3').text(),'中文项目');
   assert.equal(home('section.screen').length,4);
-  assert.equal((await checkSite(path.join(dir,'_site'))).pages,16);
+  assert.equal((await checkSite(path.join(dir,'_site'))).pages,18);
   const chat=load(await fs.readFile(path.join(dir,'_site/zh/chat/index.html'),'utf8'));
   assert.equal(chat('#chat-form').length,1);
   assert.ok(chat('#visual-ssdata').length);
@@ -258,4 +258,23 @@ test('work and education timeline retains every overlapping period in both langu
   assert.equal(load(chat('#visual-profile').html())('[data-milestone]').length,8);
   const about=load(await fs.readFile(path.join(dir,'_site/about/index.html'),'utf8'));
   assert.match(about('.prose').text(),/supplied and confirmed on 10 October 2026/);
+});
+
+test('learning notes are dated, searchable across languages, and exclude draft text', async t => {
+  const dir = await workspace(t);
+  await writeEntry(dir, 'notes', 'first-note', { title:'中文学习笔记', body:'## 概念\n\n正文检索 attention mechanism', extra:'lang: zh-CN\n' });
+  await writeEntry(dir, 'notes', 'private-note', { draft:true, body:'private-search-needle' });
+  build(dir);
+  for (const route of ['notes', 'zh/notes']) {
+    const html = await fs.readFile(path.join(dir,'_site',route,'index.html'),'utf8');
+    const $ = load(html);
+    assert.equal($('[data-note]').length, 1);
+    assert.match($('[data-note]').attr('data-search'), /正文检索 attention mechanism/);
+    assert.equal($('[data-note] a').attr('href'), '/notes/first-note/');
+    assert.equal($('[data-year] h2').text(), '2026');
+    assert.ok(!html.includes('private-search-needle'));
+  }
+  await checkSite(path.join(dir,'_site'));
+  build(dir,true);
+  assert.match(await fs.readFile(path.join(dir,'_preview/notes/index.html'),'utf8'), /private-search-needle/);
 });

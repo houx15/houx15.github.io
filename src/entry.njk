@@ -16,7 +16,7 @@ article: true
 {% set listing = "research" if entry.category == "research" or entry.category == "research-software" else entry.type %}
 <article>
   <header class="article-heading">
-    <a class="back-link" href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'research' %}{{ ui.research }}{% elif entry.type == 'projects' %}{{ ui.projects }}{% else %}{{ ui.notes }}{% endif %}</a>
+    <a class="back-link" href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'research' %}{{ ui.research }}{% elif entry.type == 'notes' %}{{ ui.learningNotes }}{% elif entry.type == 'projects' %}{{ ui.projects }}{% else %}{{ ui.notes }}{% endif %}</a>
     <h1>{{ entry.title }}</h1>
     <p class="article-summary">{{ entry.summary }}</p>
     <div class="article-meta"><span>{{ ui.name }}</span><time datetime="{{ entry.date }}">{{ entry.date | dateLabel(ui.lang) }}</time><span>{{ entry.readingTime }} {{ ui.minRead }}</span>{% if entry.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}</div>
@@ -29,5 +29,5 @@ article: true
   <div class="prose" lang="{{ entry.lang }}">{{ entry.html | safe }}</div>
   {% if entry.relatedReport %}<p class="related-reading"><a href="{{ ui.prefix }}{{ entry.relatedReport }}">{{ ui.relatedNote }}</a></p>{% endif %}
   {% if entry.assistantTopic %}<p class="related-reading"><a href="{{ ui.prefix }}/chat/#topic={{ entry.assistantTopic }}">{{ ui.askProject }}</a></p>{% endif %}
-  <div class="article-end"><a href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'research' %}{{ ui.research }}{% elif entry.type == 'projects' %}{{ ui.backProjects }}{% else %}{{ ui.backReports }}{% endif %}</a></div>
+  <div class="article-end"><a href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'research' %}{{ ui.research }}{% elif entry.type == 'notes' %}{{ ui.learningNotes }}{% elif entry.type == 'projects' %}{{ ui.backProjects }}{% else %}{{ ui.backReports }}{% endif %}</a></div>
 </article>

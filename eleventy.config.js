@@ -1,10 +1,11 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { load } from 'cheerio';
 import { createHash } from 'node:crypto';
 import { markdown } from './lib/markdown.mjs';
 import { loadContent, copyPublishedAssets } from './lib/content.mjs';
 
-const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js', 'knowledge-zh.js', 'ui.js', 'navigation.js', 'biography.js', 'journey.js'];
+const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js', 'knowledge-zh.js', 'ui.js', 'navigation.js', 'biography.js', 'journey.js', 'notes.js'];
 async function assistantVersion() {
   const sources = await Promise.all(assistantModules.map(name => fs.readFile(`src/assets/${name}`, 'utf8')));
   return createHash('sha256').update(sources.join('\0')).digest('hex').slice(0, 12);
@@ -25,6 +26,10 @@ export default function (config) {
     const entry = entries.find(item=>item.url===url);
     return entry && !entry.zh ? `/zh/${entry.type}/` : `/zh${url}`;
   });
+  config.addFilter('noteText', html => load(html).text());
+  config.addFilter('noteYears', entries => [...new Set(entries.map(entry => entry.date.slice(0, 4)))]);
+  config.addFilter('inYear', (entries, year) => entries.filter(entry => entry.date.startsWith(year)));
+  config.addFilter('learningEntries', (entries, locale) => entries.filter(entry => entry.type === 'notes').map(entry => locale.prefix && entry.zh ? entry.zh : entry));
   config.addFilter('products', entries => entries.filter(item => item.category !== 'research' && item.category !== 'research-software'));
   config.addFilter('researchSoftware', entries => entries.filter(item => item.category === 'research-software'));
   config.addFilter('section', (entries, type) => entries.filter(item => item.type === type));
@@ -55,7 +60,7 @@ export default function (config) {
           else await fs.unlink(target);
         }
       }
-      for (const section of ['projects', 'reports', 'zh/projects', 'zh/reports']) await clearFiles(path.join(dir.output, section));
+      for (const section of ['projects', 'reports', 'zh/projects', 'zh/reports', 'notes', 'zh/notes']) await clearFiles(path.join(dir.output, section));
     }
     await fs.mkdir(dir.output, { recursive: true });
     await copyPublishedAssets(await loadContent(), dir.output);

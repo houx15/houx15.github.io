@@ -85,3 +85,20 @@ test('skill installs complete references and refuses accidental replacement', as
   await assert.rejects(installSkill(target), /Already installed/);
   await installSkill(target, { update: true });
 });
+
+test('learning note imports a short body and publishes without a manually written summary', async t => {
+  const dir = await workspace(t);
+  const body = '这是学习笔记，只记录一个理解。';
+  await fs.writeFile(path.join(dir,'source.md'),body);
+  run(dir,'new','note','short-note','--title','一个理解','--file','source.md');
+  const file = path.join(dir,'content/notes/short-note/index.md');
+  let entry = matter(await fs.readFile(file,'utf8'));
+  assert.equal(entry.data.lang,'zh-CN');
+  assert.equal(entry.data.draft,true);
+  assert.equal(entry.content.trim(),body);
+  run(dir,'ready','note','short-note','--date','2026-10-12');
+  entry = matter(await fs.readFile(file,'utf8'));
+  assert.equal(entry.data.summary,body);
+  assert.equal(entry.data.draft,false);
+  assert.match(await fs.readFile(path.join(dir,'_site/zh/notes/index.html'),'utf8'),/一个理解/);
+});

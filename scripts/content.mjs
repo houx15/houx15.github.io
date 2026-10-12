@@ -4,10 +4,13 @@ import { parseArgs } from 'node:util';
 import { execFileSync } from 'node:child_process';
 import matter from 'gray-matter';
 import { loadContent, slugPattern, validate, validDate } from '../lib/content.mjs';
+import { load } from 'cheerio';
+import { markdown } from '../lib/markdown.mjs';
 import { checkSite } from './check.mjs';
 
 const help = `Content commands (run from the website repository):
   bun run content new report <slug> --title "Title" [--lang en|zh-CN] [--date YYYY-MM-DD]
+  bun run content new note <slug> --title "Title" [--file path/to/note.md]
   bun run content new project <slug> --title "Title"
   bun run content list
   bun run content ready report <slug> [--date YYYY-MM-DD]
@@ -16,7 +19,7 @@ Aliases: article → report; product → project.
 New entries are drafts. ready validates and builds locally; it does not commit or push.
 For an existing published entry, ready preserves its publication date and sets updated.
 `;
-const kinds = { report: 'reports', article: 'reports', project: 'projects', product: 'projects' };
+const kinds = { report: 'reports', article: 'reports', project: 'projects', product: 'projects', note: 'notes' };
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const root = process.cwd();
 function build() {
@@ -28,6 +31,7 @@ function build() {
 try {
   const { values, positionals } = parseArgs({ allowPositionals: true, options: {
     title: { type: 'string' }, lang: { type: 'string' }, date: { type: 'string' },
+    file: { type: 'string' },
     summary: { type: 'string' }, help: { type: 'boolean', short: 'h' },
   } });
   const [command, kind, slug] = positionals;
@@ -45,12 +49,13 @@ try {
   const dir = path.join(root, 'content', kinds[kind], slug);
   const filename = path.join(dir, 'index.md');
   if (command === 'new') {
-    const data = { title: values.title || '', summary: values.summary || '', date: values.date || today(), draft: true, lang: values.lang || 'en' };
+    const body = values.file ? await fs.readFile(path.resolve(values.file), 'utf8') : '';
+    const data = { title: values.title || '', summary: values.summary || '', date: values.date || today(), draft: true, lang: values.lang || (kind === 'note' ? 'zh-CN' : 'en') };
     if (kind === 'project' || kind === 'product') { data.featured = false; data.links = []; }
     validate(data, '', slug);
     await fs.mkdir(path.dirname(dir), { recursive: true });
     await fs.mkdir(dir); // Refuse collisions rather than overwrite an existing entry.
-    await fs.writeFile(filename, matter.stringify('\n', data), { flag: 'wx' });
+    await fs.writeFile(filename, matter.stringify(body || '\n', data), { flag: 'wx' });
     console.log(`Created draft: ${path.relative(root, filename)}\nPreview: bun run preview`);
   } else {
     if (values.title || values.lang || values.summary) throw new Error('Edit title, summary, and language in the Markdown file before ready.');
@@ -58,6 +63,7 @@ try {
     const { data, content } = matter(original);
     if (data.draft === false) data.updated = values.date || today();
     else data.date = values.date || today();
+    if (kind === 'note' && !data.summary?.trim()) data.summary = load(markdown.render(content)).text().replace(/\s+/g, ' ').trim().slice(0, 180);
     data.draft = false;
     validate(data, content, slug, { publication: true });
     try {

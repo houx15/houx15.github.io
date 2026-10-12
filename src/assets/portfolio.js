@@ -93,3 +93,6 @@ function setupChat() {
   // Navigation submits only to the local demo. Live mode always needs separate opt-in.
   if(initial) ask(initial,{focus:false});
 }
+
+import { initNotes } from './notes.js';
+initNotes(document.querySelector('[data-notes]'));

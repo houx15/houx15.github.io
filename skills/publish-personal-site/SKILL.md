@@ -1,6 +1,6 @@
 ---
 name: publish-personal-site
-description: Draft, revise, preview, and publish Yuxin Hou's projects, products, technical reports, and articles on houx15.github.io, including text, figures, formatting, validation, and deployment verification. Use for this personal website's content workflow.
+description: Draft, revise, preview, and publish Yuxin Hou's projects, products, technical reports, learning notes, and articles on houx15.github.io, including text, figures, formatting, validation, and deployment verification. Use for this personal website's content workflow.
 ---
 
 # Personal website publishing
@@ -16,7 +16,9 @@ Preserve the author's argument and original language unless translation or subst
 ## Workflow
 
 1. Determine whether the user wants drafting, revision, preview, or publication. Use supplied text, notes, repositories, screenshots, data, and citations. Ask only for missing information that changes factual content; keep unresolved points visible in the draft. A short project description does not require a full paper structure.
-2. Choose `project` for products/tools/demos and `report` for technical reports/articles. Use `bun run content new …` for new entries. Keep existing slugs stable when updating. Store only intended public attachments beside the Markdown file. Set the correct language and an accurate short summary.
+2. For learning notes, choose `note`. Accept pasted text, Markdown, and images; infer a concise factual title and stable slug when not supplied. Keep short notes short, preserve the original language, and use the current date unless the author supplies one. A summary is optional and is derived automatically. Save images beside the entry and add accurate descriptions; do not invent unreadable screenshot text. “发成学习笔记” or “po 这篇笔记” authorizes publication; “整理/草稿/预览” does not. Notes appear automatically at `/notes/` and `/zh/notes/`, in date order with full-text search.
+
+   Choose `project` for products/tools/demos and `report` for technical reports/articles. Use `bun run content new …` for new entries. Keep existing slugs stable when updating. Store only intended public attachments beside the Markdown file. Set the correct language and an accurate short summary.
 3. Apply the existing content template and styles. Use figures to support the content, with descriptions, captions, provenance, and legible labels. Do not redesign the website as part of ordinary publication.
 4. Use `bun run preview` for draft review. Inspect the rendered page, including desktop and phone layouts. Where material permits, check formulas, code, tables, image loading and legibility, heading links, citations, and demo/source links. If browser verification is unavailable, report that specific gap rather than claiming it passed.
 5. When publication is requested, run `bun run content ready <type> <slug>` and `bun run verify`. The first command changes local publication state but does not push. Review the exact content diff, resolve material issues, then follow the branch/CI/merge/deploy procedure in `docs/publishing.md`. Authorization already given for this content persists; do not add a redundant approval gate.

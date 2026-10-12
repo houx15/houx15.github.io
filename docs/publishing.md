@@ -106,3 +106,19 @@ If a push or deployment outcome is unknown, inspect the remote SHA/run before re
 ## Test coverage
 
 `bun run verify` runs isolated end-to-end builds for empty content, published projects/reports, draft exclusions, multilingual text, formulas, figures/captions, code, tables, footnotes, metadata, internal links, and the content CLI's draft-to-ready/update/error paths. Fixtures are created in temporary folders, never published as user work.
+
+## Learning notes: the shortest workflow
+
+Send Codex the text, Markdown, or screenshots and say “把这些发成学习笔记”. Codex selects `note`, preserves the author's language and meaning, prepares a concise title and stable URL, handles local figures and formatting, checks the preview, and publishes. Say “先给我预览” to stop before publication. No report structure or manually written summary is required; the summary is derived from the content. Never commit private scratch material.
+
+For direct use:
+
+```sh
+bun run content new note attention-notes --title "Attention 学习笔记" --file /path/to/body.md
+bun run preview
+bun run content ready note attention-notes
+```
+
+`--file` imports the body of a Markdown file (without frontmatter). Omit it to write directly in `content/notes/<slug>/index.md`. Notes default to Chinese; pass `--lang en` for English. Put referenced images in that same folder. `ready` remains a local preparation step; follow the Publish steps above to deploy.
+
+Notes are listed at `/notes/` and `/zh/notes/`, grouped by year and sorted newest first. Both list all notes in their original language; a Chinese translation is used on the Chinese archive when available. Search covers title, summary, and full text, supports Chinese and English, and checks all notes even when only 30 are shown. Use Show more for additional entries. Search terms can be shared through `?q=...`. Drafts are searchable only in the local draft preview; the live site does not contain draft text. Without JavaScript, the complete dated archive remains readable.

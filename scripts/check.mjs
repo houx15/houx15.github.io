@@ -45,7 +45,7 @@ export async function checkSite(output = path.resolve('_site'), { preview = fals
       }
     }
   }
-  for (const required of ['index.html', 'projects/index.html', 'reports/index.html', 'about/index.html', '404.html', 'sitemap.xml', 'robots.txt', 'build-info.json']) {
+  for (const required of ['index.html', 'projects/index.html', 'reports/index.html', 'notes/index.html', 'zh/notes/index.html', 'about/index.html', '404.html', 'sitemap.xml', 'robots.txt', 'build-info.json']) {
     if (!files.includes(path.join(output, required))) errors.push(`Missing ${required}`);
   }
   if (errors.length) throw new Error(errors.join('\n'));

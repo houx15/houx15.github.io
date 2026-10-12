@@ -1,0 +1,43 @@
+---
+layout: base.njk
+pagination:
+  data: locales
+  size: 1
+  alias: locale
+permalink: "{{ locale.prefix }}/notes/"
+section: notes
+eleventyComputed:
+  lang: "{{ locale.lang }}"
+  title: "{{ locale.learningNotes }}"
+---
+{% set ui = locale %}
+{% set chinese = ui.prefix %}
+{% set items = entries | learningEntries(ui) %}
+<header class="page-heading">
+  <p class="eyebrow">{{ ui.name }}</p><h1>{{ ui.learningNotes }}</h1>
+  <p class="notes-intro">{{ '阅读、课程与实践中的学习记录。按日期归档。' if chinese else 'Notes from reading, courses, and practice. Arranged by date.' }}</p>
+</header>
+<section data-notes data-locale="{{ ui.lang }}" aria-label="{{ ui.learningNotes }}">
+  <div class="notes-tools" hidden>
+    <label for="note-search">{{ '搜索笔记' if chinese else 'Search notes' }}</label>
+    <div class="notes-search"><input id="note-search" type="search" placeholder="{{ '搜索标题、摘要和正文' if chinese else 'Search titles, summaries, and full text' }}" autocomplete="off"><button type="button" data-clear>{{ '清除' if chinese else 'Clear' }}</button></div>
+    <p class="notes-count" role="status" aria-live="polite" data-count></p>
+  </div>
+  {% if items.length %}
+  <div class="notes-timeline">
+    {% for year in items | noteYears %}
+    <section class="notes-year" data-year aria-labelledby="year-{{ year }}">
+      <h2 id="year-{{ year }}">{{ year }}</h2>
+      <ol>{% for note in items | inYear(year) %}
+        <li class="note-item" data-note data-search="{{ note.title }} {{ note.summary }} {{ note.html | noteText }}" lang="{{ note.lang }}">
+          <time datetime="{{ note.date }}">{{ note.date.slice(5) }}</time>
+          <div><h3><a href="{{ note.url }}">{{ note.title }}</a></h3><p>{{ note.summary }}</p>{% if note.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}</div>
+        </li>
+      {% endfor %}</ol>
+    </section>
+    {% endfor %}
+  </div>
+  <p data-no-results hidden>{{ '没有匹配的笔记。试试其他关键词。' if chinese else 'No matching notes. Try another search.' }}</p>
+  <button class="notes-more" type="button" data-more hidden>{{ '显示更多' if chinese else 'Show more' }}</button>
+  {% else %}<p class="empty-state">{{ '暂无学习笔记。' if chinese else 'No learning notes published yet.' }}</p>{% endif %}
+</section>

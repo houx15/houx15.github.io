@@ -23,6 +23,7 @@
       <a href="{{ ui.prefix }}/research/"{% if section == 'research' %} aria-current="page"{% endif %}>{{ ui.research }}</a>
       <a href="{{ ui.prefix }}/projects/"{% if section == 'projects' %} aria-current="page"{% endif %}>{{ ui.projects }}</a>
       <a href="{{ ui.prefix }}/reports/"{% if section == 'reports' %} aria-current="page"{% endif %}>{{ ui.notes }}</a>
+      <a href="{{ ui.prefix }}/notes/"{% if section == 'notes' %} aria-current="page"{% endif %}>{{ ui.learningNotes }}</a>
       <a href="{{ ui.prefix }}/about/"{% if section == 'about' %} aria-current="page"{% endif %}>{{ ui.about }}</a>
     </nav>
     <a class="language-switch" id="language-switch" href="{{ page.url | switchLanguage(entries) }}" hreflang="{{ 'en' if ui.prefix else 'zh-CN' }}" lang="{{ 'en' if ui.prefix else 'zh-CN' }}" aria-label="{{ ui.languageLabel }}">{{ ui.language }}</a>
