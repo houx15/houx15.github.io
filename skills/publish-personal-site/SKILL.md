@@ -5,7 +5,7 @@ description: Draft, revise, preview, and publish Yuxin Hou's projects, products,
 
 # Personal website publishing
 
-Work in the `houx15/houx15.github.io` repository. The known local checkout is `/Users/monkey/Codings/houx15.github.io`; use the current checkout if its origin is the same repository. Check the working tree and read `docs/publishing.md` for the current source format, commands, and deployment procedure. Do not silently target another repository if this checkout is missing.
+Work in the current checkout of `houx15/houx15.github.io`, whether local or in Codex Cloud. Verify the repository identity with Git; never depend on a particular home directory or machine path. Read `docs/publishing.md` for the content format and deployment procedure. For cloud setup or missing tools/access, read `docs/cloud-publishing.md`. The canonical skill is tracked in `skills/publish-personal-site`; `.agents/skills/publish-personal-site` links to it for repository discovery. If automatic discovery is unavailable, read this file directly.
 
 ## Editorial requirements
 

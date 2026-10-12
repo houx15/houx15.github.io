@@ -122,3 +122,7 @@ bun run content ready note attention-notes
 `--file` imports the body of a Markdown file (without frontmatter). Omit it to write directly in `content/notes/<slug>/index.md`. Notes default to Chinese; pass `--lang en` for English. Put referenced images in that same folder. `ready` remains a local preparation step; follow the Publish steps above to deploy.
 
 Notes are listed at `/notes/` and `/zh/notes/`, grouped by year and sorted newest first. Both list all notes in their original language; a Chinese translation is used on the Chinese archive when available. Search covers title, summary, and full text, supports Chinese and English, and checks all notes even when only 30 are shown. Use Show more for additional entries. Search terms can be shared through `?q=...`. Drafts are searchable only in the local draft preview; the live site does not contain draft text. Without JavaScript, the complete dated archive remains readable.
+
+## Other devices and Codex Cloud
+
+The canonical skill lives in this repository and is exposed through `.agents/skills/publish-personal-site`. `AGENTS.md` also points directly to it, so a cloud task can use the workflow without a global installation or a machine-specific path. See [cloud-publishing.md](cloud-publishing.md) for environment setup, account access requirements, and the fresh-task verification checklist. Repository setup is distinct from creating and publishing an account-side cloud environment.
