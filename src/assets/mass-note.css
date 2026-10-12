@@ -1,0 +1,29 @@
+/* Article-specific diagrams and reading controls; no shared layout changes. */
+.mn-routes {display:flex;flex-wrap:wrap;gap:8px 20px;border-block:1px solid var(--rule);padding:18px 0;margin:28px 0;font-size:15px}
+.mn-routes strong {flex-basis:100%}
+.mn-figure {border-block:1px solid var(--rule);padding:24px 0}
+.mn-switch {border:0;padding:0;margin:0;min-width:0}
+.mn-switch legend {font-weight:600;margin-bottom:14px}
+.mn-switch label {display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-right:20px;cursor:pointer}
+.mn-switch input {accent-color:var(--link);width:17px;height:17px}
+.mn-panel {margin-top:18px;padding:20px;background:var(--surface)}
+.mn-switch:has(input[value="workflow"]:checked) .mn-weights,
+.mn-switch:has(input[value="weights"]:checked) .mn-workflow {display:none}
+.mn-flow {padding:0!important;list-style:none;display:flex;gap:32px;margin:20px 0!important}
+.mn-flow li {position:relative;flex:1;margin:0!important;border-top:2px solid var(--rule);padding:12px 0;line-height:1.7;font-size:15px}
+.mn-flow li:not(:last-child)::after {content:'→';position:absolute;right:-25px;top:12px;color:var(--muted)}
+.mn-panel p,.mn-two p,.mn-three p,.mn-center p {margin:8px 0 0}
+.mn-two,.mn-three {display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.mn-three {grid-template-columns:repeat(3,minmax(0,1fr))}
+.mn-two>div,.mn-three>div,.mn-center {padding:18px;background:var(--surface)}
+.mn-center,.mn-arrow {text-align:center}
+.mn-arrow {margin:12px 0;color:var(--muted);font-size:14px}
+.mn-charts {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 22px}
+.mn-charts strong {font-size:14px;font-weight:500;display:block}
+.mn-charts img {width:100%;height:auto}
+.mn-details {border-block:1px solid var(--rule);padding:14px 0;margin:24px 0}
+.mn-details summary {cursor:pointer;min-height:32px;font-weight:500}
+.mn-details[open] summary {margin-bottom:16px}
+.mn-details:focus-within {outline-offset:5px}
+@media(max-width:600px){.mn-flow{flex-direction:column;gap:22px}.mn-flow li:not(:last-child)::after{content:'↓';top:auto;bottom:-23px;left:0;right:auto}.mn-two,.mn-three,.mn-charts{grid-template-columns:1fr}.mn-panel{padding:16px}.mn-charts{gap:26px}}
+@media print {.mn-switch .mn-panel{display:block!important}.mn-switch label{display:none}.mn-figure{break-inside:avoid}.mn-details> :not(summary){display:block}}
