@@ -94,3 +94,20 @@ test('Bailian rejects a primitive early in both tool and tool-free rounds with s
   assert.equal(cancelled,true);
  }
 });
+
+test('native Qwen tools keep provider roles while constraining final prose to JSON',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ for(const action of ['tool','answer']) {
+  let wire;const text='A sourced answer.';let streamed='';
+  const complete=createModelAgent({provider:'bailian',model:'qwen3.7-plus-2026-05-26',apiKey:'fixture',baseURL:'https://dashscope.aliyuncs.com/compatible-mode/v1',fetchImpl:async(url,options)=>{
+   wire=JSON.parse(options.body);
+   const delta=action==='tool'?{tool_calls:[{index:0,id:'next',type:'function',function:{name:'read_profile',arguments:'{"id":"profile"}'}}]}:{content:JSON.stringify({sourceIds:['profile:profile'],text})};
+   return new Response('data: '+JSON.stringify({choices:[{index:0,delta,finish_reason:action==='tool'?'tool_calls':'stop'}]})+'\n\ndata: [DONE]\n\n',{headers:{'Content-Type':'text/event-stream'}});
+  }});
+  const result=await complete({messages:[{role:'system',content:'Read first.'},{role:'assistant',toolCalls:[{id:'prior',name:'read_profile',arguments:{id:'profile'}}]},{role:'tool',toolCallId:'prior',content:'{"source":{"id":"profile:profile"}}'}],tools:[{name:'read_profile',description:'Read',parameters:{type:'object',properties:{}}}],language:'en',signal:new AbortController().signal,onText:chunk=>{streamed+=chunk;}});
+  assert.deepEqual(wire.response_format,{type:'json_object'});assert.equal(wire.enable_thinking,false);
+  assert.equal(wire.tools[0].function.name,'read_profile');assert.equal(wire.messages[1].tool_calls[0].id,'prior');assert.equal(wire.messages[2].role,'tool');assert.equal(wire.messages[2].tool_call_id,'prior');
+  if(action==='tool'){assert.equal(result.toolCalls[0].name,'read_profile');assert.equal(streamed,'');}
+  else {assert.equal(result.text,text);assert.equal(streamed,text);}
+ }
+});

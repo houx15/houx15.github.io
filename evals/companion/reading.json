@@ -1,0 +1,18 @@
+[
+  {
+    "question": "嗨！煜欣是哪几年创业的？只要年份。",
+    "language": "zh-CN"
+  },
+  {
+    "question": "为什么成功的轨迹也不能直接拿来训练？请画一个两到三步的小图，简短解释。",
+    "language": "zh-CN",
+    "pageContext": {
+      "documentId": "notes/mass-multi-agent-self-supervision/zh-CN",
+      "sectionId": "notes/mass-multi-agent-self-supervision/zh-CN:20"
+    }
+  },
+  {
+    "question": "In your diagram, what does the second step mean? Please keep it brief.",
+    "language": "en"
+  }
+]
