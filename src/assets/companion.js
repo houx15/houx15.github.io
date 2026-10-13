@@ -1,5 +1,5 @@
 import {createBiographyChapter} from './biography-chapter.js';
-import { readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js';
+import { captureReadingAnchor,restoreReadingAnchor,readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
 import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
 import { milestones } from './biography.js';
@@ -245,6 +245,7 @@ export function initCompanion(document) {
     const next=add(context,'button',openingCopy[language].read.action+' ↗','comic-follow');next.type='button';next.addEventListener('click',readPage);
   }
   if(dialog&&launcher) {
+    let returnAnchor;
     log.addEventListener('click',event=>{
       if(event.defaultPrevented || event.button!==0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)return;
       const link=event.target.closest('a');if(!link)return;
@@ -252,10 +253,11 @@ export function initCompanion(document) {
       if(destination.origin!==location.origin || destination.pathname!==location.pathname)return;
       let target;try {target=destination.hash?document.getElementById(decodeURIComponent(destination.hash.slice(1))):document.querySelector('main article');}catch{return;}
       if(!target || dialog.contains(target))return;
-      event.preventDefault();dialog.close();
+      event.preventDefault();returnAnchor=undefined;dialog.close();
       requestAnimationFrame(()=>{historyReplaceHash(destination.hash);target.scrollIntoView({block:'start'});target.setAttribute('tabindex','-1');target.focus({preventScroll:true});});
     });
     launcher.addEventListener('click',()=>{
+      returnAnchor=captureReadingAnchor(document);
       const headings=readingHeadings(document),generation=++readingGeneration;
       readingSection=undefined;readingNote.hidden=true;
       resetOpening();
@@ -268,7 +270,11 @@ export function initCompanion(document) {
       dialog.showModal();document.body.classList.add('comic-open');log.scrollTop=log.scrollHeight;
     });
     document.querySelector('[data-companion-close]').addEventListener('click',()=>dialog.close());
-    dialog.addEventListener('close',()=>{readingGeneration++;activeController?.abort();document.body.classList.remove('comic-open');launcher.focus({preventScroll:true});});
+    dialog.addEventListener('close',()=>{
+      readingGeneration++;activeController?.abort();document.body.classList.remove('comic-open');
+      restoreReadingAnchor(returnAnchor,document,window);returnAnchor=undefined;
+      launcher.focus({preventScroll:true});
+    });
     dialog.addEventListener('click',event=>{if(event.target===dialog){const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close();}});
   }
   if(document.body.classList.contains('chat-page')) {log.scrollTop=log.scrollHeight;const initial=initialQuestion(location.hash,language);if(initial){input.value=initial;input.focus();}}
