@@ -50,8 +50,14 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     }
     const biography=block.type==='event_timeline';
     container.append(make('p',biography?(zh?'她的经历':'Her story'):(zh?'内容发布的时间':'When these pieces were published'),'comic-visual-label'));
+    let timeline=container;
+    if(block.items.length>3) {
+      timeline=make('details','','comic-timeline-expand');
+      const label=biography?(zh?`展开 ${block.items.length} 段经历`:`Explore ${block.items.length} chapters`):(zh?`展开 ${block.items.length} 条发布记录`:`Explore ${block.items.length} publications`);
+      timeline.append(make('summary',label));container.append(timeline);
+    }
     const list=make('ol','','comic-life-line');
-    for(const item of block.items){const li=make('li');li.append(make('span',biography?item.period:item.date),make('h3',item.title));if(biography)li.append(make('p',item.description));const a=make('a',zh?'原文 ↗':'Source ↗');a.href=biography?item.source.url:item.url;li.append(a);list.append(li);}container.append(list);
+    for(const item of block.items){const li=make('li');li.append(make('span',biography?item.period:item.date),make('h3',item.title));if(biography)li.append(make('p',item.description));const a=make('a',zh?'原文 ↗':'Source ↗');a.href=biography?item.source.url:item.url;li.append(a);list.append(li);}timeline.append(list);
     container.append(make('p',biography?(zh?`依据截至 ${block.asOf} 的公开履历；时间可能重叠。`:`Public biography as of ${block.asOf}; periods may overlap.`):(zh?'这些是发布日期，不代表项目起止时间。':'Publication dates, not project start/end dates.'),'comic-visual-note'));
   }
   function end(failed, message) {
