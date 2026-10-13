@@ -4,19 +4,19 @@ The full requested outcome remains incomplete. This audit does not equate test s
 
 | Requirement | Current evidence | Remaining gate |
 |---|---|---|
-| Original monochrome circle with eyes, quiet homepage, one entry | Templates, companion CSS and real browser screenshots | Owner's aesthetic review of this iteration |
-| One opening at a time; sequential actions | Companion opening selection and view tests; actual opening interaction | Observe longer conversations with a real model |
-| Global companion on serious reading pages | Base template and article dialog browser exercise | Wider device/accessibility review |
-| Return to the same article without losing conversation | Browser: source link closed dialog, focused ARTICLE, retained one turn; reopening retained one outline and one turn | Test while a real model session is active |
-| Keyword retrieval over many notes | Corpus and retrieval tests, including a 2,500-document fixture | Real corpus relevance and multilingual model evaluation |
-| Sourced prose, recommendations, visuals | Runtime tools, stream validation, mock HTTP integration; rendered biography timeline and source outline | Real model usefulness, factual attribution, selection quality; broader conceptual visualization |
-| Honest tool progress and cancellation | Backend/client cancellation tests; validated event renderer | Real provider and HTTPS ingress cancellation/accounting |
-| Conversation continuity across different pages | HTTPS per-tab bearer restoration implemented; local real-HTTP test verifies a new client resumes server history, plus expiry/revocation/storage-denial tests | Real browser navigation with a verified live session remains pending |
-| Context management | Server retains last three successful exchanges | No semantic compaction; evaluate long-conversation loss before selecting an implementation |
-| Anonymous access and budget controls | Live Turnstile success; invalid token 403 and unauthenticated chat 401; SQLite restart/budget tests; bilingual privacy disclosure | Real token replay and ingress concurrency/cancellation evaluation |
-| No exposed model key | Keys entered directly on server; public frontend includes only origin/site key; credential-pattern scan passed | Maintain secret review for releases |
-| Container and operation | Separate v2 entry point, configuration checker and Dockerfile prepared | Actual container build, startup, HTTPS deployment, lifecycle check |
-| Public rollout | c4facd2 deployed and live revision verified; backend active with explicit owner authorization | Continue quality and UX evaluation |
+| Original monochrome circle with eyes, no mouth/hands, quiet homepage | Live templates and inspected browser screenshots; sans-serif text; stable typewriter wrapping | Owner aesthetic assessment; overall appeal is not established by tests |
+| One invitation at a time; personal randomized greetings and games | Live greeting selection, dice/story actions, actual browser interactions; “real person” prompt removed | Longer real-model conversations remain to be evaluated |
+| Global companion on serious reading pages | Article dialog and source-return browser checks | Mobile virtual keyboard and assistive-technology verification |
+| Return to reading without losing position | Actual desktop Escape preserves scroll; same-page source closes dialog and focuses the referenced heading | Test the same path during a real in-flight model response |
+| Keyword retrieval over many notes | Retrieval fixtures, including 2,500-document fixture, pass | Relevance evaluation with a broader real corpus and bilingual model responses |
+| Sourced prose, recommendations, visuals | Live concept flow, biography/publication timelines, reading maps and cards; tool/read validation; prior real biography answers | Systematic real-model attribution, recommendation and visual usefulness evaluation; known quality issues remain |
+| Honest streaming progress and stopping | Local actual-HTTP partial-output cancellation, lease cleanup, retained conservative reservation and subsequent-turn success | Actual Bailian and production nginx cancellation/accounting verification |
+| Cross-page and opening follow-up continuity | Server-owned page context and opening IDs; local HTTP follow-up tests; deployed opening-context support | Real browser navigation and opening follow-ups with a verified live session |
+| Context management | Up to 20 successful exchanges: latest three direct, earlier compact index plus exact recall; local HTTP recall and prior operator sample | Public fifth-turn recall was blocked by daily quota; broader long-conversation evaluation |
+| Anonymous access and spending guard | Prior live Turnstile success; unauthenticated rejection; SQLite/budget/restart tests; daily/monthly reset messages | Trusted visitor-address branch passes CI but awaits administrator header and activation; public replay/concurrency checks |
+| No exposed model key | Credentials remain in private server environment; frontend includes only public origin/site key | Continue secret review per release; never copy private values into artifacts |
+| Selected deployment and lifecycle | Node 24 user service on kookat, HTTPS health available; staged rollback checks used for updates | Further ingress lifecycle testing. Docker artifact remains unverified, but is not the selected hosting mode |
+| Public rollout | Frontend 1cd5a86 exact revision verified; backend opening-context release active and healthy | Pending branch is not production; full requested outcome remains unproven |
 
 ## Deployment and real-provider check — 2026-10-13
 
@@ -231,3 +231,10 @@ A local-only restored-answer fixture used the actual renderer and a same-page so
 ### 2026-10-13 — Partial-answer cancellation through client and HTTP server
 
 Added a full local HTTP test using the same `createAgentClient` as the browser and a signal-aware deterministic provider. It reads a biography source, emits a valid partial sentence, aborts when the client receives that delta, observes upstream abort and completed lease cleanup, and verifies there are no further model calls. The already-received delta remains in the client event history, no done event is emitted, no incomplete exchange enters server memory, and the same session immediately completes a new turn. Conservative reservations are not refunded without usage data. Full verification passed. This strengthens application-level cancellation evidence but does not prove real Bailian billing or deployed nginx disconnect propagation; no paid request was made.
+
+
+### 2026-10-13 19:27 UTC — Current external gates
+
+Read-only production aggregate: daily charged/reserved tokens 980191 of configured 1000000, month charged/reserved 4.397734 CNY of approved 500, zero active requests, visitor header still absent. These are the application's conservative ledger totals, not a vendor invoice. Do not raise/reset limits to make tests pass. Day rollover is UTC midnight. Trusted ingress branch 91977c1 passed CI run 38454849311; the branch remains unpublished pending ingress setup. Independent local reading-return and cancellation checks have now been completed and recorded above; they cannot substitute for the remaining real-provider, public-ingress, and actual-device checks.
+
+Next actions when external conditions change: verify and activate the overwritten ingress header using the prepared rollback path; test malformed spoofed headers without model calls; resume a bounded real-model set covering opening-card follow-up, source attribution, fifth-turn recall, and cancellation after partial output; inspect real phone keyboard/read-return behavior. Preserve the user's one-focus, black-line visual direction and 500 CNY cap.
