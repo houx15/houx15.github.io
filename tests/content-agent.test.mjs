@@ -564,7 +564,7 @@ test('repeated unknown recommendation identifiers remain bounded by the existing
 });
 
 test('conversational actions finish without invented evidence or unsupported prose deltas',async()=>{
- for(const language of ['zh-CN','en'])for(const reason of ['greeting','thanks','identity','private_information','out_of_scope']) {
+ for(const language of ['zh-CN','en'])for(const reason of ['greeting','thanks','identity','speak_for_owner','private_information','out_of_scope']) {
   const events=[];let calls=0;
   const answer=await runContentAgent({question:'A conversational turn',language,corpus,onEvent:e=>events.push(e),complete:async()=>{
    calls++;return {toolCalls:[{id:'reply',name:'reply_conversationally',arguments:{reason}}]};
