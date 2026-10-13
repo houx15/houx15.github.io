@@ -20,13 +20,15 @@ export const contentInstructions = `You help readers understand Yuxin Hou's publ
 // Model adapter is injected. This loop makes no network calls and owns no credentials.
 // A paid adapter must reserve budget for EVERY completion, enforce output tokens,
 // forward signal to fetch, and validate its final structured output.
-export async function runContentAgent({ question, language = 'en', history = [], pageContext, corpus, complete, signal, onEvent = () => {} }) {
+export async function runContentAgent({ question, language = 'en', history = [], pageContext, supportsConceptFlow = true, corpus, complete, signal, onEvent = () => {} }) {
   if (typeof question !== 'string' || !question.trim() || question.length > 400) throw new Error('Invalid question');
   if (!Array.isArray(history) || history.length > 6 || history.some(item => !['user','assistant'].includes(item.role) || typeof item.content !== 'string' || item.content.length > 4000)) throw new Error('Invalid history');
   if (!['en','zh-CN'].includes(language)) throw new Error('Invalid language');
   if (pageContext && !corpus.documents.some(d => d.id === pageContext.documentId)) throw new Error('Invalid page context');
   const tools = {...createContentTools(corpus),...createProfileTools()}, evidence = new Map(), blocks = [];
-  const messages = [{role:'system',content:contentInstructions}, ...history, {role:'user',content:JSON.stringify({question,language,pageContext})}];
+  const availableTools=contentToolDefinitions.filter(tool=>supportsConceptFlow || tool.name!=='show_concept_flow');
+  const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
+  const messages = [{role:'system',content:instructions}, ...history, {role:'user',content:JSON.stringify({question,language,pageContext})}];
   let calls = 0;
   for (let step = 0; step < 5; step++) {
     signal?.throwIfAborted();
@@ -36,7 +38,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
       const shown=[...new Set(blocks.map(block=>block.type))].join(', ');
       modelMessages[0].content+=`\n\nCURRENT SCREEN: The visitor already has these rendered blocks: ${shown}. They are visible UI, not hidden tool results. Your text should add a concise interpretation or answer the remaining question. Do not narrate the entries again. For a biography introduction with a timeline, describe her present role and the connection between her areas of work; leave the chronology in the timeline. If the visitor explicitly asks for a particular detail, explain that detail.`;
     }
-    const result = await complete({ messages: modelMessages, tools: contentToolDefinitions, language, signal, onText:(text,sourceIds)=>{
+    const result = await complete({ messages: modelMessages, tools: availableTools, language, signal, onText:(text,sourceIds)=>{
       signal?.throwIfAborted();
       if(!Array.isArray(sourceIds) || sourceIds.length>10 || sourceIds.some(id=>!evidence.has(id)))throw new Error('Invalid answer evidence');
       sourceIds=[...new Set(sourceIds)];
@@ -52,7 +54,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
       messages.push({role:'assistant',toolCalls:result.toolCalls});
       for (const call of result.toolCalls) {
         signal?.throwIfAborted(); calls++;
-        const definition = contentToolDefinitions.find(tool => tool.name === call.name);
+        const definition = availableTools.find(tool => tool.name === call.name);
         if (!definition || typeof call.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(call.id) || !call.arguments || typeof call.arguments !== 'object' || Array.isArray(call.arguments) || Object.keys(call.arguments).some(key => !Object.hasOwn(definition.parameters.properties,key))) throw new Error('Invalid tool call');
         for (const required of definition.parameters.required) if (!Object.hasOwn(call.arguments, required)) throw new Error('Missing tool argument');
         for (const [key, value] of Object.entries(call.arguments)) {

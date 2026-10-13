@@ -37,7 +37,8 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
         await verifyChallenge(input.challengeToken,signal);signal.throwIfAborted();
         json(201,await guard.issue());return;
       }
-      if(!object(input,['question','language','pageContext']) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language)) invalid();
+      if(!object(input,['question','language','pageContext','supportsConceptFlow']) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language)) invalid();
+      if(input.supportsConceptFlow!==undefined && typeof input.supportsConceptFlow!=='boolean') invalid();
       if(input.pageContext!==undefined && (!object(input.pageContext,['documentId']) || !corpus.documents.some(d=>d.id===input.pageContext.documentId))) invalid();
       // Preserve the page that 'this note' referred to, not just the question text.
       const userContext=JSON.stringify({question:input.question,language:input.language,pageContext:input.pageContext});
@@ -60,7 +61,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
         emit('status',{phase:'model_completed',step});return result;
       };
       const emittedSources=new Set();
-      const answer=await runContentAgent({...input,history:session.history,corpus,complete:paid,signal,onEvent:event=>{
+      const answer=await runContentAgent({...input,supportsConceptFlow:input.supportsConceptFlow===true,history:session.history,corpus,complete:paid,signal,onEvent:event=>{
         if(event.type==='answer_delta') {
           for(const source of event.sources)if(!emittedSources.has(source.id)){emit('source',{source});emittedSources.add(source.id);}
           partial=true;emit('answer_delta',{text:event.text,sourceIds:event.sources.map(source=>source.id)});

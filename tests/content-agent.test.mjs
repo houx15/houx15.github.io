@@ -168,3 +168,11 @@ test('concept flows reject unread sources and mismatched steps without emitting 
     assert.equal(events.some(e=>e.type==='block'),false);
   }
 });
+
+test('older clients are not offered concept tools and cannot receive them via a guessed call',async()=>{
+ await assert.rejects(runContentAgent({question:'Draw',supportsConceptFlow:false,corpus,complete:async({tools,messages})=>{
+   assert.ok(!tools.some(t=>t.name==='show_concept_flow'));
+   assert.match(messages[0].content,/client without concept-flow support/);
+   return {toolCalls:[{id:'x',name:'show_concept_flow',arguments:{title:'No',labels:['A','B'],descriptions:['A','B'],sourceIds:['s','s']}}]};
+ }}),/Invalid tool call/);
+});

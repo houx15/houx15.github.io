@@ -33,13 +33,15 @@ test('browser client restores a session after navigation and preserves server-ow
   assert.ok(events.findIndex(event=>event.type==='source')<events.findIndex(event=>event.type==='answer'));
   client=makeClient(); // A newly loaded page has no closure state from the previous page.
   assert.equal(client.hasSession(),true);
-  await client.ask({question:'How does the previous note relate to this one?',language:'en',pageContext:{documentId:'notes/attention/en'}});
+  await client.ask({question:'How does the previous note relate to this one?',language:'en',supportsConceptFlow:true,pageContext:{documentId:'notes/attention/en'}});
   assert.ok(seen[2].messages.some(message=>message.role==='assistant' && message.content==='Keys and values are cached.'));
   const userTurns=seen[2].messages.filter(message=>message.role==='user').map(message=>JSON.parse(message.content));
   assert.deepEqual(userTurns,[
     {question:'Explain this note',language:'en',pageContext:{documentId:'notes/cache/en'}},
     {question:'How does the previous note relate to this one?',language:'en',pageContext:{documentId:'notes/attention/en'}}
   ]);
+  assert.ok(!seen[0].tools.some(tool=>tool.name==='show_concept_flow'));
+  assert.ok(seen[2].tools.some(tool=>tool.name==='show_concept_flow'));
   client.clearSession();
   await assert.rejects(client.ask({question:'Again',language:'en'}),/invalid_session/);
 });

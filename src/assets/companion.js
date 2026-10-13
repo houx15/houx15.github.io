@@ -173,7 +173,7 @@ export function initCompanion(document) {
         const token=await verifyVisitor(document,challenge,turnstileSiteKey,controller.signal);
         await liveClient.openSession(token,controller.signal);challenge.hidden=true;
       }
-      await liveClient.ask({question,language,...(root.dataset.documentId?{pageContext:{documentId:root.dataset.documentId}}:{})},
+      await liveClient.ask({question,language,supportsConceptFlow:true,...(root.dataset.documentId?{pageContext:{documentId:root.dataset.documentId}}:{})},
         {signal:controller.signal,onEvent:event=>{
           const follow=log.scrollHeight-log.scrollTop-log.clientHeight<100;
           turn.event(event);
