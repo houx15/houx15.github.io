@@ -58,3 +58,12 @@ Reviewed the owner's linked existing-widget flow at https://developers.cloudflar
 By default the backend uses its TCP peer for address limits; behind nginx this groups visitors under the loopback address. To enable separate limits without trusting visitor-controlled headers, add `proxy_set_header X-Portfolio-Client-IP $remote_addr;` inside this site's existing `/v2/` location. Preserve Certbot settings. Validate with `sudo nginx -t` and reload nginx. Only after checking that ingress overwrites the header, set `AGENT_TRUST_LOOPBACK_PROXY=1` in the private runtime and restart the service. The backend must remain bound to loopback; it rejects non-loopback peers and missing/invalid single IP values in this mode. Never use an appended X-Forwarded-For chain. IP-based limits are coarse: visitors sharing an address still share that limit; sessions and the global money cap remain separate guards.
 
 Local tests cover spoofed/untrusted headers, equivalent IP formats, missing ingress metadata and separate issuance limits through actual HTTP requests. This option has not been enabled on kookat yet.
+
+
+The administrator helper `enable-visitor-header.py` modifies only the existing `/v2/` block, checks the expected loopback upstream, preserves Certbot configuration, saves a backup, validates nginx, and rolls back on validation/reload failure. It does not enable backend proxy trust. After reviewing the staged helper, run:
+
+```sh
+ssh -t kookat 'sudo python3 /home/monkey/apps/portfolio-agent/setup/enable-visitor-header.py'
+```
+
+After this succeeds, verify the active configuration and ingress header overwrite, then deploy the compatible backend and enable its trust option. Do not enable trust while nginx lacks this header.

@@ -209,3 +209,8 @@ The longer personal greetings exposed a focus-disrupting layout shift: at 390px 
 The browser previously displayed dice cards without passing any card context to the agent. Follow-up pronouns therefore had no referent on the server. Requests now send only the latest authored story ID (or chronology ID); the server resolves its public copy from the release and records it in the successful user turn. It grants no citation evidence: tools must still read sources. Unknown IDs and supplied arbitrary text are rejected before model calls. Existing agents need no opening context, and article pages prioritize their article over old cards.
 
 Full verification passed, including HTTP checks for resolved text, retained follow-up context, rejected malformed payloads, and frontend selection after agent turns/navigation. Tests use a deterministic model adapter; paid model quality remains unverified under the current daily quota.
+
+
+### 2026-10-13 — Visitor ingress audit and prepared correction
+
+Read the actual enabled nginx site: the `/v2/` proxy does not set a dedicated visitor address. Thus current address quotas group visitors by loopback. `sudo -n true` confirmed administrator password is required. Reintegrated the previously prepared trusted-loopback implementation into the current conversation/diagnostic code and passed full verification, including distinct-address issuance limits and rejection of missing/spoofed metadata. Prepared an idempotent nginx patch helper with backup, upstream validation and rollback. Runtime trust remains OFF pending the administrator step and live ingress verification; no claim of deployed visitor isolation.
