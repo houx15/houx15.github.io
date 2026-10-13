@@ -73,3 +73,9 @@ The successful sample still repeated steps in its final prose and used broader p
 ### Public browser follow-up for 0e66385
 
 The exact production revision passed the live-route verifier. A fresh public browser passed Turnstile and completed the MASS concept question, rendering four sourced concept steps and final prose. Clicking the step's source navigated to the note; opening the article companion restored the diagram and displayed the continuing-session label. A subsequent question referring to the diagram's third step failed with the incomplete-response UI. Therefore public concept rendering is proven for this sample, while successful cross-page model continuation remains unproven. The draft and input focus were preserved on that failure. The concept answer still repeated the four steps; concision remains a quality gap.
+
+## Diagnosed lookup exhaustion
+
+Version a7fd90c adds allowlisted failure categories without conversation text, credentials or IP addresses. A fresh public MASS request failed with stage=agent, modelCalls=5, partial=false, category=step_limit. This establishes a concrete failure cause for that sample; it does not prove all earlier failures share that cause.
+
+The runtime now reserves a final tool-free synthesis opportunity after five lookup rounds (or after eight tools). It can answer from already-read evidence or acknowledge insufficient evidence; it cannot continue searching or pretend to have drawn a visual. The completion remains subject to normal reservation, reconciliation, output and deadline limits. A regression test verifies five reads followed by one sourced synthesis, and provider tests verify the last request omits tool definitions.

@@ -23,3 +23,13 @@ test('provider JSON failures expose a fixed diagnostic category, never the inval
    assert.ok(!JSON.stringify(error).includes(secret));return true;
  });
 });
+
+test('tool-free synthesis omits provider tool definitions',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');let wire;
+ const complete=createModelAgent({apiKey:'not-a-real-key',model:'qwen-plus',provider:'bailian',baseURL:'https://dashscope.aliyuncs.com/compatible-mode/v1',fetchImpl:async(url,options)=>{
+   wire=JSON.parse(options.body);
+   return new Response('data: '+JSON.stringify({choices:[{index:0,delta:{content:'{"sourceIds":[],"text":"Insufficient evidence"}'},finish_reason:'stop'}]})+'\n\ndata: [DONE]\n\n',{headers:{'Content-Type':'text/event-stream'}});
+ }});
+ await complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'});
+ assert.equal(wire.tools,undefined);assert.equal(wire.max_tokens,1024);
+});

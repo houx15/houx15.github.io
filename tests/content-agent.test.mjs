@@ -128,7 +128,7 @@ test('a guessed section can be corrected without granting evidence or resetting 
  assert.equal(rounds,3);assert.equal(result.sources[0].id,'notes/cache/en:0');
  let attempts=0;
  await assert.rejects(runContentAgent({question:'x',corpus,signal:new AbortController().signal,complete:async()=>{attempts++;return {toolCalls:[{id:'missing',name:'read_content',arguments:{id:'missing'}}]};}}),/step budget/);
- assert.equal(attempts,5);
+ assert.equal(attempts,6);
  await assert.rejects(runContentAgent({question:'x',corpus,signal:new AbortController().signal,complete:async({messages})=>messages.length===2?{toolCalls:[{id:'bad',name:'read_content',arguments:{id:'notes/cache/en',sectionId:'invented'}}]}:{text:'Unsupported',sourceIds:['notes/cache/en:0']}}),/Invalid answer evidence/);
 });
 
@@ -175,4 +175,16 @@ test('older clients are not offered concept tools and cannot receive them via a 
    assert.match(messages[0].content,/client without concept-flow support/);
    return {toolCalls:[{id:'x',name:'show_concept_flow',arguments:{title:'No',labels:['A','B'],descriptions:['A','B'],sourceIds:['s','s']}}]};
  }}),/Invalid tool call/);
+});
+
+test('five lookup rounds retain one budgeted tool-free synthesis instead of dropping read evidence',async()=>{
+ let rounds=0;const events=[];
+ const result=await runContentAgent({question:'Explain the note',corpus,onEvent:e=>events.push(e),complete:async({tools,messages})=>{
+   if(++rounds<=5)return {toolCalls:[{id:`read_${rounds}`,name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   assert.equal(tools.length,0);assert.match(messages[0].content,/No more tools are available/);
+   assert.ok(messages.some(m=>m.role==='tool' && m.content.includes('Attention stores keys')));
+   return {text:'The note describes stored keys and values.',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(rounds,6);assert.equal(result.sources.length,1);
+ assert.equal(events.filter(e=>e.type==='status'&&e.phase==='tool_started').length,5);
 });

@@ -30,15 +30,17 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
   const messages = [{role:'system',content:instructions}, ...history, {role:'user',content:JSON.stringify({question,language,pageContext})}];
   let calls = 0;
-  for (let step = 0; step < 5; step++) {
+  for (let step = 0; step < 6; step++) {
     signal?.throwIfAborted();
     let streamed='',streamIds;
+    const finalPass=step===5 || calls>=8;
     const modelMessages=structuredClone(messages);
+    if(finalPass) modelMessages[0].content+=' The lookup budget is now exhausted. No more tools are available. Finish with a concise answer using only evidence already read, or state that the evidence is insufficient. Do not claim a requested visual was drawn unless it was actually emitted.';
     if(blocks.length) {
       const shown=[...new Set(blocks.map(block=>block.type))].join(', ');
       modelMessages[0].content+=`\n\nCURRENT SCREEN: The visitor already has these rendered blocks: ${shown}. They are visible UI, not hidden tool results. Your text should add a concise interpretation or answer the remaining question. Do not narrate the entries again. For a biography introduction with a timeline, describe her present role and the connection between her areas of work; leave the chronology in the timeline. If the visitor explicitly asks for a particular detail, explain that detail.`;
     }
-    const result = await complete({ messages: modelMessages, tools: availableTools, language, signal, onText:(text,sourceIds)=>{
+    const result = await complete({ messages: modelMessages, tools: finalPass?[]:availableTools, language, signal, onText:(text,sourceIds)=>{
       signal?.throwIfAborted();
       if(!Array.isArray(sourceIds) || sourceIds.length>10 || sourceIds.some(id=>!evidence.has(id)))throw new Error('Invalid answer evidence');
       sourceIds=[...new Set(sourceIds)];
@@ -49,6 +51,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
     }});
     signal?.throwIfAborted();
     if (result.toolCalls?.length) {
+      if(finalPass)throw new Error('Agent step budget exceeded');
       if(streamed)throw new Error('Mixed answer and tool calls');
       if (calls + result.toolCalls.length > 8) throw new Error('Tool budget exceeded');
       messages.push({role:'assistant',toolCalls:result.toolCalls});
