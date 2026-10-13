@@ -32,3 +32,9 @@ ssh -t kookat 'python3 /home/monkey/apps/portfolio-agent/current/scripts/set-age
 ```
 
 The helper preserves other configuration and writes the runtime file atomically with mode 0600. It does not start or activate the service. Redis and Turnstile configuration still remain prerequisites in this runtime.
+
+## Single-server durable storage
+
+`AGENT_STORE=sqlite` selects the Node 24 SQLite backend; `AGENT_SQLITE_PATH` must be an absolute path outside the checkout, with a 0700 parent directory and a 0600 regular file. Redis credentials are not required in this mode. This option is for processes on the same host and local disk, not network filesystems or multiple hosts. Transactions use BEGIN IMMEDIATE, WAL and synchronous=FULL. A missing or corrupt ledger fails closed. Create the empty private file explicitly and initialize once with AGENT_INITIALIZE=1; remove that flag for normal startup. Never recreate or restore an old ledger to recover service without reconciling provider usage, since that could lower recorded spending. Backups must include committed WAL state (use SQLite's backup mechanism or stop the service and checkpoint before copying). Conversation history is stored in this private ledger, subject to the existing session expiration; cleanup occurs on subsequent transactions.
+
+Local restart, independent-connection, rollback and missing/corrupt-state tests cover this adapter. The remote release has not yet been migrated to SQLite. Real Bailian streaming and a biography tool round-trip have now passed; Turnstile setup remains pending.

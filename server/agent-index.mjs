@@ -9,7 +9,9 @@ try {
   const config=inspectAgentConfig(env);
   if(config.issues.length)throw new Error('Invalid configuration');
   const {origin}=config;
-  const store=new RedisAgentStore({url:env.AGENT_REDIS_URL,token:env.AGENT_REDIS_TOKEN});
+  const store=config.storeKind==='sqlite'
+    ? new (await import('./agent-sqlite.mjs')).SQLiteAgentStore({path:env.AGENT_SQLITE_PATH})
+    : new RedisAgentStore({url:env.AGENT_REDIS_URL,token:env.AGENT_REDIS_TOKEN});
   if(env.AGENT_INITIALIZE==='1') await store.initialize();
   const guard=createGuard({store,secret:env.AGENT_SIGNING_SECRET,dailyTokens:config.dailyTokens,monthlyCny:config.monthlyCny,rate:config.rate,enabled});
   const corpus=JSON.parse(await fs.readFile(config.corpusFile,'utf8'));

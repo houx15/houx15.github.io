@@ -10,3 +10,7 @@ _preview/
 *.env
 !.env.example
 .assistant-state/
+
+# Private durable agent accounting and conversation state
+*.sqlite
+*.sqlite-*
