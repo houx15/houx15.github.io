@@ -1,7 +1,7 @@
 import { visitorAddress } from './agent-address.mjs';
 import { rememberAgentAnswer } from './agent-memory.mjs';
 import { resolveOpeningContext } from './agent-opening.mjs';
-import { MODEL_OUTPUT_TOKENS, MODEL_WIRE_ALLOWANCE } from './agent-limits.mjs';
+import { createPaidCompletion } from './agent-paid.mjs';
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import { AgentError } from './agent-state.mjs';
@@ -52,19 +52,10 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       const token=req.headers.authorization?.match(/^Bearer ([^ ]+)$/)?.[1];
       const session=await guard.begin(token,address,requestId);admitted=true;signal.throwIfAborted();
       res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','X-Accel-Buffering':'no'});res.flushHeaders();
-      const paid=async args=>{
-        signal.throwIfAborted();if(!available()) throw new AgentError(503,'unavailable');
-        const bytes=Buffer.byteLength(JSON.stringify({messages:args.messages,tools:args.tools}));
-        if(bytes>48000) throw new AgentError(400,'context_limit');
-        // Extra allowance covers provider wire framing and the language suffix.
-        const amount=bytes+MODEL_WIRE_ALLOWANCE+MODEL_OUTPUT_TOKENS, reservation=await guard.reserve(requestId,amount);
-        signal.throwIfAborted();emit('status',{phase:'model_started',step:++step});
-        stage='model';const result=await complete(args);stage='agent';signal.throwIfAborted();
-        const usage=result.usage;
-        const valid=Number.isSafeInteger(usage?.prompt_tokens) && usage.prompt_tokens>=0 && Number.isSafeInteger(usage?.completion_tokens) && usage.completion_tokens>=0 && usage.completion_tokens<=MODEL_OUTPUT_TOKENS && usage.total_tokens===usage.prompt_tokens+usage.completion_tokens;
-        await guard.reconcile(reservation,valid?usage.total_tokens:undefined);signal.throwIfAborted();
-        emit('status',{phase:'model_completed',step});return result;
-      };
+      const paid=createPaidCompletion({guard,requestId,complete,signal,
+        beforeCall:()=>{if(!available()) throw new AgentError(503,'unavailable');emit('status',{phase:'model_started',step:++step});stage='model';},
+        afterCall:()=>{stage='agent';emit('status',{phase:'model_completed',step});}
+      });
       const emittedSources=new Set();
       const answer=await runContentAgent({...input,supportsConceptFlow:input.supportsConceptFlow===true,history:session.history,earlierHistory:session.earlierHistory,corpus,complete:paid,signal,onEvent:event=>{
         if(event.type==='answer_delta') {

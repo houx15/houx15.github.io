@@ -31,7 +31,7 @@ export class RedisAgentStore {
     fail(503,'unavailable');
   }
 }
-export function createGuard({store,secret,dailyTokens=0,monthlyCny,rate,enabled=()=>false,now=Date.now}) {
+export function createGuard({store,secret,dailyTokens=0,monthlyCny,rate,enabled=()=>false,now=Date.now,allowDevelopment=false}) {
   if(typeof secret!=='string' || secret.length<32) throw new Error('Signing secret must be at least 32 characters');
   const moneyEnabled=monthlyCny!==undefined,monthlyLimit=monthlyCny*1000000;
   if(moneyEnabled && (!Number.isSafeInteger(monthlyLimit) || monthlyLimit<=0 || monthlyLimit>500000000 || !Number.isSafeInteger(rate) || rate<=0 || rate>100000))throw new Error('Invalid money budget');
@@ -41,7 +41,7 @@ export function createGuard({store,secret,dailyTokens=0,monthlyCny,rate,enabled=
     const t=now(), day=new Date(t).toISOString().slice(0,10);
     if(!enabled() || !Number.isSafeInteger(dailyTokens) || dailyTokens<=0 || t<s.clock) fail(503,'unavailable');
     s.clock=t;
-    if(s.day!==day) {s.day=day;s.spent=0;}
+    if(s.day!==day) {s.day=day;s.spent=0;s.developmentSpent=0;}
     for(const map of ['sessions','rates','replays','leases','reservations']) for(const [key,value] of Object.entries(s[map])) if(value.expiresAt<=t) delete s[map][key];
     return fn(s,t);
   });
@@ -56,6 +56,14 @@ export function createGuard({store,secret,dailyTokens=0,monthlyCny,rate,enabled=
     return id;
   }
   return {store, addressKey,
+    // Only the SSH operator runner opts in. HTTP never calls this admission path.
+    async beginDevelopment(requestId) {
+      if(!allowDevelopment || !moneyEnabled) fail(403,'forbidden');
+      return tx((s,t)=>{
+        if(s.leases[requestId] || Object.keys(s.leases).length>=2) fail(429,'rate_limited');
+        s.leases[requestId]={scope:'development',reserved:0,expiresAt:t+60000};
+      });
+    },
     async challengeAttempt(address,token) {return tx((s,t)=>{
       rateLimit(s,`issue:${addressKey(address)}`,5,3600000,t); rateLimit(s,'issue:global',100,86400000,t);
       const key=createHash('sha256').update(token).digest('hex'); if(s.replays[key]) fail(403,'challenge_failed'); s.replays[key]={expiresAt:t+300000};
@@ -84,7 +92,11 @@ export function createGuard({store,secret,dailyTokens=0,monthlyCny,rate,enabled=
     });},
     async reserve(requestId,amount) {const id=randomUUID(); return tx((s,t)=>{
       if(!s.leases[requestId] || !Number.isSafeInteger(amount) || amount<1) fail(503,'unavailable');
-      if(s.spent+amount>dailyTokens) fail(429,'daily_budget_exhausted',Math.floor(t/86400000)*86400000+86400000);
+      const lease=s.leases[requestId],development=lease.scope==='development';
+      if(development && !allowDevelopment) fail(403,'forbidden');
+      // Six maximum-size completions fit; failed/unknown calls still consume this run ceiling.
+      if(development && lease.reserved+amount>325000) fail(429,'development_run_limit');
+      if(!development && s.spent+amount>dailyTokens) fail(429,'daily_budget_exhausted',Math.floor(t/86400000)*86400000+86400000);
       const moneyMonth=new Date(t+8*3600000).toISOString().slice(0,7),money=amount*rate;
       if(moneyEnabled) {
         s.money ||= {};
@@ -96,11 +108,20 @@ export function createGuard({store,secret,dailyTokens=0,monthlyCny,rate,enabled=
         }
         s.money[moneyMonth]=spent+money;
       }
-      s.spent+=amount; s.reservations[id]={amount,day:s.day,...(moneyEnabled?{moneyMonth,money,rate}:{}),expiresAt:t+86400000}; return id;
+      if(development) {
+        const spent=s.developmentSpent ?? 0;
+        if(!Number.isSafeInteger(spent) || spent<0) fail(503,'unavailable');
+        s.developmentSpent=spent+amount;lease.reserved+=amount;
+      } else s.spent+=amount;
+      s.reservations[id]={amount,day:s.day,...(development?{scope:'development'}:{}),...(moneyEnabled?{moneyMonth,money,rate}:{}),expiresAt:t+86400000}; return id;
     });},
     async reconcile(id,actual) {return tx(s=>{
       const r=s.reservations[id]; if(!r) fail(503,'unavailable');
-      if(Number.isSafeInteger(actual) && actual>=0 && actual<=r.amount && r.day===s.day) s.spent-=r.amount-actual;
+      if(Number.isSafeInteger(actual) && actual>=0 && actual<=r.amount && r.day===s.day) {
+        const field=r.scope==='development'?'developmentSpent':'spent';
+        if(!Number.isSafeInteger(s[field]) || s[field]<r.amount) fail(503,'unavailable');
+        s[field]-=r.amount-actual;
+      }
       if(r.moneyMonth && Number.isSafeInteger(actual) && actual>=0 && actual<=r.amount) {
         const spent=s.money?.[r.moneyMonth];
         if(!Number.isSafeInteger(spent) || spent<r.money)fail(503,'unavailable');

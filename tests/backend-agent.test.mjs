@@ -235,3 +235,16 @@ test('trusted ingress separates visitor issuance limits while refusing a missing
  assert.equal((await request('192.0.2.2',0)).status,201);
  assert.equal((await request(null,0)).status,503);
 });
+
+test('public HTTP cannot select developer accounting with body fields or headers',async t=>{
+  let calls=0;const guard=makeGuard({dailyTokens:1,monthlyCny:500,rate:2});
+  const {post,base}=await serve(t,{guard,complete:async()=>{calls++;throw new Error('Must not be called');}});
+  const token=await issue(post);
+  for(const extra of [{scope:'development'},{allowDevelopment:true},{development:true}]) {
+    const r=await post('/v2/agent',{question:'Hello',language:'en',...extra},token);
+    assert.equal(r.status,400);
+  }
+  const r=await fetch(base+'/v2/agent',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Authorization:`Bearer ${token}`,'X-Agent-Scope':'development'},body:JSON.stringify({question:'Hello',language:'en'})});
+  assert.match(await r.text(),/daily_budget_exhausted/);
+  assert.equal(calls,0);assert.equal(guard.store.state.developmentSpent ?? 0,0);
+});
