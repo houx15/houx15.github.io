@@ -14,7 +14,7 @@
 .hero.comic-home {position:relative;min-height:100svh;padding:100px 24px 80px;display:flex;align-items:center;justify-content:center;background:#fff;}
 .companion-portal {display:flex;flex-direction:column;align-items:center;text-decoration:none!important;gap:28px;margin-top:-12px;}
 .portal-character {width:190px;height:168px;display:block;}
-.portal-speech {display:flex;gap:22px;align-items:center;justify-content:center;position:relative;width:340px;max-width:calc(100vw - 48px);min-height:66px;padding:15px 22px;border:1.7px solid currentColor;border-radius:27px 24px 29px 20px;font:21px/1.5 'Kaiti SC',STKaiti,KaiTi,Georgia,serif;letter-spacing:.025em;}
+.portal-speech {display:flex;gap:22px;align-items:center;justify-content:center;position:relative;width:340px;max-width:calc(100vw - 48px);min-height:66px;padding:15px 22px;border:1.7px solid currentColor;border-radius:27px 24px 29px 20px;font:21px/1.5 var(--font-sans);letter-spacing:.025em;}
 .portal-speech [data-typewriter] {flex:1;min-height:1.5em;}
 .portal-speech::before {content:"";position:absolute;top:-9px;left:45%;width:13px;height:13px;background:#fff;border-top:1.7px solid currentColor;border-left:1.7px solid currentColor;transform:rotate(38deg) skewY(10deg);}
 .portal-enter {width:24px;height:24px;flex-shrink:0;opacity:.45;transition:transform .2s,opacity .2s;}
@@ -36,7 +36,7 @@
 .comic-welcome {text-align:center;margin:auto 0 0;padding:0 0 18px;flex-shrink:0;}
 .comic-character {width:136px;height:120px;margin:0 auto 20px;}
 .comic-mascot {height:100%;width:100%;}
-.comic-hello {font:26px/1.5 'Kaiti SC',STKaiti,KaiTi,Georgia,serif;margin:0 0 15px;}
+.comic-hello {font:26px/1.5 var(--font-sans);margin:0 0 15px;}
 .comic-invitation {font-size:13px;color:#555;line-height:1.8;margin:0;}
 .comic-play {display:flex;justify-content:center;margin:8px 0 auto;padding-bottom:45px;flex-shrink:0;}
 .comic-dice-action {display:flex;gap:12px;align-items:center;border:1.3px solid #333;background:#fff;border-radius:6px 9px 7px 5px;padding:10px 17px;font-size:12px!important;}
@@ -62,7 +62,7 @@
 .comic-story-card {position:relative;border:1.4px solid #333;border-radius:4px 8px 5px 9px;padding:24px;margin:20px 0;}
 .comic-card-number {font:10px ui-monospace,monospace;letter-spacing:.1em;color:#777;}
 .comic-result-die {float:right;font-size:32px;line-height:1;transform:rotate(5deg);}
-.comic-story-card h2 {font:24px/1.5 'Kaiti SC',STKaiti,KaiTi,Georgia,serif;margin:20px 0 12px;}
+.comic-story-card h2 {font:24px/1.5 var(--font-sans);margin:20px 0 12px;}
 .comic-story-card p {font-size:14px;line-height:1.9;}
 .comic-follow {background:none;border:0;border-bottom:1px dashed #888;margin-top:17px;padding:6px 0;font-size:12px!important;text-align:left;}
 .comic-evidence {margin:15px 0 0;font-size:11px;}
@@ -73,8 +73,8 @@
 .comic-progress.is-active::before {content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:8px;}
 .comic-work-record summary,.comic-more-reading summary {cursor:pointer;font-size:11px;color:#777;}
 .comic-work-record ol {padding-left:17px;line-height:1.9;margin-top:8px;}
-.comic-reading-card h3 {font:23px/1.5 'Kaiti SC',STKaiti,KaiTi,Georgia,serif;margin:12px 0;}
-.comic-visual-label {font:22px/1.5 'Kaiti SC',STKaiti,KaiTi,Georgia,serif;margin:20px 0;}
+.comic-reading-card h3 {font:23px/1.5 var(--font-sans);margin:12px 0;}
+.comic-visual-label {font:22px/1.5 var(--font-sans);margin:20px 0;}
 .comic-visual-note {font-size:10px;color:#777;line-height:1.7;}
 .comic-life-line a {font-size:11px;}
 .is-incomplete .comic-progress {border-left:2px solid currentColor;padding-left:10px;}
@@ -101,7 +101,7 @@
 /* A source outline, drawn as one continuous reading path. */
 .comic-reading-map {margin:24px 0;padding:20px 0;}
 .comic-reading-map>.comic-visual-label {margin:0 0 5px;font-size:14px;color:#666;}
-.comic-reading-map>h3 {font:24px/1.5 'Kaiti SC',STKaiti,KaiTi,Georgia,serif;margin:0 0 24px;}
+.comic-reading-map>h3 {font:24px/1.5 var(--font-sans);margin:0 0 24px;}
 .comic-reading-map>ol {list-style:none;margin:0;padding:0;}
 .comic-reading-map li {display:flex;gap:17px;position:relative;padding-bottom:24px;}
 .comic-reading-map li:not(:last-child)::before {content:'';position:absolute;left:16px;top:34px;bottom:0;border-left:1px dashed #aaa;}
@@ -124,7 +124,7 @@
 }
 
 .comic-concept-flow {padding:22px 24px;border:1.3px solid #333;border-radius:7px 11px 8px 6px;}
-.comic-concept-flow>h3 {font:23px/1.5 'Kaiti SC',STKaiti,KaiTi,Georgia,serif;margin:0 0 8px;overflow-wrap:anywhere;}
+.comic-concept-flow>h3 {font:23px/1.5 var(--font-sans);margin:0 0 8px;overflow-wrap:anywhere;}
 .comic-concept-flow>ol {list-style:none;padding:0;margin:14px 0 0;}
 .comic-concept-flow li+li {border-top:1px dashed #ccc;}
 .comic-concept-flow summary {display:flex;gap:16px;align-items:baseline;cursor:pointer;padding:11px 0;font-size:15px;line-height:1.6;}

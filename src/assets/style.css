@@ -5,7 +5,8 @@
   --link: #8c4936;
   --rule: #dedfd8;
   --surface: #f2f2ec;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-sans);
   font-size: 17px;
   line-height: 1.75;
   color: var(--ink);
@@ -142,7 +143,7 @@ button:focus-visible,input:focus-visible {outline:2px solid var(--link);outline-
 .hero-intro {font-size:20px;line-height:1.65;max-width:460px}.academic-role {font-size:13px;line-height:1.8;color:var(--muted);max-width:400px;margin:28px 0}
 .text-link {display:inline-flex;gap:24px;align-items:center;min-height:44px;font-size:14px;text-decoration:none;border-bottom:1px solid var(--link)}
 .hero-chat {max-width:510px;min-width:0}.sketch-wrap {position:relative;margin:-22px 0 22px}.sketch-computer {display:block;width:100%;max-width:460px;color:#484b42;height:auto;margin:auto;transform:rotate(-2deg)}
-.sketch-note {display:block;text-align:right;padding-right:10%;font:italic 18px/1.4 Georgia,'Kaiti SC','STKaiti',serif;color:var(--muted);transform:rotate(-4deg);margin-top:-8px}
+.sketch-note {display:block;text-align:right;padding-right:10%;font:18px/1.4 var(--font-sans);color:var(--muted);transform:rotate(-4deg);margin-top:-8px}
 .chat-entry-heading {display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:30px 0 8px}.chat-entry-heading h2 {font-size:20px;margin:0;letter-spacing:-.03em}
 .mode-label {font:11px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);white-space:nowrap}
 .mode-label::before {content:'';display:inline-block;width:5px;height:5px;border:1px solid #777c68;border-radius:50%;margin-right:7px;vertical-align:1px}
