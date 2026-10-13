@@ -1,3 +1,4 @@
+import { validatePageContext } from './agent-page-context.mjs';
 import { visitorAddress } from './agent-address.mjs';
 import { rememberAgentAnswer } from './agent-memory.mjs';
 import { resolveOpeningContext } from './agent-opening.mjs';
@@ -45,7 +46,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       if(!object(input,['question','language','pageContext','openingContext','supportsConceptFlow']) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language)) invalid();
       let openingContext;try {openingContext=resolveOpeningContext(input.openingContext,input.language);}catch {invalid();}
       if(input.supportsConceptFlow!==undefined && typeof input.supportsConceptFlow!=='boolean') invalid();
-      if(input.pageContext!==undefined && (!object(input.pageContext,['documentId']) || !corpus.documents.some(d=>d.id===input.pageContext.documentId))) invalid();
+      try {input.pageContext=validatePageContext(input.pageContext,corpus);}catch {invalid();}
       // Preserve the page that 'this note' referred to, not just the question text.
       const userContext=JSON.stringify({question:input.question,language:input.language,pageContext:input.pageContext,openingContext});
       if(userContext.length>4000) invalid();

@@ -1,3 +1,4 @@
+import { readingHeadings,resolveReadingPosition } from './reading-position.js';
 import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
 import { milestones } from './biography.js';
@@ -36,6 +37,8 @@ export function initCompanion(document) {
   const idle = liveClient ? (zh?'AI 会参考公开资料回答，也可能出错。':'AI answers from public sources and can make mistakes.') : (zh ? '开场试玩 · AI 自由对话尚未接通' : 'Opening experience · live AI conversation not yet connected');
   const seen = []; let history = [], busy = false, corpusPromise, activeController, lastLiveTurn, restorationNotice;
   const stopButton=root.querySelector('[data-stop-answer]'), sendButton=form.querySelector('[type=submit]');
+  let readingSection,readingReady=Promise.resolve(),readingGeneration=0;
+  const readingNote=document.createElement('p');readingNote.className='comic-reading-position';readingNote.hidden=true;form.before(readingNote);
   let opening, returnToComposer = false;
   function resetOpening() {
     opening=chooseOpening({article:root.dataset.article==='true'});
@@ -44,6 +47,12 @@ export function initCompanion(document) {
     root.querySelector('[data-invitation]').textContent=opening==='read'
       ? (zh?`读到《${root.dataset.pageTitle}》了？我陪你。`:`Reading “${root.dataset.pageTitle}”? I’m here with you.`)
       : chooseGreeting(language);
+    if(readingSection)showReadingPosition();
+  }
+  function showReadingPosition() {
+    readingNote.textContent=(zh?'正在读：':'Reading: ')+readingSection.title;readingNote.hidden=false;
+    root.querySelector('[data-invitation]').textContent=zh?`读到「${readingSection.title}」了？我陪你。`:`Reading “${readingSection.title}”? I’m here with you.`;
+    root.querySelector('[data-opening-label]').textContent=zh?'一起读这一节':'Read this section with me';
   }
   resetOpening();
   status.textContent = idle;
@@ -136,6 +145,8 @@ export function initCompanion(document) {
     return corpusPromise;
   }
   async function readPage() {
+    await readingReady;
+    if(liveClient && readingSection)return ask(zh?'陪我读这一节：解释它的核心意思，再给出一个值得继续讨论的问题。':'Read this section with me: explain its main point, then suggest one question worth exploring.');
     if(liveClient && root.dataset.documentId)return ask(zh?'陪我读这篇文章：先解释它的核心问题，再给出一个值得继续讨论的问题。':'Read this article with me: explain its central question, then suggest one question worth exploring.');
     if(busy)return;setBusy(true,zh?'正在打开这一篇的原文…':'Opening this article…');
     try {
@@ -167,7 +178,10 @@ export function initCompanion(document) {
     lastLiveTurn=turn;
     const challenge=root.querySelector('[data-visitor-check]');
     const savedEvents=[];
+    const positionReady=readingReady;
     try {
+      await positionReady;controller.signal.throwIfAborted();
+      const pageContext=root.dataset.documentId?{documentId:root.dataset.documentId,...(readingSection?{sectionAnchor:readingSection.anchor}:{})}:undefined;
       if(!liveClient.hasSession()) {
         if(restorationNotice)restorationNotice.textContent=restorationCopy(false);
         status.textContent=zh?'确认访客身份，无需注册或登录。':'Checking the visitor session. No account or login needed.';
@@ -176,7 +190,7 @@ export function initCompanion(document) {
         await liveClient.openSession(token,controller.signal);challenge.hidden=true;
       }
       const openingContext=openingContextFor(history,{article:root.dataset.article==='true'});
-      await liveClient.ask({question,language,supportsConceptFlow:true,...(openingContext?{openingContext}:{}),...(root.dataset.documentId?{pageContext:{documentId:root.dataset.documentId}}:{})},
+      await liveClient.ask({question,language,supportsConceptFlow:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
         {signal:controller.signal,onEvent:event=>{
           const follow=log.scrollHeight-log.scrollTop-log.clientHeight<100;
           turn.event(event);
@@ -238,7 +252,18 @@ export function initCompanion(document) {
       event.preventDefault();dialog.close();
       requestAnimationFrame(()=>{historyReplaceHash(destination.hash);target.scrollIntoView({block:'start'});target.setAttribute('tabindex','-1');target.focus({preventScroll:true});});
     });
-    launcher.addEventListener('click',()=>{dialog.showModal();document.body.classList.add('comic-open');log.scrollTop=log.scrollHeight;});
+    launcher.addEventListener('click',()=>{
+      const headings=readingHeadings(document),generation=++readingGeneration;
+      readingSection=undefined;readingNote.hidden=true;
+      resetOpening();
+      readingReady=root.dataset.documentId?getTools().then(({corpus})=>{
+        if(generation!==readingGeneration)return;
+        readingSection=resolveReadingPosition(corpus.documents.find(doc=>doc.id===root.dataset.documentId),headings);
+        if(!readingSection)return;
+        showReadingPosition();
+      }).catch(()=>{}):Promise.resolve();
+      dialog.showModal();document.body.classList.add('comic-open');log.scrollTop=log.scrollHeight;
+    });
     document.querySelector('[data-companion-close]').addEventListener('click',()=>dialog.close());
     dialog.addEventListener('close',()=>{activeController?.abort();document.body.classList.remove('comic-open');launcher.focus({preventScroll:true});});
     dialog.addEventListener('click',event=>{if(event.target===dialog){const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close();}});

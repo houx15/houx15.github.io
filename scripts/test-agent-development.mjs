@@ -1,3 +1,4 @@
+import { validatePageContext } from '../server/agent-page-context.mjs';
 // Run on the server with its private runtime environment. No HTTP listener or bypass token.
 // stdin: JSON array of 1–6 turns, e.g. [{"question":"介绍一下煜欣","language":"zh-CN"}]
 import fs from 'node:fs/promises';
@@ -20,7 +21,7 @@ try {
   for(const input of turns) {
     if(!input || typeof input!=='object' || Object.keys(input).some(k=>!['question','language','pageContext','openingContext'].includes(k)) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language))throw new Error('Invalid test turn');
     resolveOpeningContext(input.openingContext,input.language);
-    if(input.pageContext && !corpus.documents.some(d=>d.id===input.pageContext.documentId))throw new Error('Invalid page');
+    input.pageContext=validatePageContext(input.pageContext,corpus);
   }
   store=config.storeKind==='sqlite'
     ?new (await import('../server/agent-sqlite.mjs')).SQLiteAgentStore({path:env.AGENT_SQLITE_PATH})

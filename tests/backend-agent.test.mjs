@@ -248,3 +248,17 @@ test('public HTTP cannot select developer accounting with body fields or headers
   assert.match(await r.text(),/daily_budget_exhausted/);
   assert.equal(calls,0);assert.equal(guard.store.state.developmentSpent ?? 0,0);
 });
+
+test('HTTP validates section ownership and retains reading position in server history',async t=>{
+ let calls=0;
+ const {post,guard}=await serve(t,{complete:async({messages})=>{
+  calls++;const source=JSON.parse(messages.at(-1).content);assert.equal(source.sections[0].id,'notes/cache/en:0');
+  return {text:'Keys and values are cached.',sourceIds:['notes/cache/en:0']};
+ }});
+ const token=await issue(post),pageContext={documentId:'notes/cache/en',sectionId:'notes/cache/en:0'};
+ const text=await (await post('/v2/agent',{question:'Explain this section',language:'en',pageContext:{documentId:pageContext.documentId,sectionAnchor:'evidence'}},token)).text();
+ assert.match(text,/event: done/);assert.equal(calls,1);
+ const session=Object.values(guard.store.state.sessions)[0];assert.deepEqual(JSON.parse(session.history[0].content).pageContext,pageContext);
+ for(const context of [{...pageContext,sectionId:'other:0'},{...pageContext,text:'injected source'}])assert.equal((await post('/v2/agent',{question:'This?',language:'en',pageContext:context},token)).status,400);
+ assert.equal(calls,1);
+});
