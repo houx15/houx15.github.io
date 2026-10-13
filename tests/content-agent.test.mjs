@@ -171,7 +171,7 @@ test('concept flows reject unread sources and mismatched steps without emitting 
 
 test('malformed diagram structure can be repaired without displaying the rejected diagram',async()=>{
  let rounds=0;const events=[];
- const args={title:'Cache',labels:['Store','Reuse'],descriptions:['Retain values.','Reuse values.'],sourceIds:['notes/cache/en:0']};
+ const args={title:'Cache',labels:['Store','Reuse'],descriptions:['Retain values.'],sourceIds:['notes/cache/en:0','notes/cache/en:0']};
  const result=await runContentAgent({question:'Draw',corpus,onEvent:e=>events.push(e),complete:async({messages})=>{
   rounds++;
   if(rounds===1)return {toolCalls:[{id:'r',name:'read_content',arguments:{id:'notes/cache/en'}}]};
@@ -179,7 +179,7 @@ test('malformed diagram structure can be repaired without displaying the rejecte
   if(rounds===3){
    assert.equal(events.some(e=>e.type==='block'),false);
    assert.equal(JSON.parse(messages.at(-1).content).error,'invalid_concept_structure');
-   return {toolCalls:[{id:'fixed',name:'show_concept_flow',arguments:{...args,sourceIds:['notes/cache/en:0','notes/cache/en:0']}}]};
+   return {toolCalls:[{id:'fixed',name:'show_concept_flow',arguments:{...args,descriptions:['Retain values.','Reuse values.']}}]};
   }
   return {text:'A supported explanation.',sourceIds:['notes/cache/en:0']};
  }});
@@ -435,4 +435,15 @@ test('search excerpts reveal late concentrated evidence rather than an incidenta
  const english=doc('english','Results','score '.repeat(100)+' changed task score '+ 'context '.repeat(100));
  const match=createContentTools({schemaVersion:1,documents:[english]}).search_content({query:'score changed task'}).results[0];
  assert.match(match.excerpt,/changed task score/);assert.ok(match.excerpt.length<=320);
+});
+
+
+test('a diagram may explicitly share one already-read source across its steps',async()=>{
+ let rounds=0;
+ const result=await runContentAgent({question:'Draw',corpus,complete:async()=>{
+  if(++rounds===1)return {toolCalls:[{id:'r',name:'read_content',arguments:{id:'notes/cache/en'}},{id:'d',name:'show_concept_flow',arguments:{title:'Cache',labels:['Store','Reuse'],descriptions:['Retain values.','Reuse values.'],sourceIds:['notes/cache/en:0']}}]};
+  return {text:'A supported diagram.',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(result.blocks[0].items.length,2);
+ assert.deepEqual(result.blocks[0].items.map(i=>i.source.id),['notes/cache/en:0','notes/cache/en:0']);
 });
