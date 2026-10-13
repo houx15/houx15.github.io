@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import { MemoryAgentStore,RedisAgentStore,createGuard } from '../server/agent-state.mjs';
 import { createAgentServer } from '../server/agent-http.mjs';
 import { createDeepSeekAgent,createTurnstile } from '../server/agent-provider.mjs';
+import { contentInstructions,contentToolDefinitions } from '../server/content-agent.mjs';
 const secret='a'.repeat(40),origin='https://houx15.github.io';
 const corpus={schemaVersion:1,revision:'fixture',documents:[{id:'notes/cache/en',canonicalId:'notes/cache',title:'KV cache',summary:'Attention',type:'notes',language:'en',date:'2026-10-01',url:'/notes/cache/',tags:[],sections:[{id:'notes/cache/en:0',heading:'Evidence',text:'Keys and values are cached.',url:'/notes/cache/#evidence'}]}]};
 const makeGuard=(options={})=>createGuard({store:new MemoryAgentStore(),secret,dailyTokens:1000000,enabled:()=>true,...options});
@@ -52,7 +53,9 @@ test('atomic shared limits, replay, expiry, clock rollback and conservative rese
   time-=3600002;await assert.rejects(guard.issue(),/unavailable/);
 });
 test('per-completion quota prevents second paid step and emits terminal error',async t=>{
-  let calls=0;const {post}=await serve(t,{guard:makeGuard({dailyTokens:10000}),complete:async()=>{calls++;return {toolCalls:[{id:'r',name:'read_content',arguments:{id:'notes/cache/en'}}]};}});
+  const firstRequest={messages:[{role:'system',content:contentInstructions},{role:'user',content:JSON.stringify({question:'cache',language:'en'})}],tools:contentToolDefinitions};
+  const firstReservation=Buffer.byteLength(JSON.stringify(firstRequest))+4096+1024;
+  let calls=0;const {post}=await serve(t,{guard:makeGuard({dailyTokens:firstReservation}),complete:async()=>{calls++;return {toolCalls:[{id:'r',name:'read_content',arguments:{id:'notes/cache/en'}}]};}});
   const text=await (await post('/v2/agent',{question:'cache',language:'en'},await issue(post))).text();
   assert.equal(calls,1);assert.match(text,/budget_exhausted/);assert.doesNotMatch(text,/event: done/);
 });
