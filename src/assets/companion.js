@@ -48,7 +48,7 @@ export function initCompanion(document) {
   mascot.addEventListener('animationend', () => mascot.classList.remove('is-poked','is-rolling'));
   function setBusy(value, text = idle) {
     const focused=document.activeElement;
-    if(value) returnToComposer=root.contains(focused) && ['BUTTON','TEXTAREA'].includes(focused.tagName);
+    if(value) returnToComposer=Boolean(activeController) && root.contains(focused) && ['BUTTON','TEXTAREA'].includes(focused.tagName);
     const restore=returnToComposer && (focused===stopButton || focused===document.body);
     busy = value; root.setAttribute('aria-busy',String(value));status.textContent = text;
     root.querySelectorAll('button,textarea').forEach(button => { button.disabled = value || Boolean(button.closest('.is-incomplete')); });
@@ -108,6 +108,7 @@ export function initCompanion(document) {
     }
     while(log.children.length > 10) log.firstElementChild.remove();
     if(remember) row.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    return row;
   }
   function human() {
     if(busy)return;
@@ -118,11 +119,15 @@ export function initCompanion(document) {
   }
   async function roll() {
     if(busy)return;
+    const focusStory=root.contains(document.activeElement);
     setBusy(true,zh?'骰子落下之后，会是哪一面？':'Which side will the die land on?');animate('is-rolling');
     const story = nextStory(seen);seen.push(story.id);
     // This is the physical dice animation, not simulated model reasoning.
     if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches) await new Promise(resolve => setTimeout(resolve,460));
-    render({kind:'dice',id:story.id});setBusy(false);
+    const row=render({kind:'dice',id:story.id});setBusy(false);
+    if(focusStory && document.activeElement===document.body && (!dialog || dialog.open)) {
+      const heading=row.querySelector('h2');heading.setAttribute('tabindex','-1');heading.focus({preventScroll:true});
+    }
   }
   async function getTools() {
     corpusPromise ||= fetch(root.dataset.index,{credentials:'omit'}).then(response=>{if(!response.ok)throw new Error('Unavailable');return response.json();})

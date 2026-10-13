@@ -31,6 +31,7 @@
 .comic-room button,.comic-room textarea {font:inherit;color:inherit;}
 .comic-room button {cursor:pointer;}
 .comic-room button:disabled {cursor:wait;opacity:.5;}
+.comic-room:not(.has-conversation) .comic-reset {display:none;}
 .comic-reset {position:absolute;right:28px;top:24px;background:none;border:0;padding:0;color:#888!important;font-size:11px!important;}
 .comic-welcome {text-align:center;margin:auto 0 0;padding:0 0 18px;flex-shrink:0;}
 .comic-character {width:136px;height:120px;margin:0 auto 20px;}
@@ -93,7 +94,8 @@
 .companion-launcher .dumpling {filter:drop-shadow(0 1px 1px #fff);}
 .comic-room :focus-visible,.companion-launcher:focus-visible,.comic-close:focus-visible {outline:2px dashed currentColor;outline-offset:5px;}
 .comic-room textarea:focus-visible {outline:none;}
-@media(max-width:600px){.hero.comic-home {padding:95px 20px 80px;}.home-page .site-header nav {font-size:11px;}.portal-character {width:166px;height:147px;}.portal-speech {min-width:260px;font-size:20px;gap:18px;padding:14px 18px;}.companion-portal {gap:26px;}.comic-room {padding:68px 20px 18px;}.comic-back {left:22px;}.comic-reset {right:22px;}.comic-close {left:18px;}.comic-story-card {padding:20px;}.comic-story-card h2 {font-size:22px;}.comic-play {padding-bottom:25px;}.comic-character {width:118px;height:105px;}.comic-hello {font-size:24px;}.companion-launcher {right:12px;bottom:14px;width:58px;height:58px;}}
+@media(max-width:600px){.hero.comic-home {padding:95px 20px 80px;}.home-page .site-header nav {font-size:11px;}.portal-character {width:166px;height:147px;}.portal-speech {min-width:260px;font-size:20px;gap:18px;padding:14px 18px;}.companion-portal {gap:26px;}.comic-room {padding:68px 20px 18px;}.comic-back {left:22px;}.comic-room:not(.has-conversation) .comic-reset {display:none;}
+.comic-reset {right:22px;}.comic-close {left:18px;}.comic-story-card {padding:20px;}.comic-story-card h2 {font-size:22px;}.comic-play {padding-bottom:25px;}.comic-character {width:118px;height:105px;}.comic-hello {font-size:24px;}.companion-launcher {right:12px;bottom:14px;width:58px;height:58px;}}
 @media(prefers-reduced-motion:reduce){.comic-room *,.companion-launcher *,.companion-portal * {animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
 @media print {.companion-launcher,.comic-dialog {display:none!important;}}
 /* A source outline, drawn as one continuous reading path. */
