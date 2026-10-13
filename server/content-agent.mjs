@@ -1,3 +1,4 @@
+import {usesBiographyEvidence,checkBiographySentence,biographyRepairGuidance} from './agent-biography-check.mjs';
 import { createContentTools } from '../src/assets/agent-tools.js';
 import { createProfileTools,profileRevision,profileEventIds } from './agent-profile.mjs';
 
@@ -61,7 +62,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   }
   for (let step = 0; step < 6; step++) {
     signal?.throwIfAborted();
-    let streamed='',streamIds;
+    let streamed='',shown='',pending='',streamIds;
     const finalPass=step===5 || calls>=8;
     const modelMessages=structuredClone(messages);
     if(!finalPass) modelMessages[0].content+=` Remaining tool-capable rounds including this one: ${5-step}; remaining individual tool calls: ${8-calls}. Once you have sufficient evidence, stop redundant lookup. If the visitor requested a diagram, call the presentation tool before these rounds run out; the final round cannot draw. You may read multiple relevant sources in one action batch. After a diagram is emitted, the final answer should contain only a short takeaway, not another list of steps.`;
@@ -71,8 +72,8 @@ export async function runContentAgent({ question, language = 'en', history = [],
       modelMessages[0].content+=`\n\nCURRENT SCREEN: The visitor already has these rendered blocks: ${shown}. They are visible UI, not hidden tool results. Your text should add a concise interpretation or answer the remaining question. Do not narrate the entries again. For a biography introduction with a timeline, describe her present role and the connection between her areas of work; leave the chronology in the timeline. If the visitor explicitly asks for a particular detail, explain that detail.`;
     }
     const roundTools=availableTools.map(tool=>tool.name==='show_concept_flow' && evidence.size?{...tool,parameters:{...tool.parameters,properties:{...tool.parameters.properties,sourceIds:{...tool.parameters.properties.sourceIds,items:{...tool.parameters.properties.sourceIds.items,enum:[...evidence.keys()]}}}}}:tool);
-    function requestAnswerRepair() {
-      messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',guidance:'The proposed answer was not shown. Return the required {sourceIds,text} object. Source IDs from search or conversation history are NOT evidence. Read the actual source with a reading tool before citing it, using exact IDs returned by tools. You may instead acknowledge insufficient evidence with sourceIds: []. Do not infer personal beliefs from a project feature or a reading topic.',availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
+    function requestAnswerRepair(biography=false) {
+      messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',guidance:'The proposed answer was not shown. Return the required {sourceIds,text} object. Source IDs from search or conversation history are NOT evidence. Read the actual source with a reading tool before citing it, using exact IDs returned by tools. You may instead acknowledge insufficient evidence with sourceIds: []. Do not infer personal beliefs from a project feature or a reading topic.',...(biography?{biographyIdentity:biographyRepairGuidance}:{}),availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
     }
     let result;
     try { result = await complete({ messages: modelMessages, tools: finalPass?[]:roundTools, language, signal, onText:(text,sourceIds)=>{
@@ -82,14 +83,22 @@ export async function runContentAgent({ question, language = 'en', history = [],
       if(!sourceIds.length)return; // Unsupported prose never reaches the visitor.
       if(typeof text!=='string' || streamed.length+text.length>10000 || (streamIds && JSON.stringify(streamIds)!==JSON.stringify(sourceIds)))throw new Error('Invalid answer delta');
       streamIds=sourceIds;streamed+=text;
-      onEvent({type:'answer_delta',text,sources:sourceIds.map(id=>evidence.get(id))});
+      if(usesBiographyEvidence(sourceIds)) {
+        pending+=text;
+        // Keep partial sentences private so chunk boundaries cannot bypass checks.
+        const end=[...pending.matchAll(/[。！？!?\n]|\.(?=\s)/g)].at(-1);
+        if(!end)return;
+        const ready=pending.slice(0,end.index+1);checkBiographySentence(ready);
+        pending=pending.slice(end.index+1);shown+=ready;
+        onEvent({type:'answer_delta',text:ready,sources:sourceIds.map(id=>evidence.get(id))});
+      } else {shown+=text;onEvent({type:'answer_delta',text,sources:sourceIds.map(id=>evidence.get(id))});}
     }});
     } catch(error) {
-      const repairable=error.message==='Invalid answer evidence' || error.diagnosticCategory==='final_shape';
+      const repairable=['Invalid answer evidence','Invalid biography identity'].includes(error.message) || error.diagnosticCategory==='final_shape';
       // A rejected, unshown candidate may be corrected within this same budget.
       // Never retry a transport failure or revise prose the visitor already saw.
-      if(!repairable || streamed || step===5 || signal?.aborted)throw error;
-      requestAnswerRepair();
+      if(!repairable || shown || step===5 || signal?.aborted)throw error;
+      requestAnswerRepair(error.message==='Invalid biography identity');
       continue;
     }
     signal?.throwIfAborted();
@@ -150,7 +159,12 @@ export async function runContentAgent({ question, language = 'en', history = [],
       if(!streamed && step<5){requestAnswerRepair();continue;}
       throw new Error('Invalid answer evidence');
     }
+    if(usesBiographyEvidence(result.sourceIds)) {
+      try {checkBiographySentence(result.text);}
+      catch(error) {if(!shown && step<5){requestAnswerRepair(true);continue;}throw error;}
+    }
     if(streamed && (!result.text.startsWith(streamed) || JSON.stringify([...new Set(result.sourceIds)])!==JSON.stringify(streamIds)))throw new Error('Changed answer');
+    if(pending)onEvent({type:'answer_delta',text:pending,sources:streamIds.map(id=>evidence.get(id))});
     const text = result.sourceIds.length ? result.text : language === 'zh-CN' ? '我没有足够的公开资料回答这个问题。可以问我 Yuxin 的公开作品，或围绕学习笔记继续提问。' : 'I do not have enough public evidence to answer that. Ask about Yuxin’s published work or a related reading question.';
     const answer = {type:'answer',text,sources:[...new Set(result.sourceIds)].map(id => evidence.get(id)),blocks,revision:`${corpus.revision}:${profileRevision}`};
     onEvent(answer); return answer;

@@ -335,3 +335,38 @@ test('nonstreaming invalid citations receive the same bounded correction',async(
  }});
  assert.equal(rounds,2);assert.equal(answer.sources.length,0);assert.doesNotMatch(answer.text,/Unverified attribution/);
 });
+
+test('incorrect biography identities split across chunks stay private and are corrected',async()=>{
+ let rounds=0;const events=[];
+ const result=await runContentAgent({question:'Introduce her',corpus,onEvent:e=>events.push(e),complete:async({onText,messages})=>{
+  rounds++;
+  if(rounds===1)return {toolCalls:[{id:'profile',name:'read_profile',arguments:{language:'zh-CN'}}]};
+  if(rounds===2){onText('她是北京大学社会',['profile:profile']);onText('学系博士生。',['profile:profile']);throw new Error('unreachable');}
+  assert.match(JSON.parse(messages.at(-1).content).biographyIdentity,/社会研究中心/);
+  onText('她是北京大学社会研究中心社会学博士生。',['profile:profile']);
+  assert.equal(events.filter(e=>e.type==='answer_delta').length,1);
+  onText('正在普林斯顿大学进行 VSRC 访问',['profile:profile']);
+  return {text:'她是北京大学社会研究中心社会学博士生。正在普林斯顿大学进行 VSRC 访问',sourceIds:['profile:profile']};
+ }});
+ assert.equal(rounds,3);assert.equal(events.filter(e=>e.type==='answer_delta').map(e=>e.text).join(''),result.text);
+ assert.ok(!events.some(e=>e.text?.includes('社会学系')));
+});
+
+test('a biography mistake after visible prose stops rather than rewriting the answer',async()=>{
+ let rounds=0;const events=[];
+ await assert.rejects(runContentAgent({question:'Introduce her',corpus,onEvent:e=>events.push(e),complete:async({onText})=>{
+  rounds++;if(rounds===1)return {toolCalls:[{id:'profile',name:'read_profile',arguments:{}}]};
+  onText('She is a PhD student. ',['profile:profile']);
+  onText('She is a visiting scholar at Princeton. ',['profile:profile']);
+ }}),/Invalid biography identity/);
+ assert.equal(rounds,2);assert.equal(events.filter(e=>e.type==='answer_delta').map(e=>e.text).join(''),'She is a PhD student.');
+});
+
+test('biography final answers are checked even without streamed deltas',async()=>{
+ let rounds=0;
+ const result=await runContentAgent({question:'Introduce her',corpus,complete:async()=>{
+  rounds++;if(rounds===1)return {toolCalls:[{id:'profile',name:'read_profile',arguments:{}}]};
+  return rounds===2?{text:'She is in the Department of Sociology at Peking University.',sourceIds:['profile:profile']}:{text:'She is at the Center for Social Research, Peking University.',sourceIds:['profile:profile']};
+ }});
+ assert.equal(rounds,3);assert.match(result.text,/Center for Social Research/);
+});
