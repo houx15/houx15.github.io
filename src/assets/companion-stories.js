@@ -48,18 +48,16 @@ export function chooseGreeting(language = 'en', random = Math.random) {
 
 export function chooseOpening({ article = false, random = Math.random } = {}) {
   if (article) return 'read';
-  return ['dice','chat','story'][Math.min(2,Math.max(0,Math.floor(random()*3)))];
+  return ['dice','story'][Math.min(1,Math.max(0,Math.floor(random()*2)))];
 }
 export const openingCopy = {
   'zh-CN': {
     dice:{prompt:'不知道从哪里开始？我们可以掷个骰子。',action:'掷个骰子，认识她的一面'},
-    chat:{action:'聊聊'},
     story:{prompt:'她的经历里，有几条同时发生的线。',action:'带我看看她的经历'},
     read:{prompt:'我们从你正在读的这一篇开始。',action:'一起读这一篇'}
   },
   en:{
     dice:{prompt:'Not sure where to start? We could roll a die.',action:'Roll a die. Meet a side of her.'},
-    chat:{action:'Let’s chat'},
     story:{prompt:'A few different threads run through her story.',action:'Show me her story'},
     read:{prompt:'Let’s begin with the page you’re reading.',action:'Read this with me'}
   }

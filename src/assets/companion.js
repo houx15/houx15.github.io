@@ -195,7 +195,7 @@ export function initCompanion(document) {
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
   input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();form.requestSubmit();}});
   root.querySelector('[data-opening]').addEventListener('click',()=>{
-    if(opening==='dice')roll();else if(opening==='chat')input.focus();else if(opening==='read')readPage();
+    if(opening==='dice')roll();else if(opening==='read')readPage();
     else render({kind:'story',question:openingCopy[language].story.action});
   });
   stopButton.addEventListener('click',()=>activeController?.abort());
