@@ -12,11 +12,11 @@ The full requested outcome remains incomplete. This audit does not equate test s
 | Sourced prose, recommendations, visuals | Live concept flow, biography/publication timelines, reading maps and cards; tool/read validation; prior real biography answers | Systematic real-model attribution, recommendation and visual usefulness evaluation; known quality issues remain |
 | Honest streaming progress and stopping | Local actual-HTTP partial-output cancellation, lease cleanup, retained conservative reservation and subsequent-turn success | Actual Bailian and production nginx cancellation/accounting verification |
 | Cross-page and opening follow-up continuity | Server-owned page context and opening IDs; local HTTP follow-up tests; deployed opening-context support | Real browser navigation and opening follow-ups with a verified live session |
-| Context management | Up to 20 successful exchanges: latest three direct, earlier compact index plus exact recall; local HTTP recall and prior operator sample | Public fifth-turn recall was blocked by daily quota; broader long-conversation evaluation |
+| Context management | Up to 20 successful exchanges: latest three direct, earlier compact index plus exact recall; local HTTP recall and prior operator sample | Five-turn SSH evaluation successfully recalled the first diagram; public browser continuity and broader long-conversation evaluation remain |
 | Anonymous access and spending guard | Prior live Turnstile success; unauthenticated rejection; SQLite/budget/restart tests; daily/monthly reset messages | Trusted visitor-address code activated after administrator setup; public spoofed-header and missing-header checks passed; public replay/concurrency checks |
 | No exposed model key | Credentials remain in private server environment; frontend includes only public origin/site key | Continue secret review per release; never copy private values into artifacts |
 | Selected deployment and lifecycle | Node 24 user service on kookat, HTTPS health available; staged rollback checks used for updates | Further ingress lifecycle testing. Docker artifact remains unverified, but is not the selected hosting mode |
-| Public rollout | Frontend 1cd5a86 exact revision verified; backend opening-context release active and healthy | Pending branch is not production; full requested outcome remains unproven |
+| Public rollout | Frontend c742eb7 exact revision verified; backend developer quota isolation active and healthy | Full requested outcome remains unproven; documentation-only evaluation updates do not change the deployed agent |
 
 ## Deployment and real-provider check — 2026-10-13
 
@@ -243,3 +243,22 @@ Next actions when external conditions change: verify and activate the overwritte
 ### 2026-10-13 — Trusted visitor ingress activated
 
 After the owner reported completion, read the enabled nginx site and confirmed it overwrites X-Portfolio-Client-IP with $remote_addr. Activated checked code 6eb4c37 with old/new file hash checks and rollback, preserving credentials and budgets. The user service is active and public HTTPS health returns available true. Public empty agent requests with and without a deliberately malformed visitor header both return invalid_request (400); direct loopback requests without the trusted header return unavailable (503), while a valid header reaches request validation (400). Together with live configuration inspection, this verifies ingress overwrite and backend fail-closed behavior without model calls or quota admission. Local distinct-address issuance tests passed previously. No claim that IP identifies a unique person; shared-network visitors share the address guard. Remaining model-quality and real-device gates persist.
+
+
+## Developer isolation and five-turn real-agent evaluation — 2026-10-13
+
+The previous goal turn made concrete progress: c742eb7 separated server-only developer evaluation from visitor daily limits, deployed it, and verified the exact public revision. The operator runner uses the production model, corpus, agent loop, provider streaming and shared monthly money ledger without opening a listener. Two real opening-context turns added 33,575 development tokens while visitor accounting stayed at 980,191. The conservative monthly ledger increased from ¥4.397734 to ¥4.464884. This is accounting evidence, not a vendor invoice. Historical charges were preserved.
+
+A subsequent isolated five-turn evaluation against the running server release completed all five turns with qwen-plus. Each turn retained the normal 45-second deadline and six-completion limit. It used 5, 2, 2, 4, and 3 model completions respectively. No visitor quota exception, additional endpoint, or browser bypass was introduced.
+
+| Turn and context | Observed behavior | Assessment |
+|---|---|---|
+| Chinese MASS note: draw the mechanism and identify the self-supervision signal | Read note sections and emitted a five-step concept flow: 工作流搜索 → 执行与评分 → 轨迹筛选 → 监督微调 → 迭代更新. Linked the method section; distinguished SFT from merely receiving scores. | Actual diagram generation passed. Prose repeated much of the diagram, and the scoring step's description omitted what is scored. Presentation quality still needs improvement. |
+| Same note: why does this not guarantee correctness? | Freshly read section 3.1 and explained that a good final outcome does not prove each trajectory action correct. No redundant new diagram. | Addresses a documented limitation. This is not a complete account of evaluator errors, task changes, or generalization. |
+| Navigate to the Chinese evaluation report; ask for two sentences | Read the report and distinguished individual records/aggregate distributions, then source-only/oracle settings. | Correct page transition in server-supplied context; cited report sections. Not a real browser navigation test. |
+| Switch to English report; request a related project card | Used related-post lookup and rendered the English SSDataAgent card with brief English explanation. | Relevant recommendation and requested language/card passed in this sample. Prose citations still pointed to the Chinese report carried from history; matching-language evidence would be preferable. |
+| No current page; return to the first diagram's second step | Called recall_conversation, then freshly read MASS. Named the original second step exactly: “执行与评分”. No redraw. | Older-than-three-turn visual recall passed. The qualification about incorrect trajectory actions was cited to the method section rather than the more precise section 3.1; citation precision remains a gap. |
+
+These are observed agent results, not mocked responses. They establish one successful long conversation with page/language changes, recommendation and exact diagram recall. They do not prove public browser/Turnstile continuity, rendering aesthetics, mobile keyboard behavior, broad factual entailment, or consistent output quality. No completion claim follows from this sample.
+
+Next quality work should address source precision and visual/prose coordination, and inspect the rendered experience using real output. Do not repeat quota-isolation work or wait for visitor daily reset to run model evaluations. Use the documented SSH development runner.
