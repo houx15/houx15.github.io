@@ -10,13 +10,20 @@ import { createPaidCompletion } from '../server/agent-paid.mjs';
 import { runContentAgent } from '../server/content-agent.mjs';
 import { rememberAgentAnswer } from '../server/agent-memory.mjs';
 import { resolveOpeningContext } from '../server/agent-opening.mjs';
+import {createDevelopmentStream,readDevelopmentStreamInput} from '../server/development-stream.mjs';
+const streaming=process.argv.includes('--stream'),disconnect=new AbortController();
+const stream=streaming?createDevelopmentStream(text=>process.stdout.write(text)):null;
+process.stdout.on('error',()=>disconnect.abort());
 let store;
 try {
   const env=process.env,config=inspectAgentConfig(env);
   if(config.issues.length || !config.enabled) throw new Error('Invalid runtime configuration');
-  let raw='';for await(const chunk of process.stdin){raw+=chunk;if(Buffer.byteLength(raw)>8192)throw new Error('Input too large');}
+  let raw='';
+  if(streaming)raw=await readDevelopmentStreamInput(process.stdin,disconnect);
+  else for await(const chunk of process.stdin){raw+=chunk;if(Buffer.byteLength(raw)>8192)throw new Error('Input too large');}
   const turns=JSON.parse(raw);
   if(!Array.isArray(turns) || !turns.length || turns.length>6)throw new Error('Expected 1–6 turns');
+  if(streaming && turns.length!==1)throw new Error('Streaming accepts one turn');
   const corpus=JSON.parse(await fs.readFile(config.corpusFile,'utf8'));
   for(const input of turns) {
     if(!input || typeof input!=='object' || Object.keys(input).some(k=>!['question','language','pageContext','openingContext'].includes(k)) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language))throw new Error('Invalid test turn');
@@ -30,18 +37,22 @@ try {
   const complete=createModelAgent({apiKey:env.AGENT_MODEL_KEY,model:env.AGENT_MODEL,provider:config.provider,baseURL:config.baseURL});
   const exchanges=[];
   for(const [index,input] of turns.entries()) {
-    const requestId=randomUUID(),signal=AbortSignal.timeout(45000);let calls=0;
+    const requestId=randomUUID(),signal=AbortSignal.any([AbortSignal.timeout(45000),disconnect.signal]);let calls=0;
+    signal.throwIfAborted();
     await guard.beginDevelopment(requestId);
     try {
-      const paid=createPaidCompletion({guard,requestId,complete,signal,beforeCall:()=>{calls++;}});
+      const paid=createPaidCompletion({guard,requestId,complete,signal,beforeCall:()=>{calls++;stream?.event({type:'status',phase:'model_started'});}});
       const answer=await runContentAgent({...input,supportsConceptFlow:true,corpus,history:exchanges.slice(-6),earlierHistory:exchanges.slice(0,-6),complete:paid,signal,onEvent:event=>{
-        if(event.type==='status')process.stdout.write(JSON.stringify({turn:index+1,...event})+'\n');
+        if(stream)stream.event(event);
+        else if(event.type==='status')process.stdout.write(JSON.stringify({turn:index+1,...event})+'\n');
       }});
       exchanges.push({role:'user',content:JSON.stringify({...input,openingContext:resolveOpeningContext(input.openingContext,input.language)})},{role:'assistant',content:rememberAgentAnswer(answer)});
-      process.stdout.write(JSON.stringify({turn:index+1,calls,answer})+'\n');
+      if(stream)stream.complete(answer);
+      else process.stdout.write(JSON.stringify({turn:index+1,calls,answer})+'\n');
     } finally {await guard.finish(requestId);}
   }
 } catch(error) {
   // Never print provider bodies, configuration, credentials, or arbitrary exception text.
+  if(stream){try{stream.fail(error instanceof AgentError?error.code:'unavailable');}catch{}}
   process.stderr.write(JSON.stringify({error:error instanceof AgentError?error.code:'development_test_failed'})+'\n');process.exitCode=1;
-} finally {store?.close?.();}
+} finally {store?.close?.();if(streaming)process.stdin.destroy();}
