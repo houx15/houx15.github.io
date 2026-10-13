@@ -313,7 +313,7 @@ test('unread streamed citations are repaired before any unsupported text is show
  const result=await runContentAgent({question:'Explain cache',corpus,onEvent:event=>events.push(event),complete:async({messages,onText})=>{
   rounds++;
   if(rounds===1){onText('Unsupported candidate',['notes/cache/en:0']);throw new Error('unreachable');}
-  if(rounds===2){const feedback=JSON.parse(messages.at(-1).content);assert.equal(feedback.type,'answer_rejected');assert.deepEqual(feedback.availableSources,[]);return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};}
+  if(rounds===2){const feedback=JSON.parse(messages.at(-1).content);assert.equal(feedback.type,'answer_rejected');assert.equal(feedback.reason,'no_source_read_yet');assert.deepEqual(feedback.alreadyReadSources,[]);return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};}
   onText('Verified explanation',['notes/cache/en:0']);return {text:'Verified explanation',sourceIds:['notes/cache/en:0']};
  }});
  assert.equal(rounds,3);assert.equal(result.text,'Verified explanation');
@@ -446,4 +446,24 @@ test('a diagram may explicitly share one already-read source across its steps',a
  }});
  assert.equal(result.blocks[0].items.length,2);
  assert.deepEqual(result.blocks[0].items.map(i=>i.source.id),['notes/cache/en:0','notes/cache/en:0']);
+});
+
+
+test('a guessed biography citation recovers by reading the actual event before showing a date',async()=>{
+ let rounds=0;const events=[];
+ const answer=await runContentAgent({question:'她的创业经历是哪几年？只回答时间。',language:'zh-CN',corpus,onEvent:e=>events.push(e),complete:async({messages,onText})=>{
+  rounds++;
+  if(rounds===1){onText('20',['profile']);throw new Error('unreachable');}
+  if(rounds===2){
+   const feedback=JSON.parse(messages.at(-1).content);
+   assert.equal(feedback.reason,'no_source_read_yet');
+   assert.deepEqual(feedback.alreadyReadSources,[]);
+   assert.equal(events.some(e=>e.type==='answer_delta'),false);
+   return {toolCalls:[{id:'lookup',name:'read_profile',arguments:{eventId:'startup',language:'zh-CN'}}]};
+  }
+  onText('2016–2022 年。',['event:startup']);
+  return {text:'2016–2022 年。',sourceIds:['event:startup']};
+ }});
+ assert.equal(rounds,3);assert.equal(answer.sources[0].id,'event:startup');
+ assert.deepEqual(events.filter(e=>e.type==='answer_delta').map(e=>e.text),['2016–2022 年。']);
 });

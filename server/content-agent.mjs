@@ -89,6 +89,10 @@ export async function runContentAgent({ question, language = 'en', history = [],
     }
     const roundTools=availableTools.map(tool=>tool.name==='show_concept_flow' && evidence.size?{...tool,parameters:{...tool.parameters,properties:{...tool.parameters.properties,sourceIds:{...tool.parameters.properties.sourceIds,items:{...tool.parameters.properties.sourceIds.items,enum:[...evidence.keys()]}}}}}:tool);
     function requestAnswerRepair(biography=false) {
+      if(!evidence.size) {
+        messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'no_source_read_yet',guidance:'The proposed answer could not be accepted. No public source has been read in this turn yet; this is NOT a search result and does NOT mean the information is absent. For a question about Yuxin’s biography, call read_profile using its declared id or eventId, then cite the exact source.id returned by that tool. For a question about published work, search_content and then read_content. A request for a short answer or dates only still requires this lookup; citations are separate from visible prose. Do not claim information is missing merely because alreadyReadSources is empty. Unrelated or private-information requests should still be declined without inventing evidence.',alreadyReadSources:[]})});
+        return;
+      }
       messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',guidance:'The proposed answer was not shown. Return the required {sourceIds,text} object. Source IDs from search or conversation history are NOT evidence. Read the actual source with a reading tool before citing it, using exact IDs returned by tools. You may instead acknowledge insufficient evidence with sourceIds: []. Do not infer personal beliefs from a project feature or a reading topic.',...(biography?{biographyIdentity:biographyRepairGuidance}:{}),availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
     }
     let result;
