@@ -61,3 +61,7 @@ Reference: https://api-docs.deepseek.com/api/create-chat-completion/ (stream, de
 The renderer discloses that distinction, uses textContent, and allows one expanded step at a time using a shared details name. The first step opens initially; each has a link to its original source. Incoming and restored blocks use the same validation. Clients opt in with supportsConceptFlow: true on each question. Without that boolean, the HTTP server excludes the tool and tells the model to use prose. Deploy the compatible backend first, then the frontend; existing open tabs keep working.
 
 Provider prose accompanying a tool-call completion is bounded and discarded, never exposed as a final answer. Tool calls cannot follow structured answer text that has already streamed. Final answers still require the validated JSON/evidence protocol.
+
+### Failure diagnostics
+
+After a reserved model call has started, failures produce one bounded operational record with a random request ID, fixed category, stage, model-call count and partial-output boolean. No prompt, completion, source text, URL, IP address, token, raw exception or stack is logged. Provider JSON, stream shape, timeout and runtime evidence failures are classified separately. Pre-model validation/rate-limit failures are not logged by this hook. Diagnostics are best-effort and cannot prevent session/accounting cleanup. The process supervisor applies its own journal retention; these records are not a transcript store.

@@ -45,3 +45,21 @@ test('browser client restores a session after navigation and preserves server-ow
   client.clearSession();
   await assert.rejects(client.ask({question:'Again',language:'en'}),/invalid_session/);
 });
+
+test('failed model calls report only safe diagnostics and a broken logger cannot strand a session',async t=>{
+ const origin='https://houx15.github.io',records=[];
+ const guard=createGuard({store:new MemoryAgentStore(),secret:'a'.repeat(40),dailyTokens:1000000,enabled:()=>true});
+ let calls=0;
+ const server=createAgentServer({origin,corpus:{schemaVersion:1,revision:'t',documents:[]},guard,production:false,enabled:()=>true,verifyChallenge:async()=>{},
+   complete:async()=>{if(++calls===1)throw new Error('sensitive upstream text');return {text:'No evidence',sourceIds:[]};},
+   onDiagnostic:record=>{records.push(record);throw new Error('logger unavailable');}});
+ server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>{server.closeAllConnections();server.close();});
+ const client=createAgentClient(`http://localhost:${server.address().port}`,(url,options)=>fetch(url.replace('localhost','127.0.0.1'),{...options,headers:{...options.headers,Origin:origin}}));
+ await client.openSession('fixture');
+ const events=[];
+ await assert.rejects(client.ask({question:'private visitor question',language:'en'},{onEvent:e=>events.push(e)}),/unavailable/);
+ assert.equal(records.length,1);assert.equal(records[0].requestId,events[0].requestId);assert.equal(records[0].stage,'model');assert.equal(records[0].modelCalls,1);
+ assert.ok(!JSON.stringify(records).includes('sensitive'));assert.ok(!JSON.stringify(records).includes('private visitor'));
+ await client.ask({question:'Try a different topic',language:'en'});
+ assert.equal(calls,2);
+});

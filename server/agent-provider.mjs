@@ -1,5 +1,6 @@
 import { AgentError } from './agent-state.mjs';
 import { readProviderStream } from './agent-provider-stream.mjs';
+import { providerFailureCategory } from './agent-diagnostics.mjs';
 import { modelEndpoint } from './agent-endpoint.mjs';
 async function limitedJSON(response,max=100000) {
   if(!response.ok) {await response.body?.cancel();throw new AgentError(502,'provider_unavailable');}
@@ -29,7 +30,7 @@ export function createModelAgent({apiKey,model,provider='deepseek',baseURL,fetch
       const response=await fetchImpl(endpoint,{method:'POST',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(15000)]),headers:{'Content-Type':'application/json',Authorization:`Bearer ${apiKey}`},body:JSON.stringify(body)});
       if(!response.ok){await response.body?.cancel();throw new AgentError(502,'provider_unavailable');}
       return await readProviderStream(response,{signal,onText});
-    } catch(error) {if(signal.aborted) throw signal.reason;throw new AgentError(502,error instanceof AgentError?error.code:'invalid_model_response');}
+    } catch(error) {if(signal.aborted) throw signal.reason;const failure=new AgentError(502,error instanceof AgentError?error.code:'invalid_model_response');if(!(error instanceof AgentError))failure.diagnosticCategory=providerFailureCategory(error);throw failure;}
   };
 }
 

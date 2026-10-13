@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import { AgentError } from './agent-state.mjs';
+import { agentFailureRecord } from './agent-diagnostics.mjs';
 import { runContentAgent } from './content-agent.mjs';
 const invalid=()=>{throw new AgentError(400,'invalid_request');};
 const object=(v,keys)=>v && typeof v==='object' && !Array.isArray(v) && Object.keys(v).every(k=>keys.includes(k));
@@ -10,11 +11,11 @@ async function body(req) {
   for await(const chunk of req){size+=chunk.length;if(size>8192) invalid();parts.push(chunk);}
   try{return JSON.parse(Buffer.concat(parts));}catch{invalid();}
 }
-export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,enabled=()=>false,production=true,deadlineMs=45000}) {
+export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,enabled=()=>false,production=true,deadlineMs=45000,onDiagnostic=()=>{}}) {
   const available=()=>enabled() && (!production || guard.store.shared) && typeof complete==='function' && typeof verifyChallenge==='function';
   const server=createServer(async(req,res)=>{
     const controller=new AbortController(), timer=setTimeout(()=>controller.abort(new Error('deadline')),deadlineMs);
-    const signal=controller.signal, requestId=randomUUID(); let admitted=false,sequence=0,partial=false;
+    const signal=controller.signal, requestId=randomUUID(); let admitted=false,sequence=0,partial=false,step=0,stage='request';
     res.on('close',()=>controller.abort()); req.on('aborted',()=>controller.abort());
     res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
     const json=(status,data)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data));};
@@ -46,7 +47,6 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       const token=req.headers.authorization?.match(/^Bearer ([^ ]+)$/)?.[1];
       const session=await guard.begin(token,address,requestId);admitted=true;signal.throwIfAborted();
       res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','X-Accel-Buffering':'no'});res.flushHeaders();
-      let step=0;
       const paid=async args=>{
         signal.throwIfAborted();if(!available()) throw new AgentError(503,'unavailable');
         const bytes=Buffer.byteLength(JSON.stringify({messages:args.messages,tools:args.tools}));
@@ -54,7 +54,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
         // Extra allowance covers provider wire framing and the language suffix.
         const amount=bytes+4096+1024, reservation=await guard.reserve(requestId,amount);
         signal.throwIfAborted();emit('status',{phase:'model_started',step:++step});
-        const result=await complete(args);signal.throwIfAborted();
+        stage='model';const result=await complete(args);stage='agent';signal.throwIfAborted();
         const usage=result.usage;
         const valid=Number.isSafeInteger(usage?.prompt_tokens) && usage.prompt_tokens>=0 && Number.isSafeInteger(usage?.completion_tokens) && usage.completion_tokens>=0 && usage.completion_tokens<=1024 && usage.total_tokens===usage.prompt_tokens+usage.completion_tokens;
         await guard.reconcile(reservation,valid?usage.total_tokens:undefined);signal.throwIfAborted();
@@ -66,15 +66,16 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
           for(const source of event.sources)if(!emittedSources.has(source.id)){emit('source',{source});emittedSources.add(source.id);}
           partial=true;emit('answer_delta',{text:event.text,sourceIds:event.sources.map(source=>source.id)});
         }
-        if(event.type==='status') {const {type,...data}=event;emit(type,data);}
+        if(event.type==='status') {stage=event.phase==='tool_started'?'tool':'agent';const {type,...data}=event;emit(type,data);}
         if(event.type==='block') {partial=true;emit('block',{block:{...event.block,id:`${requestId}:${event.block.id}`}});}
       }});
       signal.throwIfAborted();
       for(const source of answer.sources)if(!emittedSources.has(source.id))emit('source',{source});
       partial=true;emit('answer',{text:answer.text,sourceIds:answer.sources.map(s=>s.id),revision:answer.revision});
-      await guard.finish(requestId,[{role:'user',content:userContext},{role:'assistant',content:answer.text.slice(0,4000)}]);admitted=false;
+      stage='finish';await guard.finish(requestId,[{role:'user',content:userContext},{role:'assistant',content:answer.text.slice(0,4000)}]);admitted=false;
       emit('done',{outcome:'complete'});res.end();
     } catch(error) {
+      try {if(step>0)onDiagnostic(agentFailureRecord({requestId,stage,modelCalls:step,partial,error}));}catch{/* Diagnostics must never break response or accounting cleanup. */}
       if(!res.destroyed) {
         const code=error instanceof AgentError?error.code:signal.aborted?'interrupted':'unavailable';
         if(res.headersSent) {if(!signal.aborted) emit('error',{code,partial});res.end();}
