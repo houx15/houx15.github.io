@@ -94,7 +94,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
     const finalPass=step===5 || calls>=8;
     const modelMessages=structuredClone(messages);
     if(!finalPass) modelMessages[0].content+=` Remaining tool-capable rounds including this one: ${5-step}; remaining individual tool calls: ${8-calls}. Once you have sufficient evidence, stop redundant lookup. If the visitor requested a diagram, call the presentation tool before these rounds run out; the final round cannot draw. You may read multiple relevant sources in one action batch. After a diagram is emitted, the final answer should contain only a short takeaway, not another list of steps.`;
-    if(finalPass) modelMessages[0].content+=' The lookup budget is now exhausted. No more tools are available. Finish with a concise answer using only evidence already read, or state that the evidence is insufficient. Do not claim a requested visual was drawn unless it was actually emitted.';
+    if(finalPass) modelMessages[0].content+=' The lookup budget is now exhausted. No more lookup or presentation tools are available. Finish with a concise answer using only evidence already read, or use reply_conversationally alone to end with a conversational boundary or uncertainty. Do not claim a requested visual was drawn unless it was actually emitted.';
     if(blocks.length) {
       const shown=[...new Set(blocks.map(block=>block.type))].join(', ');
       modelMessages[0].content+=`\n\nCURRENT SCREEN: The visitor already has these rendered blocks: ${shown}. They are visible UI, not hidden tool results. Your text should add a concise interpretation or answer the remaining question. Do not narrate the entries again. For a biography introduction with a timeline, describe her present role and the connection between her areas of work; leave the chronology in the timeline. If the visitor explicitly asks for a particular detail, explain that detail.`;
@@ -108,7 +108,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
       messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',guidance:'The proposed answer was not shown. Return the required {sourceIds,text} object. Source IDs from search or conversation history are NOT evidence. Read the actual source with a reading tool before citing it, using exact IDs returned by tools. You may instead acknowledge insufficient evidence with sourceIds: []. Do not infer personal beliefs from a project feature or a reading topic.',...(biography?{biographyIdentity:biographyRepairGuidance}:{}),availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
     }
     let result;
-    try { result = await complete({ messages: modelMessages, tools: finalPass?[]:roundTools, language, signal, onText:(text,sourceIds)=>{
+    try { result = await complete({ messages: modelMessages, tools: finalPass?roundTools.filter(tool=>tool.name==='reply_conversationally'):roundTools, language, signal, onText:(text,sourceIds)=>{
       signal?.throwIfAborted();
       if(!Array.isArray(sourceIds) || sourceIds.length>10 || sourceIds.some(id=>!evidence.has(id)))throw new Error('Invalid answer evidence');
       sourceIds=[...new Set(sourceIds)];
@@ -140,12 +140,12 @@ export async function runContentAgent({ question, language = 'en', history = [],
     }
     signal?.throwIfAborted();
     if (result.toolCalls?.length) {
-      if(finalPass)throw new Error('Agent step budget exceeded');
+      if(finalPass && !(result.toolCalls.length===1 && result.toolCalls[0].name==='reply_conversationally'))throw new Error('Agent step budget exceeded');
       if(streamed)throw new Error('Mixed answer and tool calls');
-      if (calls + result.toolCalls.length > 8) throw new Error('Tool budget exceeded');
+      if (calls + result.toolCalls.filter(call=>call.name!=='reply_conversationally').length > 8) throw new Error('Tool budget exceeded');
       messages.push({role:'assistant',toolCalls:result.toolCalls});
       for (const call of result.toolCalls) {
-        signal?.throwIfAborted(); calls++;
+        signal?.throwIfAborted(); if(call.name!=='reply_conversationally')calls++;
         const definition = availableTools.find(tool => tool.name === call.name);
         if (!definition || typeof call.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(call.id)) throw new Error('Invalid tool call');
         try {

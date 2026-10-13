@@ -199,7 +199,7 @@ test('five lookup rounds retain one budgeted tool-free synthesis instead of drop
  let rounds=0;const events=[];
  const result=await runContentAgent({question:'Explain the note',corpus,onEvent:e=>events.push(e),complete:async({tools,messages})=>{
    if(++rounds<=5)return {toolCalls:[{id:`read_${rounds}`,name:'read_content',arguments:{id:'notes/cache/en'}}]};
-   assert.equal(tools.length,0);assert.match(messages[0].content,/No more tools are available/);
+   assert.deepEqual(tools.map(t=>t.name),['reply_conversationally']);assert.match(messages[0].content,/No more lookup or presentation tools are available/);
    assert.ok(messages.some(m=>m.role==='tool' && m.content.includes('Attention stores keys')));
    return {text:'The note describes stored keys and values.',sourceIds:['notes/cache/en:0']};
  }});
@@ -614,4 +614,16 @@ test('uncertainty citations are explicit and read, never inherited from an unrel
   return {toolCalls:[{id:'reply',name:'reply_conversationally',arguments:{reason:'uncertain',sourceIds:['notes/cache/en:0']}}]};
  }});
  assert.equal(round,3);assert.deepEqual(answer.sources.map(s=>s.id),['notes/cache/en:0']);
+});
+
+
+test('the last completion can end with uncertainty without another lookup or model call',async()=>{
+ let round=0;
+ const answer=await runContentAgent({question:'An unconfirmed view?',corpus,complete:async({tools})=>{
+  round++;
+  if(round<6)return {toolCalls:[{id:`search${round}`,name:'search_content',arguments:{query:'missing-view'}}]};
+  assert.deepEqual(tools.map(t=>t.name),['reply_conversationally']);
+  return {toolCalls:[{id:'done',name:'reply_conversationally',arguments:{reason:'uncertain'}}]};
+ }});
+ assert.equal(round,6);assert.match(answer.text,/enough to confirm/);
 });
