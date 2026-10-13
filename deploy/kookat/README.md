@@ -37,4 +37,12 @@ The helper preserves other configuration and writes the runtime file atomically 
 
 `AGENT_STORE=sqlite` selects the Node 24 SQLite backend; `AGENT_SQLITE_PATH` must be an absolute path outside the checkout, with a 0700 parent directory and a 0600 regular file. Redis credentials are not required in this mode. This option is for processes on the same host and local disk, not network filesystems or multiple hosts. Transactions use BEGIN IMMEDIATE, WAL and synchronous=FULL. A missing or corrupt ledger fails closed. Create the empty private file explicitly and initialize once with AGENT_INITIALIZE=1; remove that flag for normal startup. Never recreate or restore an old ledger to recover service without reconciling provider usage, since that could lower recorded spending. Backups must include committed WAL state (use SQLite's backup mechanism or stop the service and checkpoint before copying). Conversation history is stored in this private ledger, subject to the existing session expiration; cleanup occurs on subsequent transactions.
 
-Local restart, independent-connection, rollback and missing/corrupt-state tests cover this adapter. The remote release has not yet been migrated to SQLite. Real Bailian streaming and a biography tool round-trip have now passed; Turnstile setup remains pending.
+Local restart, independent-connection, rollback and missing/corrupt-state tests cover this adapter. The remote current release is now `20261013-sqlite`. Its private SQLite ledger was initialized once and successfully reopened on Node 24.14.1. The earlier 3,907 smoke-test tokens were accounted at the conservative 2 CNY/million rate (0.007814 CNY). AGENT_INITIALIZE=0 and AGENT_ENABLED=0 remain set. Real Bailian streaming and a biography tool round-trip have now passed; Turnstile setup remains pending.
+
+Turnstile secret entry (the public Site Key is configured separately in the frontend):
+
+```sh
+ssh -t kookat 'python3 /home/monkey/apps/portfolio-agent/current/scripts/set-agent-key.py turnstile'
+```
+
+The helper accepts only model/turnstile selectors, requires a terminal and masked input, and does not enable the service.
