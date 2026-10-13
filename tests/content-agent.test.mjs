@@ -164,9 +164,27 @@ test('concept flows reject unread sources and mismatched steps without emitting 
     await assert.rejects(runContentAgent({question:'Draw',corpus,onEvent:e=>events.push(e),complete:async()=>({toolCalls:[
       {id:'read',name:'read_content',arguments:{id:'notes/cache/en'}},
       {id:'flow',name:'show_concept_flow',arguments:{title:'Example',labels:['One','Two'],descriptions:['A','B'],sourceIds:['notes/cache/en:0','notes/cache/en:0'],...bad}}
-    ]})}),bad.sourceIds?/budget/:/Invalid concept evidence/);
+    ]})}),/budget/);
     assert.equal(events.some(e=>e.type==='block'),false);
   }
+});
+
+test('malformed diagram structure can be repaired without displaying the rejected diagram',async()=>{
+ let rounds=0;const events=[];
+ const args={title:'Cache',labels:['Store','Reuse'],descriptions:['Retain values.','Reuse values.'],sourceIds:['notes/cache/en:0']};
+ const result=await runContentAgent({question:'Draw',corpus,onEvent:e=>events.push(e),complete:async({messages})=>{
+  rounds++;
+  if(rounds===1)return {toolCalls:[{id:'r',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+  if(rounds===2)return {toolCalls:[{id:'bad',name:'show_concept_flow',arguments:args}]};
+  if(rounds===3){
+   assert.equal(events.some(e=>e.type==='block'),false);
+   assert.equal(JSON.parse(messages.at(-1).content).error,'invalid_concept_structure');
+   return {toolCalls:[{id:'fixed',name:'show_concept_flow',arguments:{...args,sourceIds:['notes/cache/en:0','notes/cache/en:0']}}]};
+  }
+  return {text:'A supported explanation.',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(rounds,4);assert.equal(result.blocks.length,1);
+ assert.equal(events.filter(e=>e.type==='block').length,1);
 });
 
 test('older clients are not offered concept tools and cannot receive them via a guessed call',async()=>{

@@ -146,6 +146,11 @@ export async function runContentAgent({ question, language = 'en', history = [],
         let output;
         try { output = call.name==='show_concept_flow' ? conceptFlow(call.arguments,evidence) : tools[call.name](call.arguments); }
         catch(error) {
+          if(call.name==='show_concept_flow' && error.message==='Invalid concept evidence' && call.arguments.sourceIds.every(id=>evidence.has(id))) {
+            onEvent({type:'status',phase:'tool_completed',tool:call.name,callId:call.id});
+            messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'invalid_concept_structure',guidance:'No diagram was displayed. Supply a nonempty title and 2–5 nonempty steps. labels, descriptions and sourceIds must have exactly the same length. Repeat a source ID when multiple steps use that source. Correct the structure, or answer in prose using already-read evidence. Do not repeat the unchanged call.'})});
+            continue;
+          }
           if(call.name==='show_concept_flow' && error.message==='Invalid concept evidence' && call.arguments.sourceIds.some(id=>!evidence.has(id))) {
             onEvent({type:'status',phase:'tool_completed',tool:call.name,callId:call.id});
             messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'unread_concept_source',guidance:'No diagram was displayed. Each step must use an exact source ID from an actual read in this turn. Choose a supporting source from the list or read additional evidence; never guess or attach an unrelated source.',availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
