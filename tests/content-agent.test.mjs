@@ -370,3 +370,40 @@ test('biography final answers are checked even without streamed deltas',async()=
  }});
  assert.equal(rounds,3);assert.match(result.text,/Center for Social Research/);
 });
+
+test('within-article retrieval returns distinct relevant passages, with pagination and strict document scope',()=>{
+ const article=doc('method','MASS','Workflow search and execution.');
+ article.sections.push(
+  {id:article.id+':1',heading:'Trajectory quality',text:'Correctness is not guaranteed by a high-scoring result.',url:article.url+'#quality'},
+  {id:article.id+':2',heading:'Evaluator limits',text:'Correctness is not guaranteed when the evaluator rewards a changed task.',url:article.url+'#evaluation'}
+ );
+ const unrelated=doc('elsewhere','Correctness','Correctness correctness correctness');
+ const tools=createContentTools({schemaVersion:1,documents:[article,unrelated]});
+ const result=tools.search_content({query:'correctness',documentId:article.id});
+ assert.equal(result.total,2);assert.deepEqual(new Set(result.results.map(r=>r.sectionId)),new Set([article.id+':1',article.id+':2']));
+ assert.ok(result.results.every(r=>r.id===article.id));
+ assert.equal(tools.search_content({query:'correctness',documentId:article.id,offset:1,limit:1}).results[0].sectionId,result.results[1].sectionId);
+ assert.equal(tools.search_content({query:'correctness'}).total,2); // Global results still deduplicate documents.
+ assert.throws(()=>tools.search_content({query:'correctness',documentId:'missing'}),/Unknown document/);
+ assert.equal(tools.read_content({id:article.id,sectionId:result.results[0].sectionId}).sections.length,1);
+});
+
+test('scoped search passages must still be read before an agent can cite them',async()=>{
+ let calls=0;const id='notes/cache/en:0';
+ await assert.rejects(runContentAgent({question:'What is cached?',corpus,complete:async()=>{
+  if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'keys',documentId:'notes/cache/en'}}]};
+  return {text:'Keys are cached.',sourceIds:[id]};
+ }}),/Invalid answer evidence/);
+ assert.equal(calls,6);
+});
+
+test('an unknown scoped document can be corrected without granting evidence',async()=>{
+ let calls=0;
+ const answer=await runContentAgent({question:'What is cached?',corpus,complete:async({messages})=>{
+  calls++;
+  if(calls===1)return {toolCalls:[{id:'bad',name:'search_content',arguments:{query:'keys',documentId:'missing'}}]};
+  if(calls===2){assert.match(messages.at(-1).content,/WITHOUT documentId/);return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};}
+  return {text:'Keys and values.',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(answer.sources[0].id,'notes/cache/en:0');assert.equal(calls,3);
+});

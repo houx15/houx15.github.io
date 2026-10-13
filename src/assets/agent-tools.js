@@ -32,8 +32,9 @@ export function createContentTools(corpus) {
   const averageLength = totalLength / (sections.size || 1);
   const card = doc => ({ id: doc.id, title: doc.title, summary: doc.summary, url: doc.url, date: doc.date, type: doc.type });
   const requireDoc = id => { const doc = docs.get(id); if (!doc) throw new Error('Unknown document'); return doc; };
-  function search_content({ query, type, from, to, language, offset = 0, limit = 5 } = {}) {
+  function search_content({ query, documentId, type, from, to, language, offset = 0, limit = 5 } = {}) {
     if (typeof query !== 'string' || query.length > 400) throw new Error('Invalid query');
+    if(documentId !== undefined) requireDoc(documentId);
     const terms = [...new Set(tokenize(query))];
     if (!terms.length) return { total: 0, results: [] };
     const phrases = [...normalize(query).matchAll(/"([^"]+)"/g)].map(match => match[1]);
@@ -51,19 +52,22 @@ export function createContentTools(corpus) {
     const grouped = new Map();
     for (const [id, score] of scores) {
       const { doc, section } = sections.get(id);
+      if (documentId !== undefined && doc.id !== documentId) continue;
       if ((type && doc.type !== type) || (from && doc.date < from) || (to && doc.date > to)) continue;
       const haystack = normalize(`${doc.title}\n${section.heading}\n${section.text}`);
       if (phrases.some(phrase => !haystack.includes(phrase))) continue;
-      const old = grouped.get(doc.canonicalId);
+      // Site-wide results represent documents; a scoped query returns matching passages.
+      const resultKey = documentId === undefined ? doc.canonicalId : section.id;
+      const old = grouped.get(resultKey);
       const positions = terms.map(term => normalize(section.text).indexOf(term)).filter(index => index >= 0);
       const excerptStart = Math.max(0, (positions.length ? Math.min(...positions) : 0) - 80);
       const result = { ...card(doc), sectionId: id, heading: section.heading, sourceUrl: section.url, score,
         excerpt: section.text.slice(excerptStart, excerptStart + 320), language: doc.language };
       // Select the best section; prefer the requested language only at comparable relevance.
       const adjusted = score * (doc.language === language ? 1.1 : 1);
-      if (!old || adjusted > old.adjusted) grouped.set(doc.canonicalId, { ...result, adjusted });
+      if (!old || adjusted > old.adjusted) grouped.set(resultKey, { ...result, adjusted });
     }
-    const results = [...grouped.values()].sort((a, b) => b.adjusted - a.adjusted || a.id.localeCompare(b.id));
+    const results = [...grouped.values()].sort((a, b) => b.adjusted - a.adjusted || a.id.localeCompare(b.id) || a.sectionId.localeCompare(b.sectionId));
     offset = bounded(offset, 0, 10000); limit = bounded(limit, 5, 10);
     return { total: results.length, results: results.slice(offset, offset + limit).map(({ adjusted, ...result }) => result) };
   }
