@@ -13,17 +13,25 @@ The full requested outcome remains incomplete. This audit does not equate test s
 | Honest tool progress and cancellation | Backend/client cancellation tests; validated event renderer | Real provider and HTTPS ingress cancellation/accounting |
 | Conversation continuity across different pages | Presentation history survives in sessionStorage; bearer remains memory-only | Not implemented for model sessions. Hosting/domain decision informs transport architecture |
 | Context management | Server retains last three successful exchanges | No semantic compaction; evaluate long-conversation loss before selecting an implementation |
-| Anonymous access and budget controls | Turnstile, Redis CAS, quotas and fail-closed tests using mocks | Actual service configuration, persistent state, edge protection, provider spending cap, privacy disclosure |
-| No exposed model key | Secrets runtime-only; frontend origins/site key empty; explicit container COPY list | Deployment secret configuration and artifact review |
+| Anonymous access and budget controls | Live Turnstile success; invalid token 403 and unauthenticated chat 401; SQLite restart/budget tests; bilingual privacy disclosure | Real token replay and ingress concurrency/cancellation evaluation |
+| No exposed model key | Keys entered directly on server; public frontend includes only origin/site key; credential-pattern scan passed | Maintain secret review for releases |
 | Container and operation | Separate v2 entry point, configuration checker and Dockerfile prepared | Actual container build, startup, HTTPS deployment, lifecycle check |
-| Public rollout | Development branch prepared; paid endpoint disabled | Launch gates and live verification |
+| Public rollout | c4facd2 deployed and live revision verified; backend active with explicit owner authorization | Continue quality and UX evaluation |
 
 ## Deployment and real-provider check — 2026-10-13
 
-Hosting is the owner's kookat server, with a Node 24 user service staged and valid HTTPS at agent.kookat.icu. The service remains disabled; frontend live-agent configuration remains empty. The owner entered the model credential directly into the server-only private environment file. No credential was copied into this repository.
+Hosting is the owner's kookat server, with a Node 24 user service staged and valid HTTPS at agent.kookat.icu. The owner explicitly authorized backend activation and frontend publication. The service is active; the frontend points to agent.kookat.icu. The owner entered the model credential directly into the server-only private environment file. No credential was copied into this repository.
 
 Provider: Bailian, Beijing workspace OpenAI-compatible endpoint; initial model qwen-plus. Approved ceiling: 500 CNY/month. A bounded real-provider smoke test returned HTTP 200 and SSE, with first parsed text at 1,402 ms, 2 deltas, and 103 total tokens. A separate real-agent biography test used read_profile and query_profile_events, completed in two model rounds, emitted 35 text deltas and validated citations, and used 3,804 tokens. These are direct server-side smoke tests, not browser-to-public-service validation. They were run with bounded requests outside the disabled production accounting service; preserve the 3,907-token test usage when reconciling provider billing. Successful source IDs do not establish that every generated claim is accurate; broader factual evaluation remains necessary.
 
-Remote preflight now reports only missing AGENT_REDIS_TOKEN, AGENT_REDIS_URL and AGENT_TURNSTILE_SECRET. Persistent accounting and real visitor verification must be configured and tested before activation. The API key, signing secret and private environment file stay outside Git. Never request keys in chat.
+Remote preflight passed after configuring SQLite and Turnstile. The Turnstile secret probe passed, and a real browser session succeeded. SQLite replaces Redis on this single-host deployment. The API key, signing secret and private environment file stay outside Git. Never request keys in chat.
 
-The implementation is being committed to a development branch; this does not publish the website or activate the paid endpoint. Remaining UX, continuity, accounting and end-to-end launch gates in the table still apply.
+The implementation is published and the paid endpoint is active under the owner’s explicit authorization. Remaining UX, continuity, accounting and end-to-end verification gates in the table still apply.
+
+## Live integration evidence
+
+Production release c4facd2 passed build/deploy and exact live-revision verification. A real browser completed Turnstile without a manual challenge, asked for a biography and received a sourced answer plus chronology. A note-side dialogue initially failed because the model guessed a nonexistent section ID. Commit 196ca09 returns corrective tool feedback within the same step and cost limits, without granting evidence for the failed lookup. It is deployed to the backend and on main. A subsequent real browser note question completed with links to actual article sections. A separate invalid_model_response failure was observed but not consistently reproduced; successful retries do not establish full reliability.
+
+Long generated timelines pushed answer text out of view. Commit 33a0377 collapses timelines longer than three items behind a single disclosure; all dates, descriptions and sources remain accessible. Local browser visual/expansion checks and full verification passed. Production layout confirmation remains a separate check.
+
+The biography answer exposed an internal citation identifier; the prompt now discourages these in prose. This is not a deterministic output guarantee. Broader conceptual diagrams, cross-document model-session continuity, long-conversation context management, mobile/accessibility review and systematic real-model evaluations remain incomplete.
