@@ -29,7 +29,7 @@ export function initCompanion(document) {
   const idle = liveClient ? (zh?'AI 会参考公开资料回答，也可能出错。':'AI answers from public sources and can make mistakes.') : (zh ? '开场试玩 · AI 自由对话尚未接通' : 'Opening experience · live AI conversation not yet connected');
   const seen = []; let history = [], busy = false, corpusPromise, activeController;
   const stopButton=root.querySelector('[data-stop-answer]'), sendButton=form.querySelector('[type=submit]');
-  let opening;
+  let opening, returnToComposer = false;
   function resetOpening() {
     opening=chooseOpening({article:root.dataset.article==='true'});
     root.querySelector('[data-opening-label]').textContent=openingCopy[language][opening].action;
@@ -47,9 +47,18 @@ export function initCompanion(document) {
   const animate = name => { mascot.classList.remove('is-poked','is-rolling');void mascot.offsetWidth;mascot.classList.add(name); };
   mascot.addEventListener('animationend', () => mascot.classList.remove('is-poked','is-rolling'));
   function setBusy(value, text = idle) {
+    const focused=document.activeElement;
+    if(value) returnToComposer=root.contains(focused) && ['BUTTON','TEXTAREA'].includes(focused.tagName);
+    const restore=returnToComposer && (focused===stopButton || focused===document.body);
     busy = value; root.setAttribute('aria-busy',String(value));status.textContent = text;
     root.querySelectorAll('button,textarea').forEach(button => { button.disabled = value || Boolean(button.closest('.is-incomplete')); });
     stopButton.hidden=!(value && activeController);stopButton.disabled=false;sendButton.hidden=!stopButton.hidden;
+    if(value && returnToComposer && !stopButton.hidden) stopButton.focus({preventScroll:true});
+    if(!value) {
+      // Restore only focus we displaced; never interrupt reading or reopen a closed dialog.
+      if(restore && (!dialog || dialog.open)) input.focus({preventScroll:true});
+      returnToComposer=false;
+    }
   }
   function sources(parent, items) {
     if (!items?.length) return;
@@ -147,10 +156,10 @@ export function initCompanion(document) {
   }
   async function askLive(question) {
     activeController=new AbortController();const controller=activeController;
+    setBusy(true,zh?'正在连接…':'Connecting…');
     root.classList.add('has-conversation');
     const turn=createAgentTurn(document,{log,question,language,onQuestion:ask});
     const challenge=root.querySelector('[data-visitor-check]');
-    setBusy(true,zh?'正在连接…':'Connecting…');
     const savedEvents=[];
     try {
       if(!liveClient.hasSession()) {
@@ -172,6 +181,7 @@ export function initCompanion(document) {
     } catch(error) {
       const message=agentFailureMessage(controller.signal.aborted?'stopped':error.message,language,{partial:savedEvents.length>0});
       turn.interrupt(message);
+      if(!controller.signal.aborted) input.value=question;
     } finally {challenge.hidden=true;challenge.replaceChildren();activeController=null;setBusy(false);}
   }
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});

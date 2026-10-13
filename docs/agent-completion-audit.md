@@ -45,3 +45,7 @@ The streamed-error renderer now uses the same reviewed, bilingual error messages
 ## Article context across turns
 
 The server now retains the validated pageContext and language alongside each successful user question in its existing three-exchange history. Previously, the article identity was discarded after the first answer, making references such as “the previous note” ambiguous after navigation. The HTTP integration test changes from one article to another using a restored client and verifies both distinct page identities reach the next model invocation. This proves context transport with a mocked model, not real-model reference resolution. History remains conversational context, not citation evidence; each answer must read its sources again. The existing 4,000-character per-message bound is checked before admitting a request.
+
+## Keyboard recovery after failed requests
+
+A production browser check reproduced a failed request leaving focus on BODY and clearing the question. The composer now transfers displaced keyboard focus to Stop while waiting, then restores it to the input only if the visitor has not moved focus elsewhere or closed the reading dialog. Failed requests restore their question as an editable draft; nothing is resent automatically. Local browser verification of an actual request failure confirmed the original question remained in the focused textarea. This is not a complete screen-reader or mobile-keyboard audit.
