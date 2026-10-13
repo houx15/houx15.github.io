@@ -26,7 +26,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
   const progressText=make('span',zh?'正在连接…':'Connecting…');progress.append(progressText);row.append(progress);
   const body=make('div','','comic-live-body'), visuals=make('div','','comic-live-visuals');row.append(body,visuals);log.append(row);
   const sources=new Map(),blocks=new Map(),statuses=[];let finished=false, failedTurn=false, questionBlock;
-  const toolLabels={search_content:zh?'在笔记中找线索':'Finding relevant notes',read_content:zh?'正在读原文':'Reading the source',read_profile:zh?'核对她的公开经历':'Checking her public biography',query_profile_events:zh?'整理经历的时间线':'Tracing her story',show_post_cards:zh?'挑选接下来值得读的内容':'Choosing a next read',show_concept_flow:zh?'画出理解这件事的步骤':'Drawing the explanation',show_visualization:zh?'整理图中的信息':'Arranging the visual',find_related_posts:zh?'寻找相关内容':'Finding related reading',suggest_questions:zh?'准备下一步问题':'Preparing a follow-up'};
+  const toolLabels={recall_conversation:zh?'回顾前面的对话':'Revisiting an earlier exchange',search_content:zh?'在笔记中找线索':'Finding relevant notes',read_content:zh?'正在读原文':'Reading the source',read_profile:zh?'核对她的公开经历':'Checking her public biography',query_profile_events:zh?'整理经历的时间线':'Tracing her story',show_post_cards:zh?'挑选接下来值得读的内容':'Choosing a next read',show_concept_flow:zh?'画出理解这件事的步骤':'Drawing the explanation',show_visualization:zh?'整理图中的信息':'Arranging the visual',find_related_posts:zh?'寻找相关内容':'Finding related reading',suggest_questions:zh?'准备下一步问题':'Preparing a follow-up'};
   function renderBlock(block) {
     validateAgentBlock(block);
     let container=blocks.get(block.id);
@@ -93,7 +93,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     progressText.textContent=message;
     if(!failed) {
       progress.removeAttribute('role');
-      if(restored){progress.replaceChildren(make('span',continuing?(zh?'已恢复对话 · AI 保留最近三轮上下文':'Conversation restored · AI retains the last three exchanges'):(zh?'上次的对话记录 · 新会话不会自动读取这段历史':'Previous conversation · new sessions do not automatically read this history')));}
+      if(restored){progress.replaceChildren(make('span',continuing?(zh?'已恢复对话 · 较早的内容可按需回顾':'Conversation restored · earlier exchanges can be recalled when needed'):(zh?'上次的对话记录 · 新会话不会自动读取这段历史':'Previous conversation · new sessions do not automatically read this history')));}
       else if(!statuses.length){progress.remove();}
       else {
       const details=make('details','','comic-work-record');details.append(make('summary',zh?'查看查阅过程':'View the source-checking steps'));

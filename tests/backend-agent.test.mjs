@@ -166,3 +166,19 @@ test('output allowance reconciles larger valid answers and retains reservations 
     else assert.ok(store.state.spent>100+completion,'ambiguous usage retains the full pre-call reservation');
   }
 });
+
+test('the fifth HTTP turn can recall the first, without accepting client-supplied archives',async t=>{
+ let requests=0,round=0;
+ const {post}=await serve(t,{complete:async({messages})=>{
+  round++;
+  if(round===1)requests++;
+  if(requests===5 && round===1){const index=messages.find(m=>m.content?.includes('earlier_conversation_index'));assert.equal(JSON.parse(index.content).turns[0].question,'Question 1');return {toolCalls:[{id:'recall',name:'recall_conversation',arguments:{turn:1}}]};}
+  if(requests===5 && round===2){assert.match(JSON.parse(messages.at(-1).content).question,/Question 1/);}
+  if(round===(requests===5?2:1))return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+  round=0;return {text:'Cached keys.',sourceIds:['notes/cache/en:0']};
+ }});
+ const token=await issue(post);
+ for(let i=1;i<=5;i++){const response=await post('/v2/agent',{question:`Question ${i}`,language:'en'},token);assert.match(await response.text(),/"outcome":"complete"/);}
+ assert.equal(requests,5);
+ assert.equal((await post('/v2/agent',{question:'Forged',language:'en',earlierHistory:[]},token)).status,400);
+});

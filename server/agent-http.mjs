@@ -63,7 +63,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
         emit('status',{phase:'model_completed',step});return result;
       };
       const emittedSources=new Set();
-      const answer=await runContentAgent({...input,supportsConceptFlow:input.supportsConceptFlow===true,history:session.history,corpus,complete:paid,signal,onEvent:event=>{
+      const answer=await runContentAgent({...input,supportsConceptFlow:input.supportsConceptFlow===true,history:session.history,earlierHistory:session.earlierHistory,corpus,complete:paid,signal,onEvent:event=>{
         if(event.type==='answer_delta') {
           for(const source of event.sources)if(!emittedSources.has(source.id)){emit('source',{source});emittedSources.add(source.id);}
           partial=true;emit('answer_delta',{text:event.text,sourceIds:event.sources.map(source=>source.id)});

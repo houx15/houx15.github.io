@@ -70,10 +70,16 @@ export function createGuard({store,secret,dailyTokens=0,monthlyCny,rate,enabled=
       rateLimit(s,`turn:${id}`,6,60000,t); rateLimit(s,`address:${addressKey(address)}`,12,60000,t);
       if(session.day!==s.day) {session.day=s.day;session.turns=0;}
       if(session.turns>=20) fail(429,'rate_limited'); session.turns++;
-      s.leases[requestId]={sessionId:id,expiresAt:t+60000}; return {sessionId:id,history:session.history};
+      s.leases[requestId]={sessionId:id,expiresAt:t+60000}; return {sessionId:id,history:session.history,earlierHistory:session.earlierHistory || []};
     });},
     async finish(requestId,exchange) {return tx(s=>{
-      const lease=s.leases[requestId]; if(exchange && lease && s.sessions[lease.sessionId]) s.sessions[lease.sessionId].history=[...s.sessions[lease.sessionId].history,...exchange].slice(-6);
+      const lease=s.leases[requestId];
+      if(exchange && lease && s.sessions[lease.sessionId]) {
+        if(!Array.isArray(exchange) || exchange.length!==2 || exchange.some((m,i)=>m.role!==(i?'assistant':'user') || typeof m.content!=='string' || m.content.length>4000))throw new Error('Invalid exchange');
+        const session=s.sessions[lease.sessionId],all=[...session.history,...exchange];
+        session.earlierHistory=[...(session.earlierHistory || []),...all.slice(0,Math.max(0,all.length-6))].slice(-34);
+        session.history=all.slice(-6);
+      }
       delete s.leases[requestId];
     });},
     async reserve(requestId,amount) {const id=randomUUID(); return tx((s,t)=>{

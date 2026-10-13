@@ -1,8 +1,10 @@
+import {conversationRecall} from './agent-conversation.mjs';
 import {usesBiographyEvidence,checkBiographySentence,biographyRepairGuidance} from './agent-biography-check.mjs';
 import { createContentTools } from '../src/assets/agent-tools.js';
 import { createProfileTools,profileRevision,profileEventIds } from './agent-profile.mjs';
 
 export const contentToolDefinitions = [
+  ['recall_conversation', 'Retrieve one earlier successful exchange by turn number from the earlier-conversation index. Its answer and diagram references are conversational context only; read their public sources again before making factual claims.', {turn:{type:'integer'}}, ['turn']],
   ['read_profile', 'Read owner-approved biography facts. Use eventId to read one exact chronology entry without displaying a timeline; otherwise use id. Current statements have an asOf date.', {eventId:{enum:profileEventIds},id:{enum:['profile','startup','nonprofits','unicef','consulting','interests','contact','research','projects']},language:{enum:['en','zh-CN']}}, []],
   ['query_profile_events', 'Read and display approved biography chronology, preserving overlapping and uncertain date ranges.', {language:{enum:['en','zh-CN']}}, []],
   ['search_content', 'Search published documents and sections; query is required.', { query: {type:'string',maxLength:400}, type:{enum:['notes','reports','projects']}, from:{type:'string'}, to:{type:'string'}, language:{enum:['en','zh-CN']}, offset:{type:'integer'}, limit:{type:'integer'} }, ['query']],
@@ -21,15 +23,16 @@ export const contentInstructions = `You help readers understand Yuxin Hou's publ
 // Model adapter is injected. This loop makes no network calls and owns no credentials.
 // A paid adapter must reserve budget for EVERY completion, enforce output tokens,
 // forward signal to fetch, and validate its final structured output.
-export async function runContentAgent({ question, language = 'en', history = [], pageContext, supportsConceptFlow = true, corpus, complete, signal, onEvent = () => {} }) {
+export async function runContentAgent({ question, language = 'en', history = [], earlierHistory = [], pageContext, supportsConceptFlow = true, corpus, complete, signal, onEvent = () => {} }) {
   if (typeof question !== 'string' || !question.trim() || question.length > 400) throw new Error('Invalid question');
   if (!Array.isArray(history) || history.length > 6 || history.some(item => !['user','assistant'].includes(item.role) || typeof item.content !== 'string' || item.content.length > 4000)) throw new Error('Invalid history');
   if (!['en','zh-CN'].includes(language)) throw new Error('Invalid language');
   if (pageContext && !corpus.documents.some(d => d.id === pageContext.documentId)) throw new Error('Invalid page context');
-  const tools = {...createContentTools(corpus),...createProfileTools()}, evidence = new Map(), blocks = [];
-  const availableTools=contentToolDefinitions.filter(tool=>supportsConceptFlow || tool.name!=='show_concept_flow');
+  const recall=conversationRecall(earlierHistory);
+  const tools = {...createContentTools(corpus),...createProfileTools(),recall_conversation:args=>recall.read(args)}, evidence = new Map(), blocks = [];
+  const availableTools=contentToolDefinitions.filter(tool=>(supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || tool.name!=='recall_conversation'));
   const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
-  const messages = [{role:'system',content:instructions}, ...history, {role:'user',content:JSON.stringify({question,language,pageContext})}];
+  const messages = [{role:'system',content:instructions}, ...(earlierHistory.length?[{role:'user',content:JSON.stringify(recall.index)}]:[]), ...history, {role:'user',content:JSON.stringify({question,language,pageContext})}];
   let calls = 0;
   // Re-read a bounded set of the most recent sourced answer or diagram references. The model sees
   // fresh tool results rather than treating conversation memory as evidence.
