@@ -158,3 +158,5 @@
 
 .comic-reading-position {flex-shrink:0;font-size:11px;line-height:1.6;color:#636761;margin:0 0 9px;overflow-wrap:anywhere;}
 .comic-room:not(.has-conversation) .comic-reading-position {display:none;}
+
+.comic-progress .comic-recovery-link {display:table;margin-top:6px;padding:8px 0;min-height:44px;box-sizing:border-box;font-size:14px;color:#191919;text-underline-offset:5px;}

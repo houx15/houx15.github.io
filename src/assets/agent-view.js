@@ -99,9 +99,13 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     for(const item of block.items){const li=make('li');li.append(make('span',biography?item.period:item.date),make('h3',item.title));if(biography)li.append(make('p',item.description));const a=make('a',zh?'原文 ↗':'Source ↗');a.href=biography?item.source.url:item.url;li.append(a);list.append(li);}timeline.append(list);
     container.append(make('p',biography?(zh?`依据截至 ${block.asOf} 的公开履历；时间可能重叠。`:`Public biography as of ${block.asOf}; periods may overlap.`):(zh?'这些是发布日期，不代表项目起止时间。':'Publication dates, not project start/end dates.'),'comic-visual-note'));
   }
-  function end(failed, message) {
+  function end(failed, message, code) {
     finished=true;failedTurn=failed;row.classList.toggle('is-incomplete',failed);progress.classList.remove('is-active');
     progressText.textContent=message;
+    if(failed && ['daily_budget_exhausted','monthly_budget_exhausted','budget_exhausted'].includes(code)) {
+      const link=make('a',zh?'先读学习笔记 ↗':'Explore the learning notes ↗','comic-recovery-link');
+      link.href=zh?'/zh/notes/':'/notes/';progress.append(link);
+    }
     if(!failed) {
       progress.removeAttribute('role');
       if(restored){progress.remove();}
@@ -139,8 +143,8 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
         if(event.sourceIds.length){const details=make('details','','comic-evidence');details.append(make('summary',zh?'翻到原文 ↗':'See the sources ↗'));for(const id of event.sourceIds){const source=sources.get(id);if(!source)throw new Error('invalid_response');const a=make('a',source.label);a.href=source.url;details.append(a);}body.append(details);}
         if(fresh)return body;
       } else if(event.type==='done')end(false,'');
-      else if(event.type==='error')end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || blocks.size>0,resetsAt:event.resetsAt}));
+      else if(event.type==='error')end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || blocks.size>0,resetsAt:event.resetsAt}),event.code);
     },
-    interrupt(message) {if(!finished)end(true,message||(zh?'连接中断了。可以重新发送，但我不会自动重复请求。':'The connection stopped. You can send again; I won’t retry automatically.'));}
+    interrupt(message,{code}={}) {if(!finished)end(true,message||(zh?'连接中断了。可以重新发送，但我不会自动重复请求。':'The connection stopped. You can send again; I won’t retry automatically.'),code);}
   };
 }

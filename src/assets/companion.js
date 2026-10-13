@@ -204,7 +204,7 @@ export function initCompanion(document) {
       if(saved){history.push(saved);history=history.slice(-10);save();}
     } catch(error) {
       const message=agentFailureMessage(controller.signal.aborted?'stopped':error.message,language,{partial:savedEvents.length>0,resetsAt:error.resetsAt});
-      turn.interrupt(message);
+      turn.interrupt(message,{code:controller.signal.aborted?'stopped':error.message});
       if(!controller.signal.aborted) input.value=question;
     } finally {challenge.hidden=true;challenge.replaceChildren();activeController=null;setBusy(false);}
   }

@@ -152,3 +152,20 @@ test('streamed diagrams and prose retain their arrival order without inserting a
   assert.deepEqual(content.map(n=>n.className),diagramFirst?['comic-agent-block','comic-live-body','comic-agent-block']:['comic-live-body','comic-agent-block','comic-agent-block']);
  }
 });
+
+
+test('quota failures offer one localized reading exit, including admission errors before streaming',()=>{
+ for(const language of ['zh-CN','en'])for(const stream of [true,false]) {
+  const log=new Element('div'),turn=createAgentTurn(document,{log,question:'x',language});
+  if(stream)turn.event({type:'error',code:'daily_budget_exhausted',partial:false});
+  else turn.interrupt('Quota unavailable',{code:'monthly_budget_exhausted'});
+  turn.interrupt('Duplicate failure',{code:'daily_budget_exhausted'});
+  const links=log.querySelectorAll('a');assert.equal(links.length,1);
+  assert.equal(links[0].href,language==='zh-CN'?'/zh/notes/':'/notes/');
+  assert.equal(log.querySelectorAll('button').length,0);
+ }
+ for(const code of ['stopped','provider_unavailable','challenge_failed']) {
+  const log=new Element('div'),turn=createAgentTurn(document,{log,question:'x'});
+  turn.interrupt('Failure',{code});assert.equal(log.querySelectorAll('a').length,0);
+ }
+});
