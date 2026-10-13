@@ -11,7 +11,7 @@ The full requested outcome remains incomplete. This audit does not equate test s
 | Keyword retrieval over many notes | Corpus and retrieval tests, including a 2,500-document fixture | Real corpus relevance and multilingual model evaluation |
 | Sourced prose, recommendations, visuals | Runtime tools, stream validation, mock HTTP integration; rendered biography timeline and source outline | Real model usefulness, factual attribution, selection quality; broader conceptual visualization |
 | Honest tool progress and cancellation | Backend/client cancellation tests; validated event renderer | Real provider and HTTPS ingress cancellation/accounting |
-| Conversation continuity across different pages | Presentation history survives in sessionStorage; bearer remains memory-only | Not implemented for model sessions. Hosting/domain decision informs transport architecture |
+| Conversation continuity across different pages | HTTPS per-tab bearer restoration implemented; local real-HTTP test verifies a new client resumes server history, plus expiry/revocation/storage-denial tests | Real browser navigation with a verified live session remains pending |
 | Context management | Server retains last three successful exchanges | No semantic compaction; evaluate long-conversation loss before selecting an implementation |
 | Anonymous access and budget controls | Live Turnstile success; invalid token 403 and unauthenticated chat 401; SQLite restart/budget tests; bilingual privacy disclosure | Real token replay and ingress concurrency/cancellation evaluation |
 | No exposed model key | Keys entered directly on server; public frontend includes only origin/site key; credential-pattern scan passed | Maintain secret review for releases |

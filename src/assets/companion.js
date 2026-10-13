@@ -24,7 +24,8 @@ export function initCompanion(document) {
   const mascot = root.querySelector('[data-poke]'), hello = root.querySelector('[data-hello]');
   const dialog = document.querySelector('#companion-dialog'), launcher = document.querySelector('[data-companion-open]');
   const storageKey = `companion-opening-v1:${language}`;
-  let liveClient;try { if(agentOrigin && turnstileSiteKey)liveClient=createAgentClient(agentOrigin); } catch { /* Invalid public deployment config fails closed. */ }
+  let sessionStore;try {if(location.protocol==='https:')sessionStore=sessionStorage;}catch{}
+  let liveClient;try { if(agentOrigin && turnstileSiteKey)liveClient=createAgentClient(agentOrigin,fetch,{sessionStore}); } catch { /* Invalid public deployment config fails closed. */ }
   const idle = liveClient ? (zh?'AI 会参考公开资料回答，也可能出错。':'AI answers from public sources and can make mistakes.') : (zh ? '开场试玩 · AI 自由对话尚未接通' : 'Opening experience · live AI conversation not yet connected');
   const seen = []; let history = [], busy = false, corpusPromise, activeController;
   const stopButton=root.querySelector('[data-stop-answer]'), sendButton=form.querySelector('[type=submit]');
@@ -61,7 +62,7 @@ export function initCompanion(document) {
     // A completed turn is history, not another competing set of calls to action.
     log.querySelectorAll('button').forEach(button => button.remove());
     if(item.kind==='agent') {
-      const turn=createAgentTurn(document,{log,question:item.question,language,onQuestion:ask,restored:true});
+      const turn=createAgentTurn(document,{log,question:item.question,language,onQuestion:ask,restored:true,continuing:Boolean(liveClient?.hasSession())});
       for(const event of item.events)turn.event(event);
       return;
     }

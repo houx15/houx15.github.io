@@ -44,3 +44,26 @@ test('incremental answers require cited evidence and cannot change text at final
   await assert.rejects(consumeAgentStream(stream(encode(events.slice(1))),()=>{}),/invalid_response/);
   await assert.rejects(consumeAgentStream(stream(encode([complete[1],{type:'answer_delta',text:'不一致',sourceIds:['s1']},...complete.slice(2)])),()=>{}),/invalid_response/);
 });
+
+const tabStorage=()=>{const data=new Map();return {getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k),data};};
+test('navigation restores only the scoped session bearer, not client model messages',async()=>{
+ const sessionStore=tabStorage(),requests=[];
+ const backend=async(url,options)=>{requests.push({url,options});return url.endsWith('/sessions')?Response.json({sessionToken:'short-lived-session',expiresAt:Date.now()+60000}):new Response(stream(encode(complete)),{headers:{'content-type':'text/event-stream'}});};
+ const first=createAgentClient('https://api.example.test',backend,{sessionStore});await first.openSession('challenge');
+ const afterNavigation=createAgentClient('https://api.example.test',backend,{sessionStore});assert.equal(afterNavigation.hasSession(),true);
+ await afterNavigation.ask({question:'Continue',language:'en'});
+ assert.equal(requests.length,2);assert.equal(requests[1].options.headers.Authorization,'Bearer short-lived-session');assert.equal(JSON.parse(requests[1].options.body).history,undefined);
+ assert.equal(createAgentClient('https://other.example.test',backend,{sessionStore}).hasSession(),false);
+ afterNavigation.clearSession();assert.equal(createAgentClient('https://api.example.test',backend,{sessionStore}).hasSession(),false);
+});
+test('expired, malformed, revoked and inaccessible stored sessions fail safely',async()=>{
+ const sessionStore=tabStorage(),key='portfolio-agent-session:v1:https://api.example.test';
+ for(const raw of ['{','x'.repeat(1001),JSON.stringify({version:1,token:'expired',expiresAt:Date.now()-1}),JSON.stringify({version:1,token:'too-long-lived',expiresAt:Date.now()+86400000})]) {
+  sessionStore.setItem(key,raw);assert.equal(createAgentClient('https://api.example.test',fetch,{sessionStore}).hasSession(),false);assert.equal(sessionStore.getItem(key),null);
+ }
+ sessionStore.setItem(key,JSON.stringify({version:1,token:'revoked',expiresAt:Date.now()+60000}));
+ const revoked=createAgentClient('https://api.example.test',async()=>Response.json({error:{code:'invalid_session'}},{status:401}),{sessionStore});
+ await assert.rejects(revoked.ask({question:'x',language:'en'}),/invalid_session/);assert.equal(sessionStore.getItem(key),null);
+ const unavailable={getItem(){throw new Error('denied');},setItem(){throw new Error('denied');},removeItem(){throw new Error('denied');}};
+ const memory=createAgentClient('https://api.example.test',async()=>Response.json({sessionToken:'memory-session',expiresAt:Date.now()+60000}),{sessionStore:unavailable});await memory.openSession('challenge');assert.equal(memory.hasSession(),true);
+});

@@ -74,21 +74,36 @@ export async function consumeAgentStream(body, onEvent, signal) {
   } finally { await reader.cancel().catch(()=>{});reader.releaseLock(); }
 }
 
-export function createAgentClient(origin, fetchImpl = fetch) {
+export function createAgentClient(origin, fetchImpl = fetch, {sessionStore} = {}) {
   if (!validOrigin(origin)) throw new Error('invalid_configuration');
   let token, expiresAt;
+  const storageKey=`portfolio-agent-session:v1:${origin}`;
+  function clearSession() {token=null;expiresAt=null;try{sessionStore?.removeItem(storageKey);}catch{}}
+  function validSession(value) {return value && value.version===1 && string(value.token,300) && /^[A-Za-z0-9._-]+$/.test(value.token) && Number.isFinite(value.expiresAt) && value.expiresAt>Date.now() && value.expiresAt<=Date.now()+3660000;}
+  // Optional per-tab storage contains only a short-lived, quota-limited session bearer.
+  // It never contains provider credentials or client-supplied model history.
+  try {
+    const raw=sessionStore?.getItem(storageKey);
+    if(raw) {
+      if(raw.length>1000)throw new Error('Invalid session record');
+      const value=JSON.parse(raw);
+      if(!validSession(value))throw new Error('Expired session record');
+      token=value.token;expiresAt=value.expiresAt;
+    }
+  } catch {clearSession();}
+
   async function request(path, body, signal, authorization = false) {
     return fetchImpl(`${origin}${path}`,{method:'POST',credentials:'omit',redirect:'error',referrerPolicy:'no-referrer',signal,
       headers:{'Content-Type':'application/json',...(authorization?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});
   }
   async function check(response) {
     if(response.ok) return;
-    if(response.status === 401) {token=null;expiresAt=null;}
+    if(response.status === 401) clearSession();
     throw new Error(response.status===429?'rate_limited':response.status===401?'invalid_session':response.status===403?'challenge_failed':'unavailable');
   }
   return {
-    clearSession() {token=null;expiresAt=null;},
-    hasSession() {return Boolean(token && expiresAt > Date.now());},
+    clearSession,
+    hasSession() {if(token && expiresAt>Date.now())return true;clearSession();return false;},
     async openSession(challengeToken, signal) {
       if (!string(challengeToken,2048)) throw new Error('invalid_challenge');
       const controller = new AbortController(), timer=setTimeout(()=>controller.abort(),15000);
@@ -99,10 +114,11 @@ export function createAgentClient(origin, fetchImpl = fetch) {
         const expiry=typeof result.expiresAt==='number'?result.expiresAt:Date.parse(result.expiresAt);
         if(!string(result.sessionToken,4096)||!Number.isFinite(expiry)||expiry<=Date.now()) return fail();
         token=result.sessionToken;expiresAt=expiry;
+        try {sessionStore?.setItem(storageKey,JSON.stringify({version:1,token,expiresAt}));} catch { /* Memory-only session still works. */ }
       } finally {clearTimeout(timer);}
     },
     async ask(input,{onEvent,signal} = {}) {
-      if(!token||expiresAt<=Date.now()) throw new Error('invalid_session');
+      if(!token||expiresAt<=Date.now()) {clearSession();throw new Error('invalid_session');}
       const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),50000);
       const combined=signal?AbortSignal.any([signal,controller.signal]):controller.signal;
       try {
