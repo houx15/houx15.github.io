@@ -12,3 +12,14 @@ test('bad deployment values are rejected without copying secrets into diagnostic
     assert.doesNotMatch(JSON.stringify(config.issues),/private-token|short-private|private-model|private-redis/);
   }
 });
+
+test('trusting ingress is explicit and requires a loopback listener',()=>{
+ assert.equal(inspectAgentConfig(valid).trustLoopbackProxy,false);
+ for(const bind of ['127.0.0.1','::1']) {
+  const result=inspectAgentConfig({...valid,AGENT_BIND:bind,AGENT_TRUST_LOOPBACK_PROXY:'1'});
+  assert.deepEqual(result.issues,[]);assert.equal(result.trustLoopbackProxy,true);
+ }
+ for(const config of [{AGENT_BIND:'0.0.0.0',AGENT_TRUST_LOOPBACK_PROXY:'1'},{AGENT_TRUST_LOOPBACK_PROXY:'true'}]) {
+  assert.ok(inspectAgentConfig({...valid,...config}).issues.some(issue=>issue.startsWith('AGENT_TRUST_LOOPBACK_PROXY:')));
+ }
+});

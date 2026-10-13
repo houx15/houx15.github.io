@@ -214,3 +214,8 @@ Full verification passed, including HTTP checks for resolved text, retained foll
 ### 2026-10-13 — Visitor ingress audit and prepared correction
 
 Read the actual enabled nginx site: the `/v2/` proxy does not set a dedicated visitor address. Thus current address quotas group visitors by loopback. `sudo -n true` confirmed administrator password is required. Reintegrated the previously prepared trusted-loopback implementation into the current conversation/diagnostic code and passed full verification, including distinct-address issuance limits and rejection of missing/spoofed metadata. Prepared an idempotent nginx patch helper with backup, upstream validation and rollback. Runtime trust remains OFF pending the administrator step and live ingress verification; no claim of deployed visitor isolation.
+
+
+### 2026-10-13 — Trusted ingress configuration and address normalization
+
+The administrator header remains absent in the enabled nginx site, so trust is still not activated. Added explicit startup checks in tests: loopback binds accept opt-in, public binds reject it, and arbitrary flag strings fail validation. A failing regression demonstrated that equivalent IPv4-mapped IPv6 spellings produced distinct keys. Canonicalize IPv6 first, then convert mapped addresses to the same IPv4 key; all four tested spellings now share a limit. Full verification passed. This is a prepared branch correction, not proof of live per-visitor isolation.
