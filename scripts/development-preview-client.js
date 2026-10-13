@@ -1,5 +1,5 @@
 import {createAgentTurn,agentFailureMessage} from '/assets/agent-view.js';
-import {presentAgentEvent,followConversationResize} from '/assets/agent-scroll.js?v=2';
+import {presentAgentEvent,followConversationResize} from '/assets/agent-scroll.js?v=3';
 import {consumeAgentStream} from '/assets/agent-stream.js';
 
 const root=document.querySelector('[data-companion]'),log=root.querySelector('[data-companion-log]');

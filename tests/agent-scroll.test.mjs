@@ -22,6 +22,12 @@ test('a tall new diagram is followed to its start rather than its bottom',()=>{
  presentAgentEvent(log,turn,{type:'block'});
  assert.equal(log.scrollTop,520);
 });
+test('revealing an initially empty log does not jump past the first card',()=>{
+ let resize;const log={clientWidth:0,clientHeight:0,scrollHeight:0,scrollTop:0,addEventListener(){},removeEventListener(){}};
+ followConversationResize(log,class {constructor(fn){resize=fn;}observe(){}disconnect(){}});
+ log.clientWidth=350;log.clientHeight=335;log.scrollHeight=700;
+ resize();assert.equal(log.scrollTop,0);
+});
 test('new output leaves a reader who has scrolled up in place',()=>{
  const log={scrollTop:100,scrollHeight:1000,clientHeight:400};let rendered=false;
  presentAgentEvent(log,{event(){rendered=true;log.scrollHeight=1400;}},{type:'answer_delta'});

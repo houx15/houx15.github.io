@@ -1,4 +1,5 @@
 import {createBiographyChapter} from './biography-chapter.js';
+import {createDiceCard} from './dice-card.js';
 import { captureReadingAnchor,restoreReadingAnchor,readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
 import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
@@ -8,7 +9,7 @@ import { initialQuestion } from './navigation.js';
 import { agentOrigin, turnstileSiteKey } from './assistant-config.js';
 import { createAgentClient, validateAgentBlock } from './agent-stream.js';
 import { createAgentTurn, agentFailureMessage } from './agent-view.js';
-import { presentAgentEvent,followConversationResize } from './agent-scroll.js?v=2';
+import { presentAgentEvent,followConversationResize } from './agent-scroll.js?v=3';
 import { verifyVisitor } from './visitor-check.js';
 import { validateSavedTurn } from './agent-history.js';
 
@@ -108,13 +109,7 @@ export function initCompanion(document) {
     if(item.question) add(row,'p',item.question,'comic-visitor');
     if(item.kind === 'dice') {
       const story = storyCards.find(card => card.id === item.id); if(!story){row.remove();return;}
-      const copy = story[language];
-      add(row,'p',zh?'好，这次是这一面。':'Here’s the side we landed on.','comic-reply');
-      const card = add(row,'div','','comic-story-card');
-      add(card,'span',`0${story.face} / 06`,'comic-card-number');add(card,'span',['⚀','⚁','⚂','⚃','⚄','⚅'][story.face-1],'comic-result-die');
-      add(card,'h2',copy.title);add(card,'p',copy.text);
-      sources(card,[{label:zh?'这段故事的公开资料':'Public source for this story',url:local(story.url)}]);
-      const follow = add(card,'button',copy.follow+' ↗','comic-follow');follow.type='button';follow.addEventListener('click',()=>ask(copy.follow));
+      row.append(createDiceCard(document,{storyId:story.id,seen,language,onRoll:roll,onQuestion:ask}));
     } else if(item.kind === 'story') {
       add(row,'p',zh?'我们一段一段看。想问哪一段，随时打断我。':'One chapter at a time. Ask about any of them as we go.','comic-reply');
       row.append(createBiographyChapter(document,{eventId:item.eventId,language,onChange:eventId=>{item.eventId=eventId;save();},onQuestion:ask}));
@@ -127,7 +122,8 @@ export function initCompanion(document) {
       }
     }
     while(log.children.length > 10) log.firstElementChild.remove();
-    if(remember) row.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    if(remember && item.kind==='dice')row.querySelector('.comic-dice-card').scrollIntoView({block:'start',behavior:'instant'});
+    else if(remember) row.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
     return row;
   }
   async function roll() {
@@ -179,6 +175,7 @@ export function initCompanion(document) {
     activeController=new AbortController();const controller=activeController;
     setBusy(true,zh?'正在连接…':'Connecting…');
     root.classList.add('has-conversation');
+    log.querySelectorAll('button').forEach(button=>button.remove());
     const turn=createAgentTurn(document,{log,question,language,onQuestion:ask,retry:lastLiveTurn});
     lastLiveTurn=turn;
     turn.row.scrollIntoView({block:'start',behavior:'instant'});

@@ -65,6 +65,12 @@
 .comic-story-card {position:relative;border:1.4px solid #333;border-radius:4px 8px 5px 9px;padding:24px;margin:20px 0;}
 .comic-card-number {font:10px ui-monospace,monospace;letter-spacing:.1em;color:#777;}
 .comic-result-die {float:right;font-size:32px;line-height:1;transform:rotate(5deg);}
+.comic-dice-top {display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.comic-room .comic-reroll {display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 0 4px 8px;background:none;border:0;color:#666;font:12px var(--font-sans);white-space:nowrap;}
+.comic-reroll .comic-result-die {float:none;font-size:28px;color:#222;transition:transform .18s ease;}
+.comic-reroll:hover .comic-result-die {transform:rotate(-12deg);}
+.comic-dice-card>.comic-follow {min-height:44px;font-size:14px!important;}
+@media (prefers-reduced-motion:reduce) {.comic-reroll .comic-result-die {transition:none;}}
 .comic-story-card h2 {font:24px/1.5 var(--font-sans);margin:20px 0 12px;}
 .comic-story-card p {font-size:14px;line-height:1.9;}
 .comic-follow {background:none;border:0;border-bottom:1px dashed #888;margin-top:17px;padding:6px 0;font-size:12px!important;text-align:left;}

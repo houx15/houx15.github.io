@@ -10,7 +10,7 @@ export function followConversationResize(log,Observer=globalThis.ResizeObserver)
   };
   const observer=new Observer(()=>{
     if(width===log.clientWidth && height===log.clientHeight)return;
-    if(following)log.scrollTop=log.scrollHeight;
+    if(following && height>0 && log.clientHeight>0)log.scrollTop=log.scrollHeight;
     width=log.clientWidth;height=log.clientHeight;track();
   });
   log.addEventListener('scroll',track,{passive:true});observer.observe(log);
