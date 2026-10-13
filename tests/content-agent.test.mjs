@@ -116,3 +116,18 @@ test('reading maps retain source order, reject foreign sections, and never inven
   assert.throws(()=>tools.show_reading_map({id:first.id,sectionIds:['invented']}));
   assert.throws(()=>tools.show_reading_map({id:first.id,sectionIds:[]}));
 });
+
+test('a guessed section can be corrected without granting evidence or resetting step limits',async()=>{
+ let rounds=0;
+ const result=await runContentAgent({question:'Explain the note',corpus,signal:new AbortController().signal,complete:async({messages})=>{
+  rounds++;
+  if(rounds===1)return {toolCalls:[{id:'bad',name:'read_content',arguments:{id:'notes/cache/en',sectionId:'invented'}}]};
+  if(rounds===2){assert.match(messages.at(-1).content,/source_not_found/);return {toolCalls:[{id:'good',name:'read_content',arguments:{id:'notes/cache/en'}}]};}
+  return {text:'Attention stores keys and values.',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(rounds,3);assert.equal(result.sources[0].id,'notes/cache/en:0');
+ let attempts=0;
+ await assert.rejects(runContentAgent({question:'x',corpus,signal:new AbortController().signal,complete:async()=>{attempts++;return {toolCalls:[{id:'missing',name:'read_content',arguments:{id:'missing'}}]};}}),/step budget/);
+ assert.equal(attempts,5);
+ await assert.rejects(runContentAgent({question:'x',corpus,signal:new AbortController().signal,complete:async({messages})=>messages.length===2?{toolCalls:[{id:'bad',name:'read_content',arguments:{id:'notes/cache/en',sectionId:'invented'}}]}:{text:'Unsupported',sourceIds:['notes/cache/en:0']}}),/Invalid answer evidence/);
+});
