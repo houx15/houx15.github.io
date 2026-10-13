@@ -91,7 +91,7 @@ test('keyword retrieval reaches deep into a large collection', () => {
 
 test('profile evidence and event timeline preserve uncertain dates and separate biography from publication', async () => {
   let round=0;
-  const answer=await runContentAgent({question:'Tell me about her experience',corpus,complete:async()=>++round===1?{toolCalls:[{id:'p',name:'read_profile',arguments:{id:'profile'}},{id:'events',name:'query_profile_events',arguments:{language:'en'}}]}:{text:'The owner-provided periods overlap.',sourceIds:['profile:profile','event:peer']}});
+  const answer=await runContentAgent({question:'Tell me about her experience',corpus,complete:async()=>++round===1?{toolCalls:[{id:'p',name:'read_profile',arguments:{id:'profile'}},{id:'events',name:'query_profile_events',arguments:{language:'en'}},{id:'show',name:'show_profile_timeline',arguments:{eventIds:['peer','princeton'],language:'en'}}]}:{text:'The owner-provided periods overlap.',sourceIds:['profile:profile','event:peer']}});
   assert.equal(answer.sources.length,2);
   const block=answer.blocks[0];assert.equal(block.dateKind,'biography');assert.equal(block.asOf,'2026-10-10');
   assert.match(block.items.find(i=>i.id==='event:peer').description,/individual dates were not supplied/);
@@ -137,7 +137,7 @@ test('model receives current display state only after a visual was actually emit
   const calls=[],events=[];
   await runContentAgent({question:'Introduce her with a timeline',corpus,onEvent:event=>events.push(event),complete:async input=>{
     calls.push(input);
-    if(calls.length===1) return {toolCalls:[{id:'timeline',name:'query_profile_events',arguments:{language:'en'}}]};
+    if(calls.length===1) return {toolCalls:[{id:'timeline',name:'query_profile_events',arguments:{language:'en'}},{id:'show',name:'show_profile_timeline',arguments:{eventIds:['peer'],language:'en'}}]};
     assert.ok(events.some(event=>event.type==='block'));
     return {text:'Her public experience spans several areas.',sourceIds:['event:peer']};
   }});
@@ -466,4 +466,26 @@ test('a guessed biography citation recovers by reading the actual event before s
  }});
  assert.equal(rounds,3);assert.equal(answer.sources[0].id,'event:startup');
  assert.deepEqual(events.filter(e=>e.type==='answer_delta').map(e=>e.text),['2016–2022 年。']);
+});
+
+
+test('biography lookup supplies cited dates without rendering a timeline',async()=>{
+ let round=0;const events=[];
+ const answer=await runContentAgent({question:'Just the startup years?',corpus,onEvent:e=>events.push(e),complete:async()=>++round===1?{toolCalls:[{id:'read',name:'query_profile_events',arguments:{}}]}:{text:'2016–2022',sourceIds:['event:startup']}});
+ assert.equal(answer.blocks.length,0);assert.equal(events.some(e=>e.type==='block'),false);
+ assert.equal(answer.sources[0].id,'event:startup');
+});
+
+test('selected timeline preserves authored order and dates, and cannot display unread events',async()=>{
+ let round=0;const events=[];
+ const answer=await runContentAgent({question:'Show those two internships',language:'zh-CN',corpus,onEvent:e=>events.push(e),complete:async({messages})=>{
+  round++;
+  if(round===1)return {toolCalls:[{id:'early',name:'show_profile_timeline',arguments:{eventIds:['peer','shiguang']}}]};
+  if(round===2){assert.match(messages.at(-1).content,/unread_or_invalid_timeline_events/);assert.equal(events.some(e=>e.type==='block'),false);return {toolCalls:[{id:'a',name:'read_profile',arguments:{eventId:'peer',language:'zh-CN'}},{id:'b',name:'read_profile',arguments:{eventId:'shiguang',language:'zh-CN'}},{id:'show',name:'show_profile_timeline',arguments:{eventIds:['peer','shiguang']}}]};}
+  return {text:'两段实习的分别起止日期未公开。',sourceIds:['event:peer','event:shiguang']};
+ }});
+ assert.equal(answer.blocks.length,1);
+ assert.deepEqual(answer.blocks[0].items.map(i=>i.id),['event:shiguang','event:peer']);
+ assert.equal(answer.blocks[0].items[0].title,'是光诗歌');
+ assert.equal(answer.blocks[0].dateQualifications.individualStartEnd,null);
 });
