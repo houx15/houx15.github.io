@@ -87,3 +87,46 @@ test('cross-page follow-up keeps the actual concept step order in server-owned h
  const events=[];await client().ask({question:'Explain the second aspect',language:'en',supportsConceptFlow:true},{onEvent:event=>events.push(event)});
  assert.equal(seen.length,4);assert.equal(events.at(-1).type,'done');assert.equal(events.find(event=>event.type==='answer').text,'A freshly sourced explanation.');
 });
+
+test('stopping a partial streamed answer aborts work, retains its reservation and allows the next turn', {timeout:5000}, async t=>{
+  const origin='https://houx15.github.io',store=new MemoryAgentStore();
+  const corpus={schemaVersion:1,revision:'fixture',documents:[]};
+  const guard=createGuard({store,secret:'a'.repeat(40),dailyTokens:1000000,monthlyCny:500,rate:2,enabled:()=>true});
+  let released;
+  const cleanup=new Promise(resolve=>released=resolve),finish=guard.finish;
+  guard.finish=async(...args)=>{const result=await finish(...args);released();return result;};
+  let calls=0,aborted=false;
+  const complete=async({signal,onText})=>{
+    calls++;
+    if(calls%2)return {toolCalls:[{id:'read',name:'read_profile',arguments:{id:'startup',language:'en'}}]};
+    if(calls===2) {
+      const stopped=new Promise((resolve,reject)=>signal.addEventListener('abort',()=>{aborted=true;reject(signal.reason);},{once:true}));
+      onText('She founded a company. ',['profile:startup']);
+      await stopped;
+    }
+    return {text:'She worked as CTO.',sourceIds:['profile:startup']};
+  };
+  const server=createAgentServer({origin,corpus,guard,complete,verifyChallenge:async()=>{},enabled:()=>true,production:false});
+  server.listen(0,'127.0.0.1');await once(server,'listening');
+  t.after(()=>{server.closeAllConnections();server.close();});
+  const client=createAgentClient(`http://localhost:${server.address().port}`,(url,options)=>fetch(url.replace('localhost','127.0.0.1'),{...options,headers:{...options.headers,Origin:origin}}));
+  await client.openSession('local-cancellation-fixture');
+  const controller=new AbortController(),events=[];
+  let reservedAtStop;
+  await assert.rejects(client.ask({question:'Tell me about her startup',language:'en'},{signal:controller.signal,onEvent:event=>{
+    events.push(event);
+    if(event.type==='answer_delta'){reservedAtStop=store.state.spent;controller.abort();}
+  }}));
+  await cleanup;
+  assert.equal(aborted,true);assert.equal(calls,2);
+  assert.equal(events.find(e=>e.type==='answer_delta').text,'She founded a company.');
+  assert.ok(!events.some(e=>e.type==='done'));
+  assert.equal(Object.keys(store.state.leases).length,0);
+  assert.ok(reservedAtStop>0);assert.equal(store.state.spent,reservedAtStop);
+  assert.equal(Object.values(store.state.sessions)[0].history.length,0);
+  assert.equal(client.hasSession(),true);
+  const next=[];
+  await client.ask({question:'What was her role?',language:'en'},{onEvent:e=>next.push(e)});
+  assert.equal(next.at(-1).type,'done');assert.equal(calls,4);
+  assert.equal(Object.values(store.state.sessions)[0].history.length,2);
+});
