@@ -50,11 +50,11 @@ export async function consumeAgentStream(body, onEvent, signal) {
       case 'done':
         if (event.outcome !== 'complete' || !answered) return fail();terminal = true;break;
       case 'error':
-        if (!string(event.code,100) || typeof event.partial !== 'boolean') return fail();terminal = true;break;
+        if (!string(event.code,100) || typeof event.partial !== 'boolean' || (event.resetsAt!==undefined && (!['daily_budget_exhausted','monthly_budget_exhausted'].includes(event.code) || !Number.isSafeInteger(event.resetsAt) || event.resetsAt<0 || event.resetsAt>8640000000000000))) return fail();terminal = true;break;
       default: return fail();
     }
     onEvent(event);
-    if (event.type === 'error') { const error = new Error(event.code); error.partial = event.partial; throw error; }
+    if (event.type === 'error') { const error = new Error(event.code); error.partial = event.partial;error.resetsAt=event.resetsAt; throw error; }
   }
   try {
     while(true) {

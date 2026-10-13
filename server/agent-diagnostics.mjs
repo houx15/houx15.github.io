@@ -14,11 +14,11 @@ export function providerFailureCategory(error) {
 }
 const categories=new Set([...providerReasons.values(),'json_parse','timeout','provider_transport']);
 const runtimeReasons=new Map([
-  ['deadline','request_deadline'],['Invalid answer evidence','answer_evidence'],['Invalid answer delta','answer_delta'],['Changed answer','changed_answer'],
+  ['Invalid biography identity','biography_identity'],['deadline','request_deadline'],['Invalid answer evidence','answer_evidence'],['Invalid answer delta','answer_delta'],['Changed answer','changed_answer'],
   ['Invalid tool call','tool_call'],['Invalid tool argument','tool_arguments'],['Missing tool argument','tool_arguments'],
   ['Invalid concept evidence','concept_evidence'],['Agent step budget exceeded','step_limit'],['Tool budget exceeded','tool_limit']
 ]);
-const publicCodes=new Set(['invalid_request','invalid_session','challenge_failed','forbidden','not_found','unavailable','rate_limited','budget_exhausted','context_limit','provider_unavailable','invalid_model_response']);
+const publicCodes=new Set(['invalid_request','invalid_session','challenge_failed','forbidden','not_found','unavailable','rate_limited','budget_exhausted','daily_budget_exhausted','monthly_budget_exhausted','context_limit','provider_unavailable','invalid_model_response']);
 export function agentFailureRecord({requestId,stage,modelCalls,partial,error}) {
   return {event:'agent_failure',requestId:/^[a-f0-9-]{36}$/.test(requestId)?requestId:'unknown',
     stage:['request','model','agent','tool','finish'].includes(stage)?stage:'unknown',

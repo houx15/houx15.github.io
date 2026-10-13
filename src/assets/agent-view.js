@@ -1,10 +1,19 @@
 import { validateAgentBlock } from './agent-stream.js';
 
 // Use only local, reviewed copy; never expose raw provider errors to visitors.
-export function agentFailureMessage(code, language = 'en', {partial = false} = {}) {
+export function agentFailureMessage(code, language = 'en', {partial = false, resetsAt} = {}) {
   const zh = language === 'zh-CN';
   let message;
   if(code === 'rate_limited') message=zh?'请求较频繁，或本次会话已达到聊天上限。请稍后再试；文章仍可直接阅读。':'Requests are too frequent, or this session has reached its chat limit. Try later; the articles remain available.';
+  else if(['daily_budget_exhausted','monthly_budget_exhausted'].includes(code)) {
+    const daily=code==='daily_budget_exhausted';
+    message=zh?(daily?'今日的 AI 额度暂时不足。':'本月的 AI 预算暂时不足。'):(daily?'Today’s AI allowance is temporarily insufficient.':'This month’s AI budget is temporarily insufficient.');
+    if(Number.isSafeInteger(resetsAt) && resetsAt>=0 && resetsAt<=8640000000000000) {
+      const time=new Intl.DateTimeFormat(zh?'zh-CN':'en',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}).format(new Date(resetsAt));
+      message+=zh?` 下次重置：${time}。`:` Next reset: ${time}.`;
+    }
+    message+=zh?' 文章仍可阅读，我不会自动重试。':' You can still read the articles; I won’t retry automatically.';
+  }
   else if(code === 'budget_exhausted') message=zh?'本站的 AI 额度暂时用完了。现在可以继续阅读文章；反复发送不会恢复额度。':'The site’s AI allowance is currently exhausted. You can keep reading; repeated submissions will not restore the allowance.';
   else if(['challenge_failed','challenge_timeout','challenge_expired','challenge_unavailable','invalid_challenge'].includes(code)) message=zh?'访客验证没有完成，可以重新发送再试一次。':'Visitor verification did not complete. Send again to retry.';
   else if(code === 'invalid_session') message=zh?'这次会话已过期。重新发送后，我会建立新的会话。':'This session expired. Sending again will start a new session.';
@@ -122,7 +131,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
         body.replaceChildren(make('p',event.text,'comic-reply'));
         if(event.sourceIds.length){const details=make('details','','comic-evidence');details.append(make('summary',zh?'翻到原文 ↗':'See the sources ↗'));for(const id of event.sourceIds){const source=sources.get(id);if(!source)throw new Error('invalid_response');const a=make('a',source.label);a.href=source.url;details.append(a);}body.append(details);}
       } else if(event.type==='done')end(false,'');
-      else if(event.type==='error')end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || visuals.children.length>0}));
+      else if(event.type==='error')end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || visuals.children.length>0,resetsAt:event.resetsAt}));
     },
     interrupt(message) {if(!finished)end(true,message||(zh?'连接中断了。可以重新发送，但我不会自动重复请求。':'The connection stopped. You can send again; I won’t retry automatically.'));}
   };

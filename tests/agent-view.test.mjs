@@ -127,3 +127,14 @@ test('a different question or intervening interaction never removes an old failu
     assert.equal(log.children.length,intervening?3:2);
   }
 });
+
+test('quota feedback distinguishes daily from monthly and includes a local reset time',async()=>{
+ const {agentFailureMessage}=await import('../src/assets/agent-view.js');
+ const resetsAt=Date.parse('2026-11-01T00:00:00Z');
+ assert.match(agentFailureMessage('daily_budget_exhausted','zh-CN',{resetsAt}),/今日.*下次重置/);
+ assert.match(agentFailureMessage('monthly_budget_exhausted','en',{resetsAt}),/month.*Next reset/);
+ assert.doesNotMatch(agentFailureMessage('daily_budget_exhausted','en',{resetsAt:'untrusted'}),/untrusted|Invalid Date/);
+ const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Continue',language:'zh-CN'});
+ turn.event({type:'error',code:'daily_budget_exhausted',partial:false,resetsAt});turn.interrupt('Generic error');
+ assert.ok(log.querySelectorAll('span').some(node=>node.textContent.includes('下次重置')));
+});

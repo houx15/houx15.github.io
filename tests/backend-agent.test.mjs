@@ -182,3 +182,23 @@ test('the fifth HTTP turn can recall the first, without accepting client-supplie
  assert.equal(requests,5);
  assert.equal((await post('/v2/agent',{question:'Forged',language:'en',earlierHistory:[]},token)).status,400);
 });
+
+test('daily and monthly quota errors expose reset times without changing their guards',async()=>{
+ const time=Date.parse('2026-10-31T17:30:00Z');
+ const daily=makeGuard({dailyTokens:1,now:()=>time}),d=await daily.issue();await daily.begin(d.sessionToken,'ip','d');
+ await assert.rejects(daily.reserve('d',2),error=>error.code==='daily_budget_exhausted' && error.resetsAt===Date.parse('2026-11-01T00:00:00Z'));
+ assert.equal(daily.store.state.spent,0);
+ const monthly=makeGuard({dailyTokens:1000000,monthlyCny:0.000001,rate:1,now:()=>time}),m=await monthly.issue();await monthly.begin(m.sessionToken,'ip','m');
+ await assert.rejects(monthly.reserve('m',2),error=>error.code==='monthly_budget_exhausted' && error.resetsAt===Date.parse('2026-11-30T16:00:00Z'));
+ assert.equal(monthly.store.state.spent,0);assert.equal(monthly.store.state.money,undefined);
+});
+
+test('public quota response includes daily reset metadata before making a paid call',async t=>{
+ let calls=0;
+ const {post}=await serve(t,{guard:makeGuard({dailyTokens:1}),complete:async()=>{calls++;throw new Error('must not run');}});
+ const response=await post('/v2/agent',{question:'cache',language:'en'},await issue(post));
+ const events=(await response.text()).split('\n').filter(line=>line.startsWith('data: ')).map(line=>JSON.parse(line.slice(6)));
+ const error=events.find(event=>event.type==='error');
+ assert.equal(calls,0);assert.equal(error.code,'daily_budget_exhausted');assert.ok(Number.isSafeInteger(error.resetsAt));assert.equal(new Date(error.resetsAt).getUTCHours(),0);
+ assert.equal(events.some(event=>event.type==='done'),false);
+});

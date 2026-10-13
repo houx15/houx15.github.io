@@ -1,6 +1,6 @@
 import { createHmac, randomUUID, timingSafeEqual, createHash } from 'node:crypto';
-export class AgentError extends Error { constructor(status, code) { super(code); this.status=status; this.code=code; } }
-const fail = (status,code) => { throw new AgentError(status,code); };
+export class AgentError extends Error { constructor(status, code, resetsAt) { super(code); this.status=status; this.code=code;if(resetsAt!==undefined)this.resetsAt=resetsAt; } }
+const fail = (status,code,resetsAt) => { throw new AgentError(status,code,resetsAt); };
 export const initialState = () => ({version:1,clock:0,day:'',spent:0,sessions:{},rates:{},replays:{},leases:{},reservations:{}});
 export class MemoryAgentStore {
   shared=false;
@@ -84,13 +84,16 @@ export function createGuard({store,secret,dailyTokens=0,monthlyCny,rate,enabled=
     });},
     async reserve(requestId,amount) {const id=randomUUID(); return tx((s,t)=>{
       if(!s.leases[requestId] || !Number.isSafeInteger(amount) || amount<1) fail(503,'unavailable');
-      if(s.spent+amount>dailyTokens) fail(429,'budget_exhausted');
+      if(s.spent+amount>dailyTokens) fail(429,'daily_budget_exhausted',Math.floor(t/86400000)*86400000+86400000);
       const moneyMonth=new Date(t+8*3600000).toISOString().slice(0,7),money=amount*rate;
       if(moneyEnabled) {
         s.money ||= {};
         const spent=s.money[moneyMonth] ?? 0;
         if(!Number.isSafeInteger(spent) || spent<0 || !Number.isSafeInteger(money))fail(503,'unavailable');
-        if(spent+money>monthlyLimit)fail(429,'budget_exhausted');
+        if(spent+money>monthlyLimit) {
+          const beijing=new Date(t+8*3600000);
+          fail(429,'monthly_budget_exhausted',Date.UTC(beijing.getUTCFullYear(),beijing.getUTCMonth()+1,1)-8*3600000);
+        }
         s.money[moneyMonth]=spent+money;
       }
       s.spent+=amount; s.reservations[id]={amount,day:s.day,...(moneyEnabled?{moneyMonth,money,rate}:{}),expiresAt:t+86400000}; return id;

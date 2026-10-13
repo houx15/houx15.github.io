@@ -80,8 +80,9 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       try {if(step>0)onDiagnostic(agentFailureRecord({requestId,stage,modelCalls:step,partial,error}));}catch{/* Diagnostics must never break response or accounting cleanup. */}
       if(!res.destroyed) {
         const code=error instanceof AgentError?error.code:signal.aborted?'interrupted':'unavailable';
-        if(res.headersSent) {if(!signal.aborted) emit('error',{code,partial});res.end();}
-        else json(error instanceof AgentError?error.status:503,{error:{code}});
+        const reset=['daily_budget_exhausted','monthly_budget_exhausted'].includes(code) && Number.isSafeInteger(error.resetsAt)?{resetsAt:error.resetsAt}:{};
+        if(res.headersSent) {if(!signal.aborted) emit('error',{code,partial,...reset});res.end();}
+        else json(error instanceof AgentError?error.status:503,{error:{code,...reset}});
       }
     } finally {clearTimeout(timer);if(admitted) {try{await guard.finish(requestId);}catch{/* lease expires; no further paid calls */}}}
   });

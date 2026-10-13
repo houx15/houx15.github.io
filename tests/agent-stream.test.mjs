@@ -75,3 +75,10 @@ test('concept flow validation rejects executable links and missing interpretatio
  block.items[1].source.url='javascript:alert(1)';
  assert.throws(()=>validateAgentBlock(block),/invalid_response/);
 });
+
+test('quota reset timestamps survive the stream and malformed metadata is rejected',async()=>{
+ const resetsAt=Date.parse('2026-11-01T00:00:00Z'),seen=[];
+ await assert.rejects(consumeAgentStream(stream(encode([{type:'error',code:'daily_budget_exhausted',partial:false,resetsAt}])),event=>seen.push(event)),error=>error.message==='daily_budget_exhausted' && error.resetsAt===resetsAt);
+ assert.equal(seen[0].resetsAt,resetsAt);
+ for(const value of ['tomorrow',-1,1e20])await assert.rejects(consumeAgentStream(stream(encode([{type:'error',code:'daily_budget_exhausted',partial:false,resetsAt:value}]))),/invalid_response/);
+});
