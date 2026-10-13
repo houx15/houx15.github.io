@@ -11,8 +11,9 @@ import { createPaidCompletion } from '../server/agent-paid.mjs';
 import { runContentAgent } from '../server/content-agent.mjs';
 import { rememberAgentAnswer } from '../server/agent-memory.mjs';
 import { resolveOpeningContext } from '../server/agent-opening.mjs';
-import {createDevelopmentStream,readDevelopmentStreamInput} from '../server/development-stream.mjs';
-const streaming=process.argv.includes('--stream'),disconnect=new AbortController();
+import {createDevelopmentStream,readDevelopmentStreamInput,parseDevelopmentContext} from '../server/development-stream.mjs';
+const contextStream=process.argv.includes('--context-stream');
+const streaming=contextStream || process.argv.includes('--stream'),disconnect=new AbortController();
 const stream=streaming?createDevelopmentStream(text=>process.stdout.write(text)):null;
 process.stdout.on('error',()=>disconnect.abort());
 let store;
@@ -20,9 +21,10 @@ try {
   const env=process.env,config=inspectAgentConfig(env);
   if(config.issues.length || !config.enabled) throw new Error('Invalid runtime configuration');
   let raw='';
-  if(streaming)raw=await readDevelopmentStreamInput(process.stdin,disconnect);
+  if(streaming)raw=await readDevelopmentStreamInput(process.stdin,disconnect,contextStream?1024*1024:8192);
   else for await(const chunk of process.stdin){raw+=chunk;if(Buffer.byteLength(raw)>8192)throw new Error('Input too large');}
-  const turns=JSON.parse(raw);
+  const envelope=contextStream?parseDevelopmentContext(raw):{turns:JSON.parse(raw),history:[]};
+  const turns=envelope.turns;
   if(!Array.isArray(turns) || !turns.length || turns.length>6)throw new Error('Expected 1–6 turns');
   if(streaming && turns.length!==1)throw new Error('Streaming accepts one turn');
   const corpus=JSON.parse(await fs.readFile(config.corpusFile,'utf8'));
@@ -46,7 +48,7 @@ try {
       throw error;
     }
   };
-  const exchanges=[];
+  const exchanges=envelope.history;
   for(const [index,input] of turns.entries()) {
     const requestId=randomUUID(),signal=AbortSignal.any([AbortSignal.timeout(45000),disconnect.signal]);let calls=0;
     signal.throwIfAborted();
