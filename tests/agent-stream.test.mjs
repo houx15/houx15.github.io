@@ -67,3 +67,11 @@ test('expired, malformed, revoked and inaccessible stored sessions fail safely',
  const unavailable={getItem(){throw new Error('denied');},setItem(){throw new Error('denied');},removeItem(){throw new Error('denied');}};
  const memory=createAgentClient('https://api.example.test',async()=>Response.json({sessionToken:'memory-session',expiresAt:Date.now()+60000}),{sessionStore:unavailable});await memory.openSession('challenge');assert.equal(memory.hasSession(),true);
 });
+
+test('concept flow validation rejects executable links and missing interpretation disclosure',()=>{
+ const block={id:'b',type:'concept_flow',title:'Mechanism',interpretation:true,items:[{title:'A',description:'Step',source:{id:'s',label:'Source',url:'/notes/test/'}},{title:'B',description:'Step',source:{id:'s',label:'Source',url:'/notes/test/'}}]};
+ assert.equal(validateAgentBlock(block),block);
+ assert.throws(()=>validateAgentBlock({...block,interpretation:false}),/invalid_response/);
+ block.items[1].source.url='javascript:alert(1)';
+ assert.throws(()=>validateAgentBlock(block),/invalid_response/);
+});

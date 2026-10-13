@@ -122,3 +122,17 @@
   .comic-room {padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));}
   .companion-launcher {bottom:calc(14px + env(safe-area-inset-bottom,0px));}
 }
+
+.comic-concept-flow {padding:22px 24px;border:1.3px solid #333;border-radius:7px 11px 8px 6px;}
+.comic-concept-flow>h3 {font:23px/1.5 'Kaiti SC',STKaiti,KaiTi,Georgia,serif;margin:0 0 8px;overflow-wrap:anywhere;}
+.comic-concept-flow>ol {list-style:none;padding:0;margin:14px 0 0;}
+.comic-concept-flow li+li {border-top:1px dashed #ccc;}
+.comic-concept-flow summary {display:flex;gap:16px;align-items:baseline;cursor:pointer;padding:11px 0;font-size:15px;line-height:1.6;}
+.comic-concept-flow summary::after {content:'+';margin-left:auto;font-family:ui-monospace,monospace;}
+.comic-concept-flow details[open] summary::after {content:'−';}
+.comic-concept-number {font:11px ui-monospace,monospace;color:#666;flex:none;}
+.comic-concept-flow details>p {margin:0 0 12px 32px;font-size:14px;line-height:1.9;overflow-wrap:anywhere;}
+.comic-concept-flow details>a {display:inline-block;margin:0 0 18px 32px;font-size:12px;}
+@media(max-width:600px){.comic-concept-flow {padding:18px;}.comic-concept-flow>h3 {font-size:21px;}}
+
+.comic-concept-flow>.comic-visual-note {font-size:12px;margin:0;line-height:1.7;}

@@ -45,3 +45,16 @@ test('duplicate citations use the same canonical list in streamed and final answ
   assert.deepEqual(events.find(event=>event.type==='answer_delta').sources.map(source=>source.id),['profile:profile']);
   assert.deepEqual(result.sources.map(source=>source.id),['profile:profile']);
 });
+
+test('provider tool-call preambles stay private while valid calls and usage are preserved',async()=>{
+  const parts=[chunk('I will look that up.'),{choices:[{index:0,delta:{content:' Checking sources.',tool_calls:[{index:0,id:'read',type:'function',function:{name:'read_content',arguments:'{"id":"doc"}'}}]},finish_reason:'tool_calls'}]},{choices:[],usage:{prompt_tokens:10,completion_tokens:20,total_tokens:30}}];
+  const body=parts.map(p=>new TextDecoder().decode(frame(p))).join('')+'data: [DONE]\n\n';
+  const result=await readProviderStream(new Response(body,{headers:{'Content-Type':'text/event-stream'}}),{onText:()=>assert.fail('Preamble must never become an answer')});
+  assert.deepEqual(result.toolCalls,[{id:'read',name:'read_content',arguments:{id:'doc'}}]);assert.equal(result.usage.total_tokens,30);
+});
+
+test('tool calls after a streamed structured answer remain invalid',async()=>{
+  const parts=[chunk('{"sourceIds":["s"],"text":"Answer'),{choices:[{index:0,delta:{tool_calls:[{index:0,id:'read',function:{name:'read_content',arguments:'{"id":"doc"}'}}]},finish_reason:'tool_calls'}]}];
+  const body=parts.map(p=>new TextDecoder().decode(frame(p))).join('')+'data: [DONE]\n\n';
+  await assert.rejects(readProviderStream(new Response(body,{headers:{'Content-Type':'text/event-stream'}})),/Mixed result/);
+});

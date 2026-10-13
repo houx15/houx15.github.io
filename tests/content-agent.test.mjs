@@ -146,3 +146,25 @@ test('model receives current display state only after a visual was actually emit
   assert.match(calls[1].messages[0].content,/leave the chronology in the timeline/);
   assert.ok(calls[1].messages.some(message=>message.role==='tool' && message.content.includes('Periods may overlap')));
 });
+
+test('concept steps resolve their sources from evidence read in this turn',async()=>{
+  let round=0;
+  const answer=await runContentAgent({question:'Explain the mechanism visually',corpus,complete:async()=>++round===1?{toolCalls:[
+    {id:'read',name:'read_content',arguments:{id:'notes/cache/en'}},
+    {id:'flow',name:'show_concept_flow',arguments:{title:'Cache reuse',labels:['Store','Reuse'],descriptions:['Retain keys and values.','Use stored keys and values.'],sourceIds:['notes/cache/en:0','notes/cache/en:0']}}
+  ]}:{text:'The diagram separates storage from reuse.',sourceIds:['notes/cache/en:0']}});
+  assert.equal(answer.blocks[0].type,'concept_flow');
+  assert.equal(answer.blocks[0].interpretation,true);
+  assert.equal(answer.blocks[0].items[0].source.url,'/notes/cache/#section-evidence');
+});
+
+test('concept flows reject unread sources and mismatched steps without emitting a diagram',async()=>{
+  for(const bad of [{sourceIds:['invented','invented']},{descriptions:['Only one step']}]) {
+    const events=[];
+    await assert.rejects(runContentAgent({question:'Draw',corpus,onEvent:e=>events.push(e),complete:async()=>({toolCalls:[
+      {id:'read',name:'read_content',arguments:{id:'notes/cache/en'}},
+      {id:'flow',name:'show_concept_flow',arguments:{title:'Example',labels:['One','Two'],descriptions:['A','B'],sourceIds:['notes/cache/en:0','notes/cache/en:0'],...bad}}
+    ]})}),/Invalid concept evidence/);
+    assert.equal(events.some(e=>e.type==='block'),false);
+  }
+});

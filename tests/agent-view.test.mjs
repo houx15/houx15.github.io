@@ -71,3 +71,17 @@ test('unknown server error codes never appear in visitor-facing messages',async(
   assert.match(agentFailureMessage('invalid_session'),/expired/);
   assert.match(agentFailureMessage('budget_exhausted'),/allowance/);
 });
+
+test('concept diagrams show an interpretation label, one expanded step, and canonical source links',()=>{
+  const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Explain',language:'zh-CN'});
+  turn.event({type:'block',block:{id:'concept',type:'concept_flow',title:'A mechanism',interpretation:true,items:[
+    {title:'First',description:'<script>plain text</script>',source:{id:'s',label:'Evidence',url:'/notes/test/#evidence'}},
+    {title:'Second',description:'Next explanation',source:{id:'s',label:'Evidence',url:'/notes/test/#evidence'}}
+  ]}});
+  const details=log.querySelectorAll('details');
+  assert.equal(details[0].open,true);assert.ok(!details[1].open);
+  assert.equal(details[0].attributes.name,details[1].attributes.name);
+  assert.equal(log.querySelectorAll('a')[0].href,'/notes/test/#evidence');
+  assert.ok(log.querySelectorAll('p').some(p=>p.textContent.includes('非作者原图')));
+  assert.ok(log.querySelectorAll('p').some(p=>p.textContent==='<script>plain text</script>'));
+});

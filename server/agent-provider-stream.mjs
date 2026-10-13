@@ -27,13 +27,15 @@ export async function readProviderStream(response,{signal,onText=()=>{}}={}) {
     if(choice.index!==0 || finish)throw new Error('Invalid choice');
     const delta=choice.delta || {};
     if(delta.content) {
-      if(typeof delta.content!=='string' || calls.size)throw new Error('Mixed result');
+      if(typeof delta.content!=='string')throw new Error('Mixed result');
       content+=delta.content;if(content.length>100000)throw new Error('Oversized result');
-      const prefix=visiblePrefix(content);
+      const prefix=calls.size?null:visiblePrefix(content);
       if(prefix && prefix.text.length>sent.length) {if(!prefix.text.startsWith(sent))throw new Error('Changed result');const addition=prefix.text.slice(sent.length);sent=prefix.text;onText(addition,prefix.sourceIds);}
     }
+    // Providers may include a prose preamble alongside tool calls. Keep it private.
+    // Once structured answer text has streamed, switching to tools is still invalid.
     if(delta.tool_calls) {
-      if(!Array.isArray(delta.tool_calls) || content)throw new Error('Mixed result');
+      if(!Array.isArray(delta.tool_calls) || sent)throw new Error('Mixed result');
       for(const call of delta.tool_calls) {
         if(!Number.isInteger(call.index) || call.index<0 || call.index>7)throw new Error('Invalid tool index');
         const item=calls.get(call.index)||{id:'',name:'',arguments:''};
@@ -55,7 +57,7 @@ export async function readProviderStream(response,{signal,onText=()=>{}}={}) {
       if(buffer.length>100000)throw new Error('Oversized frame');
     }
     buffer+=decoder.decode();if(buffer.trim() || !done)throw new Error('Truncated stream');
-    if(finish==='tool_calls' && calls.size && !content)return {toolCalls:[...calls.entries()].sort((a,b)=>a[0]-b[0]).map(([,call])=>({...call,arguments:JSON.parse(call.arguments)})),usage};
+    if(finish==='tool_calls' && calls.size && !sent)return {toolCalls:[...calls.entries()].sort((a,b)=>a[0]-b[0]).map(([,call])=>({...call,arguments:JSON.parse(call.arguments)})),usage};
     if(finish!=='stop' || calls.size)throw new Error('Invalid finish');
     const result=JSON.parse(content);
     if(!result || Object.keys(result).some(key=>!['text','sourceIds'].includes(key)) || typeof result.text!=='string' || !Array.isArray(result.sourceIds) || !result.text.startsWith(sent))throw new Error('Invalid final');

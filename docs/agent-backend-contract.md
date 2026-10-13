@@ -53,3 +53,11 @@ The `reading_map` block contains `id`, `type`, `documentId`, `title`, `url`, and
 The DeepSeek adapter requests stream:true and include_usage:true, incrementally assembles fragmented tool arguments, and decodes the final JSON answer with sourceIds before text. It forwards only decoded public prose; reasoning_content is not displayed. Partial unicode/escapes are held until complete. Truncated, oversized, mixed tool/prose and length-limited responses fail. Upstream usage is reconciled only when available; missing usage retains the reservation. The final answer and done event are still mandatory. The UI marks interrupted prose as incomplete, and presentation history stores only successfully completed answers.
 
 Reference: https://api-docs.deepseek.com/api/create-chat-completion/ (stream, delta, finish_reason and usage fields). The 84-test local suite includes text delivery before provider completion, fragmented arguments, unicode, provenance gating and partial interruption. Paid model behavior remains unverified.
+
+### Conceptual explanation steps
+
+`show_concept_flow({title, labels, descriptions, sourceIds})` accepts 2–5 aligned steps. Titles are at most 100 characters, descriptions 400, and the overall title 120. Every source must already be in this turn's read evidence; the server supplies canonical source labels and URLs. It emits `concept_flow` with `interpretation: true` and `items: [{title, description, source: {id,label,url}}]`. This is model-generated explanatory organization, not original article headings or an author-provided diagram. Valid source IDs establish provenance, not semantic entailment or causal validity.
+
+The renderer discloses that distinction, uses textContent, and allows one expanded step at a time using a shared details name. The first step opens initially; each has a link to its original source. Incoming and restored blocks use the same validation. Deploy frontend support before enabling this tool on the backend.
+
+Provider prose accompanying a tool-call completion is bounded and discarded, never exposed as a final answer. Tool calls cannot follow structured answer text that has already streamed. Final answers still require the validated JSON/evidence protocol.
