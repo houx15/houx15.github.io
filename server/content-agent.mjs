@@ -129,7 +129,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
         messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'output_limit',guidance:'The previous response exceeded the output limit and was not shown. Do not repeat it or produce a bare number, string, array or repeating sequence. Return one short JSON object with exactly sourceIds first and text second. A request for only dates constrains text, not the object. Cite only sources already read; if none have been read, read the needed evidence first. Do not reproduce a visual already displayed.',availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
         continue;
       }
-      const repairable=['Invalid answer evidence','Invalid biography identity'].includes(error.message) || error.diagnosticCategory==='final_shape';
+      const repairable=['Invalid answer evidence','Invalid biography identity'].includes(error.message) || ['final_shape','json_root'].includes(error.diagnosticCategory);
       // A rejected, unshown candidate may be corrected within this same budget.
       // Never retry a transport failure or revise prose the visitor already saw.
       if(!repairable || shown || step===5 || signal?.aborted)throw error;

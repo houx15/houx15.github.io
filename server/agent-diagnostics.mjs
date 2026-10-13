@@ -1,6 +1,6 @@
 // Fixed categories only: raw exceptions can contain provider payloads or credentials.
 const providerReasons=new Map([
-  ['Invalid stream','stream_headers'],['Invalid choices','stream_shape'],['Invalid choice','stream_order'],
+  ['Invalid JSON root','json_root'],['Invalid stream','stream_headers'],['Invalid choices','stream_shape'],['Invalid choice','stream_order'],
   ['Mixed result','mixed_result'],['Changed result','changed_result'],['Invalid tool index','tool_format'],
   ['Invalid tool type','tool_format'],['Invalid tool delta','tool_format'],['Oversized tool','size_limit'],
   ['Oversized result','size_limit'],['Oversized stream','size_limit'],['Oversized frame','size_limit'],

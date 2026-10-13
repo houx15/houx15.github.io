@@ -69,3 +69,20 @@ test('JSON actions stay private and are accepted only in explicitly enabled tool
    await assert.rejects(readProviderStream(response(value),{allowJsonTools:true}));
  }
 });
+
+test('JSON object mode rejects a non-object prefix before EOF and cancels upstream', {timeout:1000},async()=>{
+ for(const prefix of ['2016','[','"','true','null','```json']) {
+  let channel,cancelled=false;
+  const response=new Response(new ReadableStream({start(c){channel=c;},cancel(){cancelled=true;}}),{headers:{'Content-Type':'text/event-stream'}});
+  const result=readProviderStream(response,{requireJsonObject:true,onText:()=>assert.fail('Invalid root must remain private')});
+  channel.enqueue(frame(chunk(' \n')));channel.enqueue(frame(chunk(prefix)));
+  await assert.rejects(result,/Invalid JSON root/);
+  assert.equal(cancelled,true); // No finish frame or EOF was supplied.
+ }
+});
+test('JSON object mode tolerates leading whitespace and fragmented valid objects',async()=>{
+ const body=[chunk(' \n'),chunk('{'),chunk('"sourceIds":["s"],"text":"Valid"}','stop')].map(p=>new TextDecoder().decode(frame(p))).join('')+'data: [DONE]\n\n';
+ const deltas=[];
+ const result=await readProviderStream(new Response(body,{headers:{'Content-Type':'text/event-stream'}}),{requireJsonObject:true,onText:text=>deltas.push(text)});
+ assert.equal(result.text,'Valid');assert.equal(deltas.join(''),'Valid');
+});

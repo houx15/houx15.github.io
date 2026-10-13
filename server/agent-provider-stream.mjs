@@ -13,7 +13,7 @@ function visiblePrefix(content) {
   }
   return {sourceIds,text:''};
 }
-export async function readProviderStream(response,{signal,allowJsonTools=false,onText=()=>{}}={}) {
+export async function readProviderStream(response,{signal,allowJsonTools=false,requireJsonObject=false,onText=()=>{}}={}) {
   if(!response.ok || !response.headers.get('content-type')?.startsWith('text/event-stream'))throw new Error('Invalid stream');
   const reader=response.body.getReader(),decoder=new TextDecoder('utf-8',{fatal:true});
   let buffer='',content='',sent='',size=0,frames=0,done=false,finish,usage;const calls=new Map();
@@ -29,6 +29,9 @@ export async function readProviderStream(response,{signal,allowJsonTools=false,o
     if(delta.content) {
       if(typeof delta.content!=='string')throw new Error('Mixed result');
       content+=delta.content;if(content.length>100000)throw new Error('Oversized result');
+      // In JSON-object mode a non-object first token can never become a valid
+      // answer or action. Cancel now rather than waiting for the output ceiling.
+      if(requireJsonObject && content.trimStart() && !content.trimStart().startsWith('{'))throw new Error('Invalid JSON root');
       const prefix=calls.size?null:visiblePrefix(content);
       if(prefix && prefix.text.length>sent.length) {if(!prefix.text.startsWith(sent))throw new Error('Changed result');const addition=prefix.text.slice(sent.length);sent=prefix.text;onText(addition,prefix.sourceIds);}
     }

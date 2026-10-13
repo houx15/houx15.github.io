@@ -321,7 +321,7 @@ test('unread streamed citations are repaired before any unsupported text is show
 });
 
 test('invalid final structure can be corrected without retrying transport or partial answers',async()=>{
- for(const failure of ['final_shape','provider_transport','partial']) {
+ for(const failure of ['final_shape','json_root','provider_transport','partial']) {
   let rounds=0;
   const run=runContentAgent({question:'Explain',corpus,complete:async({onText})=>{
    rounds++;
@@ -332,7 +332,7 @@ test('invalid final structure can be corrected without retrying transport or par
    }
    return {text:'No verified evidence.',sourceIds:[]};
   }});
-  if(failure==='final_shape'){await run;assert.equal(rounds,2);}
+  if(['final_shape','json_root'].includes(failure)){await run;assert.equal(rounds,2);}
   else {await assert.rejects(run,/invalid_model_response/);assert.equal(rounds,failure==='partial'?2:1);}
  }
 });

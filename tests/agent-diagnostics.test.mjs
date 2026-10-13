@@ -16,7 +16,7 @@ test('diagnostics retain failure categories, never arbitrary exception or reques
 test('provider JSON failures expose a fixed diagnostic category, never the invalid response',async()=>{
  const {createModelAgent}=await import('../server/agent-provider.mjs');
  const secret='private-response-content';
- const body='data: '+JSON.stringify({choices:[{index:0,delta:{content:secret},finish_reason:'stop'}]})+'\n\ndata: [DONE]\n\n';
+ const body='data: '+JSON.stringify({choices:[{index:0,delta:{content:'{'+secret},finish_reason:'stop'}]})+'\n\ndata: [DONE]\n\n';
  const complete=createModelAgent({apiKey:'not-a-real-key',model:'qwen-plus',provider:'bailian',baseURL:'https://dashscope.aliyuncs.com/compatible-mode/v1',fetchImpl:async()=>new Response(body,{headers:{'Content-Type':'text/event-stream'}})});
  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
    assert.equal(error.code,'invalid_model_response');assert.equal(error.diagnosticCategory,'json_parse');
@@ -81,4 +81,16 @@ test('output truncation has a fixed diagnostic category and is never a completed
  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
    assert.equal(agentFailureRecord({error}).category,'output_limit');return true;
  });
+});
+
+test('Bailian rejects a primitive early in both tool and tool-free rounds with safe diagnostics',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ for(const tools of [[],[{name:'read_profile',parameters:{type:'object',properties:{}}}]]) {
+  let cancelled=false;
+  const complete=createModelAgent({apiKey:'private-key',model:'qwen-plus',provider:'bailian',baseURL:'https://dashscope.aliyuncs.com/compatible-mode/v1',fetchImpl:async()=>new Response(new ReadableStream({start(c){c.enqueue(new TextEncoder().encode('data: '+JSON.stringify({choices:[{index:0,delta:{content:'2016'},finish_reason:null}]})+'\n\n'));},cancel(){cancelled=true;}}),{headers:{'Content-Type':'text/event-stream'}})});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools,signal:new AbortController().signal,language:'en'}),error=>{
+   assert.equal(error.code,'invalid_model_response');assert.equal(error.diagnosticCategory,'json_root');assert.ok(!JSON.stringify(error).includes('2016'));return true;
+  });
+  assert.equal(cancelled,true);
+ }
 });
