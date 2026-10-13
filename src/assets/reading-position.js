@@ -13,3 +13,12 @@ export function resolveReadingPosition(doc,headings) {
     if(section)return {sectionId:section.id,anchor,title:section.heading};
   }
 }
+
+export function waitForReadingContext(promise,signal) {
+  signal.throwIfAborted();
+  return new Promise((resolve,reject)=>{
+    const stop=()=>reject(signal.reason);
+    signal.addEventListener('abort',stop,{once:true});
+    promise.then(value=>{signal.removeEventListener('abort',stop);resolve(value);},error=>{signal.removeEventListener('abort',stop);reject(error);});
+  });
+}

@@ -1,4 +1,4 @@
-import { readingHeadings,resolveReadingPosition } from './reading-position.js';
+import { readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js';
 import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
 import { milestones } from './biography.js';
@@ -140,12 +140,14 @@ export function initCompanion(document) {
     }
   }
   async function getTools() {
-    corpusPromise ||= fetch(root.dataset.index,{credentials:'omit'}).then(response=>{if(!response.ok)throw new Error('Unavailable');return response.json();})
+    corpusPromise ||= fetch(root.dataset.index,{credentials:'omit',signal:AbortSignal.timeout(10000)}).then(response=>{if(!response.ok)throw new Error('Unavailable');return response.json();})
       .then(corpus=>({corpus,tools:createContentTools(corpus)})).catch(error=>{corpusPromise=null;throw error;});
     return corpusPromise;
   }
   async function readPage() {
+    const generation=readingGeneration;
     await readingReady;
+    if(generation!==readingGeneration || (dialog && !dialog.open))return;
     if(liveClient && readingSection)return ask(zh?'陪我读这一节：解释它的核心意思，再给出一个值得继续讨论的问题。':'Read this section with me: explain its main point, then suggest one question worth exploring.');
     if(liveClient && root.dataset.documentId)return ask(zh?'陪我读这篇文章：先解释它的核心问题，再给出一个值得继续讨论的问题。':'Read this article with me: explain its central question, then suggest one question worth exploring.');
     if(busy)return;setBusy(true,zh?'正在打开这一篇的原文…':'Opening this article…');
@@ -180,7 +182,7 @@ export function initCompanion(document) {
     const savedEvents=[];
     const positionReady=readingReady;
     try {
-      await positionReady;controller.signal.throwIfAborted();
+      await waitForReadingContext(positionReady,controller.signal);controller.signal.throwIfAborted();
       const pageContext=root.dataset.documentId?{documentId:root.dataset.documentId,...(readingSection?{sectionAnchor:readingSection.anchor}:{})}:undefined;
       if(!liveClient.hasSession()) {
         if(restorationNotice)restorationNotice.textContent=restorationCopy(false);
@@ -265,7 +267,7 @@ export function initCompanion(document) {
       dialog.showModal();document.body.classList.add('comic-open');log.scrollTop=log.scrollHeight;
     });
     document.querySelector('[data-companion-close]').addEventListener('click',()=>dialog.close());
-    dialog.addEventListener('close',()=>{activeController?.abort();document.body.classList.remove('comic-open');launcher.focus({preventScroll:true});});
+    dialog.addEventListener('close',()=>{readingGeneration++;activeController?.abort();document.body.classList.remove('comic-open');launcher.focus({preventScroll:true});});
     dialog.addEventListener('click',event=>{if(event.target===dialog){const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close();}});
   }
   if(document.body.classList.contains('chat-page')) {log.scrollTop=log.scrollHeight;const initial=initialQuestion(location.hash,language);if(initial){input.value=initial;input.focus();}}
