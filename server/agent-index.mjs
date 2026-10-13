@@ -16,7 +16,7 @@ try {
   const guard=createGuard({store,secret:env.AGENT_SIGNING_SECRET,dailyTokens:config.dailyTokens,monthlyCny:config.monthlyCny,rate:config.rate,enabled});
   const corpus=JSON.parse(await fs.readFile(config.corpusFile,'utf8'));
   if(!env.AGENT_TURNSTILE_SECRET) throw new Error('Missing challenge configuration');
-  const server=createAgentServer({origin,corpus,guard,enabled,onDiagnostic:record=>process.stderr.write(JSON.stringify(record)+'\n'),complete:createModelAgent({apiKey:env.AGENT_MODEL_KEY,model:env.AGENT_MODEL,provider:config.provider,baseURL:config.baseURL}),verifyChallenge:createTurnstile({secret:env.AGENT_TURNSTILE_SECRET,hostname:new URL(origin).hostname})});
+  const server=createAgentServer({origin,corpus,guard,enabled,trustLoopbackProxy:config.trustLoopbackProxy,onDiagnostic:record=>process.stderr.write(JSON.stringify(record)+'\n'),complete:createModelAgent({apiKey:env.AGENT_MODEL_KEY,model:env.AGENT_MODEL,provider:config.provider,baseURL:config.baseURL}),verifyChallenge:createTurnstile({secret:env.AGENT_TURNSTILE_SECRET,hostname:new URL(origin).hostname})});
   server.on('error',()=>{process.stderr.write('Agent unavailable: listener failed.\n');process.exitCode=1;});
   server.listen(config.port,config.bind);
   process.once('SIGTERM',()=>{env.AGENT_ENABLED='0';server.close();server.closeAllConnections();});

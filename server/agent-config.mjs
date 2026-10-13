@@ -24,6 +24,8 @@ export function inspectAgentConfig(env) {
   const port=Number(env.AGENT_PORT || 8788),bind=env.AGENT_BIND || '127.0.0.1';
   if(!Number.isInteger(port) || port<1 || port>65535)issues.push('AGENT_PORT: valid TCP port required');
   if(!['127.0.0.1','0.0.0.0','::1'].includes(bind))issues.push('AGENT_BIND: supported listen address required');
+  if(env.AGENT_TRUST_LOOPBACK_PROXY && !['0','1'].includes(env.AGENT_TRUST_LOOPBACK_PROXY))issues.push('AGENT_TRUST_LOOPBACK_PROXY: use 0 or 1');
+  if(env.AGENT_TRUST_LOOPBACK_PROXY==='1' && !['127.0.0.1','::1'].includes(bind))issues.push('AGENT_TRUST_LOOPBACK_PROXY: loopback bind required');
   if(env.AGENT_ENABLED && !['0','1'].includes(env.AGENT_ENABLED))issues.push('AGENT_ENABLED: use 0 or 1');
-  return {issues,storeKind,provider,baseURL,monthlyCny,rate:Math.ceil(rate),enabled:env.AGENT_ENABLED==='1',origin,dailyTokens,port,bind,corpusFile:env.AGENT_CORPUS_FILE || '_site/assets/agent-corpus.json'};
+  return {issues,trustLoopbackProxy:env.AGENT_TRUST_LOOPBACK_PROXY==='1',storeKind,provider,baseURL,monthlyCny,rate:Math.ceil(rate),enabled:env.AGENT_ENABLED==='1',origin,dailyTokens,port,bind,corpusFile:env.AGENT_CORPUS_FILE || '_site/assets/agent-corpus.json'};
 }

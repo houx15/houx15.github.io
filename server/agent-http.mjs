@@ -1,3 +1,4 @@
+import { visitorAddress } from './agent-address.mjs';
 import { rememberAgentAnswer } from './agent-memory.mjs';
 import { resolveOpeningContext } from './agent-opening.mjs';
 import { MODEL_OUTPUT_TOKENS, MODEL_WIRE_ALLOWANCE } from './agent-limits.mjs';
@@ -14,7 +15,7 @@ async function body(req) {
   for await(const chunk of req){size+=chunk.length;if(size>8192) invalid();parts.push(chunk);}
   try{return JSON.parse(Buffer.concat(parts));}catch{invalid();}
 }
-export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,enabled=()=>false,production=true,deadlineMs=45000,onDiagnostic=()=>{}}) {
+export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,enabled=()=>false,production=true,deadlineMs=45000,trustLoopbackProxy=false,onDiagnostic=()=>{}}) {
   const available=()=>enabled() && (!production || guard.store.shared) && typeof complete==='function' && typeof verifyChallenge==='function';
   const server=createServer(async(req,res)=>{
     const controller=new AbortController(), timer=setTimeout(()=>controller.abort(new Error('deadline')),deadlineMs);
@@ -34,7 +35,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       if(req.method==='OPTIONS') {res.writeHead(204,{'Access-Control-Allow-Methods':'POST','Access-Control-Allow-Headers':'Content-Type, Authorization'});res.end();return;}
       if(!available()) throw new AgentError(503,'unavailable');
       if(req.method!=='POST' || !['/v2/sessions','/v2/agent'].includes(req.url)) throw new AgentError(404,'not_found');
-      const input=await body(req);signal.throwIfAborted(); const address=req.socket.remoteAddress || 'unknown';
+      const input=await body(req);signal.throwIfAborted(); const address=visitorAddress(req,trustLoopbackProxy);
       if(req.url==='/v2/sessions') {
         if(!object(input,['challengeToken']) || typeof input.challengeToken!=='string' || !input.challengeToken || input.challengeToken.length>2048) invalid();
         await guard.challengeAttempt(address,input.challengeToken);signal.throwIfAborted();
