@@ -504,3 +504,23 @@ test('omitted tool language inherits the conversation while an explicit language
   }});
  }
 });
+
+
+test('output-limit correction is bounded and never replaces already-visible prose',async()=>{
+ for(const mode of ['recover','repeat','partial']) {
+  let rounds=0;const events=[];
+  const run=runContentAgent({question:'Only the dates',corpus,onEvent:e=>events.push(e),complete:async({messages,onText})=>{
+   rounds++;
+   if(rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(rounds===2 || mode==='repeat') {
+    if(mode==='partial')onText('Visible prose',['notes/cache/en:0']);
+    const error=new Error('invalid_model_response');error.diagnosticCategory='output_limit';throw error;
+   }
+   assert.equal(JSON.parse(messages.at(-1).content).reason,'output_limit');
+   return {text:'A short sourced answer.',sourceIds:['notes/cache/en:0']};
+  }});
+  if(mode==='recover'){assert.equal((await run).text,'A short sourced answer.');assert.equal(rounds,3);}
+  else {await assert.rejects(run,/invalid_model_response/);assert.equal(rounds,mode==='repeat'?3:2);}
+  assert.equal(events.filter(e=>e.type==='answer_delta').length,mode==='partial'?1:0);
+ }
+});

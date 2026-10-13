@@ -37,7 +37,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const availableTools=contentToolDefinitions.filter(tool=>(supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || tool.name!=='recall_conversation'));
   const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
   const messages = [{role:'system',content:instructions}, ...(earlierHistory.length?[{role:'user',content:JSON.stringify(recall.index)}]:[]), ...history, {role:'user',content:JSON.stringify({question,language,pageContext,openingContext:opening})}];
-  let calls = 0;
+  let calls = 0, outputLimitRepairs = 0;
   if(pageContext?.sectionId) {
     signal?.throwIfAborted();
     const args={id:pageContext.documentId,sectionId:pageContext.sectionId},callId=`context_read_${++calls}`;
@@ -115,6 +115,11 @@ export async function runContentAgent({ question, language = 'en', history = [],
       } else {shown+=text;onEvent({type:'answer_delta',text,sources:sourceIds.map(id=>evidence.get(id))});}
     }});
     } catch(error) {
+      if(error.diagnosticCategory==='output_limit' && !shown && outputLimitRepairs===0 && step<5 && !signal?.aborted) {
+        outputLimitRepairs++;
+        messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'output_limit',guidance:'The previous response exceeded the output limit and was not shown. Do not repeat it or produce a bare number, string, array or repeating sequence. Return one short JSON object with exactly sourceIds first and text second. A request for only dates constrains text, not the object. Cite only sources already read; if none have been read, read the needed evidence first. Do not reproduce a visual already displayed.',availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
+        continue;
+      }
       const repairable=['Invalid answer evidence','Invalid biography identity'].includes(error.message) || error.diagnosticCategory==='final_shape';
       // A rejected, unshown candidate may be corrected within this same budget.
       // Never retry a transport failure or revise prose the visitor already saw.
