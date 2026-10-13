@@ -1,4 +1,4 @@
-{% set ui = locales[1] if page.url | isChinese else locales[0] %}
+{% set ui = locales[1] if lang == 'zh-CN' or (page.url | isChinese) else locales[0] %}
 <!doctype html>
 <html lang="{{ lang or ui.lang }}">
 <head>
@@ -27,7 +27,7 @@
       <a href="{{ ui.prefix }}/notes/"{% if section == 'notes' %} aria-current="page"{% endif %}>{{ ui.learningNotes }}</a>
       <a href="{{ ui.prefix }}/about/"{% if section == 'about' %} aria-current="page"{% endif %}>{{ ui.about }}</a>
     </nav>
-    <a class="language-switch" id="language-switch" href="{{ page.url | switchLanguage(entries) }}" hreflang="{{ 'en' if ui.prefix else 'zh-CN' }}" lang="{{ 'en' if ui.prefix else 'zh-CN' }}" aria-label="{{ ui.languageLabel }}">{{ ui.language }}</a>
+    <a class="language-switch" id="language-switch" href="{{ page.url | switchLanguage(entries, ui.lang) }}" hreflang="{{ 'en' if ui.prefix else 'zh-CN' }}" lang="{{ 'en' if ui.prefix else 'zh-CN' }}" aria-label="{{ ui.languageLabel }}">{{ ui.language }}</a>
   </header>
   <main id="main" tabindex="-1">
     {% if preview %}<p class="preview-notice">{{ ui.preview }}</p>{% endif %}

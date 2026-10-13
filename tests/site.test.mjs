@@ -276,6 +276,18 @@ test('learning notes are dated, searchable across languages, and exclude draft t
     assert.equal($('[data-year] h2').text(), '2026');
     assert.ok(!html.includes('private-search-needle'));
   }
+  const article=load(await fs.readFile(path.join(dir,'_site/notes/first-note/index.html'),'utf8'));
+  assert.equal(article('html').attr('lang'),'zh-CN');
+  assert.equal(article('.site-name').text(),'侯煜欣');
+  assert.equal(article('.site-name').attr('href'),'/zh/');
+  assert.equal(article('.back-link').text(),'学习笔记');
+  assert.equal(article('.back-link').attr('href'),'/zh/notes/');
+  assert.match(article('.article-meta time').text(),/2026年/);
+  assert.equal(article('#language-switch').attr('hreflang'),'en');
+  assert.equal(article('#language-switch').attr('href'),'/notes/');
+  assert.match(article('[data-companion-open]').attr('aria-label'),/一起读/);
+  assert.equal(article('[data-companion] textarea').attr('placeholder'),'或者，直接问我……');
+  assert.equal(article('link[rel=canonical]').attr('href'),'https://houx15.github.io/notes/first-note/');
   await checkSite(path.join(dir,'_site'));
   build(dir,true);
   assert.match(await fs.readFile(path.join(dir,'_preview/notes/index.html'),'utf8'), /private-search-needle/);

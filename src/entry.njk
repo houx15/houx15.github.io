@@ -12,7 +12,7 @@ eleventyComputed:
   lang: "{{ entry.lang }}"
 article: true
 ---
-{% set ui = locales[1] if entry.isTranslation else locales[0] %}
+{% set ui = locales[1] if entry.lang == 'zh-CN' else locales[0] %}
 {% set listing = "research" if entry.category == "research" or entry.category == "research-software" else entry.type %}
 <article>
   <header class="article-heading">

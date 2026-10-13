@@ -23,9 +23,11 @@ export default function (config) {
   config.addGlobalData('stylesheetVersion', async () => createHash('sha256').update((await Promise.all(['style.css','companion.css'].map(name => fs.readFile(`src/assets/${name}`,'utf8')))).join('\0')).digest('hex').slice(0, 12));
   config.addFilter('isChinese', url => url.startsWith('/zh/'));
   config.addFilter('localized', (entries, locale) => locale.prefix ? entries.filter(item=>item.zh).map(item=>item.zh) : entries);
-  config.addFilter('switchLanguage', (url, entries) => {
+  config.addFilter('switchLanguage', (url, entries, language) => {
     if (url.startsWith('/zh/')) return url.slice(3);
     const entry = entries.find(item=>item.url===url);
+    // An original Chinese article can have a canonical URL outside /zh/ and no English edition.
+    if(entry && language==='zh-CN' && entry.lang==='zh-CN')return `/${entry.type}/`;
     return entry && !entry.zh ? `/zh/${entry.type}/` : `/zh${url}`;
   });
   config.addFilter('noteText', html => load(html).text());
