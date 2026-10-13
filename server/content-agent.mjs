@@ -30,6 +30,27 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
   const messages = [{role:'system',content:instructions}, ...history, {role:'user',content:JSON.stringify({question,language,pageContext})}];
   let calls = 0;
+  // Re-read a bounded set of the most recent diagram's references. The model sees
+  // fresh tool results rather than treating conversation memory as evidence.
+  for(const prior of history.slice().reverse()) {
+    if(prior.role!=='assistant')continue;
+    let memory;try {memory=JSON.parse(prior.content);}catch {continue;}
+    if(!Array.isArray(memory?.visuals))continue;
+    const ids=[...new Set(memory.visuals.filter(visual=>visual?.type==='concept_flow' && Array.isArray(visual.items)).slice(-1).flatMap(visual=>visual.items.map(item=>item?.sourceId)).filter(id=>typeof id==='string'))].slice(0,3);
+    for(const id of ids) {
+      signal?.throwIfAborted();
+      const doc=corpus.documents.find(document=>document.sections.some(section=>section.id===id));
+      if(!doc)continue;
+      const callId=`context_read_${++calls}`,args={id:doc.id,sectionId:id};
+      messages.push({role:'assistant',toolCalls:[{id:callId,name:'read_content',arguments:args}]});
+      onEvent({type:'status',phase:'tool_started',tool:'read_content',callId});
+      const output=tools.read_content(args);
+      for(const section of output.sections)evidence.set(section.id,{id:section.id,label:`${output.title} · ${section.heading}`,url:section.url});
+      onEvent({type:'status',phase:'tool_completed',tool:'read_content',callId});
+      messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(output)});
+    }
+    break;
+  }
   for (let step = 0; step < 6; step++) {
     signal?.throwIfAborted();
     let streamed='',streamIds;

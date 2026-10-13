@@ -241,3 +241,27 @@ test('concept source choices reflect actual reads and a rejected source can be c
  }});
  assert.equal(result.blocks.length,1);assert.equal(result.blocks[0].items[1].source.id,'notes/cache/en:0');
 });
+
+test('diagram follow-up refreshes real source text before the first model answer',async()=>{
+ const memory={text:'See the diagram.',visuals:[{type:'concept_flow',title:'Cache',items:[{position:1,title:'Store',sourceId:'notes/cache/en:0'},{position:2,title:'Reuse',sourceId:'notes/cache/en:0'},{position:3,title:'Missing',sourceId:'invented'}]}]};
+ const events=[];let calls=0;
+ const result=await runContentAgent({question:'Explain step two',corpus,history:[{role:'assistant',content:JSON.stringify(memory)}],onEvent:event=>events.push(event),complete:async({messages,onText})=>{
+   calls++;const read=JSON.parse(messages.at(-1).content);
+   assert.equal(read.sections[0].text,corpus.documents[0].sections[0].text);
+   assert.equal(events.filter(event=>event.phase==='tool_completed').length,1);
+   onText('Reuse stored keys and values.',['notes/cache/en:0']);
+   return {text:'Reuse stored keys and values.',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(calls,1);assert.equal(result.sources[0].id,'notes/cache/en:0');
+ assert.equal(events.filter(event=>event.type==='answer_delta').length,1);
+});
+
+test('automatic visual-source refresh is capped and consumes the same tool budget',async()=>{
+ const many=doc('many','Many sections','One');many.sections=Array.from({length:5},(_,i)=>({id:`${many.id}:${i}`,heading:`Section ${i}`,text:`Current text ${i}`,url:`${many.url}#s${i}`}));
+ const memory={visuals:[{type:'concept_flow',items:many.sections.map(section=>({sourceId:section.id}))}]};
+ const events=[];
+ await assert.rejects(runContentAgent({question:'Continue',corpus:{schemaVersion:1,revision:'t',documents:[many]},history:[{role:'assistant',content:JSON.stringify(memory)}],onEvent:event=>events.push(event),complete:async()=>{
+   assert.equal(events.filter(event=>event.phase==='tool_completed').length,3);
+   return {toolCalls:Array.from({length:6},(_,i)=>({id:`r${i}`,name:'read_content',arguments:{id:many.id}}))};
+ }}),/Tool budget exceeded/);
+});
