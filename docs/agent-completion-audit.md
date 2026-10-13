@@ -219,3 +219,10 @@ Read the actual enabled nginx site: the `/v2/` proxy does not set a dedicated vi
 ### 2026-10-13 — Trusted ingress configuration and address normalization
 
 The administrator header remains absent in the enabled nginx site, so trust is still not activated. Added explicit startup checks in tests: loopback binds accept opt-in, public binds reject it, and arbitrary flag strings fail validation. A failing regression demonstrated that equivalent IPv4-mapped IPv6 spellings produced distinct keys. Canonicalize IPv6 first, then convert mapped addresses to the same IPv4 key; all four tested spellings now share a limit. Full verification passed. This is a prepared branch correction, not proof of live per-visitor isolation.
+
+
+### 2026-10-13 — Reading return and source focus: actual browser checks
+
+Using the local built article in the in-app desktop browser, scrolled to section 11, opened the native dialog and pressed Escape through the focused close button. Article scroll remained exactly 21695 before/open/after; the dialog closed and focus returned to its launcher. Forward Tab traversed invitation, textarea, Send. At the dialog boundary the browser reported BODY (also on reverse Tab), so this observation does not prove a complete focus loop or screen-reader behavior.
+
+A local-only restored-answer fixture used the actual renderer and a same-page source link to section 11. Expanding the source and following it closed the dialog, set the URL hash, focused `section-11-研究方向`, and placed that heading 24.05px from the viewport top. No model was called. Cleared the fixture history through the UI, removed the fixture file, and returned to the actual article afterward. These observations close the previously unverified desktop Escape and same-page source-return checks; mobile virtual keyboards and assistive technology remain unverified. No product code change was needed.
