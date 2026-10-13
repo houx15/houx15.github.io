@@ -113,3 +113,10 @@
 .comic-timeline-expand summary {cursor:pointer;font-size:14px;line-height:1.6;}
 .comic-timeline-expand summary:focus-visible {outline:2px solid currentColor;outline-offset:5px;}
 .comic-timeline-expand[open] summary {margin-bottom:18px;}
+
+@media(max-width:600px) {
+  .comic-composer textarea {font-size:16px;min-height:44px;}
+  .comic-composer button {width:44px;height:44px;}
+  .comic-room {padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));}
+  .companion-launcher {bottom:calc(14px + env(safe-area-inset-bottom,0px));}
+}
