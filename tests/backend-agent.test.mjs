@@ -162,7 +162,7 @@ test('output allowance reconciles larger valid answers and retains reservations 
     const {post}=await serve(t,{guard,complete:async()=>({text:'No evidence',sourceIds:[],usage:{prompt_tokens:100,completion_tokens:completion,total_tokens:100+completion}})});
     const text=await (await post('/v2/agent',{question:'Unknown',language:'en'},await issue(post))).text();
     assert.match(text,/event: done/);
-    if(completion<=2048)assert.equal(store.state.spent,100+completion);
+    if(completion<=2048)assert.equal(store.state.spent,2*(100+completion)); // Both the uncited attempt and its one correction are charged.
     else assert.ok(store.state.spent>100+completion,'ambiguous usage retains the full pre-call reservation');
   }
 });

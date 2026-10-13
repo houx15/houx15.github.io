@@ -61,7 +61,7 @@ test('failed model calls report only safe diagnostics and a broken logger cannot
  assert.equal(records.length,1);assert.equal(records[0].requestId,events[0].requestId);assert.equal(records[0].stage,'model');assert.equal(records[0].modelCalls,1);
  assert.ok(!JSON.stringify(records).includes('sensitive'));assert.ok(!JSON.stringify(records).includes('private visitor'));
  await client.ask({question:'Try a different topic',language:'en'});
- assert.equal(calls,2);
+ assert.equal(calls,3); // The second request gets one bounded uncited-reply correction.
 });
 
 test('cross-page follow-up keeps the actual concept step order in server-owned history',async t=>{

@@ -39,7 +39,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const availableTools=contentToolDefinitions.filter(tool=>(supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || tool.name!=='recall_conversation'));
   const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
   const messages = [{role:'system',content:instructions}, ...(earlierHistory.length?[{role:'user',content:JSON.stringify(recall.index)}]:[]), ...history, {role:'user',content:JSON.stringify({question,language,pageContext,openingContext:opening})}];
-  let calls = 0, outputLimitRepairs = 0, searched = false;
+  let calls = 0, outputLimitRepairs = 0, conversationRepairs = 0, searched = false;
   if(opening?.type==='biography_event' && !pageContext) {
     const args={eventId:opening.eventId,language},callId=`opening_read_${++calls}`;
     signal?.throwIfAborted();
@@ -229,6 +229,11 @@ export async function runContentAgent({ question, language = 'en', history = [],
     if (typeof result.text !== 'string' || !result.text.trim() || result.text.length > 10000 || !Array.isArray(result.sourceIds) || result.sourceIds.length > 10 || result.sourceIds.some(id => !evidence.has(id))) {
       if(!streamed && step<5){requestAnswerRepair();continue;}
       throw new Error('Invalid answer evidence');
+    }
+    if(!result.sourceIds.length && !shown && !conversationRepairs && step<5) {
+      conversationRepairs++;
+      messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'uncited_reply',guidance:'This uncited prose has not been displayed. For a purely social greeting, thanks, AI identity, privacy boundary, unrelated request, or uncertainty after lookup, end with reply_conversationally using the matching reason. These conversational acts do not require invented citations. For a substantive factual answer, read relevant public sources and cite their exact IDs. Do not confuse an unconfirmed personal view with an unrelated topic. Do not repeat an uncited final text.'})});
+      continue;
     }
     if(usesBiographyEvidence(result.sourceIds)) {
       try {checkBiographySentence(result.text);}

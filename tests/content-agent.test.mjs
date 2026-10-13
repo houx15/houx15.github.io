@@ -332,7 +332,7 @@ test('invalid final structure can be corrected without retrying transport or par
    }
    return {text:'No verified evidence.',sourceIds:[]};
   }});
-  if(['final_shape','json_root'].includes(failure)){await run;assert.equal(rounds,2);}
+  if(['final_shape','json_root'].includes(failure)){await run;assert.equal(rounds,3);}
   else {await assert.rejects(run,/invalid_model_response/);assert.equal(rounds,failure==='partial'?2:1);}
  }
 });
@@ -351,7 +351,7 @@ test('nonstreaming invalid citations receive the same bounded correction',async(
   assert.equal(JSON.parse(messages.at(-1).content).type,'answer_rejected');
   return {text:'Evidence is missing',sourceIds:[]};
  }});
- assert.equal(rounds,2);assert.equal(answer.sources.length,0);assert.doesNotMatch(answer.text,/Unverified attribution/);
+ assert.equal(rounds,3);assert.equal(answer.sources.length,0);assert.doesNotMatch(answer.text,/Unverified attribution/);
 });
 
 test('incorrect biography identities split across chunks stay private and are corrected',async()=>{
@@ -626,4 +626,16 @@ test('the last completion can end with uncertainty without another lookup or mod
   return {toolCalls:[{id:'done',name:'reply_conversationally',arguments:{reason:'uncertain'}}]};
  }});
  assert.equal(round,6);assert.match(answer.text,/enough to confirm/);
+});
+
+
+test('an uncited identity reply is repaired once without showing or citing model prose',async()=>{
+ let round=0;const events=[];
+ const answer=await runContentAgent({question:'Who are you?',corpus,onEvent:e=>events.push(e),complete:async({onText,messages})=>{
+  if(++round===1){onText('I am the real person',[]);return {text:'I am the real person',sourceIds:[]};}
+  assert.equal(JSON.parse(messages.at(-1).content).reason,'uncited_reply');
+  return {toolCalls:[{id:'identity',name:'reply_conversationally',arguments:{reason:'identity'}}]};
+ }});
+ assert.equal(round,2);assert.match(answer.text,/not Yuxin herself/);
+ assert.equal(events.filter(e=>e.type==='answer_delta').map(e=>e.text).join(''),answer.text);
 });
