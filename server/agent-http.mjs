@@ -39,6 +39,9 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       }
       if(!object(input,['question','language','pageContext']) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language)) invalid();
       if(input.pageContext!==undefined && (!object(input.pageContext,['documentId']) || !corpus.documents.some(d=>d.id===input.pageContext.documentId))) invalid();
+      // Preserve the page that 'this note' referred to, not just the question text.
+      const userContext=JSON.stringify({question:input.question,language:input.language,pageContext:input.pageContext});
+      if(userContext.length>4000) invalid();
       const token=req.headers.authorization?.match(/^Bearer ([^ ]+)$/)?.[1];
       const session=await guard.begin(token,address,requestId);admitted=true;signal.throwIfAborted();
       res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','X-Accel-Buffering':'no'});res.flushHeaders();
@@ -68,7 +71,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       signal.throwIfAborted();
       for(const source of answer.sources)if(!emittedSources.has(source.id))emit('source',{source});
       partial=true;emit('answer',{text:answer.text,sourceIds:answer.sources.map(s=>s.id),revision:answer.revision});
-      await guard.finish(requestId,[{role:'user',content:input.question},{role:'assistant',content:answer.text.slice(0,4000)}]);admitted=false;
+      await guard.finish(requestId,[{role:'user',content:userContext},{role:'assistant',content:answer.text.slice(0,4000)}]);admitted=false;
       emit('done',{outcome:'complete'});res.end();
     } catch(error) {
       if(!res.destroyed) {

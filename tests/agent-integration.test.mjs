@@ -8,6 +8,7 @@ import { MemoryAgentStore, createGuard } from '../server/agent-state.mjs';
 test('browser client restores a session after navigation and preserves server-owned follow-up context', async t => {
   const origin='https://houx15.github.io';
   const corpus={schemaVersion:1,revision:'fixture',documents:[{id:'notes/cache/en',canonicalId:'notes/cache',title:'KV cache',summary:'Attention',type:'notes',language:'en',date:'2026-10-01',url:'/notes/cache/',tags:[],sections:[{id:'notes/cache/en:0',heading:'Evidence',text:'Keys and values are cached.',url:'/notes/cache/#evidence'}]}]};
+  corpus.documents.push({...corpus.documents[0],id:'notes/attention/en',canonicalId:'notes/attention',title:'Attention',url:'/notes/attention/',sections:[]});
   const seen=[];
   const complete=async input=>{
     seen.push(input);
@@ -32,8 +33,13 @@ test('browser client restores a session after navigation and preserves server-ow
   assert.ok(events.findIndex(event=>event.type==='source')<events.findIndex(event=>event.type==='answer'));
   client=makeClient(); // A newly loaded page has no closure state from the previous page.
   assert.equal(client.hasSession(),true);
-  await client.ask({question:'And why?',language:'en'});
+  await client.ask({question:'How does the previous note relate to this one?',language:'en',pageContext:{documentId:'notes/attention/en'}});
   assert.ok(seen[2].messages.some(message=>message.role==='assistant' && message.content==='Keys and values are cached.'));
+  const userTurns=seen[2].messages.filter(message=>message.role==='user').map(message=>JSON.parse(message.content));
+  assert.deepEqual(userTurns,[
+    {question:'Explain this note',language:'en',pageContext:{documentId:'notes/cache/en'}},
+    {question:'How does the previous note relate to this one?',language:'en',pageContext:{documentId:'notes/attention/en'}}
+  ]);
   client.clearSession();
   await assert.rejects(client.ask({question:'Again',language:'en'}),/invalid_session/);
 });
