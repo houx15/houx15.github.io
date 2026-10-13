@@ -190,3 +190,10 @@ Full tests passed, including zero provider calls when the first reservation is r
 3. Browser checks confirmed the close button returns focus to the article launcher; reset removes the history notice and returns to the article opening. Full `bun run verify` passed. No paid model request was made.
 
 Scope: desktop local UI with simulated stored history. This does not prove mobile keyboard behavior, screen-reader compliance, Escape handling, or real fifth-turn model recall; those remain separate checks.
+
+
+### 2026-10-13 — Short viewport opening
+
+- At 390×420, the actual local opening clipped the composer and hid its footer. Added a height-based compact greeting with the same character and a single invitation, keeping normal-height composition unchanged.
+- Browser measurements after repair: composer bottom 384 / footer bottom 410 at height 420; English 320×320 composer bottom 284 / footer bottom 310, no horizontal overflow. Inspected saved before/after screenshots and normal 390×844 composition in `/tmp/portfolio-mobile-audit/`. Reset the temporary browser viewport afterward.
+- Full `bun run verify` passed. No model calls. Resized desktop rendering is not proof of iOS/Android virtual-keyboard behavior, zoom handling, or assistive technology support.
