@@ -71,7 +71,11 @@ export async function runContentAgent({ question, language = 'en', history = [],
       modelMessages[0].content+=`\n\nCURRENT SCREEN: The visitor already has these rendered blocks: ${shown}. They are visible UI, not hidden tool results. Your text should add a concise interpretation or answer the remaining question. Do not narrate the entries again. For a biography introduction with a timeline, describe her present role and the connection between her areas of work; leave the chronology in the timeline. If the visitor explicitly asks for a particular detail, explain that detail.`;
     }
     const roundTools=availableTools.map(tool=>tool.name==='show_concept_flow' && evidence.size?{...tool,parameters:{...tool.parameters,properties:{...tool.parameters.properties,sourceIds:{...tool.parameters.properties.sourceIds,items:{...tool.parameters.properties.sourceIds.items,enum:[...evidence.keys()]}}}}}:tool);
-    const result = await complete({ messages: modelMessages, tools: finalPass?[]:roundTools, language, signal, onText:(text,sourceIds)=>{
+    function requestAnswerRepair() {
+      messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',guidance:'The proposed answer was not shown. Return the required {sourceIds,text} object. Source IDs from search or conversation history are NOT evidence. Read the actual source with a reading tool before citing it, using exact IDs returned by tools. You may instead acknowledge insufficient evidence with sourceIds: []. Do not infer personal beliefs from a project feature or a reading topic.',availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
+    }
+    let result;
+    try { result = await complete({ messages: modelMessages, tools: finalPass?[]:roundTools, language, signal, onText:(text,sourceIds)=>{
       signal?.throwIfAborted();
       if(!Array.isArray(sourceIds) || sourceIds.length>10 || sourceIds.some(id=>!evidence.has(id)))throw new Error('Invalid answer evidence');
       sourceIds=[...new Set(sourceIds)];
@@ -80,6 +84,14 @@ export async function runContentAgent({ question, language = 'en', history = [],
       streamIds=sourceIds;streamed+=text;
       onEvent({type:'answer_delta',text,sources:sourceIds.map(id=>evidence.get(id))});
     }});
+    } catch(error) {
+      const repairable=error.message==='Invalid answer evidence' || error.diagnosticCategory==='final_shape';
+      // A rejected, unshown candidate may be corrected within this same budget.
+      // Never retry a transport failure or revise prose the visitor already saw.
+      if(!repairable || streamed || step===5 || signal?.aborted)throw error;
+      requestAnswerRepair();
+      continue;
+    }
     signal?.throwIfAborted();
     if (result.toolCalls?.length) {
       if(finalPass)throw new Error('Agent step budget exceeded');
@@ -134,7 +146,10 @@ export async function runContentAgent({ question, language = 'en', history = [],
       }
       continue;
     }
-    if (typeof result.text !== 'string' || !result.text.trim() || result.text.length > 10000 || !Array.isArray(result.sourceIds) || result.sourceIds.length > 10 || result.sourceIds.some(id => !evidence.has(id))) throw new Error('Invalid answer evidence');
+    if (typeof result.text !== 'string' || !result.text.trim() || result.text.length > 10000 || !Array.isArray(result.sourceIds) || result.sourceIds.length > 10 || result.sourceIds.some(id => !evidence.has(id))) {
+      if(!streamed && step<5){requestAnswerRepair();continue;}
+      throw new Error('Invalid answer evidence');
+    }
     if(streamed && (!result.text.startsWith(streamed) || JSON.stringify([...new Set(result.sourceIds)])!==JSON.stringify(streamIds)))throw new Error('Changed answer');
     const text = result.sourceIds.length ? result.text : language === 'zh-CN' ? '我没有足够的公开资料回答这个问题。可以问我 Yuxin 的公开作品，或围绕学习笔记继续提问。' : 'I do not have enough public evidence to answer that. Ask about Yuxin’s published work or a related reading question.';
     const answer = {type:'answer',text,sources:[...new Set(result.sourceIds)].map(id => evidence.get(id)),blocks,revision:`${corpus.revision}:${profileRevision}`};

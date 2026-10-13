@@ -288,3 +288,50 @@ test('stale or unknown prose references provide no evidence',async()=>{
  const content=JSON.stringify({sourceIds:['profile:invented','event:invented','missing'],text:'Old answer'});
  await assert.rejects(runContentAgent({question:'Continue',corpus,history:[{role:'assistant',content}],complete:async()=>({text:'Unsupported',sourceIds:['event:invented']})}),/evidence/);
 });
+
+
+test('unread streamed citations are repaired before any unsupported text is shown',async()=>{
+ let rounds=0;const events=[];
+ const result=await runContentAgent({question:'Explain cache',corpus,onEvent:event=>events.push(event),complete:async({messages,onText})=>{
+  rounds++;
+  if(rounds===1){onText('Unsupported candidate',['notes/cache/en:0']);throw new Error('unreachable');}
+  if(rounds===2){const feedback=JSON.parse(messages.at(-1).content);assert.equal(feedback.type,'answer_rejected');assert.deepEqual(feedback.availableSources,[]);return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};}
+  onText('Verified explanation',['notes/cache/en:0']);return {text:'Verified explanation',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(rounds,3);assert.equal(result.text,'Verified explanation');
+ assert.deepEqual(events.filter(e=>e.type==='answer_delta').map(e=>e.text),['Verified explanation']);
+});
+
+test('invalid final structure can be corrected without retrying transport or partial answers',async()=>{
+ for(const failure of ['final_shape','provider_transport','partial']) {
+  let rounds=0;
+  const run=runContentAgent({question:'Explain',corpus,complete:async({onText})=>{
+   rounds++;
+   if(failure==='partial' && rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(rounds===(failure==='partial'?2:1)) {
+    if(failure==='partial')onText('Visible text',['notes/cache/en:0']);
+    const error=new Error('invalid_model_response');error.diagnosticCategory=failure==='partial'?'final_shape':failure;throw error;
+   }
+   return {text:'No verified evidence.',sourceIds:[]};
+  }});
+  if(failure==='final_shape'){await run;assert.equal(rounds,2);}
+  else {await assert.rejects(run,/invalid_model_response/);assert.equal(rounds,failure==='partial'?2:1);}
+ }
+});
+
+test('citation correction cannot exceed the existing six model calls',async()=>{
+ let rounds=0;
+ await assert.rejects(runContentAgent({question:'Explain',corpus,complete:async({onText})=>{rounds++;onText('Not evidence',['invented']);}}),/Invalid answer evidence/);
+ assert.equal(rounds,6);
+});
+
+
+test('nonstreaming invalid citations receive the same bounded correction',async()=>{
+ let rounds=0;
+ const answer=await runContentAgent({question:'Unknown view',corpus,complete:async({messages})=>{
+  rounds++;if(rounds===1)return {text:'Unverified attribution',sourceIds:['invented']};
+  assert.equal(JSON.parse(messages.at(-1).content).type,'answer_rejected');
+  return {text:'Evidence is missing',sourceIds:[]};
+ }});
+ assert.equal(rounds,2);assert.equal(answer.sources.length,0);assert.doesNotMatch(answer.text,/Unverified attribution/);
+});
