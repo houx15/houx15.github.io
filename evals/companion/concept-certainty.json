@@ -1,0 +1,18 @@
+[
+  {
+    "question": "为什么成功的轨迹也不能直接拿来训练？请画一个两到三步的小图，简短解释。",
+    "language": "zh-CN",
+    "pageContext": {
+      "documentId": "notes/mass-multi-agent-self-supervision/zh-CN",
+      "sectionId": "notes/mass-multi-agent-self-supervision/zh-CN:20"
+    }
+  },
+  {
+    "question": "画一个两步的小图说明：缺少时序验证时，提交工具是如何处理的？",
+    "language": "zh-CN",
+    "pageContext": {
+      "documentId": "reports/evaluation-and-information-access/zh-CN",
+      "sectionId": "reports/evaluation-and-information-access/zh-CN:3"
+    }
+  }
+]

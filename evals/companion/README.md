@@ -16,8 +16,19 @@ For a candidate, set `AGENT_MODEL`, matching `AGENT_PRICED_MODEL`, and a reviewe
 | Reading, turn 1 | 2016–2022 only, with a real biography source; greeting does not swallow the question | Wrong years, unnecessary timeline, failed completion |
 | Reading, turn 2 | Two or three relevant concept steps, concise takeaway, correct section, hypothetical language preserved | Extra topics, mixed-language filler, claiming a filter guarantees no bad training examples |
 | Reading, turn 3 | Explain the actual second displayed step in English; read its evidence again | Answering a different step, inventing a previous diagram, unnecessary second diagram |
+| Concept certainty, turn 1 | Preserve possible/hypothetical language in the MASS diagram's labels, descriptions AND final prose | “可能” in the body but an unconditional label or “会” in the summary; filtering becomes a guarantee |
+| Concept certainty, turn 2 | Preserve documented SSDataAgent warning/unverified behavior and distinguish it from a hard gate | Inventing a hard rejection; adding uncertainty to directly documented behavior merely to pass a modal-word check |
+| Concept certainty home | Run independently, with no history or pageContext; same semantic criteria as the MASS reading-position case | A preloaded-section success hides failure when the agent has to retrieve the section itself |
 
 Also check actual SSE with `--stream` using the website parser. Completion, syntactic validity, correct sources, useful prose and useful diagrams are separate outcomes. Record model calls and failures, including recovered failures; do not discard failed runs or infer speed from call count.
+
+## Rejected certainty experiments, 2026-10-13
+
+Two candidate approaches were evaluated privately and were not enabled in production. A separate same-model reviewer saw a captured overstatement and its source. One overstatement probe failed without a classified failure cause; a subsequent probe incorrectly approved it. The qualified control was approved. A valid review response is therefore not evidence that this reviewer reliably catches strengthened certainty. Do not add its approval as a user-facing quality badge.
+
+An expanded generation instruction with explicit Chinese and English counterexamples preserved the risk qualifier in the key label/body/prose in a preloaded-section sample (two calls), and kept the report's documented warning behavior in a second turn (two calls). The independent original browser question, without pageContext, still produced an unconditional risk label and “会” in the final summary (four calls), although its step description used “可能”. This contradicted a general-fix claim. The instruction change was removed rather than deployed as a solution.
+
+Use both certainty files when assessing the next candidate. The second case is a control against replacing every factual statement with vague hedging. These are human-reviewed semantic checks, not regex pass/fail tests. No additional model calls, latency, budget limits or review gates were added to the live agent by these experiments.
 
 ## Price review, 2026-10-13
 
