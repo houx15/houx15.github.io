@@ -13,6 +13,7 @@
   <meta property="og:description" content="{{ description or ui.heroText }}">
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
   <link rel="stylesheet" href="/assets/style.css?v={{ stylesheetVersion }}">
+  <link rel="stylesheet" href="/assets/companion.css?v={{ stylesheetVersion }}">
   {% if article %}<link rel="stylesheet" href="/assets/katex/katex.min.css">{% endif %}
 </head>
 <body class="{{ pageClass }}">
@@ -39,6 +40,10 @@
       <a href="{{ site.github }}">{% include 'icons/github.njk' %}<span>GitHub</span></a>
     </div>
   </footer>
+  {% if pageClass != 'home-page' and pageClass != 'chat-page' %}
+  <button class="companion-launcher" type="button" data-companion-open aria-haspopup="dialog" aria-controls="companion-dialog" aria-label="{{ '打开团子的纸页，一起读' if ui.prefix or lang == 'zh-CN' else 'Open the guide’s page and read together' }}">{% include 'dumpling.njk' %}<span>{{ '一起读？' if ui.prefix or lang == 'zh-CN' else 'Read together?' }}</span></button>
+  <dialog id="companion-dialog" class="comic-dialog" aria-label="{{ '团子的纸页' if ui.prefix or lang == 'zh-CN' else 'The guide’s page' }}"><button type="button" class="comic-close" data-companion-close aria-label="{{ '关闭，回到阅读' if ui.prefix or lang == 'zh-CN' else 'Close and return to reading' }}">× <span>{{ '回到阅读' if ui.prefix or lang == 'zh-CN' else 'Back to reading' }}</span></button>{% include 'companion.njk' %}</dialog>
+  {% endif %}
   <script type="module" src="/assets/portfolio.js?v={{ assistantVersion }}"></script>
 </body>
 </html>

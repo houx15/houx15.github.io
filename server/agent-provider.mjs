@@ -1,0 +1,35 @@
+import { AgentError } from './agent-state.mjs';
+import { readProviderStream } from './agent-provider-stream.mjs';
+import { modelEndpoint } from './agent-endpoint.mjs';
+async function limitedJSON(response,max=100000) {
+  if(!response.ok) {await response.body?.cancel();throw new AgentError(502,'provider_unavailable');}
+  const reader=response.body.getReader(); let size=0; const parts=[];
+  while(true) {const {done,value}=await reader.read();if(done) break;size+=value.length;if(size>max){await reader.cancel();throw new AgentError(502,'invalid_model_response');}parts.push(Buffer.from(value));}
+  return JSON.parse(Buffer.concat(parts).toString('utf8'));
+}
+export function createTurnstile({secret,hostname,fetchImpl=fetch,now=Date.now}) {
+  return async (token,signal)=>{
+    if(!secret) throw new AgentError(503,'unavailable');
+    try {
+      const r=await fetchImpl('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(8000)]),headers:{'Content-Type':'application/json'},body:JSON.stringify({secret,response:token})});
+      const data=await limitedJSON(r,16000), age=now()-Date.parse(data.challenge_ts);
+      if(data.success!==true || data.hostname!==hostname || data.action!=='agent_session' || !Number.isFinite(age) || age<0 || age>300000) throw new Error('Invalid challenge');
+    } catch {throw new AgentError(403,'challenge_failed');}
+  };
+}
+export function createModelAgent({apiKey,model,provider='deepseek',baseURL,fetchImpl=fetch}) {
+  const endpoint=modelEndpoint(provider,baseURL);
+  if(!apiKey || !model) throw new Error('Provider not configured');
+  return async ({messages,tools,signal,language,onText})=>{
+    const wire=messages.map(m=>m.role==='tool'?{role:'tool',tool_call_id:m.toolCallId,content:m.content}:m.toolCalls?{role:'assistant',content:null,tool_calls:m.toolCalls.map(c=>({id:c.id,type:'function',function:{name:c.name,arguments:JSON.stringify(c.arguments)}}))}:{role:m.role,content:m.content});
+    wire[0].content+=` Answer in ${language}. Final response MUST be a JSON object with exactly sourceIds FIRST and text SECOND, in that order: {"sourceIds":["id"],"text":"answer"}. JSON is required.`;
+    const body={model,messages:wire,tools:tools.map(t=>({type:'function',function:t})),max_tokens:1024,...(provider==='deepseek'?{reasoning_effort:'none'}:/^qwen/i.test(model)?{enable_thinking:false}:{}),stream:true,stream_options:{include_usage:true}};
+    try {
+      const response=await fetchImpl(endpoint,{method:'POST',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(15000)]),headers:{'Content-Type':'application/json',Authorization:`Bearer ${apiKey}`},body:JSON.stringify(body)});
+      if(!response.ok){await response.body?.cancel();throw new AgentError(502,'provider_unavailable');}
+      return await readProviderStream(response,{signal,onText});
+    } catch(error) {if(signal.aborted) throw signal.reason;throw new AgentError(502,error instanceof AgentError?error.code:'invalid_model_response');}
+  };
+}
+
+export const createDeepSeekAgent = options => createModelAgent({...options,provider:'deepseek'});

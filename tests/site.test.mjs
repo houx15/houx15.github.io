@@ -194,15 +194,17 @@ test('bilingual pages keep route context and translate full articles without dup
   assert.match(chinese('.prose').text(),/完整中文正文/);
   assert.equal(chinese('.toc summary').text(),''); // Single heading requires no table of contents.
   const home=load(await fs.readFile(path.join(dir,'_site/zh/index.html'),'utf8'));
-  assert.equal(home('#hero-form').attr('action'),'/zh/chat/');
+  assert.equal(home('.companion-portal').attr('href'),'/zh/chat/');
+  assert.equal(home('.comic-home button, .comic-home form').length,0);
   assert.equal(home('#chat-form').length,0);
   assert.equal(home('.entry h3').text(),'中文项目');
   assert.equal(home('section.screen').length,4);
   assert.equal((await checkSite(path.join(dir,'_site'))).pages,18);
   const chat=load(await fs.readFile(path.join(dir,'_site/zh/chat/index.html'),'utf8'));
-  assert.equal(chat('#chat-form').length,1);
-  assert.ok(chat('#visual-ssdata').length);
-  assert.equal(chat('#live-options[hidden]').length,1);
+  assert.equal(chat('[data-companion-form]').length,1);
+  assert.equal(chat('[data-opening]').length,1);
+  assert.equal(chat('[data-content-explorer]').length,0);
+  assert.match(chat('[data-companion-status]').text(),/自由对话尚未接通/);
 });
 
 test('research is discoverable separately from products and legacy article URLs stay valid',async t=>{
@@ -255,7 +257,7 @@ test('work and education timeline retains every overlapping period in both langu
     assert.ok($('.journey-map button').toArray().every(button=>$(button).attr('aria-label')));
   }
   const chat=load(await fs.readFile(path.join(dir,'_site/chat/index.html'),'utf8'));
-  assert.equal(load(chat('#visual-profile').html())('[data-milestone]').length,8);
+  assert.equal(chat('[data-companion-log]').length,1);
   const about=load(await fs.readFile(path.join(dir,'_site/about/index.html'),'utf8'));
   assert.match(about('.prose').text(),/supplied and confirmed on 10 October 2026/);
 });

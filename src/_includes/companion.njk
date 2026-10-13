@@ -1,0 +1,17 @@
+{% set cn = ui.prefix or lang == 'zh-CN' %}
+<section class="comic-room" data-companion data-index="/assets/agent-corpus.json?v={{ agentCorpusVersion }}" data-page-url="{{ page.url }}" data-page-title="{{ title or ui.name }}" data-article="{{ 'true' if article else 'false' }}" {% if article and not entry.draft %}data-document-id="{{ entry.type }}/{{ entry.slug }}/{{ entry.lang }}"{% endif %} aria-label="{{ '与团子聊天' if cn else 'Talk with the little guide' }}">
+  <button type="button" class="comic-reset" data-companion-reset aria-label="{{ '清空这次对话' if cn else 'Clear this conversation' }}">{{ '重新开始' if cn else 'Start over' }}</button>
+  <div class="comic-welcome">
+    <div class="comic-character"><div class="comic-mascot" data-poke>{% include 'dumpling.njk' %}</div></div>
+    <p class="comic-hello" data-hello>{{ '嗨，我在。' if cn else 'Hi. I’m here.' }}</p>
+    <p class="comic-invitation" data-invitation>{{ '不知道从哪里开始？我们可以掷个骰子。' if cn else 'Not sure where to start? We could roll a die.' }}</p>
+  </div>
+  <div class="comic-conversation" data-companion-log role="log" aria-live="polite" aria-relevant="additions" aria-label="{{ '对话' if cn else 'Conversation' }}"></div>
+  <div class="comic-play" data-play>
+    <button type="button" class="comic-dice-action" data-opening><svg viewBox="0 0 32 32" aria-hidden="true" class="comic-die"><path d="M5 4L27 5 28 27 4 28Z" fill="none" stroke="currentColor" stroke-width="1.6"/><g fill="currentColor"><circle cx="10" cy="10" r="1.7"/><circle cx="22" cy="11" r="1.7"/><circle cx="16" cy="16" r="1.7"/><circle cx="10" cy="22" r="1.7"/><circle cx="22" cy="22" r="1.7"/></g></svg><span data-opening-label>{{ '掷个骰子，认识她的一面' if cn else 'Roll a die. Meet a side of her.' }}</span><span aria-hidden="true">↗</span></button>
+  </div>
+  <div class="comic-verification" data-visitor-check hidden></div>
+  <form class="comic-composer" data-companion-form><label class="sr-only" for="companion-question">{{ '和团子说点什么' if cn else 'Say something to the guide' }}</label><textarea id="companion-question" rows="1" maxlength="400" required placeholder="{{ '或者，直接问我……' if cn else 'Or, just ask me something…' }}"></textarea><button type="submit" aria-label="{{ '发送问题' if cn else 'Send question' }}"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 15L23 5 17 24 12 17 4 15ZM12 17L23 5"/></svg></button><button type="button" data-stop-answer hidden aria-label="{{ '停止回答' if cn else 'Stop response' }}"><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M7 7L21 8 20 21 7 20Z"/></svg></button></form>
+  <p class="comic-status" data-companion-status role="status">{{ '我是 AI 角色，不是煜欣本人。当前可以玩开场互动；自由对话尚未接通。' if cn else 'An AI character, not Yuxin herself. Opening interactions are available; live conversation is not connected yet.' }}</p>
+  <noscript><p>{{ '互动需要 JavaScript。你也可以直接阅读作品与笔记。' if cn else 'The guide needs JavaScript. You can still read the projects and notes.' }}</p></noscript>
+</section>

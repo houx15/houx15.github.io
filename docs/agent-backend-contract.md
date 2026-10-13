@@ -1,0 +1,55 @@
+# Content agent HTTP contract — v2
+
+Status: local implementation, no live provider or deployment verified. Existing `/v1/assistant` is unchanged. No new dependencies. Entry: `node server/agent-index.mjs`. Production is disabled unless explicitly enabled and configured with shared Redis REST state, Turnstile, signing key, provider and nonzero global token budget. Never expose runtime secrets in static configuration.
+
+## Sessions and deployment
+
+HTTPS frontend origin must exactly match configured origin. `POST /v2/sessions`, JSON `{ "challengeToken": "..." }`, returns 201 `{sessionToken, expiresAt}`. Turnstile action is `agent_session`; hostname is the frontend hostname. Token validation is server-side, age <= 300 seconds, with shared replay protection. Session expires after one hour. No login. An anonymous session is not a unique person. Issuance is limited by hashed socket address and globally. Forwarding headers are ignored; behind a proxy all traffic shares its conservative address quota unless a separately audited trusted ingress is implemented.
+
+For github.io + unrelated API domain use `Authorization: Bearer <sessionToken>`, `credentials: omit`; keep token in memory, never URL. Reload requires a fresh challenge/session. This avoids third-party cookie dependence; bearer theft through frontend XSS remains a risk. A future same-site custom domain can use HttpOnly Secure cookies with explicit CSRF protection; cookies are not implemented here. CORS is not authentication.
+
+## Conversation
+
+`POST /v2/agent`, application/json, authorization header, body `{question, language, pageContext?}`. Question: nonempty <=400 UTF-16 characters. Language: `en` or `zh-CN`. Optional pageContext: `{documentId}` resolving to the server's published corpus. No client transcript, arbitrary URL, role, or session ID is accepted. Server retains the last three successful exchanges, bounded to 4000 characters each, for session lifetime. Evidence must be read anew for each turn. One concurrent request per session. Requests are not retried/replayed automatically; a new submission can incur new calls. No paid calls for greeting/dice/page load.
+
+Successful admission returns text/event-stream; use fetch streaming, not EventSource. Each frame has `id: <request UUID>:<sequence>`, `event: <type>`, and one JSON `data:` envelope `{version:2,requestId,id,type,...}`. IDs are stable within the response; there is no reconnect/resume endpoint. Disable proxy buffering.
+
+Events:
+- `status`: `{phase:"model_started"|"model_completed"|"tool_started"|"tool_completed",step?,tool?,callId?}`. Only actual execution transitions. No fabricated thinking or summarizing. model_started follows budget reservation.
+- `block`: `{block}` with request-prefixed block.id. Tool-produced, validated IDs/URLs only. Types: `post_cards` `{items:[{id,title,summary,url,date,type}]}` (<=3); `questions` `{items:[{documentId,label,query}]}` (<=3); `publication_timeline` `{dateKind:"publication",items:[card]}` (<=12). `event_timeline` `{dateKind:"biography",asOf,qualification,items:[{id,period,kind,title,description,source}]}` (8 approved events). Preserve literal period strings, overlapping periods and missing exact dates; current statements are relative to asOf. No model HTML/JS, render all strings as text. Publication dates never mean career dates.
+- `source`: `{source:{id,label,url}}`, from sections actually read, emitted before answer.
+- `answer_delta`: `{text,sourceIds}`. Incremental answer prose, with sources emitted first. Only references already read in this turn are allowed. Treat as incomplete until done; never persist deltas as completed answers.
+- `answer`: `{text,sourceIds,revision}`. Validated final text must retain the streamed prefix and the same citations. Citation validity does not prove semantic entailment. Render as text, not HTML.
+- `done`: `{outcome:"complete"}` after server history save.
+- `error`: `{code,partial}` terminal instead of done. Blocks/status may precede failure; keep them marked incomplete and never invent an answer. Transport ending without done/error is interrupted. No failed exchanges saved.
+
+Before streaming, errors are JSON `{error:{code}}` with 400 invalid_request, 401 invalid_session, 403 forbidden/challenge_failed, 429 rate_limited, 503 unavailable. After headers, errors are sanitized SSE. AbortController/client disconnect cancels upstream and prevents subsequent paid calls. Deadline 45 seconds; per-provider deadline 15 seconds. No raw upstream details, prompts, tokens, or credentials are logged.
+
+## Limits and accounting
+
+Five completions, eight tools, 1024 output tokens per completion, bounded input serialized bytes 48,000. Reserve conservative input UTF-8 bytes + output token cap before EVERY provider call (also any future router/summary). Retain reservation on provider failure/ambiguous usage; reconcile only valid bounded actual usage. Daily UTC global token ceiling defaults to zero; operator must also configure provider monetary spending cap and model pricing. This is a token ceiling, not a currency guarantee. Runtime enabled switch is checked per request/call. Session: 20 turns/day, 6/minute, concurrency one. Global concurrency two, issuance 100/day and address issuance 5/hour; address requests 12/minute. Leases expire after 60 seconds, beyond request deadline. State rollback fails closed.
+
+Shared Redis REST adapter uses versioned compare-and-set Lua transactions for sessions, replay, limits, leases and reservations. No eviction/expiry of the state key; dedicated persisted Redis required, bounded state pruned transactionally. Missing/corrupt state fails closed; operator initializes once with `AGENT_INITIALIZE=1` then removes it. Local memory store is for tests/development only and explicitly refused in production. Store failures fail closed. No retry of paid provider calls.
+
+## Frontend integration and remaining evidence
+
+Point only the public backend origin in frontend config after approval; shared UI/config/package files are intentionally untouched. Add Turnstile using a public site key, hostname allowlist and action `agent_session`; retain returned bearer in memory. Use the v2 routes and schema above. Do not claim local mocks are live execution. `read_profile` reads the existing approved public facts; `query_profile_events` returns the existing owner-approved biography with its 2026-10-10 asOf date and original uncertain/overlapping periods. No new biographical facts are invented. Citation IDs can be article section IDs, `profile:<factId>` or `event:<eventId>`. Revision includes both article and biography revisions.
+
+Scope is enforced through model instructions and evidence requirement, with fixed server-authored refusal for missing evidence. Related learning explanations are allowed. Prompt/keyword filters cannot guarantee relevance or resistance to injection; real-model evaluation must precede public launch. See `docs/agent-backend-evaluation.md`.
+
+### Integration delta for the concurrently built client
+
+The frontend validates and renders post cards, suggestions, publication timelines, biography timelines, reading maps, and incremental answer deltas. Source URLs remain site-relative; rendering uses textContent. Live service configuration is still disabled pending real-provider verification.
+
+### Reading outline block
+
+`show_reading_map({id, sectionIds})` presents 1–6 existing sections of one public document. Unknown or cross-document section IDs are rejected. The server preserves original section order, deduplicates selections, and supplies original headings and excerpts (up to 240 characters), never model-generated relationships. The presentation tool does not grant answer citation evidence; `read_content` is still required.
+
+The `reading_map` block contains `id`, `type`, `documentId`, `title`, `url`, and `items: [{id,title,excerpt,url}]`. The frontend expands the first excerpt and leaves subsequent ones collapsed. The label explicitly describes original article structure, not a causal diagram. Visual history retains this block under the same validation as incoming results.
+
+
+### Incremental provider output — October 13
+
+The DeepSeek adapter requests stream:true and include_usage:true, incrementally assembles fragmented tool arguments, and decodes the final JSON answer with sourceIds before text. It forwards only decoded public prose; reasoning_content is not displayed. Partial unicode/escapes are held until complete. Truncated, oversized, mixed tool/prose and length-limited responses fail. Upstream usage is reconciled only when available; missing usage retains the reservation. The final answer and done event are still mandatory. The UI marks interrupted prose as incomplete, and presentation history stores only successfully completed answers.
+
+Reference: https://api-docs.deepseek.com/api/create-chat-completion/ (stream, delta, finish_reason and usage fields). The 84-test local suite includes text delivery before provider completion, fragmented arguments, unicode, provenance gating and partial interruption. Paid model behavior remains unverified.

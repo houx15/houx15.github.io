@@ -20,7 +20,7 @@ export const knowledge = [
   { id: 'livepad', terms: /livepad/i, text: "Evie lists LivePad as a project. This portfolio does not publish its feature description, release status, or individual contribution details.", sources: [{"label":"Projects","url":"/projects/"}] },
   { id: 'research', terms: /research|研究/i, text: "Evie lists SSDataAgent, opinion correlation, and opinion dynamics as research. SSDataAgent concerns synthetic survey data. Opinion correlation compares policy-opinion structure across societies and data sources. The specific methods and repository for opinion dynamics have not been confirmed. Products and software prototypes are listed separately.", sources: [{"label":"Research","url":"/research/"}] },
   { id: 'interests', terms: /interest|skill|capabil|radar|proficien|能力|兴趣|技术|擅长|雷达/i, text: "Evie describes product thinking, AI techniques (especially NLP), statistics, big data analysis, and management as strengths, with less experience in design, marketing, sales, and financing. The radar shows these two qualitative self-assessment bands, not measured scores. The timeline lists work, internships, education, and a visiting appointment, preserving their overlapping dates without life-status values.", sources: [{label:'Profile visualizations',url:'/#interests'},{label:'Project evidence',url:'/projects/'}] },
-  { id: 'profile', terms: /evie|yuxin|hou|about|background|education|princeton|peking|tsinghua|university|phd|journey|timeline|侯|煜欣|学历|经历|介绍|普林斯顿|北大/i, text: "Evie / Yuxin Hou (侯煜欣) is a third-year Sociology PhD student at Peking University and a one-year Princeton VSRC. She entered Tsinghua in 2015. From 2016 to 2022 she served as CTO of a company she started, teaching herself programming and leading an R&D team of more than 20 people. Her experience also includes internships with 是光诗歌 and PEER 毅恒挚友 in 2020–2023, a UNICEF internship from June to December 2023, and product and AI consulting for three companies in 2025–2026. These periods overlap. The professional chronology was supplied by Evie.", sources: [{label:'Background and profile sources',url:'/about/#sources'},{label:'Work and education',url:'/#interests'}] },
+  { id: 'profile', terms: /\b(?:background|education|princeton|peking|tsinghua|university|phd|journey|timeline|biography)\b|学历|经历|普林斯顿|北大|^(?:(?:who is|tell me about|introduce)\s+(?:evie|yuxin(?: hou)?)|(?:介绍(?:一下)?|认识(?:一下)?)(?:\s*)(?:evie|yuxin(?: hou)?|侯煜欣|煜欣))[.?!。？！]?$/i, text: "Evie / Yuxin Hou (侯煜欣) is a third-year Sociology PhD student at Peking University and a one-year Princeton VSRC. She entered Tsinghua in 2015. From 2016 to 2022 she served as CTO of a company she started, teaching herself programming and leading an R&D team of more than 20 people. Her experience also includes internships with 是光诗歌 and PEER 毅恒挚友 in 2020–2023, a UNICEF internship from June to December 2023, and product and AI consulting for three companies in 2025–2026. These periods overlap. The professional chronology was supplied by Evie.", sources: [{label:'Background and profile sources',url:'/about/#sources'},{label:'Work and education',url:'/#interests'}] },
   { id: 'projects', terms: /project|work|build|项目|作品/i, text: "The projects are Mind Imprint, Knoweia, OrgClaw, AgenTerm, and LivePad. Mind Imprint has a live website and application entry point; Knoweia has public desktop releases; OrgClaw has public prototype code. AgenTerm and LivePad are listed by name without unpublished feature details. Research is listed separately: SSDataAgent, opinion correlation, and opinion dynamics.", sources: [{label:'Projects',url:'/projects/'}] },
   { id: 'contact', terms: /contact|email|reach|联系|邮件/i, text: 'You can contact Evie at the email address already listed on her website, houyx15@gmail.com, or explore her public GitHub account.', sources: [{label:'Contact details',url:'/about/'}] },
   { id: 'notes', terms: /note|report|article|publication|paper|benchmark|笔记|论文|报告/i, text: "The evaluation note summarizes SSDataAgent’s public reports on distributional fidelity, record copying, source-only transfer, and target-marginal oracle comparisons. It is a source-based note, not an additional experiment or publication.", sources: [{label:'Read the evaluation note',url:'/reports/evaluation-and-information-access/'}] }
@@ -38,19 +38,36 @@ const projectNames = [
   ['agenterm', /agenterm/i],
   ['livepad', /livepad/i]
 ];
+const unknownAnswer = () => ({id:'unknown',text:'I don’t have a verified answer to that in this portfolio. This is a local topic-matching demo, not live AI. Try Evie’s background, Mind Imprint, her interests, or contact details.',sources:[{label:'Sources & limitations',url:'/about/#sources'}]});
 function findAnswer(question) {
   if (typeof question !== 'string' || !question.trim()) return {id:'empty',text:'Please enter a question about Evie or her projects.',sources:[]};
-  if (/secret|password|token|api.?key|private|system.?prompt|ignore.*instruction|\.env|file:|\/Users|chat.?history|密钥|密码|隐私|忽略.*指令|私人文件/i.test(question)) return {id:'boundary',text:'I can only share the curated public portfolio facts. I cannot access private files, credentials, chat history, or instructions outside this page. Try asking about Evie’s background or Mind Imprint.',sources:[{label:'What this guide can see',url:'/about/#sources'}]};
+  if (/\b(?:secrets?|passwords?|credentials?|private)\b|\b(?:api[ -]?keys?|(?:api|access|auth(?:entication)?|bearer|refresh|session)[ -]?tokens?)\b|\b(?:your|her|his|my|the)\s+(?:secret\s+)?tokens?\b|system.?prompt|ignore.*instruction|\.env\b|file:|\/Users|chat.?history|密钥|密码|隐私|忽略.*指令|私人文件|(?:访问|认证|会话|登录|你的|她的)令牌/i.test(question)) return {id:'boundary',text:'I can only share the curated public portfolio facts. I cannot access private files, credentials, chat history, or instructions outside this page. Try asking about Evie’s background or Mind Imprint.',sources:[{label:'What this guide can see',url:'/about/#sources'}]};
   const query = question.slice(0,400);
+  // Unsupported personal facts must not fall through to a name or work keyword.
+  if (/\b(?:salary|salaries|income|earnings|net worth|birthday|birthdate|awards?)\b|home address|date of birth|how much.*(?:earn|make)|工资|薪水|年薪|收入|身家|生日|出生日期|家庭住址|获奖|奖项/i.test(query)) return unknownAnswer();
+  if (/\b(?:compare|comparison|differences?|versus|vs)\b|比较|对比|区别|差别/i.test(query)) {
+    const matches = projectNames.filter(([, pattern]) => pattern.test(query));
+    // A comparison is a pair of existing summaries, never a generated ranking.
+    if (matches.length !== 2) return unknownAnswer();
+    return {id:'comparison',facts:matches.map(([id]) => knowledge.find(item => item.id === id))};
+  }
   const biography = knowledge.find(item => ['startup','nonprofits','unicef','consulting'].includes(item.id) && item.terms.test(query));
   const project = projectNames.find(([, pattern]) => pattern.test(query));
   if (project) return knowledge.find(item => item.id === project[0]);
   if (biography) return biography;
   if (/contribution|authorship|\brole\b|(?:personally|yourself|herself).*(?:built|build|made|implemented)|(?:you|she|evie).*(?:responsible|lead|led)|贡献|角色|负责/i.test(query)) return {id:'unknown',text:'I don’t have verified personal-role evidence for the project in this question. Specific contribution records are available for SSDataAgent, Mind Imprint, and the AI-attitudes pipeline. I won’t infer a role from repository ownership or substitute another project’s contribution.',sources:[{label:'Project contribution evidence',url:'/projects/'}]};
-  return knowledge.find(item => item.terms.test(query)) || {id:'unknown',text:'I don’t have a verified answer to that in this portfolio. This is a local topic-matching demo, not live AI. Try Evie’s background, Mind Imprint, her interests, or contact details.',sources:[{label:'Sources & limitations',url:'/about/#sources'}]};
+  return knowledge.find(item => item.terms.test(query)) || unknownAnswer();
 }
 
 export function localizeAnswer(answer, language = 'en') {
+  if (answer.id === 'comparison') {
+    const facts = answer.facts.map(fact => localizeAnswer(fact, language));
+    const introduction = language === 'zh-CN'
+      ? '以下并列展示两项工作的公开资料；资料未说明的差异或优劣，我无法确认。'
+      : 'Here are the public summaries side by side. Differences or rankings not documented in these sources remain unknown.';
+    return {id:'comparison',text:[introduction,...facts.map(fact => fact.text)].join('\n\n'),
+      sources:[...new Map(facts.flatMap(fact => fact.sources).map(source => [source.url,source])).values()]};
+  }
   if (language !== 'zh-CN') return answer;
   const key = answer.id === 'unknown' && answer.text.includes('personal-role') ? 'unknownRole' : answer.id;
   return {...answer, text:chineseFacts[key] || chineseFacts.unknown, sources:answer.sources.map(source=>({

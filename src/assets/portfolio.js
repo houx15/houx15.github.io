@@ -1,10 +1,12 @@
 import { setupJourneys } from './journey.js';
+import { initCompanion } from './companion.js';
 import { answerQuestion } from './knowledge.js';
 import { assistantOrigin } from './assistant-config.js';
 import { createLiveClient, validOrigin } from './assistant-client.js';
 import { getUI } from './ui.js';
 import { initialQuestion, questionFragment, topicQuestions } from './navigation.js';
 setupJourneys(document);
+initCompanion(document);
 const language=document.documentElement.lang==='zh-CN'?'zh-CN':'en';
 const ui=getUI(language);
 const languageLink=document.querySelector('#language-switch');

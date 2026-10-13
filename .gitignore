@@ -7,5 +7,6 @@ _preview/
 *.log
 .env
 .env.*
+*.env
 !.env.example
 .assistant-state/

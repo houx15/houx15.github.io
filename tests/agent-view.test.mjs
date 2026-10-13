@@ -1,0 +1,44 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { createAgentTurn } from '../src/assets/agent-view.js';
+
+class Element {
+  constructor(tag){this.tag=tag;this.children=[];this.className='';this.textContent='';this.attributes={};this.classList={add:name=>{this.className+=' '+name;},remove:name=>{this.className=this.className.split(' ').filter(x=>x!==name).join(' ');},toggle:(name,value)=>{if(value)this.classList.add(name);else this.classList.remove(name);}};}
+  append(...nodes){for(const node of nodes){node.parent=this;this.children.push(node);}}
+  replaceChildren(...nodes){this.children=[];this.append(...nodes);}
+  setAttribute(name,value){this.attributes[name]=value;}
+  removeAttribute(name){delete this.attributes[name];}
+  remove(){if(this.parent)this.parent.children=this.parent.children.filter(node=>node!==this);}
+  addEventListener(name,handler){this[name]=handler;}
+  querySelectorAll(tag){return this.children.flatMap(node=>[...(node.tag===tag?[node]:[]),...node.querySelectorAll(tag)]);}
+  querySelector(selector){return this.querySelectorAll('p').find(node=>node.className.split(' ').includes(selector.slice(1)));}
+}
+const document={createElement:tag=>new Element(tag)};
+test('streamed prose is visible before completion and stays incomplete on interruption',()=>{
+  const log=new Element('div'),turn=createAgentTurn(document,{log,question:'x'});
+  turn.event({type:'answer_delta',text:'第一句。'});
+  assert.equal(log.querySelector('.comic-reply').textContent,'第一句。');
+  turn.event({type:'answer_delta',text:'第二句。'});
+  assert.equal(log.querySelector('.comic-reply').textContent,'第一句。第二句。');
+  turn.interrupt();assert.match(turn.row.className,/is-incomplete/);
+});
+test('live view presents one suggested next action and only unlocks it after completion',()=>{
+  const log=new Element('div'),clicked=[];
+  const turn=createAgentTurn(document,{log,question:'A question',language:'zh-CN',onQuestion:q=>clicked.push(q)});
+  turn.event({type:'block',block:{id:'b',type:'questions',items:[{documentId:'a',label:'First',query:'one'},{documentId:'b',label:'Second',query:'two'}]}});
+  turn.event({type:'block',block:{id:'another',type:'questions',items:[{documentId:'c',label:'Third',query:'three'}]}});
+  assert.equal(log.querySelectorAll('button').length,1);assert.equal(log.querySelectorAll('button')[0].disabled,true);
+  turn.event({type:'source',source:{id:'s',label:'<script>not executable</script>',url:'/notes/test/'}});
+  turn.event({type:'answer',text:'<img src=x onerror=bad>',sourceIds:['s']});
+  assert.ok(log.querySelectorAll('p').some(node=>node.textContent==='<img src=x onerror=bad>'));
+  turn.event({type:'done'});assert.equal(log.querySelectorAll('button')[0].disabled,false);
+  log.querySelectorAll('button')[0].click();assert.deepEqual(clicked,['one']);
+  createAgentTurn(document,{log,question:'Next'});assert.equal(log.querySelectorAll('button').length,0);
+});
+test('interrupted turns keep displayed evidence but never present a completed state',()=>{
+  const log=new Element('div'),turn=createAgentTurn(document,{log,question:'x'});
+  turn.event({type:'block',block:{id:'b',type:'post_cards',items:[{id:'a',title:'Source',summary:'Summary',url:'/notes/test/',date:'2026-10-12',type:'notes'}]}});
+  turn.interrupt();
+  assert.match(turn.row.className,/is-incomplete/);assert.equal(log.querySelectorAll('a').length,1);
+  turn.event({type:'done'});assert.match(turn.row.className,/is-incomplete/);
+});

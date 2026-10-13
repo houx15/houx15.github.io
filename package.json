@@ -17,7 +17,9 @@
     "content": "node scripts/content.mjs",
     "verify:live": "node scripts/verify-live.mjs",
     "skill:install": "node scripts/install-skill.mjs",
-    "assistant": "node server/index.mjs"
+    "assistant": "node server/index.mjs",
+    "agent": "node server/agent-index.mjs",
+    "agent:check": "node scripts/check-agent-config.mjs"
   },
   "devDependencies": {
     "@11ty/eleventy": "3.1.6",

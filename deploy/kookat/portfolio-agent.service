@@ -1,0 +1,21 @@
+[Unit]
+Description=Personal website content agent
+After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+WorkingDirectory=%h/apps/portfolio-agent/current
+EnvironmentFile=%h/.config/portfolio-agent/runtime.env
+ExecStart=%h/.nvm/versions/node/v24.14.1/bin/node server/agent-index.mjs
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+UMask=0077
+NoNewPrivileges=true
+MemoryMax=256M
+TasksMax=32
+
+[Install]
+WantedBy=default.target
