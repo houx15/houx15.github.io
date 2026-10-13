@@ -28,6 +28,10 @@ export function createDevelopmentPreview({root,launch,token=randomBytes(32).toSt
         const data=await readFile(file);
         res.writeHead(200,{'Content-Type':path.endsWith('.css')?'text/css':path.endsWith('.woff2')?'font/woff2':'text/javascript'});res.end(data);return;
       }
+      if(req.method==='GET' && /^\/(?:zh\/)?(?:notes|projects|reports|research|about|chat)\//.test(path)) {
+        res.writeHead(302,{Location:`https://houx15.github.io${path}`});res.end();return;
+      }
+      if(req.method==='GET' && path==='/zh/') {res.writeHead(302,{Location:'https://houx15.github.io/zh/'});res.end();return;}
       if(req.method!=='POST' || path!=='/run')return fail(404);
       if(req.headers.origin!==origin || req.headers['x-development-preview']!==token || req.headers['content-type']!=='application/json')return fail(403);
       let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>8192)return fail(413);}
@@ -56,7 +60,7 @@ export function createDevelopmentPreview({root,launch,token=randomBytes(32).toSt
 if(process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href) {
   const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
   const host=process.env.AGENT_DEV_SSH_HOST || 'kookat';
-  if(!/^[a-zA-Z0-9_.-]+$/.test(host))throw new Error('Invalid SSH host alias');
+  if(!/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/.test(host))throw new Error('Invalid SSH host alias');
   const args=['-T','-o','BatchMode=yes','-o','ConnectTimeout=10','-o','StrictHostKeyChecking=yes'];
   if(process.env.AGENT_DEV_KNOWN_HOSTS)args.push('-o',`UserKnownHostsFile=${process.env.AGENT_DEV_KNOWN_HOSTS}`);
   const remote="cd /home/monkey/apps/portfolio-agent/current && /home/monkey/.nvm/versions/node/v24.14.1/bin/node --env-file=/home/monkey/.config/portfolio-agent/runtime.env scripts/test-agent-development.mjs --stream";

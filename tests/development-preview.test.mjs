@@ -44,6 +44,8 @@ test('preview requires the local host, origin and ephemeral token before launchi
  const headers={'Content-Type':'application/json',Origin:origin,'X-Development-Preview':'operator'};
  const body=JSON.stringify({question:'Hello',language:'en'});
  try {
+  const source=await fetch(origin+'/notes/example/',{redirect:'manual'});
+  assert.equal(source.status,302);assert.equal(source.headers.get('location'),'https://houx15.github.io/notes/example/');await source.text();
   for(const patch of [{Origin:'https://other.example'},{'X-Development-Preview':'wrong'}]) {
    const result=await fetch(origin+'/run',{method:'POST',headers:{...headers,...patch},body});assert.equal(result.status,403);await result.text();
   }

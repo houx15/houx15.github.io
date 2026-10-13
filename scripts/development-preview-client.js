@@ -14,13 +14,19 @@ stop.addEventListener('click',()=>controller?.abort());
 form.addEventListener('submit',async event=>{
   event.preventDefault();const question=input.value.trim();if(!question || controller)return;
   controller=new AbortController();const signal=controller.signal;
+  let chunks=0;
+  status.textContent='开发联调 · 正在连接 · 0 段文字流';
   root.classList.add('has-conversation');input.disabled=true;send.hidden=true;stop.hidden=false;
-  const turn=createAgentTurn(document,{log,question,language:'zh-CN'});turn.row.scrollIntoView({block:'start'});
+  const turn=createAgentTurn(document,{log,question,language:'zh-CN',onQuestion:q=>{input.value=q;form.requestSubmit();}});turn.row.scrollIntoView({block:'start'});
   input.value='';
   try {
     const response=await fetch('/run',{method:'POST',headers:{'Content-Type':'application/json','X-Development-Preview':token},body:JSON.stringify({question,language:'zh-CN'}),signal});
     if(!response.ok)throw new Error('unavailable');
-    await consumeAgentStream(response.body,event=>presentAgentEvent(log,turn,event),signal);
+    await consumeAgentStream(response.body,event=>{
+      presentAgentEvent(log,turn,event);
+      if(event.type==='answer_delta')chunks++;
+      status.textContent=`开发联调 · 已收到 ${chunks} 段文字流`;
+    },signal);
   } catch(error) {turn.interrupt(agentFailureMessage(signal.aborted?'stopped':error.message,'zh-CN'));}
-  finally {controller=undefined;input.disabled=false;send.hidden=false;stop.hidden=true;input.focus();}
+  finally {status.textContent=`开发联调 · ${signal.aborted?'已停止':'请求结束'} · ${chunks} 段文字流`;controller=undefined;input.disabled=false;send.hidden=false;stop.hidden=true;input.focus();}
 });
