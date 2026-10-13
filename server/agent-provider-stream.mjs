@@ -13,7 +13,7 @@ function visiblePrefix(content) {
   }
   return {sourceIds,text:''};
 }
-export async function readProviderStream(response,{signal,onText=()=>{}}={}) {
+export async function readProviderStream(response,{signal,allowJsonTools=false,onText=()=>{}}={}) {
   if(!response.ok || !response.headers.get('content-type')?.startsWith('text/event-stream'))throw new Error('Invalid stream');
   const reader=response.body.getReader(),decoder=new TextDecoder('utf-8',{fatal:true});
   let buffer='',content='',sent='',size=0,frames=0,done=false,finish,usage;const calls=new Map();
@@ -60,6 +60,10 @@ export async function readProviderStream(response,{signal,onText=()=>{}}={}) {
     if(finish==='tool_calls' && calls.size && !sent)return {toolCalls:[...calls.entries()].sort((a,b)=>a[0]-b[0]).map(([,call])=>({...call,arguments:JSON.parse(call.arguments)})),usage};
     if(finish!=='stop' || calls.size)throw new Error('Invalid finish');
     const result=JSON.parse(content);
+    if(allowJsonTools && result && Object.hasOwn(result,'toolCalls')) {
+      if(sent || Object.keys(result).length!==1 || !Array.isArray(result.toolCalls) || result.toolCalls.length<1 || result.toolCalls.length>8 || result.toolCalls.some(call=>!call || typeof call!=='object' || Object.keys(call).some(key=>!['id','name','arguments'].includes(key)) || typeof call.id!=='string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(call.id) || typeof call.name!=='string' || call.name.length>100 || !call.arguments || typeof call.arguments!=='object' || Array.isArray(call.arguments)) || new Set(result.toolCalls.map(call=>call.id)).size!==result.toolCalls.length)throw new Error('Invalid tool delta');
+      return {toolCalls:result.toolCalls,usage};
+    }
     if(!result || Object.keys(result).some(key=>!['text','sourceIds'].includes(key)) || typeof result.text!=='string' || !Array.isArray(result.sourceIds) || !result.text.startsWith(sent))throw new Error('Invalid final');
     return {...result,usage};
   } finally {await reader.cancel().catch(()=>{});reader.releaseLock();}

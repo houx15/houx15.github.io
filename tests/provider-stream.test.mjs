@@ -58,3 +58,14 @@ test('tool calls after a streamed structured answer remain invalid',async()=>{
   const body=parts.map(p=>new TextDecoder().decode(frame(p))).join('')+'data: [DONE]\n\n';
   await assert.rejects(readProviderStream(new Response(body,{headers:{'Content-Type':'text/event-stream'}})),/Mixed result/);
 });
+
+
+test('JSON actions stay private and are accepted only in explicitly enabled tool rounds',async()=>{
+ const action={toolCalls:[{id:'read1',name:'read_content',arguments:{id:'doc'}}]};
+ const response=value=>new Response(new TextDecoder().decode(frame(chunk(JSON.stringify(value),'stop')))+'data: [DONE]\n\n',{headers:{'Content-Type':'text/event-stream'}});
+ assert.deepEqual((await readProviderStream(response(action),{allowJsonTools:true,onText:()=>assert.fail('Action text must stay private')})).toolCalls,action.toolCalls);
+ await assert.rejects(readProviderStream(response(action)),/Invalid final/);
+ for(const value of [{...action,text:'answer'}, {toolCalls:[]}, {toolCalls:[...action.toolCalls,...action.toolCalls]}, {toolCalls:[{id:'r',name:'read_content',arguments:[]}]}, {toolCalls:[{id:'r',name:'read_content',arguments:{},extra:'x'}]}]) {
+   await assert.rejects(readProviderStream(response(value),{allowJsonTools:true}));
+ }
+});
