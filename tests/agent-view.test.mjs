@@ -42,3 +42,32 @@ test('interrupted turns keep displayed evidence but never present a completed st
   assert.match(turn.row.className,/is-incomplete/);assert.equal(log.querySelectorAll('a').length,1);
   turn.event({type:'done'});assert.match(turn.row.className,/is-incomplete/);
 });
+
+test('streamed budget failure keeps its actionable message and evidence through the caller catch',async()=>{
+  const {consumeAgentStream}=await import('../src/assets/agent-stream.js');
+  const log=new Element('div'),turn=createAgentTurn(document,{log,question:'x',language:'zh-CN'});
+  const frames=[
+    {type:'source',source:{id:'s',label:'Source',url:'/notes/test/'}},
+    {type:'answer_delta',text:'已经写出的内容。',sourceIds:['s']},
+    {type:'error',code:'budget_exhausted',partial:true}
+  ].map((event,index)=>({...event,version:2,requestId:'r',id:String(index)}));
+  const wire=frames.map(event=>`id: ${event.id}\nevent: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`).join('');
+  await assert.rejects(consumeAgentStream(new Response(wire).body,event=>turn.event(event)),/budget_exhausted/);
+  turn.interrupt('Generic connection error');
+  const status=log.querySelectorAll('span').map(node=>node.textContent).join(' ');
+  assert.match(status,/额度暂时用完/);assert.match(status,/不是完整回答/);
+  assert.doesNotMatch(status,/Generic/);
+  assert.equal(log.querySelector('.comic-reply').textContent,'已经写出的内容。');
+  assert.match(turn.row.className,/is-incomplete/);
+});
+
+test('unknown server error codes never appear in visitor-facing messages',async()=>{
+  const {agentFailureMessage}=await import('../src/assets/agent-view.js');
+  for(const language of ['en','zh-CN']) {
+    const message=agentFailureMessage('private-provider-error-detail',language);
+    assert.doesNotMatch(message,/private-provider/);
+    assert.ok(message.length>0);
+  }
+  assert.match(agentFailureMessage('invalid_session'),/expired/);
+  assert.match(agentFailureMessage('budget_exhausted'),/allowance/);
+});

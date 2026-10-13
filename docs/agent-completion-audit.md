@@ -35,3 +35,9 @@ Production release c4facd2 passed build/deploy and exact live-revision verificat
 Long generated timelines pushed answer text out of view. Commit 33a0377 collapses timelines longer than three items behind a single disclosure; all dates, descriptions and sources remain accessible. Local browser visual/expansion checks and full verification passed. Production layout confirmation remains a separate check.
 
 The biography answer exposed an internal citation identifier; the prompt now discourages these in prose. This is not a deterministic output guarantee. Broader conceptual diagrams, cross-document model-session continuity, long-conversation context management, mobile/accessibility review and systematic real-model evaluations remain incomplete.
+
+## Follow-up release and error feedback
+
+Release 0dcc77e is live and its exact revision passed the public-route verifier. A fresh real browser conversation passed Turnstile and returned a biography and timeline. The narrative still repeated chronology despite the complementary-prose instruction; this remains a quality gap. A subsequent cross-page test encountered the session-creation rate limit, so real cross-page continuity is not yet proven. The reverse proxy still lacks the dedicated visitor-address header; activation of separate visitor limits awaits the owner's administrator change.
+
+The streamed-error renderer now uses the same reviewed, bilingual error messages as request failures. Budget exhaustion retains its actionable explanation after the stream callback and caller catch; partial output remains visible and explicitly incomplete. A regression test exercises the actual SSE parser-to-view path. Unknown provider error strings are never rendered. This is local regression evidence, not a new paid browser test.

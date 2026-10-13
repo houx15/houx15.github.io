@@ -1,5 +1,18 @@
 import { validateAgentBlock } from './agent-stream.js';
 
+// Use only local, reviewed copy; never expose raw provider errors to visitors.
+export function agentFailureMessage(code, language = 'en', {partial = false} = {}) {
+  const zh = language === 'zh-CN';
+  let message;
+  if(code === 'rate_limited') message=zh?'请求较频繁，或本次会话已达到聊天上限。请稍后再试；文章仍可直接阅读。':'Requests are too frequent, or this session has reached its chat limit. Try later; the articles remain available.';
+  else if(code === 'budget_exhausted') message=zh?'本站的 AI 额度暂时用完了。现在可以继续阅读文章；反复发送不会恢复额度。':'The site’s AI allowance is currently exhausted. You can keep reading; repeated submissions will not restore the allowance.';
+  else if(['challenge_failed','challenge_timeout','challenge_expired','challenge_unavailable','invalid_challenge'].includes(code)) message=zh?'访客验证没有完成，可以重新发送再试一次。':'Visitor verification did not complete. Send again to retry.';
+  else if(code === 'invalid_session') message=zh?'这次会话已过期。重新发送后，我会建立新的会话。':'This session expired. Sending again will start a new session.';
+  else if(code === 'stopped') message=zh?'已停止。':'Stopped.';
+  else message=zh?'这次回答没有完成。可以重新发送；我不会自动重复请求。':'This answer did not complete. You can send again; I won’t retry automatically.';
+  return message+(partial?(zh?' 已显示的内容保留在这里，但不是完整回答。':' The displayed material remains here, but is not a complete answer.'):'');
+}
+
 // Deliberately accepts only the validated v2 event vocabulary. No generated HTML.
 export function createAgentTurn(document, { log, question, language = 'en', onQuestion = () => {}, restored = false, continuing = false }) {
   const zh = language === 'zh-CN';
@@ -92,7 +105,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
         body.replaceChildren(make('p',event.text,'comic-reply'));
         if(event.sourceIds.length){const details=make('details','','comic-evidence');details.append(make('summary',zh?'翻到原文 ↗':'See the sources ↗'));for(const id of event.sourceIds){const source=sources.get(id);if(!source)throw new Error('invalid_response');const a=make('a',source.label);a.href=source.url;details.append(a);}body.append(details);}
       } else if(event.type==='done')end(false,'');
-      else if(event.type==='error')end(true,zh?'这次对话没有完成。已显示的内容还不构成完整回答。':'This turn was interrupted. The displayed material is not a complete answer.');
+      else if(event.type==='error')end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || visuals.children.length>0}));
     },
     interrupt(message) {if(!finished)end(true,message||(zh?'连接中断了。可以重新发送，但我不会自动重复请求。':'The connection stopped. You can send again; I won’t retry automatically.'));}
   };

@@ -5,7 +5,7 @@ import { createContentTools } from './agent-tools.js';
 import { initialQuestion } from './navigation.js';
 import { agentOrigin, turnstileSiteKey } from './assistant-config.js';
 import { createAgentClient, validateAgentBlock } from './agent-stream.js';
-import { createAgentTurn } from './agent-view.js';
+import { createAgentTurn, agentFailureMessage } from './agent-view.js';
 import { verifyVisitor } from './visitor-check.js';
 import { validateSavedTurn } from './agent-history.js';
 
@@ -170,12 +170,7 @@ export function initCompanion(document) {
       const saved=validateSavedTurn({kind:'agent',question,events:savedEvents});
       if(saved){history.push(saved);history=history.slice(-10);save();}
     } catch(error) {
-      const message=controller.signal.aborted?(zh?'已停止。':'Stopped.')
-        : error.message==='rate_limited'?(zh?'请求较频繁，或本次会话已达到聊天上限。请稍后再试；文章仍可直接阅读。':'Requests are too frequent, or this session has reached its chat limit. Try later; the articles remain available.')
-        : error.message==='budget_exhausted'?(zh?'本站的 AI 额度暂时用完了。现在可以继续阅读文章；反复发送不会恢复额度。':'The site’s AI allowance is currently exhausted. You can keep reading; repeated submissions will not restore the allowance.')
-        : error.message.startsWith('challenge')?(zh?'访客验证没有完成，可以重新发送再试一次。':'Visitor verification did not complete. Send again to retry.')
-        : error.message==='invalid_session'?(zh?'这次会话已过期。重新发送后，我会建立新的会话。':'This session expired. Sending again will start a new session.')
-        : (zh?'连接没有完成。可以重新发送；我不会自动重复请求。':'The connection did not complete. You can send again; I won’t retry automatically.');
+      const message=agentFailureMessage(controller.signal.aborted?'stopped':error.message,language,{partial:savedEvents.length>0});
       turn.interrupt(message);
     } finally {challenge.hidden=true;challenge.replaceChildren();activeController=null;setBusy(false);}
   }
