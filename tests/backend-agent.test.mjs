@@ -31,7 +31,7 @@ test('HTTP session, verified page context, SSE order and server-owned multiround
   assert.equal(new Set(events.map(e=>e.id)).size,events.length);
   assert.equal(events.at(-2).sourceIds[0],'notes/cache/en:0');
   await (await post('/v2/agent',{question:'And why?',language:'en'},token)).text();
-  assert.ok(seen[2].messages.some(m=>m.role==='assistant' && m.content==='Cached keys.'));
+  assert.ok(seen[2].messages.some(m=>m.role==='assistant' && JSON.parse(m.content || '{}').text==='Cached keys.'));
   assert.equal((await post('/v2/agent',{question:'x',language:'en',history:[]},token)).status,400);
   assert.equal((await post('/v2/agent',{question:'x',language:'en',pageContext:{documentId:'draft'}},token)).status,400);
   assert.equal((await post('/v2/agent',{question:'x',language:'en'},token+'x')).status,401);

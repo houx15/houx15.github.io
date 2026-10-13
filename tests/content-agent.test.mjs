@@ -265,3 +265,26 @@ test('automatic visual-source refresh is capped and consumes the same tool budge
    return {toolCalls:Array.from({length:6},(_,i)=>({id:`r${i}`,name:'read_content',arguments:{id:many.id}}))};
  }}),/Tool budget exceeded/);
 });
+
+
+test('prose follow-up refreshes exact biography identities without repeating a timeline',async()=>{
+ const {rememberAgentAnswer}=await import('../server/agent-memory.mjs');
+ const memory=rememberAgentAnswer({text:'Previous introduction',sources:[{id:'profile:profile'},{id:'event:pku'},{id:'event:princeton'}]});
+ const events=[];
+ const result=await runContentAgent({question:'Which institution and appointment?',language:'zh-CN',corpus,history:[{role:'assistant',content:memory}],onEvent:event=>events.push(event),complete:async({messages,onText})=>{
+   const reads=messages.filter(m=>m.role==='tool').map(m=>JSON.parse(m.content));
+   assert.equal(reads.length,3);
+   assert.match(reads[0].text,/社会研究中心/);
+   assert.match(reads[1].text,/社会研究中心/);
+   assert.match(reads[2].text,/访问学生研究合作者/);
+   onText('社会研究中心；VSRC。',['event:pku','event:princeton']);
+   return {text:'社会研究中心；VSRC。',sourceIds:['event:pku','event:princeton']};
+ }});
+ assert.equal(result.sources.length,2);assert.equal(result.blocks.length,0);
+ assert.equal(events.filter(e=>e.phase==='tool_completed').length,3);
+});
+
+test('stale or unknown prose references provide no evidence',async()=>{
+ const content=JSON.stringify({sourceIds:['profile:invented','event:invented','missing'],text:'Old answer'});
+ await assert.rejects(runContentAgent({question:'Continue',corpus,history:[{role:'assistant',content}],complete:async()=>({text:'Unsupported',sourceIds:['event:invented']})}),/evidence/);
+});

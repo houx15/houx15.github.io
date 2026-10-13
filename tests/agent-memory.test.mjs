@@ -18,3 +18,12 @@ test('remembered source IDs alone cannot authorize an answer in a new turn',asyn
  const {runContentAgent}=await import('../server/content-agent.mjs');
  await assert.rejects(runContentAgent({question:'Explain step two',corpus:{schemaVersion:1,revision:'test',documents:[]},history:[{role:'assistant',content:rememberAgentAnswer({text:'A diagram.',blocks:[flow]})}],complete:async()=>({text:'Unsupported claim.',sourceIds:['doc:2']})}),/evidence/);
 });
+
+
+test('plain sourced answers retain bounded canonical references without source payloads',()=>{
+ const saved=JSON.parse(rememberAgentAnswer({text:'A biography.',sources:[{id:'profile:profile',label:'not stored',url:'/about/'},{id:'profile:profile'},{id:'event:pku'}]}));
+ assert.deepEqual(saved.sourceIds,['profile:profile','event:pku']);
+ assert.equal(saved.text,'A biography.');assert.ok(!JSON.stringify(saved).includes('not stored'));
+ const large=rememberAgentAnswer({text:'"'.repeat(10000),sources:[1,2,3].map(i=>({id:String(i)+'"'.repeat(399)}))});
+ assert.ok(large.length<=4000);assert.doesNotThrow(()=>JSON.parse(large));
+});

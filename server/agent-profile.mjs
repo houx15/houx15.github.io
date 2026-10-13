@@ -1,11 +1,17 @@
 import { createHash } from 'node:crypto';
 import { knowledge,localizeAnswer } from '../src/assets/knowledge.js';
 import { milestones } from '../src/assets/biography.js';
+export const profileEventIds=milestones.map(event=>event.id);
 const approvedIds=new Set(['profile','startup','nonprofits','unicef','consulting','interests','contact','research','projects']);
 const facts=knowledge.filter(f=>approvedIds.has(f.id));
 export const profileRevision=createHash('sha256').update(JSON.stringify({facts:facts.map(f=>({id:f.id,text:f.text,sources:f.sources,zh:localizeAnswer(f,'zh-CN').text})),milestones})).digest('hex').slice(0,16);
 export function createProfileTools() {
-  function read_profile({id='profile',language='en'}={}) {
+  function read_profile({id='profile',eventId,language='en'}={}) {
+    if(eventId) {
+      const event=milestones.find(item=>item.id===eventId);if(!event)throw new Error('Unknown profile fact');
+      const item=event[language];
+      return {id:`event:${event.id}`,text:`${item.period}: ${item.title}. ${item.description}`,source:{id:`event:${event.id}`,label:item.title,url:language==='zh-CN'?'/zh/about/#sources':'/about/#sources'},asOf:'2026-10-10',qualification:'Owner-approved biography. Preserve the exact institution, role and overlapping period.'};
+    }
     const fact=facts.find(f=>f.id===id);if(!fact) throw new Error('Unknown profile fact');
     const localized=localizeAnswer(fact,language),source=localized.sources[0];
     return {id:`profile:${id}`,text:localized.text,source:{id:`profile:${id}`,label:source.label,url:source.url},asOf:'2026-10-10',qualification:'Owner-approved public facts; present/current statements are relative to the asOf date.'};
