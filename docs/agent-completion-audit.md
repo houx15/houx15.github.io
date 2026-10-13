@@ -197,3 +197,8 @@ Scope: desktop local UI with simulated stored history. This does not prove mobil
 - At 390×420, the actual local opening clipped the composer and hid its footer. Added a height-based compact greeting with the same character and a single invitation, keeping normal-height composition unchanged.
 - Browser measurements after repair: composer bottom 384 / footer bottom 410 at height 420; English 320×320 composer bottom 284 / footer bottom 310, no horizontal overflow. Inspected saved before/after screenshots and normal 390×844 composition in `/tmp/portfolio-mobile-audit/`. Reset the temporary browser viewport afterward.
 - Full `bun run verify` passed. No model calls. Resized desktop rendering is not proof of iOS/Android virtual-keyboard behavior, zoom handling, or assistive technology support.
+
+
+### 2026-10-13 — Stable typewriter greeting
+
+The longer personal greetings exposed a focus-disrupting layout shift: at 390px width, the bubble changed from height 66/top 477 to height 91/top 464.5 while typing. A hidden full-sentence grid layer now reserves the exact responsive wrapping before characters appear. Browser measurements stayed at height 91/top 464.5 before and after a Chinese greeting; English at 320px stayed height 121/top 347.5, without horizontal overflow. Screenshot inspected: `/tmp/portfolio-stable-greeting.jpg`. Full verification passed; no model requests. This verifies the sampled local animation layouts, not all browser engines.

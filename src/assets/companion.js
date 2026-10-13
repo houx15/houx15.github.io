@@ -14,6 +14,7 @@ export function initCompanion(document) {
   const portal = document.querySelector('.portal-speech');
   if (portal) {
     const greeting = chooseGreeting(document.documentElement.lang);
+    portal.querySelector('.portal-words').dataset.fullText = greeting;
     portal.querySelector('[data-typewriter]').textContent = greeting;
     portal.querySelector('.sr-only').textContent = greeting;
   }

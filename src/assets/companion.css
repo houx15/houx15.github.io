@@ -15,7 +15,10 @@
 .companion-portal {display:flex;flex-direction:column;align-items:center;text-decoration:none!important;gap:28px;margin-top:-12px;}
 .portal-character {width:190px;height:168px;display:block;}
 .portal-speech {display:flex;gap:22px;align-items:center;justify-content:center;position:relative;width:340px;max-width:calc(100vw - 48px);min-height:66px;padding:15px 22px;border:1.7px solid currentColor;border-radius:27px 24px 29px 20px;font:21px/1.5 var(--font-sans);letter-spacing:.025em;}
-.portal-speech [data-typewriter] {flex:1;min-height:1.5em;}
+.portal-words {display:grid;flex:1;min-width:0;min-height:1.5em;}
+/* The hidden full sentence reserves its responsive wrapping during typing. */
+.portal-words::before {content:attr(data-full-text);visibility:hidden;grid-area:1 / 1;}
+.portal-words [data-typewriter] {grid-area:1 / 1;}
 .portal-speech::before {content:"";position:absolute;top:-9px;left:45%;width:13px;height:13px;background:#fff;border-top:1.7px solid currentColor;border-left:1.7px solid currentColor;transform:rotate(38deg) skewY(10deg);}
 .portal-enter {width:24px;height:24px;flex-shrink:0;opacity:.45;transition:transform .2s,opacity .2s;}
 .companion-portal:hover .portal-enter {transform:translateX(4px);opacity:1;}
