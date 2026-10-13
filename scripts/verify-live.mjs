@@ -26,7 +26,7 @@ try {
     const $ = load(await (await request(route)).text());
     if ($('h1').length !== 1 || $('.preview-notice,.draft-label').length) throw new Error(`${route}: unexpected page or draft content.`);
     const stylesheet = $('link[rel="stylesheet"]').toArray().map(link => $(link).attr('href')).find(href => /^\/assets\/style\.css\?v=[a-f0-9]{12}$/.test(href));
-    const prefix = route.startsWith('/zh/') ? '/zh' : '';
+    const prefix = entryLanguages.get(route)==='zh-CN' || route.startsWith('/zh/') ? '/zh' : '';
     const navigation = $('.site-header nav a').toArray().map(link => $(link).attr('href'));
     const expectedNavigation = ['research','projects','reports','notes','about'].map(section => `${prefix}/${section}/`);
     if (JSON.stringify(navigation) !== JSON.stringify(expectedNavigation) || !stylesheet) throw new Error(`${route}: expected site layout missing.`);
