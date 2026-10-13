@@ -1,3 +1,4 @@
+import { MODEL_OUTPUT_TOKENS, MODEL_WIRE_ALLOWANCE } from './agent-limits.mjs';
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import { AgentError } from './agent-state.mjs';
@@ -52,11 +53,11 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
         const bytes=Buffer.byteLength(JSON.stringify({messages:args.messages,tools:args.tools}));
         if(bytes>48000) throw new AgentError(400,'context_limit');
         // Extra allowance covers provider wire framing and the language suffix.
-        const amount=bytes+4096+1024, reservation=await guard.reserve(requestId,amount);
+        const amount=bytes+MODEL_WIRE_ALLOWANCE+MODEL_OUTPUT_TOKENS, reservation=await guard.reserve(requestId,amount);
         signal.throwIfAborted();emit('status',{phase:'model_started',step:++step});
         stage='model';const result=await complete(args);stage='agent';signal.throwIfAborted();
         const usage=result.usage;
-        const valid=Number.isSafeInteger(usage?.prompt_tokens) && usage.prompt_tokens>=0 && Number.isSafeInteger(usage?.completion_tokens) && usage.completion_tokens>=0 && usage.completion_tokens<=1024 && usage.total_tokens===usage.prompt_tokens+usage.completion_tokens;
+        const valid=Number.isSafeInteger(usage?.prompt_tokens) && usage.prompt_tokens>=0 && Number.isSafeInteger(usage?.completion_tokens) && usage.completion_tokens>=0 && usage.completion_tokens<=MODEL_OUTPUT_TOKENS && usage.total_tokens===usage.prompt_tokens+usage.completion_tokens;
         await guard.reconcile(reservation,valid?usage.total_tokens:undefined);signal.throwIfAborted();
         emit('status',{phase:'model_completed',step});return result;
       };

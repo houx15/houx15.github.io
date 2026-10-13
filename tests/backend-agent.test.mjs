@@ -54,7 +54,7 @@ test('atomic shared limits, replay, expiry, clock rollback and conservative rese
 });
 test('per-completion quota prevents second paid step and emits terminal error',async t=>{
   const firstRequest={messages:[{role:'system',content:contentInstructions},{role:'user',content:JSON.stringify({question:'cache',language:'en'})}],tools:contentToolDefinitions};
-  const firstReservation=Buffer.byteLength(JSON.stringify(firstRequest))+4096+1024;
+  const firstReservation=Buffer.byteLength(JSON.stringify(firstRequest))+4096+2048;
   let calls=0;const {post}=await serve(t,{guard:makeGuard({dailyTokens:firstReservation}),complete:async()=>{calls++;return {toolCalls:[{id:'r',name:'read_content',arguments:{id:'notes/cache/en'}}]};}});
   const text=await (await post('/v2/agent',{question:'cache',language:'en'},await issue(post))).text();
   assert.equal(calls,1);assert.match(text,/budget_exhausted/);assert.doesNotMatch(text,/event: done/);
@@ -79,7 +79,7 @@ test('provider maps tools, bounds tokens, rejects truncation and sanitizes raw f
   let body;
   const complete=createDeepSeekAgent({apiKey:'private',model:'configured',fetchImpl:async(url,options)=>{body=JSON.parse(options.body);assert.equal(url,'https://api.deepseek.com/chat/completions');return new Response('data: '+JSON.stringify({choices:[{index:0,finish_reason:'tool_calls',delta:{tool_calls:[{index:0,id:'r',type:'function',function:{name:'read_content',arguments:'{"id":"notes/cache/en"}'}}]}}]})+'\n\ndata: [DONE]\n\n',{headers:{'Content-Type':'text/event-stream'}});}});
   const args={messages:[{role:'system',content:'JSON'}],tools:[],language:'en',signal:new AbortController().signal};
-  assert.equal((await complete(args)).toolCalls[0].name,'read_content');assert.equal(body.max_tokens,1024);assert.ok(!JSON.stringify(body).includes('private'));
+  assert.equal((await complete(args)).toolCalls[0].name,'read_content');assert.equal(body.max_tokens,2048);assert.ok(!JSON.stringify(body).includes('private'));
   const fail=createDeepSeekAgent({apiKey:'private',model:'configured',fetchImpl:async()=>{throw new Error('secret private');}});
   await assert.rejects(fail(args),e=>e.message==='invalid_model_response');
 });
@@ -154,4 +154,15 @@ test('challenge adapter rejects absent and oversized tokens before contacting Cl
  let calls=0;const verify=createTurnstile({secret:'private',hostname:'houx15.github.io',fetchImpl:async()=>{calls++;throw new Error('must not call');}});
  for(const token of [undefined,'','x'.repeat(2049)])await assert.rejects(verify(token,new AbortController().signal),/challenge_failed/);
  assert.equal(calls,0);
+});
+
+test('output allowance reconciles larger valid answers and retains reservations for over-limit usage',async t=>{
+  for(const completion of [1600,2048,2049]) {
+    const store=new MemoryAgentStore(),guard=makeGuard({store});
+    const {post}=await serve(t,{guard,complete:async()=>({text:'No evidence',sourceIds:[],usage:{prompt_tokens:100,completion_tokens:completion,total_tokens:100+completion}})});
+    const text=await (await post('/v2/agent',{question:'Unknown',language:'en'},await issue(post))).text();
+    assert.match(text,/event: done/);
+    if(completion<=2048)assert.equal(store.state.spent,100+completion);
+    else assert.ok(store.state.spent>100+completion,'ambiguous usage retains the full pre-call reservation');
+  }
 });

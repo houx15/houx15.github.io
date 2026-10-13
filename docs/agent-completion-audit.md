@@ -101,3 +101,11 @@ An owner-authorized follow-up sample completed in four calls (9,851 tokens), but
 The structured-action backend was activated with verified file hashes and rollback copies; main deployment 38439237035 completed successfully. A fresh public browser passed session admission but its diagram request failed in round four with category=tool_arguments and no partial answer. This contradicts any claim that operator success proves public reliability.
 
 The next change returns a fixed error and the allowed schema for invalid arguments to a known tool, without executing it or granting evidence. The rejected call still consumes the existing tool and completion budgets; unknown tools and invalid call identities remain fatal. A regression test verifies rejection, correction, one actual source read and a sourced answer. Repeating invalid arguments still ends at the normal step limit. Full verification passed. This is action-level correction inside an admitted request, not automatic resubmission of a failed visitor request.
+
+## Output capacity investigation
+
+Argument correction 0d78efd is active; deployment 38439757398 and the exact live revision verifier passed. A fresh public diagram request still failed, now in model round four with finish_reason rather than tool_arguments. This does not prove which finish reason was returned.
+
+The next candidate gives truncation its own fixed output_limit category and centralizes the per-completion output cap at 2048 tokens. HTTP reservations and usage reconciliation share that constant, retaining the 500 CNY monthly guard and existing tool/round limits. Tests cover reconciliation at 1600 and 2048 output tokens, conservative retention above the cap, and rejection of truncated output. Full local verification passed.
+
+A bounded candidate operator test did not complete: six calls, 19,705 known reconciled tokens, final_shape. Increasing output capacity alone is therefore not a proven reliability fix. The candidate has not replaced production. Further diagnosis should inspect the allowed action sequence and final shape without recording request text, raw provider output or secrets.

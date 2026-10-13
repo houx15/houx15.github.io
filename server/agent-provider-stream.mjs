@@ -58,6 +58,7 @@ export async function readProviderStream(response,{signal,allowJsonTools=false,o
     }
     buffer+=decoder.decode();if(buffer.trim() || !done)throw new Error('Truncated stream');
     if(finish==='tool_calls' && calls.size && !sent)return {toolCalls:[...calls.entries()].sort((a,b)=>a[0]-b[0]).map(([,call])=>({...call,arguments:JSON.parse(call.arguments)})),usage};
+    if(finish==='length')throw new Error('Output token limit');
     if(finish!=='stop' || calls.size)throw new Error('Invalid finish');
     const result=JSON.parse(content);
     if(allowJsonTools && result && Object.hasOwn(result,'toolCalls')) {

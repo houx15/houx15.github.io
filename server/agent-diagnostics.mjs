@@ -4,7 +4,7 @@ const providerReasons=new Map([
   ['Mixed result','mixed_result'],['Changed result','changed_result'],['Invalid tool index','tool_format'],
   ['Invalid tool type','tool_format'],['Invalid tool delta','tool_format'],['Oversized tool','size_limit'],
   ['Oversized result','size_limit'],['Oversized stream','size_limit'],['Oversized frame','size_limit'],
-  ['Truncated stream','truncated_stream'],['Invalid finish','finish_reason'],['Invalid final','final_shape']
+  ['Truncated stream','truncated_stream'],['Invalid finish','finish_reason'],['Output token limit','output_limit'],['Invalid final','final_shape']
 ]);
 export function providerFailureCategory(error) {
   if(providerReasons.has(error?.message))return providerReasons.get(error.message);

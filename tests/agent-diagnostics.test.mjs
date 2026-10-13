@@ -31,7 +31,7 @@ test('tool-free synthesis omits provider tool definitions',async()=>{
    return new Response('data: '+JSON.stringify({choices:[{index:0,delta:{content:'{"sourceIds":[],"text":"Insufficient evidence"}'},finish_reason:'stop'}]})+'\n\ndata: [DONE]\n\n',{headers:{'Content-Type':'text/event-stream'}});
  }});
  await complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'});
- assert.equal(wire.tools,undefined);assert.equal(wire.max_tokens,1024);assert.deepEqual(wire.response_format,{type:'json_object'});
+ assert.equal(wire.tools,undefined);assert.equal(wire.max_tokens,2048);assert.deepEqual(wire.response_format,{type:'json_object'});
 });
 
 test('Bailian JSON actions preserve tool selection, schemas, history and streaming',async()=>{
@@ -72,4 +72,13 @@ test('JSON-action provider executes source reads before emitting an evidenced st
  assert.equal(toolResult.type,'tool_result');assert.equal(toolResult.callId,'p');assert.equal(JSON.parse(toolResult.data).source.id,'profile:profile');
  assert.ok(events.findIndex(event=>event.phase==='tool_completed')<events.findIndex(event=>event.type==='answer_delta'));
  assert.equal(events.filter(event=>event.type==='answer_delta').map(event=>event.text).join(''),'A sourced introduction.');
+});
+
+test('output truncation has a fixed diagnostic category and is never a completed answer',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ const body='data: '+JSON.stringify({choices:[{index:0,delta:{content:'{"sourceIds":[],"text":"cut'},finish_reason:'length'}]})+'\n\ndata: [DONE]\n\n';
+ const complete=createModelAgent({apiKey:'not-a-real-key',model:'qwen-plus',provider:'bailian',baseURL:'https://dashscope.aliyuncs.com/compatible-mode/v1',fetchImpl:async()=>new Response(body,{headers:{'Content-Type':'text/event-stream'}})});
+ await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
+   assert.equal(agentFailureRecord({error}).category,'output_limit');return true;
+ });
 });
