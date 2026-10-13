@@ -181,3 +181,12 @@ A fresh public-browser session completed four actual turns (MASS distinction, do
 Release 1c625fd distinguishes daily token protection from monthly money protection and emits a validated reset timestamp. Daily reset uses UTC midnight; monthly reset uses Beijing calendar midnight, including month rollover. The visitor sees the reset in their local timezone, with their existing draft preserved and no automatic retry. Legacy generic quota errors remain readable. No quota value, monetary ceiling, credential or ledger total was changed.
 
 Full tests passed, including zero provider calls when the first reservation is rejected, rollover dates, rejection of malformed timestamps, and preservation of specific errors through the caller catch. A local real-renderer fixture showed the daily message and preserved draft; it was explicitly labeled a simulation and removed before publication. No paid model call was made for this change. Branch CI, Pages run 38449796597 and exact live revision checks passed. Backend activation followed frontend publication, checked baseline/candidate file hashes, kept rollback copies, and returned healthy over HTTPS. Live fifth-turn conversation validation still awaits sufficient daily quota.
+
+
+### 2026-10-13 — Restored conversation reading clarity
+
+1. Reproduced four restored turns in the real local UI with seeded public-content fixtures. Repeated per-turn session notices competed with the answer text. Replaced them with one session-level notice outside the scrollable log, retaining the distinction between continuing and expired sessions.
+2. Inspected saved desktop screenshots: `/tmp/portfolio-restoration-audit/01-before.jpg`, `02-after.jpg`, and `03-article.jpg`. All four answers and source disclosures remained. On an article, the current article prompt remained the next action.
+3. Browser checks confirmed the close button returns focus to the article launcher; reset removes the history notice and returns to the article opening. Full `bun run verify` passed. No paid model request was made.
+
+Scope: desktop local UI with simulated stored history. This does not prove mobile keyboard behavior, screen-reader compliance, Escape handling, or real fifth-turn model recall; those remain separate checks.

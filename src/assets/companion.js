@@ -27,7 +27,7 @@ export function initCompanion(document) {
   let sessionStore;try {if(location.protocol==='https:')sessionStore=sessionStorage;}catch{}
   let liveClient;try { if(agentOrigin && turnstileSiteKey)liveClient=createAgentClient(agentOrigin,fetch,{sessionStore}); } catch { /* Invalid public deployment config fails closed. */ }
   const idle = liveClient ? (zh?'AI 会参考公开资料回答，也可能出错。':'AI answers from public sources and can make mistakes.') : (zh ? '开场试玩 · AI 自由对话尚未接通' : 'Opening experience · live AI conversation not yet connected');
-  const seen = []; let history = [], busy = false, corpusPromise, activeController, lastLiveTurn;
+  const seen = []; let history = [], busy = false, corpusPromise, activeController, lastLiveTurn, restorationNotice;
   const stopButton=root.querySelector('[data-stop-answer]'), sendButton=form.querySelector('[type=submit]');
   let opening, returnToComposer = false;
   function resetOpening() {
@@ -60,6 +60,7 @@ export function initCompanion(document) {
       returnToComposer=false;
     }
   }
+  const restorationCopy=continuing=>continuing?(zh?'已恢复本次对话，较早的内容可按需回顾。':'This conversation is restored; earlier exchanges can be recalled when needed.'):(zh?'这些是上次的记录，仅供回看；新会话不会自动读取。':'These are previous records for review; a new session will not automatically read them.');
   function sources(parent, items) {
     if (!items?.length) return;
     const details = add(parent,'details','','comic-evidence');add(details,'summary',zh?'翻到原文 ↗':'See the sources ↗');
@@ -71,7 +72,7 @@ export function initCompanion(document) {
     // A completed turn is history, not another competing set of calls to action.
     log.querySelectorAll('button').forEach(button => button.remove());
     if(item.kind==='agent') {
-      const turn=createAgentTurn(document,{log,question:item.question,language,onQuestion:ask,restored:true,continuing:Boolean(liveClient?.hasSession())});
+      const turn=createAgentTurn(document,{log,question:item.question,language,onQuestion:ask,restored:true});
       for(const event of item.events)turn.event(event);
       return;
     }
@@ -169,6 +170,7 @@ export function initCompanion(document) {
     const savedEvents=[];
     try {
       if(!liveClient.hasSession()) {
+        if(restorationNotice)restorationNotice.textContent=restorationCopy(false);
         status.textContent=zh?'确认访客身份，无需注册或登录。':'Checking the visitor session. No account or login needed.';
         challenge.hidden=false;
         const token=await verifyVisitor(document,challenge,turnstileSiteKey,controller.signal);
@@ -198,7 +200,7 @@ export function initCompanion(document) {
   });
   stopButton.addEventListener('click',()=>activeController?.abort());
   window.addEventListener('pagehide',()=>activeController?.abort());
-  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;history=[];seen.length=0;save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();});
+  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();});
   try {
     const stored=JSON.parse(sessionStorage.getItem(storageKey)||'[]');
     if(Array.isArray(stored)) for(const item of stored.slice(-10)) {
@@ -214,6 +216,10 @@ export function initCompanion(document) {
       }
     }
   } catch { /* The companion remains usable when storage is blocked or corrupt. */ }
+  if(history.some(item=>item.kind==='agent')) {
+    restorationNotice=add(root,'p',restorationCopy(Boolean(liveClient?.hasSession())),'comic-session-note');
+    log.before(restorationNotice);
+  }
   if(root.dataset.article==='true' && history.length) {
     // Carry the conversation across pages, but make the CURRENT article the next focus.
     log.querySelectorAll('button').forEach(button=>button.remove());

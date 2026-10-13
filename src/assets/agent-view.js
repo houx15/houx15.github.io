@@ -23,7 +23,7 @@ export function agentFailureMessage(code, language = 'en', {partial = false, res
 }
 
 // Deliberately accepts only the validated v2 event vocabulary. No generated HTML.
-export function createAgentTurn(document, { log, question, language = 'en', onQuestion = () => {}, restored = false, continuing = false, retry }) {
+export function createAgentTurn(document, { log, question, language = 'en', onQuestion = () => {}, restored = false, retry }) {
   const zh = language === 'zh-CN';
   const make = (tag,text='',className='') => {const node=document.createElement(tag);node.textContent=text;node.className=className;return node;};
   // Only collapse an immediately repeated, empty failure. Preserve partial work.
@@ -102,7 +102,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     progressText.textContent=message;
     if(!failed) {
       progress.removeAttribute('role');
-      if(restored){progress.replaceChildren(make('span',continuing?(zh?'已恢复对话 · 较早的内容可按需回顾':'Conversation restored · earlier exchanges can be recalled when needed'):(zh?'上次的对话记录 · 新会话不会自动读取这段历史':'Previous conversation · new sessions do not automatically read this history')));}
+      if(restored){progress.remove();}
       else if(!statuses.length){progress.remove();}
       else {
       const details=make('details','','comic-work-record');details.append(make('summary',zh?'查看查阅过程':'View the source-checking steps'));

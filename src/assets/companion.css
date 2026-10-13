@@ -136,3 +136,6 @@
 @media(max-width:600px){.comic-concept-flow {padding:18px;}.comic-concept-flow>h3 {font-size:21px;}}
 
 .comic-concept-flow>.comic-visual-note {font-size:12px;margin:0;line-height:1.7;}
+
+/* One session-level explanation, outside the scrollable conversation. */
+.comic-session-note {flex-shrink:0;font-size:11px;line-height:1.6;color:#636761;margin:0 0 16px;}
