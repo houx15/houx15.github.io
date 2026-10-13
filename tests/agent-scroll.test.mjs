@@ -1,6 +1,20 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {presentAgentEvent} from '../src/assets/agent-scroll.js';
+import {presentAgentEvent,followConversationResize} from '../src/assets/agent-scroll.js';
+
+test('resizing keeps the latest answer visible without pulling a reader out of earlier messages',()=>{
+ let resize,scroll,disconnected=false;
+ const log={clientWidth:700,clientHeight:460,scrollHeight:1200,scrollTop:740,addEventListener(name,fn){scroll=fn;},removeEventListener(name,fn){assert.equal(fn,scroll);}};
+ const stop=followConversationResize(log,class {constructor(fn){resize=fn;}observe(target){assert.equal(target,log);}disconnect(){disconnected=true;}});
+ resize();assert.equal(log.scrollTop,740);
+ log.clientWidth=350;log.clientHeight=330;log.scrollHeight=1700;
+ scroll(); // Browser reflow must not replace the prior follow intent.
+ resize();assert.equal(log.scrollTop,1700);
+ log.scrollTop=300;scroll();
+ log.clientWidth=700;log.clientHeight=460;log.scrollHeight=1200;
+ resize();assert.equal(log.scrollTop,300);
+ stop();assert.equal(disconnected,true);
+});
 
 test('a tall new diagram is followed to its start rather than its bottom',()=>{
  const log={scrollTop:200,scrollHeight:600,clientHeight:400,getBoundingClientRect:()=>({top:80})};

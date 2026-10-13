@@ -8,7 +8,7 @@ import { initialQuestion } from './navigation.js';
 import { agentOrigin, turnstileSiteKey } from './assistant-config.js';
 import { createAgentClient, validateAgentBlock } from './agent-stream.js';
 import { createAgentTurn, agentFailureMessage } from './agent-view.js';
-import { presentAgentEvent } from './agent-scroll.js';
+import { presentAgentEvent,followConversationResize } from './agent-scroll.js?v=2';
 import { verifyVisitor } from './visitor-check.js';
 import { validateSavedTurn } from './agent-history.js';
 
@@ -30,6 +30,7 @@ export function initCompanion(document) {
   const root = document.querySelector('[data-companion]'); if (!root) return;
   const zh = document.documentElement.lang === 'zh-CN', language = zh ? 'zh-CN' : 'en';
   const log = root.querySelector('[data-companion-log]'), status = root.querySelector('[data-companion-status]');
+  followConversationResize(log);
   const form = root.querySelector('form'), input = form.querySelector('textarea');
   const mascot = root.querySelector('[data-poke]'), hello = root.querySelector('[data-hello]');
   const dialog = document.querySelector('#companion-dialog'), launcher = document.querySelector('[data-companion-open]');

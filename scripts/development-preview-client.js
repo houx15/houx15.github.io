@@ -1,8 +1,9 @@
 import {createAgentTurn,agentFailureMessage} from '/assets/agent-view.js';
-import {presentAgentEvent} from '/assets/agent-scroll.js';
+import {presentAgentEvent,followConversationResize} from '/assets/agent-scroll.js?v=2';
 import {consumeAgentStream} from '/assets/agent-stream.js';
 
 const root=document.querySelector('[data-companion]'),log=root.querySelector('[data-companion-log]');
+followConversationResize(log);
 const form=root.querySelector('form'),input=form.querySelector('textarea'),send=form.querySelector('[type=submit]'),stop=form.querySelector('[data-stop-answer]');
 const status=root.querySelector('[data-companion-status]');
 const token=document.querySelector('[name=development-preview-token]').content;
@@ -18,7 +19,7 @@ async function resetConversation() {
     if(!response.ok)throw new Error('unavailable');
     log.replaceChildren();root.classList.remove('has-conversation');input.value='';ready=true;
     status.textContent='新的开发对话 · 可以连续追问 · 共享每月预算';
-  } catch {status.textContent='暂时无法开始新对话，请稍后点击重新开始。';}
+  } catch {root.classList.add('has-conversation');status.textContent='暂时无法开始新对话，请稍后点击重新开始。';}
   finally {reset.disabled=false;input.disabled=!ready;send.disabled=!ready;}
 }
 reset.addEventListener('click',resetConversation);
