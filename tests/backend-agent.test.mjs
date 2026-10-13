@@ -155,3 +155,12 @@ test('challenge adapter rejects absent and oversized tokens before contacting Cl
  for(const token of [undefined,'','x'.repeat(2049)])await assert.rejects(verify(token,new AbortController().signal),/challenge_failed/);
  assert.equal(calls,0);
 });
+
+test('trusted ingress separates visitor issuance limits while refusing a missing trusted address',async t=>{
+ const {base}=await serve(t,{trustLoopbackProxy:true});
+ const request=(address,index)=>fetch(base+'/v2/sessions',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',...(address?{'X-Portfolio-Client-IP':address}:{})},body:JSON.stringify({challengeToken:`ingress-test-${address}-${index}`})});
+ for(let i=0;i<5;i++)assert.equal((await request('192.0.2.1',i)).status,201);
+ assert.equal((await request('192.0.2.1',5)).status,429);
+ assert.equal((await request('192.0.2.2',0)).status,201);
+ assert.equal((await request(null,0)).status,503);
+});

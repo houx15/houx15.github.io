@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
+import { visitorAddress } from './agent-address.mjs';
 import { AgentError } from './agent-state.mjs';
 import { runContentAgent } from './content-agent.mjs';
 const invalid=()=>{throw new AgentError(400,'invalid_request');};
@@ -10,7 +11,7 @@ async function body(req) {
   for await(const chunk of req){size+=chunk.length;if(size>8192) invalid();parts.push(chunk);}
   try{return JSON.parse(Buffer.concat(parts));}catch{invalid();}
 }
-export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,enabled=()=>false,production=true,deadlineMs=45000}) {
+export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,enabled=()=>false,production=true,deadlineMs=45000,trustLoopbackProxy=false}) {
   const available=()=>enabled() && (!production || guard.store.shared) && typeof complete==='function' && typeof verifyChallenge==='function';
   const server=createServer(async(req,res)=>{
     const controller=new AbortController(), timer=setTimeout(()=>controller.abort(new Error('deadline')),deadlineMs);
@@ -30,7 +31,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       if(req.method==='OPTIONS') {res.writeHead(204,{'Access-Control-Allow-Methods':'POST','Access-Control-Allow-Headers':'Content-Type, Authorization'});res.end();return;}
       if(!available()) throw new AgentError(503,'unavailable');
       if(req.method!=='POST' || !['/v2/sessions','/v2/agent'].includes(req.url)) throw new AgentError(404,'not_found');
-      const input=await body(req);signal.throwIfAborted(); const address=req.socket.remoteAddress || 'unknown';
+      const input=await body(req);signal.throwIfAborted(); const address=visitorAddress(req,trustLoopbackProxy);
       if(req.url==='/v2/sessions') {
         if(!object(input,['challengeToken']) || typeof input.challengeToken!=='string' || !input.challengeToken || input.challengeToken.length>2048) invalid();
         await guard.challengeAttempt(address,input.challengeToken);signal.throwIfAborted();
