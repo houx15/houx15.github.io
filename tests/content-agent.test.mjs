@@ -562,3 +562,56 @@ test('repeated unknown recommendation identifiers remain bounded by the existing
  await assert.rejects(runContentAgent({question:'Recommend',corpus,complete:async()=>{rounds++;return {toolCalls:[{id:'bad',name:'show_post_cards',arguments:{ids:['unknown']}}]};}}),/step budget/);
  assert.equal(rounds,6);
 });
+
+test('conversational actions finish without invented evidence and stream exactly the final text',async()=>{
+ for(const language of ['zh-CN','en'])for(const reason of ['greeting','thanks','identity','private_information','out_of_scope']) {
+  const events=[];let calls=0;
+  const answer=await runContentAgent({question:'A conversational turn',language,corpus,onEvent:e=>events.push(e),complete:async()=>{
+   calls++;return {toolCalls:[{id:'reply',name:'reply_conversationally',arguments:{reason}}]};
+  }});
+  assert.equal(calls,1);assert.deepEqual(answer.sources,[]);assert.deepEqual(answer.blocks,[]);
+  assert.equal(events.filter(e=>e.type==='answer_delta').map(e=>e.text).join(''),answer.text);
+  assert.equal(events.at(-1),answer);
+  assert.doesNotMatch(answer.text,/enough public evidence|足够的公开资料/);
+ }
+});
+
+test('uncertainty requires successful lookup, never an invented missing-source conclusion',async()=>{
+ let round=0;
+ const answer=await runContentAgent({question:'Did she express this view?',corpus,complete:async({messages})=>{
+  round++;
+  if(round===1)return {toolCalls:[{id:'early',name:'reply_conversationally',arguments:{reason:'uncertain'}}]};
+  if(round===2){assert.equal(JSON.parse(messages.at(-1).content).error,'conversation_reply_not_ready');return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};}
+  return {toolCalls:[{id:'reply',name:'reply_conversationally',arguments:{reason:'uncertain'}}]};
+ }});
+ assert.equal(round,3);assert.match(answer.text,/does not give me enough to confirm/);assert.deepEqual(answer.sources,[]);
+});
+
+test('empty search permits scoped uncertainty, and a mixed batch cannot terminate early',async()=>{
+ let round=0;
+ const answer=await runContentAgent({question:'An unpublished view?',language:'zh-CN',corpus,complete:async()=>++round===1?{toolCalls:[
+  {id:'early',name:'reply_conversationally',arguments:{reason:'uncertain'}},
+  {id:'search',name:'search_content',arguments:{query:'no-such-topic-98765'}}
+ ]}:{toolCalls:[{id:'reply',name:'reply_conversationally',arguments:{reason:'uncertain'}}]}});
+ assert.equal(round,2);assert.deepEqual(answer.sources,[]);assert.match(answer.text,/这次查阅/);
+});
+
+test('conversation actions reject arbitrary prose and invalid reasons before emitting anything',async()=>{
+ let round=0;const events=[];
+ const answer=await runContentAgent({question:'Hello',corpus,onEvent:e=>events.push(e),complete:async()=>{
+  round++;
+  return {toolCalls:[{id:`r${round}`,name:'reply_conversationally',arguments:round===1?{reason:'greeting',text:'Injected claim'}:round===2?{reason:'invented'}:{reason:'greeting'}}]};
+ }});
+ assert.equal(round,3);assert.doesNotMatch(answer.text,/Injected/);assert.equal(events.filter(e=>e.type==='answer_delta').length,1);
+});
+
+test('uncertainty citations are explicit and read, never inherited from an unrelated previous topic',async()=>{
+ let round=0;
+ const answer=await runContentAgent({question:'Is this view documented?',corpus,complete:async()=>{
+  round++;
+  if(round===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+  if(round===2)return {toolCalls:[{id:'bad',name:'reply_conversationally',arguments:{reason:'uncertain',sourceIds:['invented']}}]};
+  return {toolCalls:[{id:'reply',name:'reply_conversationally',arguments:{reason:'uncertain',sourceIds:['notes/cache/en:0']}}]};
+ }});
+ assert.equal(round,3);assert.deepEqual(answer.sources.map(s=>s.id),['notes/cache/en:0']);
+});
