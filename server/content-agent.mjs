@@ -41,7 +41,8 @@ export async function runContentAgent({ question, language = 'en', history = [],
       const shown=[...new Set(blocks.map(block=>block.type))].join(', ');
       modelMessages[0].content+=`\n\nCURRENT SCREEN: The visitor already has these rendered blocks: ${shown}. They are visible UI, not hidden tool results. Your text should add a concise interpretation or answer the remaining question. Do not narrate the entries again. For a biography introduction with a timeline, describe her present role and the connection between her areas of work; leave the chronology in the timeline. If the visitor explicitly asks for a particular detail, explain that detail.`;
     }
-    const result = await complete({ messages: modelMessages, tools: finalPass?[]:availableTools, language, signal, onText:(text,sourceIds)=>{
+    const roundTools=availableTools.map(tool=>tool.name==='show_concept_flow' && evidence.size?{...tool,parameters:{...tool.parameters,properties:{...tool.parameters.properties,sourceIds:{...tool.parameters.properties.sourceIds,items:{...tool.parameters.properties.sourceIds.items,enum:[...evidence.keys()]}}}}}:tool);
+    const result = await complete({ messages: modelMessages, tools: finalPass?[]:roundTools, language, signal, onText:(text,sourceIds)=>{
       signal?.throwIfAborted();
       if(!Array.isArray(sourceIds) || sourceIds.length>10 || sourceIds.some(id=>!evidence.has(id)))throw new Error('Invalid answer evidence');
       sourceIds=[...new Set(sourceIds)];
@@ -79,6 +80,11 @@ export async function runContentAgent({ question, language = 'en', history = [],
         let output;
         try { output = call.name==='show_concept_flow' ? conceptFlow(call.arguments,evidence) : tools[call.name](call.arguments); }
         catch(error) {
+          if(call.name==='show_concept_flow' && error.message==='Invalid concept evidence' && call.arguments.sourceIds.some(id=>!evidence.has(id))) {
+            onEvent({type:'status',phase:'tool_completed',tool:call.name,callId:call.id});
+            messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'unread_concept_source',guidance:'No diagram was displayed. Each step must use an exact source ID from an actual read in this turn. Choose a supporting source from the list or read additional evidence; never guess or attach an unrelated source.',availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
+            continue;
+          }
           const recoverable = call.name==='read_content' && ['Unknown section','Unknown document'].includes(error.message);
           if(!recoverable)throw error;
           const guidance=error.message==='Unknown section'

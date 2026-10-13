@@ -164,7 +164,7 @@ test('concept flows reject unread sources and mismatched steps without emitting 
     await assert.rejects(runContentAgent({question:'Draw',corpus,onEvent:e=>events.push(e),complete:async()=>({toolCalls:[
       {id:'read',name:'read_content',arguments:{id:'notes/cache/en'}},
       {id:'flow',name:'show_concept_flow',arguments:{title:'Example',labels:['One','Two'],descriptions:['A','B'],sourceIds:['notes/cache/en:0','notes/cache/en:0'],...bad}}
-    ]})}),/Invalid concept evidence/);
+    ]})}),bad.sourceIds?/budget/:/Invalid concept evidence/);
     assert.equal(events.some(e=>e.type==='block'),false);
   }
 });
@@ -222,4 +222,22 @@ test('overlong diagram copy is rejected before display and can be corrected with
    return {text:'The figure shows the mechanism.',sourceIds:['notes/cache/en:0']};
  }});
  assert.equal(result.blocks.length,1);assert.equal(result.blocks[0].items[0].description,'Store keys and values.');
+});
+
+test('concept source choices reflect actual reads and a rejected source can be corrected',async()=>{
+ let round=0;const events=[];
+ const args={title:'Cache',labels:['Store','Reuse'],descriptions:['Store values.','Reuse values.'],sourceIds:['not-read','not-read']};
+ const result=await runContentAgent({question:'Draw cache',corpus,onEvent:event=>events.push(event),complete:async({messages,tools})=>{
+   if(++round===1)return {toolCalls:[{id:'r',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   assert.deepEqual(tools.find(tool=>tool.name==='show_concept_flow').parameters.properties.sourceIds.items.enum,['notes/cache/en:0']);
+   if(round===2)return {toolCalls:[{id:'bad',name:'show_concept_flow',arguments:args}]};
+   if(round===3){
+     assert.equal(events.some(event=>event.type==='block'),false);
+     const feedback=JSON.parse(messages.at(-1).content);assert.equal(feedback.error,'unread_concept_source');
+     assert.deepEqual(feedback.availableSources.map(source=>source.id),['notes/cache/en:0']);
+     return {toolCalls:[{id:'fixed',name:'show_concept_flow',arguments:{...args,sourceIds:['notes/cache/en:0','notes/cache/en:0']}}]};
+   }
+   return {text:'A sourced diagram.',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(result.blocks.length,1);assert.equal(result.blocks[0].items[1].source.id,'notes/cache/en:0');
 });
