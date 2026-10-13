@@ -30,7 +30,12 @@ export async function runContentAgent({ question, language = 'en', history = [],
   for (let step = 0; step < 5; step++) {
     signal?.throwIfAborted();
     let streamed='',streamIds;
-    const result = await complete({ messages: structuredClone(messages), tools: contentToolDefinitions, language, signal, onText:(text,sourceIds)=>{
+    const modelMessages=structuredClone(messages);
+    if(blocks.length) {
+      const shown=[...new Set(blocks.map(block=>block.type))].join(', ');
+      modelMessages[0].content+=`\n\nCURRENT SCREEN: The visitor already has these rendered blocks: ${shown}. They are visible UI, not hidden tool results. Your text should add a concise interpretation or answer the remaining question. Do not narrate the entries again. For a biography introduction with a timeline, describe her present role and the connection between her areas of work; leave the chronology in the timeline. If the visitor explicitly asks for a particular detail, explain that detail.`;
+    }
+    const result = await complete({ messages: modelMessages, tools: contentToolDefinitions, language, signal, onText:(text,sourceIds)=>{
       signal?.throwIfAborted();
       if(!Array.isArray(sourceIds) || sourceIds.length>10 || sourceIds.some(id=>!evidence.has(id)))throw new Error('Invalid answer evidence');
       sourceIds=[...new Set(sourceIds)];

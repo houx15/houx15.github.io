@@ -53,3 +53,9 @@ A production browser check reproduced a failed request leaving focus on BODY and
 ## Opening-flow visual review
 
 A fresh desktop browser capture followed homepage → chat → dice story. The homepage retains one clear illustrated chat entry. The dice result revealed that the previous generic focus recovery moved attention to the composer even after an authored game. Recovery is now restricted to live requests; a dice result focuses its story heading when it displaced focus, without interrupting a visitor who moved elsewhere or closed the dialog. Before/after screenshots of the same story and DOM inspection confirmed the composer no longer receives focus. Empty conversations also hide the reset action until it becomes relevant. Mobile soft-keyboard behavior and assistive-technology review remain unverified.
+
+## Visual and narrative coordination
+
+The runtime now adds actual rendered block types to the next model invocation's system context only after those blocks have been emitted. The original source text and qualifications remain available. This makes the difference between visible UI and raw tool output explicit without truncating the visitor's answer or adding a model call.
+
+An owner-authorized server-side Bailian test used the same public biography question previously observed repeating the full chronology. The candidate returned two sentences summarizing the biography and its cross-domain pattern, alongside an event_timeline, without enumerating all eight events. It used two model calls and 4,303 tokens. Every call reserved/reconciled against the existing production SQLite budget, with an additional 0.5 CNY worst-case reservation ceiling for this diagnostic. This is one direct-provider sample, not a public browser or broad quality evaluation. Factual interpretation and consistency across questions remain review gates.

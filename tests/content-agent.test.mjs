@@ -131,3 +131,18 @@ test('a guessed section can be corrected without granting evidence or resetting 
  assert.equal(attempts,5);
  await assert.rejects(runContentAgent({question:'x',corpus,signal:new AbortController().signal,complete:async({messages})=>messages.length===2?{toolCalls:[{id:'bad',name:'read_content',arguments:{id:'notes/cache/en',sectionId:'invented'}}]}:{text:'Unsupported',sourceIds:['notes/cache/en:0']}}),/Invalid answer evidence/);
 });
+
+
+test('model receives current display state only after a visual was actually emitted',async()=>{
+  const calls=[],events=[];
+  await runContentAgent({question:'Introduce her with a timeline',corpus,onEvent:event=>events.push(event),complete:async input=>{
+    calls.push(input);
+    if(calls.length===1) return {toolCalls:[{id:'timeline',name:'query_profile_events',arguments:{language:'en'}}]};
+    assert.ok(events.some(event=>event.type==='block'));
+    return {text:'Her public experience spans several areas.',sourceIds:['event:peer']};
+  }});
+  assert.doesNotMatch(calls[0].messages[0].content,/CURRENT SCREEN/);
+  assert.match(calls[1].messages[0].content,/CURRENT SCREEN.*event_timeline/);
+  assert.match(calls[1].messages[0].content,/leave the chronology in the timeline/);
+  assert.ok(calls[1].messages.some(message=>message.role==='tool' && message.content.includes('Periods may overlap')));
+});
