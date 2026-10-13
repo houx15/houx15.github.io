@@ -130,3 +130,17 @@ test('stopping a partial streamed answer aborts work, retains its reservation an
   assert.equal(next.at(-1).type,'done');assert.equal(calls,4);
   assert.equal(Object.values(store.state.sessions)[0].history.length,2);
 });
+
+test('authored social replies survive the public HTTP stream and actual browser parser',async t=>{
+ const origin='https://houx15.github.io';
+ const guard=createGuard({store:new MemoryAgentStore(),secret:'a'.repeat(40),dailyTokens:1000000,enabled:()=>true});
+ const server=createAgentServer({origin,corpus:{schemaVersion:1,revision:'social',documents:[]},guard,production:false,enabled:()=>true,verifyChallenge:async()=>{},complete:async()=>({toolCalls:[{id:'hi',name:'reply_conversationally',arguments:{reason:'greeting'}}]})});
+ server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>{server.closeAllConnections();server.close();});
+ const client=createAgentClient(`http://localhost:${server.address().port}`,(url,options)=>fetch(url.replace('localhost','127.0.0.1'),{...options,headers:{...options.headers,Origin:origin}}));
+ await client.openSession('fixture');const events=[];
+ await client.ask({question:'你好',language:'zh-CN'},{onEvent:e=>events.push(e)});
+ assert.equal(events.filter(e=>e.type==='answer_delta').length,0);
+ assert.match(events.find(e=>e.type==='answer').text,/嗨，我在/);
+ assert.deepEqual(events.find(e=>e.type==='answer').sourceIds,[]);
+ assert.equal(events.at(-1).type,'done');
+});

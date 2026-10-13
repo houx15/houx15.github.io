@@ -60,3 +60,13 @@ test('preview requires the local host, origin and ephemeral token before launchi
   child.emit('close',0);
  } finally {server.closeAllConnections();await new Promise(r=>server.close(r));await rm(root,{recursive:true,force:true});}
 });
+
+test('actual agent social action survives the private SSE bridge and browser parser',async()=>{
+ const {runContentAgent}=await import('../server/content-agent.mjs');
+ let wire='';const out=createDevelopmentStream(text=>{wire+=text;},'social');
+ const answer=await runContentAgent({question:'Who are you?',language:'en',corpus:{schemaVersion:1,revision:'social',documents:[]},complete:async()=>({toolCalls:[{id:'identity',name:'reply_conversationally',arguments:{reason:'identity'}}]}),onEvent:e=>out.event(e)});
+ out.complete(answer);const events=[];
+ await consumeAgentStream(new Response(wire).body,e=>events.push(e));
+ assert.deepEqual(events.map(e=>e.type),['answer','done']);
+ assert.equal(events[0].text,answer.text);
+});

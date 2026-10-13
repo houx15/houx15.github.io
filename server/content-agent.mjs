@@ -176,7 +176,10 @@ export async function runContentAgent({ question, language = 'en', history = [],
           const text=conversationReply(call.arguments.reason,language);
           const sources=[...new Set(ids)].map(id=>evidence.get(id));
           const answer={type:'answer',text,sources,blocks,revision:`${corpus.revision}:${profileRevision}`};
-          onEvent({type:'answer_delta',text,sources});onEvent(answer);return answer;
+          // Uncited short replies use the final-answer event; the browser deliberately
+          // accepts incremental prose only when it has validated source IDs.
+          if(sources.length)onEvent({type:'answer_delta',text,sources});
+          onEvent(answer);return answer;
         }
         onEvent({type:'status',phase:'tool_started',tool:call.name,callId:call.id});
         let output;

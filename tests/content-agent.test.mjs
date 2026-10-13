@@ -563,14 +563,14 @@ test('repeated unknown recommendation identifiers remain bounded by the existing
  assert.equal(rounds,6);
 });
 
-test('conversational actions finish without invented evidence and stream exactly the final text',async()=>{
+test('conversational actions finish without invented evidence or unsupported prose deltas',async()=>{
  for(const language of ['zh-CN','en'])for(const reason of ['greeting','thanks','identity','private_information','out_of_scope']) {
   const events=[];let calls=0;
   const answer=await runContentAgent({question:'A conversational turn',language,corpus,onEvent:e=>events.push(e),complete:async()=>{
    calls++;return {toolCalls:[{id:'reply',name:'reply_conversationally',arguments:{reason}}]};
   }});
   assert.equal(calls,1);assert.deepEqual(answer.sources,[]);assert.deepEqual(answer.blocks,[]);
-  assert.equal(events.filter(e=>e.type==='answer_delta').map(e=>e.text).join(''),answer.text);
+  assert.equal(events.filter(e=>e.type==='answer_delta').length,0);
   assert.equal(events.at(-1),answer);
   assert.doesNotMatch(answer.text,/enough public evidence|足够的公开资料/);
  }
@@ -602,7 +602,7 @@ test('conversation actions reject arbitrary prose and invalid reasons before emi
   round++;
   return {toolCalls:[{id:`r${round}`,name:'reply_conversationally',arguments:round===1?{reason:'greeting',text:'Injected claim'}:round===2?{reason:'invented'}:{reason:'greeting'}}]};
  }});
- assert.equal(round,3);assert.doesNotMatch(answer.text,/Injected/);assert.equal(events.filter(e=>e.type==='answer_delta').length,1);
+ assert.equal(round,3);assert.doesNotMatch(answer.text,/Injected/);assert.equal(events.filter(e=>e.type==='answer_delta').length,0);
 });
 
 test('uncertainty citations are explicit and read, never inherited from an unrelated previous topic',async()=>{
@@ -637,5 +637,5 @@ test('an uncited identity reply is repaired once without showing or citing model
   return {toolCalls:[{id:'identity',name:'reply_conversationally',arguments:{reason:'identity'}}]};
  }});
  assert.equal(round,2);assert.match(answer.text,/not Yuxin herself/);
- assert.equal(events.filter(e=>e.type==='answer_delta').map(e=>e.text).join(''),answer.text);
+ assert.equal(events.filter(e=>e.type==='answer_delta').length,0);
 });
