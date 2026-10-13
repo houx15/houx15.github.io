@@ -534,3 +534,31 @@ test('a selected biography chapter is read before answering a deictic follow-up'
  }});
  assert.equal(calls,1);assert.equal(answer.sources[0].id,'event:unicef');assert.equal(answer.blocks.length,0);
 });
+
+test('unknown documents in recommendation and visual tools recover without leaking partial cards',async()=>{
+ const cases=[
+  ['suggest_questions',{id:'unknown'}],['find_related_posts',{id:'unknown'}],
+  ['show_post_cards',{ids:['notes/cache/en','unknown']}],
+  ['show_visualization',{kind:'publication_timeline',ids:['notes/cache/en','unknown']}],
+  ['show_reading_map',{id:'unknown',sectionIds:['unknown:0']}]
+ ];
+ for(const [name,args] of cases) {
+  let rounds=0;const events=[];
+  const answer=await runContentAgent({question:'Recommend one note with a card',corpus,onEvent:e=>events.push(e),complete:async({messages})=>{
+   if(++rounds===1)return {toolCalls:[{id:'bad',name,arguments:args}]};
+   if(rounds===2) {
+    assert.match(messages.at(-1).content,/source_not_found/);
+    assert.equal(events.some(e=>e.type==='block'),false);
+    return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}},{id:'card',name:'show_post_cards',arguments:{ids:['notes/cache/en']}}]};
+   }
+   return {text:'This note explains cache reuse.',sourceIds:['notes/cache/en:0']};
+  }});
+  assert.equal(answer.blocks.length,1);assert.equal(answer.blocks[0].type,'post_cards');
+  assert.equal(answer.sources[0].id,'notes/cache/en:0');
+ }
+});
+test('repeated unknown recommendation identifiers remain bounded by the existing rounds',async()=>{
+ let rounds=0;
+ await assert.rejects(runContentAgent({question:'Recommend',corpus,complete:async()=>{rounds++;return {toolCalls:[{id:'bad',name:'show_post_cards',arguments:{ids:['unknown']}}]};}}),/step budget/);
+ assert.equal(rounds,6);
+});
