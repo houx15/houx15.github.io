@@ -1,4 +1,4 @@
-import { MODEL_OUTPUT_TOKENS } from './agent-limits.mjs';
+import { MODEL_OUTPUT_TOKENS, MODEL_CALL_TIMEOUT_MS } from './agent-limits.mjs';
 import { AgentError } from './agent-state.mjs';
 import { readProviderStream } from './agent-provider-stream.mjs';
 import { providerFailureCategory } from './agent-diagnostics.mjs';
@@ -38,7 +38,7 @@ export function createModelAgent({apiKey,model,provider='deepseek',baseURL,fetch
     const body={model,messages:wire,...(jsonActions?{response_format:{type:'json_object'}}:{}),...(!jsonActions && tools.length?{tools:tools.map(t=>({type:'function',function:t}))}:{}),max_tokens:MODEL_OUTPUT_TOKENS,...(provider==='deepseek'?{reasoning_effort:'none'}:/^qwen/i.test(model)?{enable_thinking:false}:{}),stream:true,stream_options:{include_usage:true}};
     let callbackError;
     try {
-      const response=await fetchImpl(endpoint,{method:'POST',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(15000)]),headers:{'Content-Type':'application/json',Authorization:`Bearer ${apiKey}`},body:JSON.stringify(body)});
+      const response=await fetchImpl(endpoint,{method:'POST',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(MODEL_CALL_TIMEOUT_MS)]),headers:{'Content-Type':'application/json',Authorization:`Bearer ${apiKey}`},body:JSON.stringify(body)});
       if(!response.ok){await response.body?.cancel();throw new AgentError(502,'provider_unavailable');}
       return await readProviderStream(response,{signal,allowJsonTools:jsonActions && tools.length>0,onText:onText?((...args)=>{try {return onText(...args);}catch(error){callbackError=error;throw error;}}):undefined});
     } catch(error) {if(callbackError && error===callbackError)throw error;if(signal.aborted) throw signal.reason;const failure=new AgentError(502,error instanceof AgentError?error.code:'invalid_model_response');if(!(error instanceof AgentError))failure.diagnosticCategory=providerFailureCategory(error);throw failure;}
