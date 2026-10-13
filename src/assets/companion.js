@@ -7,6 +7,7 @@ import { initialQuestion } from './navigation.js';
 import { agentOrigin, turnstileSiteKey } from './assistant-config.js';
 import { createAgentClient, validateAgentBlock } from './agent-stream.js';
 import { createAgentTurn, agentFailureMessage } from './agent-view.js';
+import { presentAgentEvent } from './agent-scroll.js';
 import { verifyVisitor } from './visitor-check.js';
 import { validateSavedTurn } from './agent-history.js';
 
@@ -178,6 +179,7 @@ export function initCompanion(document) {
     root.classList.add('has-conversation');
     const turn=createAgentTurn(document,{log,question,language,onQuestion:ask,retry:lastLiveTurn});
     lastLiveTurn=turn;
+    turn.row.scrollIntoView({block:'start',behavior:'instant'});
     const challenge=root.querySelector('[data-visitor-check]');
     const savedEvents=[];
     const positionReady=readingReady;
@@ -194,9 +196,7 @@ export function initCompanion(document) {
       const openingContext=openingContextFor(history,{article:root.dataset.article==='true'});
       await liveClient.ask({question,language,supportsConceptFlow:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
         {signal:controller.signal,onEvent:event=>{
-          const follow=log.scrollHeight-log.scrollTop-log.clientHeight<100;
-          turn.event(event);
-          if(follow)log.scrollTop=log.scrollHeight;
+          presentAgentEvent(log,turn,event);
           if(event.type==='status')status.textContent=zh?'正在查阅资料并组织回答…':'Checking sources and preparing an answer…';
           if(['source','block','answer','done'].includes(event.type))savedEvents.push(event);
         }});

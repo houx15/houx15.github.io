@@ -33,13 +33,15 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
   row.append(make('p',question,'comic-visitor'));
   const progress=make('div','','comic-progress');progress.setAttribute('role','status');
   const progressText=make('span',zh?'正在连接…':'Connecting…');progress.append(progressText);row.append(progress);
-  const body=make('div','','comic-live-body'), visuals=make('div','','comic-live-visuals');row.append(body,visuals);log.append(row);
+  const body=make('div','','comic-live-body');log.append(row);
+  let bodyShown=false;
+  const showBody=()=>{if(bodyShown)return false;bodyShown=true;row.append(body);return true;};
   const sources=new Map(),blocks=new Map(),statuses=[];let finished=false, failedTurn=false, questionBlock;
   const toolLabels={recall_conversation:zh?'回顾前面的对话':'Revisiting an earlier exchange',search_content:zh?'在笔记中找线索':'Finding relevant notes',read_content:zh?'正在读原文':'Reading the source',read_profile:zh?'核对她的公开经历':'Checking her public biography',query_profile_events:zh?'整理经历的时间线':'Tracing her story',show_post_cards:zh?'挑选接下来值得读的内容':'Choosing a next read',show_concept_flow:zh?'画出理解这件事的步骤':'Drawing the explanation',show_visualization:zh?'整理图中的信息':'Arranging the visual',find_related_posts:zh?'寻找相关内容':'Finding related reading',suggest_questions:zh?'准备下一步问题':'Preparing a follow-up'};
   function renderBlock(block) {
     validateAgentBlock(block);
     let container=blocks.get(block.id);
-    if(!container){container=make('section','','comic-agent-block');blocks.set(block.id,container);visuals.append(container);}
+    if(!container){container=make('section','','comic-agent-block');blocks.set(block.id,container);row.append(container);}
     container.replaceChildren();
     if(block.type==='concept_flow') {
       container.classList.add('comic-concept-flow');
@@ -114,7 +116,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
   return {
     row,
     get question() {return question;},
-    get canReplace() {return finished && failedTurn && !body.children.length && !visuals.children.length;},
+    get canReplace() {return finished && failedTurn && !body.children.length && !blocks.size;},
     event(event) {
       if(finished)return;
       if(event.type==='status') {
@@ -122,16 +124,22 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
         if(label){progressText.textContent=label;progress.classList.add('is-active');if(statuses.at(-1)!==label)statuses.push(label);}
       } else if(event.type==='answer_delta') {
         let paragraph=body.querySelector('.comic-reply');
-        if(!paragraph){paragraph=make('p','','comic-reply');body.append(paragraph);}
+        if(!paragraph){showBody();paragraph=make('p','','comic-reply');body.append(paragraph);}
         paragraph.textContent+=event.text;
         progressText.textContent=zh?'正在回答…':'Writing…';progress.classList.add('is-active');
       } else if(event.type==='source')sources.set(event.source.id,event.source);
-      else if(event.type==='block')renderBlock(event.block);
+      else if(event.type==='block') {
+        const fresh=!blocks.has(event.block.id);
+        renderBlock(event.block);
+        if(fresh)return blocks.get(event.block.id);
+      }
       else if(event.type==='answer') {
+        const fresh=showBody();
         body.replaceChildren(make('p',event.text,'comic-reply'));
         if(event.sourceIds.length){const details=make('details','','comic-evidence');details.append(make('summary',zh?'翻到原文 ↗':'See the sources ↗'));for(const id of event.sourceIds){const source=sources.get(id);if(!source)throw new Error('invalid_response');const a=make('a',source.label);a.href=source.url;details.append(a);}body.append(details);}
+        if(fresh)return body;
       } else if(event.type==='done')end(false,'');
-      else if(event.type==='error')end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || visuals.children.length>0,resetsAt:event.resetsAt}));
+      else if(event.type==='error')end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || blocks.size>0,resetsAt:event.resetsAt}));
     },
     interrupt(message) {if(!finished)end(true,message||(zh?'连接中断了。可以重新发送，但我不会自动重复请求。':'The connection stopped. You can send again; I won’t retry automatically.'));}
   };

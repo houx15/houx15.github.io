@@ -138,3 +138,17 @@ test('quota feedback distinguishes daily from monthly and includes a local reset
  turn.event({type:'error',code:'daily_budget_exhausted',partial:false,resetsAt});turn.interrupt('Generic error');
  assert.ok(log.querySelectorAll('span').some(node=>node.textContent.includes('下次重置')));
 });
+
+test('streamed diagrams and prose retain their arrival order without inserting above an existing diagram',()=>{
+ const card=id=>({type:'block',block:{id,type:'post_cards',items:[{id:'a',title:'Source',summary:'Summary',url:'/notes/test/',date:'2026-10-12',type:'notes'}]}});
+ for(const diagramFirst of [true,false]) {
+  const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Explain'});
+  if(diagramFirst)turn.event(card('first'));
+  turn.event({type:'answer_delta',text:'A brief takeaway.'});
+  if(!diagramFirst)turn.event(card('first'));
+  turn.event(card('second'));
+  turn.event({type:'answer',text:'A brief takeaway.',sourceIds:[]});
+  const content=turn.row.children.filter(n=>['comic-live-body','comic-agent-block'].includes(n.className));
+  assert.deepEqual(content.map(n=>n.className),diagramFirst?['comic-agent-block','comic-live-body','comic-agent-block']:['comic-live-body','comic-agent-block','comic-agent-block']);
+ }
+});
