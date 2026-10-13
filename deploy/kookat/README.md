@@ -67,3 +67,6 @@ ssh -t kookat 'sudo python3 /home/monkey/apps/portfolio-agent/setup/enable-visit
 ```
 
 After this succeeds, verify the active configuration and ingress header overwrite, then deploy the compatible backend and enable its trust option. Do not enable trust while nginx lacks this header.
+
+
+2026-10-13 activation: owner applied the administrator helper; the enabled site now overwrites the dedicated header. Backend trust is enabled with loopback binding. HTTPS health and public malformed-header overwrite / direct missing-header rejection checks passed without paid calls. Keep this header overwrite and bind restriction when changing ingress.
