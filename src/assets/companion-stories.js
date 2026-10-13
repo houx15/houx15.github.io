@@ -1,3 +1,4 @@
+import {milestones} from './biography.js';
 // Authored invitations into public sources, not model-inferred personality scores.
 export const storyCards = [
   {id:'startup',face:1,en:{title:'Learning by building',text:'Between 2016 and 2022, Yuxin founded a company and worked as CTO. She taught herself programming and led an R&D team of more than 20 people.',follow:'What did she do as CTO?'},'zh-CN':{title:'从自学到动手做',text:'2016—2022 年，煜欣创业并担任 CTO。她自学编程，开发平台、设计算法，也带领过 20 余人的研发团队。',follow:'她担任 CTO 时做了什么？'},url:'/about/#sources'},
@@ -17,7 +18,7 @@ export function nextStory(seen = [], random = Math.random) {
 export function openingContextFor(history, {article = false} = {}) {
   if(article)return undefined;
   const last=history.at(-1);
-  if(last?.kind==='story')return {storyId:'timeline'};
+  if(last?.kind==='story')return {storyId:milestones.some(event=>event.id===last.eventId)?`event:${last.eventId}`:'timeline'};
   if(last?.kind==='dice' && storyCards.some(card=>card.id===last.id))return {storyId:last.id};
   return undefined;
 }

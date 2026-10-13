@@ -160,3 +160,6 @@
 .comic-room:not(.has-conversation) .comic-reading-position {display:none;}
 
 .comic-progress .comic-recovery-link {display:table;margin-top:6px;padding:8px 0;min-height:44px;box-sizing:border-box;font-size:14px;color:#191919;text-underline-offset:5px;}
+
+.comic-biography-chapter .comic-chapter-position {font:11px/1.6 ui-monospace,monospace;color:#666;margin:0;}
+.comic-biography-chapter .comic-follow {min-height:44px;margin-top:10px;font-size:14px!important;}

@@ -38,6 +38,15 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
   const messages = [{role:'system',content:instructions}, ...(earlierHistory.length?[{role:'user',content:JSON.stringify(recall.index)}]:[]), ...history, {role:'user',content:JSON.stringify({question,language,pageContext,openingContext:opening})}];
   let calls = 0, outputLimitRepairs = 0;
+  if(opening?.type==='biography_event' && !pageContext) {
+    const args={eventId:opening.eventId,language},callId=`opening_read_${++calls}`;
+    signal?.throwIfAborted();
+    messages.push({role:'assistant',toolCalls:[{id:callId,name:'read_profile',arguments:args}]});
+    onEvent({type:'status',phase:'tool_started',tool:'read_profile',callId});
+    const output=tools.read_profile(args);evidence.set(output.source.id,output.source);
+    messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(output)});
+    onEvent({type:'status',phase:'tool_completed',tool:'read_profile',callId});
+  }
   if(pageContext?.sectionId) {
     signal?.throwIfAborted();
     const args={id:pageContext.documentId,sectionId:pageContext.sectionId},callId=`context_read_${++calls}`;

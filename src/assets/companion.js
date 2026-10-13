@@ -1,3 +1,4 @@
+import {createBiographyChapter} from './biography-chapter.js';
 import { readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js';
 import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
@@ -84,6 +85,7 @@ export function initCompanion(document) {
     for(const source of items.slice(0,5)) if(safeSource(source.url)) {const link = add(details,'a',source.label);link.href = source.url;}
   }
   function render(item, remember = true) {
+    if(item.kind==='story' && !milestones.some(event=>event.id===item.eventId))item.eventId=milestones[0].id;
     if (remember) { history.push(item);history = history.slice(-10);save(); }
     root.classList.add('has-conversation');
     // A completed turn is history, not another competing set of calls to action.
@@ -113,10 +115,9 @@ export function initCompanion(document) {
       sources(card,[{label:zh?'这段故事的公开资料':'Public source for this story',url:local(story.url)}]);
       const follow = add(card,'button',copy.follow+' ↗','comic-follow');follow.type='button';follow.addEventListener('click',()=>ask(copy.follow));
     } else if(item.kind === 'story') {
-      add(row,'p',zh?'这些经历有时重叠。我把她公开写过的时间，画在这里。':'Some of these chapters overlap. Here are the dates she has shared.','comic-reply');
-      const list = add(row,'ol','','comic-life-line');
-      for(const event of milestones) {const copy=event[language];const li=add(list,'li','');add(li,'span',copy.period);add(li,'h3',copy.title);add(li,'p',copy.description);}
-      sources(row,[{label:zh?'个人经历与资料来源':'Biography and sources',url:local('/about/#sources')}]);
+      add(row,'p',zh?'我们一段一段看。想问哪一段，随时打断我。':'One chapter at a time. Ask about any of them as we go.','comic-reply');
+      row.append(createBiographyChapter(document,{eventId:item.eventId,language,onChange:eventId=>{item.eventId=eventId;save();},onQuestion:ask}));
+      sources(row,[{label:zh?'完整经历与资料来源':'Full biography and sources',url:local('/about/#sources')}]);
     } else {
       add(row,'p',item.text,'comic-reply');sources(row,item.sources);
       if(root.dataset.article!=='true' && item.sources?.length) {
@@ -222,7 +223,7 @@ export function initCompanion(document) {
     if(Array.isArray(stored)) for(const item of stored.slice(-10)) {
       if(!item||typeof item!=='object')continue;
       if(item.kind==='dice'&&storyCards.some(card=>card.id===item.id)){history.push(item);seen.push(item.id);render(item,false);}
-      else if(item.kind==='story'){history.push({kind:'story'});render({kind:'story'},false);}
+      else if(item.kind==='story'){const safe={kind:'story',eventId:milestones.some(event=>event.id===item.eventId)?item.eventId:milestones[0].id};history.push(safe);render(safe,false);}
       else if(item.kind==='agent'){const safe=validateSavedTurn(item);if(safe){history.push(safe);render(safe,false);}}
       else if(item.kind==='reading' && item.block?.type==='reading_map') {
         try {validateAgentBlock(item.block);const safe={kind:'reading',block:item.block};history.push(safe);render(safe,false);} catch { /* Ignore invalid stored outlines. */ }

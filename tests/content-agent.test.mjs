@@ -524,3 +524,13 @@ test('output-limit correction is bounded and never replaces already-visible pros
   assert.equal(events.filter(e=>e.type==='answer_delta').length,mode==='partial'?1:0);
  }
 });
+
+test('a selected biography chapter is read before answering a deictic follow-up',async()=>{
+ let calls=0;
+ const answer=await runContentAgent({question:'这一段她做了什么？',language:'zh-CN',openingContext:{storyId:'event:unicef'},corpus,complete:async({messages})=>{
+  calls++;const result=JSON.parse(messages.find(m=>m.role==='tool').content);
+  assert.equal(result.source.id,'event:unicef');assert.match(result.text,/SEL/);
+  return {text:'她负责一项 SEL 视频资源项目。',sourceIds:['event:unicef']};
+ }});
+ assert.equal(calls,1);assert.equal(answer.sources[0].id,'event:unicef');assert.equal(answer.blocks.length,0);
+});
