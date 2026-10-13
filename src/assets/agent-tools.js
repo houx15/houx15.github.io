@@ -4,6 +4,27 @@ export function tokenize(text) {
   return words.flatMap(word => /\p{Script=Han}/u.test(word) && word.length > 1
     ? Array.from({length: word.length - 1}, (_, i) => word.slice(i, i + 2)) : [word]);
 }
+// Prefer a compact passage covering distinct query terms over the first incidental match.
+function relevantExcerpt(text, terms) {
+  const normalized=normalize(text),hits=[];
+  for(const term of terms) {
+    let at=normalized.indexOf(term);
+    while(at>=0){hits.push({at,term});at=normalized.indexOf(term,at+term.length);}
+  }
+  if(!hits.length)return text.slice(0,320);
+  hits.sort((a,b)=>a.at-b.at);
+  const counts=new Map();let left=0,best=0,bestCoverage=0,bestSpan=Infinity;
+  for(let right=0;right<hits.length;right++) {
+    const hit=hits[right];counts.set(hit.term,(counts.get(hit.term)||0)+1);
+    while(hit.at-hits[left].at>240){const term=hits[left++].term;counts.set(term,counts.get(term)-1);if(!counts.get(term))counts.delete(term);}
+    const span=hit.at-hits[left].at;
+    if(counts.size>bestCoverage || (counts.size===bestCoverage && span<bestSpan)) {
+      bestCoverage=counts.size;bestSpan=span;best=hits[left].at;
+    }
+  }
+  const start=Math.max(0,best-40);
+  return text.slice(start,start+320);
+}
 const bounded = (value, fallback, max) => Number.isInteger(value) ? Math.max(0, Math.min(max, value)) : fallback;
 const safeURL = url => typeof url === 'string' && /^\/(?:zh\/)?(?:projects|reports|notes)\/[a-z0-9-]+\/(?:#[^\s]*)?$/.test(url);
 
@@ -59,10 +80,8 @@ export function createContentTools(corpus) {
       // Site-wide results represent documents; a scoped query returns matching passages.
       const resultKey = documentId === undefined ? doc.canonicalId : section.id;
       const old = grouped.get(resultKey);
-      const positions = terms.map(term => normalize(section.text).indexOf(term)).filter(index => index >= 0);
-      const excerptStart = Math.max(0, (positions.length ? Math.min(...positions) : 0) - 80);
       const result = { ...card(doc), sectionId: id, heading: section.heading, sourceUrl: section.url, score,
-        excerpt: section.text.slice(excerptStart, excerptStart + 320), language: doc.language };
+        excerpt: relevantExcerpt(section.text,terms), language: doc.language };
       // Select the best section; prefer the requested language only at comparable relevance.
       const adjusted = score * (doc.language === language ? 1.1 : 1);
       if (!old || adjusted > old.adjusted) grouped.set(resultKey, { ...result, adjusted });

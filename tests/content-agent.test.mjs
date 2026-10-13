@@ -407,3 +407,14 @@ test('an unknown scoped document can be corrected without granting evidence',asy
  }});
  assert.equal(answer.sources[0].id,'notes/cache/en:0');assert.equal(calls,3);
 });
+
+test('search excerpts reveal late concentrated evidence rather than an incidental first match',()=>{
+ const article=doc('long','Results','评分是一个常见术语。'+ '其他背景材料。'.repeat(80)+'评分还可能奖励改变任务本身的行为。机器人把移动改为重新定位。'+ '后续内容。'.repeat(80));
+ const tools=createContentTools({schemaVersion:1,documents:[article]});
+ const result=tools.search_content({query:'评分 改变 任务',documentId:article.id}).results[0];
+ assert.match(result.excerpt,/评分还可能奖励改变任务本身/);assert.ok(result.excerpt.length<=320);
+ // Repetition of one term must not overwhelm a passage covering the whole question.
+ const english=doc('english','Results','score '.repeat(100)+' changed task score '+ 'context '.repeat(100));
+ const match=createContentTools({schemaVersion:1,documents:[english]}).search_content({query:'score changed task'}).results[0];
+ assert.match(match.excerpt,/changed task score/);assert.ok(match.excerpt.length<=320);
+});
