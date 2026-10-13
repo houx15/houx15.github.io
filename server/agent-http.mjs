@@ -1,4 +1,5 @@
 import { rememberAgentAnswer } from './agent-memory.mjs';
+import { resolveOpeningContext } from './agent-opening.mjs';
 import { MODEL_OUTPUT_TOKENS, MODEL_WIRE_ALLOWANCE } from './agent-limits.mjs';
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
@@ -40,11 +41,12 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
         await verifyChallenge(input.challengeToken,signal);signal.throwIfAborted();
         json(201,await guard.issue());return;
       }
-      if(!object(input,['question','language','pageContext','supportsConceptFlow']) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language)) invalid();
+      if(!object(input,['question','language','pageContext','openingContext','supportsConceptFlow']) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language)) invalid();
+      let openingContext;try {openingContext=resolveOpeningContext(input.openingContext,input.language);}catch {invalid();}
       if(input.supportsConceptFlow!==undefined && typeof input.supportsConceptFlow!=='boolean') invalid();
       if(input.pageContext!==undefined && (!object(input.pageContext,['documentId']) || !corpus.documents.some(d=>d.id===input.pageContext.documentId))) invalid();
       // Preserve the page that 'this note' referred to, not just the question text.
-      const userContext=JSON.stringify({question:input.question,language:input.language,pageContext:input.pageContext});
+      const userContext=JSON.stringify({question:input.question,language:input.language,pageContext:input.pageContext,openingContext});
       if(userContext.length>4000) invalid();
       const token=req.headers.authorization?.match(/^Bearer ([^ ]+)$/)?.[1];
       const session=await guard.begin(token,address,requestId);admitted=true;signal.throwIfAborted();

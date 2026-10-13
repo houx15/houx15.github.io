@@ -202,3 +202,27 @@ test('public quota response includes daily reset metadata before making a paid c
  assert.equal(calls,0);assert.equal(error.code,'daily_budget_exhausted');assert.ok(Number.isSafeInteger(error.resetsAt));assert.equal(new Date(error.resetsAt).getUTCHours(),0);
  assert.equal(events.some(event=>event.type==='done'),false);
 });
+
+test('opening follow-ups resolve authored IDs and preserve them without trusting browser text',async t=>{
+  const seen=[];let calls=0;
+  const {post}=await serve(t,{complete:async args=>{
+    seen.push(args);
+    return ++calls%2?{toolCalls:[{id:'read',name:'read_profile',arguments:{id:'startup',language:'en'}}]}:{text:'She founded a company and worked as CTO.',sourceIds:['profile:startup']};
+  }});
+  const token=await issue(post);
+  for(const openingContext of [{storyId:'unknown'},{storyId:'startup',text:'Invented biography'},[],null]) {
+    assert.equal((await post('/v2/agent',{question:'Tell me more',language:'en',openingContext},token)).status,400);
+  }
+  assert.equal(calls,0);
+  const result=await post('/v2/agent',{question:'What did she build there?',language:'en',openingContext:{storyId:'startup'}},token);
+  assert.match(await result.text(),/event: done/);
+  const first=JSON.parse(seen[0].messages.at(-1).content);
+  assert.equal(first.question,'What did she build there?');
+  assert.equal(first.openingContext.title,'Learning by building');
+  assert.equal(first.openingContext.url,'/about/#sources');
+  assert.ok(!seen[0].messages.some(m=>m.role==='tool')); // Context itself grants no evidence.
+  await (await post('/v2/agent',{question:'And when?',language:'en'},token)).text();
+  const userTurns=seen[2].messages.filter(m=>m.role==='user').map(m=>JSON.parse(m.content));
+  assert.deepEqual(userTurns[0].openingContext,first.openingContext);
+  assert.equal(userTurns.at(-1).openingContext,undefined);
+});

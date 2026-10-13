@@ -1,4 +1,4 @@
-import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting } from './companion-stories.js';
+import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
 import { milestones } from './biography.js';
 import { createContentTools } from './agent-tools.js';
@@ -175,7 +175,8 @@ export function initCompanion(document) {
         const token=await verifyVisitor(document,challenge,turnstileSiteKey,controller.signal);
         await liveClient.openSession(token,controller.signal);challenge.hidden=true;
       }
-      await liveClient.ask({question,language,supportsConceptFlow:true,...(root.dataset.documentId?{pageContext:{documentId:root.dataset.documentId}}:{})},
+      const openingContext=openingContextFor(history,{article:root.dataset.article==='true'});
+      await liveClient.ask({question,language,supportsConceptFlow:true,...(openingContext?{openingContext}:{}),...(root.dataset.documentId?{pageContext:{documentId:root.dataset.documentId}}:{})},
         {signal:controller.signal,onEvent:event=>{
           const follow=log.scrollHeight-log.scrollTop-log.clientHeight<100;
           turn.event(event);

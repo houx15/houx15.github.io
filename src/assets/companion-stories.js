@@ -14,6 +14,14 @@ export function nextStory(seen = [], random = Math.random) {
   return pool[Math.min(pool.length - 1, Math.max(0, Math.floor(random() * pool.length)))];
 }
 
+export function openingContextFor(history, {article = false} = {}) {
+  if(article)return undefined;
+  const last=history.at(-1);
+  if(last?.kind==='story')return {storyId:'timeline'};
+  if(last?.kind==='dice' && storyCards.some(card=>card.id===last.id))return {storyId:last.id};
+  return undefined;
+}
+
 export const greetings = {
   'zh-CN': [
     '她可能在和 AI 吵架，有什么问题先找我说说吧。',

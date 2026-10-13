@@ -202,3 +202,10 @@ Scope: desktop local UI with simulated stored history. This does not prove mobil
 ### 2026-10-13 — Stable typewriter greeting
 
 The longer personal greetings exposed a focus-disrupting layout shift: at 390px width, the bubble changed from height 66/top 477 to height 91/top 464.5 while typing. A hidden full-sentence grid layer now reserves the exact responsive wrapping before characters appear. Browser measurements stayed at height 91/top 464.5 before and after a Chinese greeting; English at 320px stayed height 121/top 347.5, without horizontal overflow. Screenshot inspected: `/tmp/portfolio-stable-greeting.jpg`. Full verification passed; no model requests. This verifies the sampled local animation layouts, not all browser engines.
+
+
+### 2026-10-13 — Authored opening to agent continuity
+
+The browser previously displayed dice cards without passing any card context to the agent. Follow-up pronouns therefore had no referent on the server. Requests now send only the latest authored story ID (or chronology ID); the server resolves its public copy from the release and records it in the successful user turn. It grants no citation evidence: tools must still read sources. Unknown IDs and supplied arbitrary text are rejected before model calls. Existing agents need no opening context, and article pages prioritize their article over old cards.
+
+Full verification passed, including HTTP checks for resolved text, retained follow-up context, rejected malformed payloads, and frontend selection after agent turns/navigation. Tests use a deterministic model adapter; paid model quality remains unverified under the current daily quota.

@@ -19,3 +19,13 @@ test('one opening is selected at a time and article context takes precedence ove
   assert.equal(chooseOpening({random:()=>0.99}),'story');
   for(const n of [0,.4,.99])assert.equal(chooseOpening({article:true,random:()=>n}),'read');
 });
+
+test('only the latest authored opening supplies follow-up context',async()=>{
+  const {openingContextFor}=await import('../src/assets/companion-stories.js');
+  assert.deepEqual(openingContextFor([{kind:'dice',id:'startup'}]),{storyId:'startup'});
+  assert.deepEqual(openingContextFor([{kind:'story'}]),{storyId:'timeline'});
+  assert.equal(openingContextFor([{kind:'dice',id:'startup'},{kind:'agent'}]),undefined);
+  assert.equal(openingContextFor([{kind:'dice',id:'unknown'}]),undefined);
+  assert.equal(openingContextFor([]),undefined);
+  assert.equal(openingContextFor([{kind:'dice',id:'startup'}],{article:true}),undefined);
+});
