@@ -15,7 +15,7 @@ test('dice encounters explore every sourced story before repeating and avoid imm
 
 test('one opening is selected at a time and article context takes precedence over random games',()=>{
   assert.equal(chooseOpening({random:()=>0}),'dice');
-  assert.equal(chooseOpening({random:()=>0.4}),'human');
+  assert.equal(chooseOpening({random:()=>0.4}),'chat');
   assert.equal(chooseOpening({random:()=>0.99}),'story');
   for(const n of [0,.4,.99])assert.equal(chooseOpening({article:true,random:()=>n}),'read');
 });

@@ -14,25 +14,44 @@ export function nextStory(seen = [], random = Math.random) {
   return pool[Math.min(pool.length - 1, Math.max(0, Math.floor(random() * pool.length)))];
 }
 
-export const invitations = {
-  'zh-CN':['掷个骰子？让我挑个故事讲给你。','研究、创业、学习。你想先认识哪一面的她？','不知道问什么也没关系。从下面随便选一个。'],
-  en:['Roll a die? I’ll pick a story for you.','Research, building, learning. Where shall we begin?','No question yet? Pick something below.']
+export const greetings = {
+  'zh-CN': [
+    '她可能在和 AI 吵架，有什么问题先找我说说吧。',
+    '她大概率睡着了，我还醒着。聊聊？',
+    '她可能正忙着做梦，我先陪你聊。',
+    '她可能正在敲键盘，有什么想问她的，先问我吧。',
+    '她可能在健身房，我在这里。',
+    '我是 Monkey 煜欣的 AI 分身，随时来找我聊天！'
+  ],
+  en: [
+    'She might be arguing with an AI. Want to talk to me instead?',
+    'She’s probably asleep. I’m still here. Want to chat?',
+    'She might be busy dreaming. I’ll keep you company.',
+    'She might be typing away. Anything you wanted to ask her?',
+    'She might be at the gym. I’m here.',
+    'I’m Monkey Yuxin’s AI counterpart. Come chat anytime!'
+  ]
 };
+
+export function chooseGreeting(language = 'en', random = Math.random) {
+  const lines = greetings[language] || greetings.en;
+  return lines[Math.min(lines.length - 1, Math.max(0, Math.floor(random() * lines.length)))];
+}
 
 export function chooseOpening({ article = false, random = Math.random } = {}) {
   if (article) return 'read';
-  return ['dice','human','story'][Math.min(2,Math.max(0,Math.floor(random()*3)))];
+  return ['dice','chat','story'][Math.min(2,Math.max(0,Math.floor(random()*3)))];
 }
 export const openingCopy = {
   'zh-CN': {
     dice:{prompt:'不知道从哪里开始？我们可以掷个骰子。',action:'掷个骰子，认识她的一面'},
-    human:{prompt:'你可能想问，我和煜欣是什么关系。',action:'你是真人吗？'},
+    chat:{action:'聊聊'},
     story:{prompt:'她的经历里，有几条同时发生的线。',action:'带我看看她的经历'},
     read:{prompt:'我们从你正在读的这一篇开始。',action:'一起读这一篇'}
   },
   en:{
     dice:{prompt:'Not sure where to start? We could roll a die.',action:'Roll a die. Meet a side of her.'},
-    human:{prompt:'You might be wondering who you’re talking to.',action:'Are you a real person?'},
+    chat:{action:'Let’s chat'},
     story:{prompt:'A few different threads run through her story.',action:'Show me her story'},
     read:{prompt:'Let’s begin with the page you’re reading.',action:'Read this with me'}
   }

@@ -1,4 +1,4 @@
-import { storyCards, nextStory, chooseOpening, openingCopy } from './companion-stories.js';
+import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
 import { milestones } from './biography.js';
 import { createContentTools } from './agent-tools.js';
@@ -11,6 +11,12 @@ import { validateSavedTurn } from './agent-history.js';
 
 const safeSource = url => typeof url === 'string' && !/[\\\u0000-\u001f]/.test(url) && (/^\/(?!\/)[^\s]*$/.test(url) || /^https:\/\/github\.com\/houx15(?:\/|$)/.test(url));
 export function initCompanion(document) {
+  const portal = document.querySelector('.portal-speech');
+  if (portal) {
+    const greeting = chooseGreeting(document.documentElement.lang);
+    portal.querySelector('[data-typewriter]').textContent = greeting;
+    portal.querySelector('.sr-only').textContent = greeting;
+  }
   for (const line of document.querySelectorAll('[data-typewriter]')) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) continue;
     const text = line.textContent; line.textContent=''; let count=0;
@@ -36,7 +42,7 @@ export function initCompanion(document) {
     root.querySelector('.comic-die').style.display=opening==='dice'?'':'none';
     root.querySelector('[data-invitation]').textContent=opening==='read'
       ? (zh?`读到《${root.dataset.pageTitle}》了？我陪你。`:`Reading “${root.dataset.pageTitle}”? I’m here with you.`)
-      : openingCopy[language][opening].prompt;
+      : chooseGreeting(language);
   }
   resetOpening();
   status.textContent = idle;
@@ -102,7 +108,7 @@ export function initCompanion(document) {
       sources(row,[{label:zh?'个人经历与资料来源':'Biography and sources',url:local('/about/#sources')}]);
     } else {
       add(row,'p',item.text,'comic-reply');sources(row,item.sources);
-      if(root.dataset.article!=='true' && (item.sources?.length || /^(你是真人吗|Are you a real person)/.test(item.question || ''))) {
+      if(root.dataset.article!=='true' && item.sources?.length) {
         const next = add(row,'button',zh?'再认识她的另一面 ↗':'Meet another side of her ↗','comic-follow');
         next.type='button';next.addEventListener('click',roll);
       }
@@ -110,13 +116,6 @@ export function initCompanion(document) {
     while(log.children.length > 10) log.firstElementChild.remove();
     if(remember) row.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
     return row;
-  }
-  function human() {
-    if(busy)return;
-    animate('is-poked');
-    render({kind:'text',question:zh?'你是真人吗？':'Are you a real person?',text:liveClient
-      ? (zh?'不是本人。我是住在这个网站里的 AI 角色，陪你认识煜欣、读她的作品和笔记。我会根据公开资料回答；没有依据的地方，也会告诉你。':'Not a person. I’m an AI character here to explore Yuxin’s work and notes with you. I’ll use public sources and tell you when I don’t have enough evidence.')
-      : (zh?'不是本人。我是住在这个网站里的 AI 角色，负责陪你认识煜欣、读她的作品和笔记。现在这段见面互动是预先写好的；接通模型以后，我才能和你自由聊。':'Not a person. I’m an AI character here to help you explore Yuxin’s work and notes. This first meeting is authored in advance; open-ended conversation will arrive when the model is connected.')});
   }
   async function roll() {
     if(busy)return;
@@ -149,7 +148,6 @@ export function initCompanion(document) {
   async function ask(value) {
     const question=value.trim().slice(0,400);if(!question||busy)return;
     input.value='';
-    if(/^(你是真人吗[？?]?|are you (?:a )?real person[?]?)$/i.test(question)){human();return;}
     if(/^(掷骰子|roll(?: a die)?)$/i.test(question)){await roll();return;}
     if(/^(带我看看她的经历|看看她的经历|show me her story)[。.!?？]?$/i.test(question)){render({kind:'story',question});return;}
     if(liveClient) { await askLive(question);return; }
@@ -195,7 +193,7 @@ export function initCompanion(document) {
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
   input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();form.requestSubmit();}});
   root.querySelector('[data-opening]').addEventListener('click',()=>{
-    if(opening==='dice')roll();else if(opening==='human')human();else if(opening==='read')readPage();
+    if(opening==='dice')roll();else if(opening==='chat')input.focus();else if(opening==='read')readPage();
     else render({kind:'story',question:openingCopy[language].story.action});
   });
   stopButton.addEventListener('click',()=>activeController?.abort());
