@@ -155,7 +155,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
             if(!ids.length || new Set(ids).size!==ids.length || ids.some(id=>!profileEventIds.includes(id) || !evidence.has(`event:${id}`)))throw new Error('Invalid timeline evidence');
             const timeline=tools.query_profile_events({language:call.arguments.language || language});
             output={...timeline,items:timeline.items.filter(item=>ids.includes(item.id.slice(6)))};
-          } else output = call.name==='show_concept_flow' ? conceptFlow(call.arguments,evidence) : tools[call.name](call.arguments);
+          } else output = call.name==='show_concept_flow' ? conceptFlow(call.arguments,evidence) : tools[call.name]({...call.arguments,...(definition.parameters.properties.language && call.arguments.language===undefined?{language}: {})});
         }
         catch(error) {
           if(call.name==='show_profile_timeline' && error.message==='Invalid timeline evidence') {

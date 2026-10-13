@@ -1,3 +1,4 @@
+import {agentFailureRecord} from '../server/agent-diagnostics.mjs';
 import { validatePageContext } from '../server/agent-page-context.mjs';
 // Run on the server with its private runtime environment. No HTTP listener or bypass token.
 // stdin: JSON array of 1–6 turns, e.g. [{"question":"介绍一下煜欣","language":"zh-CN"}]
@@ -34,7 +35,17 @@ try {
     ?new (await import('../server/agent-sqlite.mjs')).SQLiteAgentStore({path:env.AGENT_SQLITE_PATH})
     :new RedisAgentStore({url:env.AGENT_REDIS_URL,token:env.AGENT_REDIS_TOKEN});
   const guard=createGuard({store,secret:env.AGENT_SIGNING_SECRET,dailyTokens:config.dailyTokens,monthlyCny:config.monthlyCny,rate:config.rate,enabled:()=>env.AGENT_ENABLED==='1',allowDevelopment:true});
-  const complete=createModelAgent({apiKey:env.AGENT_MODEL_KEY,model:env.AGENT_MODEL,provider:config.provider,baseURL:config.baseURL});
+  const providerComplete=createModelAgent({apiKey:env.AGENT_MODEL_KEY,model:env.AGENT_MODEL,provider:config.provider,baseURL:config.baseURL});
+  // Fixed categories only; includes failures recovered inside the agent loop.
+  let attempt=0;
+  const complete=async args=>{
+    const modelCall=++attempt;
+    try {return await providerComplete(args);}
+    catch(error) {
+      process.stderr.write(JSON.stringify({event:'development_model_failure',modelCall,category:agentFailureRecord({error}).category})+'\n');
+      throw error;
+    }
+  };
   const exchanges=[];
   for(const [index,input] of turns.entries()) {
     const requestId=randomUUID(),signal=AbortSignal.any([AbortSignal.timeout(45000),disconnect.signal]);let calls=0;

@@ -489,3 +489,18 @@ test('selected timeline preserves authored order and dates, and cannot display u
  assert.equal(answer.blocks[0].items[0].title,'是光诗歌');
  assert.equal(answer.blocks[0].dateQualifications.individualStartEnd,null);
 });
+
+
+test('omitted tool language inherits the conversation while an explicit language is preserved',async()=>{
+ for(const requested of [undefined,'en']) {
+  let round=0;
+  await runContentAgent({question:'介绍创业经历',language:'zh-CN',corpus,complete:async({messages})=>{
+   if(++round===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',...(requested?{language:requested}:{})}},{id:'events',name:'query_profile_events',arguments:{...(requested?{language:requested}:{})}}]};
+   const results=messages.filter(m=>m.role==='tool').map(m=>JSON.parse(m.content));
+   assert.equal(results[0].source.url,requested?'/about/#sources':'/zh/about/#sources');
+   assert.equal(results[0].source.label,requested?'Startup CTO':'创业与 CTO 工作');
+   assert.equal(results[1].items[0].source.url,requested?'/about/#sources':'/zh/about/#sources');
+   return {text:'2016–2022 年。',sourceIds:['event:startup']};
+  }});
+ }
+});
