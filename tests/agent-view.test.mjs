@@ -4,6 +4,7 @@ import { createAgentTurn } from '../src/assets/agent-view.js';
 
 class Element {
   constructor(tag){this.tag=tag;this.children=[];this.className='';this.textContent='';this.attributes={};this.classList={add:name=>{this.className+=' '+name;},remove:name=>{this.className=this.className.split(' ').filter(x=>x!==name).join(' ');},toggle:(name,value)=>{if(value)this.classList.add(name);else this.classList.remove(name);}};}
+  get lastElementChild(){return this.children.at(-1) ?? null;}
   append(...nodes){for(const node of nodes){node.parent=this;this.children.push(node);}}
   replaceChildren(...nodes){this.children=[];this.append(...nodes);}
   setAttribute(name,value){this.attributes[name]=value;}
@@ -84,4 +85,45 @@ test('concept diagrams show an interpretation label, one expanded step, and cano
   assert.equal(log.querySelectorAll('a')[0].href,'/notes/test/#evidence');
   assert.ok(log.querySelectorAll('p').some(p=>p.textContent.includes('非作者原图')));
   assert.ok(log.querySelectorAll('p').some(p=>p.textContent==='<script>plain text</script>'));
+});
+
+
+test('manual retry replaces only the immediately preceding empty failed question',()=>{
+  const log=new Element('div');
+  let previous=createAgentTurn(document,{log,question:'Why?'});
+  previous.interrupt();
+  for(let attempt=0;attempt<3;attempt++) {
+    previous=createAgentTurn(document,{log,question:'Why?',retry:previous});
+    assert.equal(log.children.length,1);
+    assert.equal(log.lastElementChild,previous.row);
+    assert.equal(previous.canReplace,false);
+    previous.event({type:'error',code:'challenge_failed'});
+    assert.equal(previous.canReplace,true);
+  }
+});
+
+test('retry preserves partial prose, visual evidence, successful and active turns',()=>{
+  for(const state of ['text','visual','done','active']) {
+    const log=new Element('div'),previous=createAgentTurn(document,{log,question:'Why?'});
+    if(state==='text')previous.event({type:'answer_delta',text:'A partial explanation'});
+    if(state==='visual')previous.event({type:'block',block:{id:'b',type:'post_cards',items:[{id:'a',title:'Source',summary:'Summary',url:'/notes/test/',date:'2026-10-12',type:'notes'}]}});
+    if(state==='done')previous.event({type:'done'});
+    if(['text','visual'].includes(state))previous.interrupt();
+    createAgentTurn(document,{log,question:'Why?',retry:previous});
+    assert.equal(log.children.length,2,state);
+    assert.equal(log.children[0],previous.row,state);
+    if(state==='text')assert.equal(log.querySelector('.comic-reply').textContent,'A partial explanation');
+    if(state==='visual')assert.equal(log.querySelectorAll('a')[0].href,'/notes/test/');
+  }
+});
+
+test('a different question or intervening interaction never removes an old failure',()=>{
+  for(const intervening of [false,true]) {
+    const log=new Element('div'),previous=createAgentTurn(document,{log,question:'Why?'});
+    previous.interrupt();
+    if(intervening)log.append(new Element('article'));
+    createAgentTurn(document,{log,question:intervening?'Why?':'What next?',retry:previous});
+    assert.equal(log.children[0],previous.row);
+    assert.equal(log.children.length,intervening?3:2);
+  }
 });

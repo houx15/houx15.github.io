@@ -14,16 +14,18 @@ export function agentFailureMessage(code, language = 'en', {partial = false} = {
 }
 
 // Deliberately accepts only the validated v2 event vocabulary. No generated HTML.
-export function createAgentTurn(document, { log, question, language = 'en', onQuestion = () => {}, restored = false, continuing = false }) {
+export function createAgentTurn(document, { log, question, language = 'en', onQuestion = () => {}, restored = false, continuing = false, retry }) {
   const zh = language === 'zh-CN';
   const make = (tag,text='',className='') => {const node=document.createElement(tag);node.textContent=text;node.className=className;return node;};
+  // Only collapse an immediately repeated, empty failure. Preserve partial work.
+  if(retry?.canReplace && retry.question === question && log.lastElementChild === retry.row) retry.row.remove();
   log.querySelectorAll('button').forEach(button=>button.remove());
   const row=make('article','','comic-message comic-live-turn');
   row.append(make('p',question,'comic-visitor'));
   const progress=make('div','','comic-progress');progress.setAttribute('role','status');
   const progressText=make('span',zh?'正在连接…':'Connecting…');progress.append(progressText);row.append(progress);
   const body=make('div','','comic-live-body'), visuals=make('div','','comic-live-visuals');row.append(body,visuals);log.append(row);
-  const sources=new Map(),blocks=new Map(),statuses=[];let finished=false, questionBlock;
+  const sources=new Map(),blocks=new Map(),statuses=[];let finished=false, failedTurn=false, questionBlock;
   const toolLabels={search_content:zh?'在笔记中找线索':'Finding relevant notes',read_content:zh?'正在读原文':'Reading the source',read_profile:zh?'核对她的公开经历':'Checking her public biography',query_profile_events:zh?'整理经历的时间线':'Tracing her story',show_post_cards:zh?'挑选接下来值得读的内容':'Choosing a next read',show_concept_flow:zh?'画出理解这件事的步骤':'Drawing the explanation',show_visualization:zh?'整理图中的信息':'Arranging the visual',find_related_posts:zh?'寻找相关内容':'Finding related reading',suggest_questions:zh?'准备下一步问题':'Preparing a follow-up'};
   function renderBlock(block) {
     validateAgentBlock(block);
@@ -87,7 +89,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     container.append(make('p',biography?(zh?`依据截至 ${block.asOf} 的公开履历；时间可能重叠。`:`Public biography as of ${block.asOf}; periods may overlap.`):(zh?'这些是发布日期，不代表项目起止时间。':'Publication dates, not project start/end dates.'),'comic-visual-note'));
   }
   function end(failed, message) {
-    finished=true;row.classList.toggle('is-incomplete',failed);progress.classList.remove('is-active');
+    finished=true;failedTurn=failed;row.classList.toggle('is-incomplete',failed);progress.classList.remove('is-active');
     progressText.textContent=message;
     if(!failed) {
       progress.removeAttribute('role');
@@ -102,6 +104,8 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
   }
   return {
     row,
+    get question() {return question;},
+    get canReplace() {return finished && failedTurn && !body.children.length && !visuals.children.length;},
     event(event) {
       if(finished)return;
       if(event.type==='status') {

@@ -27,7 +27,7 @@ export function initCompanion(document) {
   let sessionStore;try {if(location.protocol==='https:')sessionStore=sessionStorage;}catch{}
   let liveClient;try { if(agentOrigin && turnstileSiteKey)liveClient=createAgentClient(agentOrigin,fetch,{sessionStore}); } catch { /* Invalid public deployment config fails closed. */ }
   const idle = liveClient ? (zh?'AI 会参考公开资料回答，也可能出错。':'AI answers from public sources and can make mistakes.') : (zh ? '开场试玩 · AI 自由对话尚未接通' : 'Opening experience · live AI conversation not yet connected');
-  const seen = []; let history = [], busy = false, corpusPromise, activeController;
+  const seen = []; let history = [], busy = false, corpusPromise, activeController, lastLiveTurn;
   const stopButton=root.querySelector('[data-stop-answer]'), sendButton=form.querySelector('[type=submit]');
   let opening, returnToComposer = false;
   function resetOpening() {
@@ -163,7 +163,8 @@ export function initCompanion(document) {
     activeController=new AbortController();const controller=activeController;
     setBusy(true,zh?'正在连接…':'Connecting…');
     root.classList.add('has-conversation');
-    const turn=createAgentTurn(document,{log,question,language,onQuestion:ask});
+    const turn=createAgentTurn(document,{log,question,language,onQuestion:ask,retry:lastLiveTurn});
+    lastLiveTurn=turn;
     const challenge=root.querySelector('[data-visitor-check]');
     const savedEvents=[];
     try {
@@ -197,7 +198,7 @@ export function initCompanion(document) {
   });
   stopButton.addEventListener('click',()=>activeController?.abort());
   window.addEventListener('pagehide',()=>activeController?.abort());
-  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();history=[];seen.length=0;save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();});
+  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;history=[];seen.length=0;save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();});
   try {
     const stored=JSON.parse(sessionStorage.getItem(storageKey)||'[]');
     if(Array.isArray(stored)) for(const item of stored.slice(-10)) {
