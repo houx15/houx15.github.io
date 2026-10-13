@@ -46,3 +46,9 @@ ssh -t kookat 'python3 /home/monkey/apps/portfolio-agent/current/scripts/set-age
 ```
 
 The helper accepts only model/turnstile selectors, requires a terminal and masked input, and does not enable the service.
+
+## Existing Turnstile widget integration
+
+The owner supplied public site key `0x4AAAAAAFVve3G5FMItr1cO`. The frontend uses this existing widget; no replacement widget was created. Only `/v2/sessions` redeems a fresh token, with action `agent_session`, expected hostname `houx15.github.io`, strict success/freshness checks and replay protection. The widget is removed after each attempt and recreated on retry to obtain a new token. The public backend origin remains empty until activation checks pass.
+
+Reviewed the owner's linked existing-widget flow at https://developers.cloudflare.com/turnstile/spin/prompt.md. Automatic credential recovery was not attempted: there is no approved Wrangler/account setup. The server-side hidden-input helper is prepared for the owner to enter the secret directly. Real widget success, token replay rejection through the deployed handler, and widget-domain metadata verification remain pending. Mock tests do not prove those live checks.

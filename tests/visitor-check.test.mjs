@@ -19,3 +19,15 @@ test('cancellation removes pending widget and ignores a late verification token'
     await assert.rejects(check,{name:'AbortError'});config.callback('late');assert.deepEqual(removed,[8]);
   } finally {delete globalThis.window;}
 });
+
+test('each submission obtains a fresh widget token, including after a failed challenge',async()=>{
+  let count=0;const removed=[];
+  globalThis.window={turnstile:{render:(container,options)=>{const id=++count;queueMicrotask(()=>id===1?options['error-callback']():options.callback(`fresh-${id}`));return id;},remove:id=>removed.push(id)}};
+  try {
+    const container={replaceChildren:()=>{}};
+    await assert.rejects(verifyVisitor({},container,'public-key'),/challenge_failed/);
+    assert.equal(await verifyVisitor({},container,'public-key'),'fresh-2');
+    assert.equal(await verifyVisitor({},container,'public-key'),'fresh-3');
+    assert.deepEqual(removed,[1,2,3]);
+  } finally {delete globalThis.window;}
+});

@@ -146,3 +146,9 @@ test('HTTP forwards incremental prose before the provider finishes, and finalize
   while(true){const chunk=await reader.read();if(chunk.done)break;text+=decoder.decode(chunk.value);}
   assert.match(text,/Keys are cached/);assert.match(text,/event: done/);
 });
+
+test('challenge adapter rejects absent and oversized tokens before contacting Cloudflare',async()=>{
+ let calls=0;const verify=createTurnstile({secret:'private',hostname:'houx15.github.io',fetchImpl:async()=>{calls++;throw new Error('must not call');}});
+ for(const token of [undefined,'','x'.repeat(2049)])await assert.rejects(verify(token,new AbortController().signal),/challenge_failed/);
+ assert.equal(calls,0);
+});

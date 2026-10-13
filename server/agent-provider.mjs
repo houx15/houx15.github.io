@@ -10,6 +10,7 @@ async function limitedJSON(response,max=100000) {
 export function createTurnstile({secret,hostname,fetchImpl=fetch,now=Date.now}) {
   return async (token,signal)=>{
     if(!secret) throw new AgentError(503,'unavailable');
+    if(typeof token!=='string' || !token || token.length>2048)throw new AgentError(403,'challenge_failed');
     try {
       const r=await fetchImpl('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(8000)]),headers:{'Content-Type':'application/json'},body:JSON.stringify({secret,response:token})});
       const data=await limitedJSON(r,16000), age=now()-Date.parse(data.challenge_ts);
