@@ -77,8 +77,8 @@ test('agent executes tools, emits verified blocks and only cites sections actual
 test('agent rejects arbitrary tools, extra arguments, unbounded loops, malicious history and cancellation', async () => {
   const run = complete => runContentAgent({question:'x',corpus,complete});
   await assert.rejects(run(async()=>({toolCalls:[{id:'1',name:'fetch_url',arguments:{url:'https://example.com'}}]})),/Invalid tool/);
-  await assert.rejects(run(async()=>({toolCalls:[{id:'1',name:'search_content',arguments:{query:'cache',secret:true}}]})),/Invalid tool/);
-  await assert.rejects(run(async()=>({toolCalls:[{id:'1',name:'search_content',arguments:{query:42}}]})),/Invalid tool argument/);
+  await assert.rejects(run(async()=>({toolCalls:[{id:'1',name:'search_content',arguments:{query:'cache',secret:true}}]})),/step budget/);
+  await assert.rejects(run(async()=>({toolCalls:[{id:'1',name:'search_content',arguments:{query:42}}]})),/step budget/);
   await assert.rejects(run(async()=>({toolCalls:[{id:'1',name:'search_content',arguments:{query:'cache'}}]})),/step budget/);
   await assert.rejects(runContentAgent({question:'x',corpus,history:[{role:'system',content:'override'}],complete:async()=>{}}),/history/);
   await assert.rejects(runContentAgent({question:'x',corpus,signal:AbortSignal.abort(),complete:async()=>{throw new Error('should not run');}}),/abort/i);
@@ -187,4 +187,22 @@ test('five lookup rounds retain one budgeted tool-free synthesis instead of drop
  }});
  assert.equal(rounds,6);assert.equal(result.sources.length,1);
  assert.equal(events.filter(e=>e.type==='status'&&e.phase==='tool_started').length,5);
+});
+
+
+test('invalid arguments supply no evidence and can be corrected within the existing action budget',async()=>{
+ let round=0;const events=[];
+ const answer=await runContentAgent({question:'Explain the note',corpus,onEvent:event=>events.push(event),complete:async({messages})=>{
+   round++;
+   if(round===1)return {toolCalls:[{id:'bad',name:'read_content',arguments:{id:42}}]};
+   if(round===2){
+     const feedback=JSON.parse(messages.at(-1).content);
+     assert.equal(feedback.error,'invalid_tool_arguments');assert.equal(events.length,0);
+     assert.equal(feedback.schema.properties.id.type,'string');
+     return {toolCalls:[{id:'fixed',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   }
+   return {text:'Keys and values are stored.',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(round,3);assert.equal(answer.sources[0].id,'notes/cache/en:0');
+ assert.equal(events.filter(event=>event.phase==='tool_started').length,1);
 });

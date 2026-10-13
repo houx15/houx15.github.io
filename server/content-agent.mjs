@@ -59,7 +59,9 @@ export async function runContentAgent({ question, language = 'en', history = [],
       for (const call of result.toolCalls) {
         signal?.throwIfAborted(); calls++;
         const definition = availableTools.find(tool => tool.name === call.name);
-        if (!definition || typeof call.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(call.id) || !call.arguments || typeof call.arguments !== 'object' || Array.isArray(call.arguments) || Object.keys(call.arguments).some(key => !Object.hasOwn(definition.parameters.properties,key))) throw new Error('Invalid tool call');
+        if (!definition || typeof call.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(call.id)) throw new Error('Invalid tool call');
+        try {
+        if(!call.arguments || typeof call.arguments !== 'object' || Array.isArray(call.arguments) || Object.keys(call.arguments).some(key => !Object.hasOwn(definition.parameters.properties,key))) throw new Error('Invalid tool argument');
         for (const required of definition.parameters.required) if (!Object.hasOwn(call.arguments, required)) throw new Error('Missing tool argument');
         for (const [key, value] of Object.entries(call.arguments)) {
           const schema = definition.parameters.properties[key];
@@ -67,6 +69,11 @@ export async function runContentAgent({ question, language = 'en', history = [],
           if (schema.type === 'string' && (typeof value !== 'string' || value.length > (schema.maxLength || 400))) throw new Error('Invalid tool argument');
           if (schema.type === 'integer' && (!Number.isInteger(value) || value < 0)) throw new Error('Invalid tool argument');
           if (schema.type === 'array' && (!Array.isArray(value) || value.length > schema.maxItems || value.some(item => typeof item !== 'string' || item.length > 400))) throw new Error('Invalid tool argument');
+        }
+        } catch(error) {
+          if(!['Invalid tool argument','Missing tool argument'].includes(error.message))throw error;
+          messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'invalid_tool_arguments',guidance:'This call was rejected before execution and supplies no evidence. Correct the arguments using the tool schema. Keep strings and arrays within the stated limits; strings default to at most 400 characters and array string items to at most 400 characters. Do not repeat the unchanged call.',schema:definition.parameters})});
+          continue;
         }
         onEvent({type:'status',phase:'tool_started',tool:call.name,callId:call.id});
         let output;
