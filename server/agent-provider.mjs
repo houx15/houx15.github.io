@@ -25,12 +25,13 @@ export function createModelAgent({apiKey,model,provider='deepseek',baseURL,fetch
   return async ({messages,tools,signal,language,onText})=>{
     const wire=messages.map(m=>m.role==='tool'?{role:'tool',tool_call_id:m.toolCallId,content:m.content}:m.toolCalls?{role:'assistant',content:null,tool_calls:m.toolCalls.map(c=>({id:c.id,type:'function',function:{name:c.name,arguments:JSON.stringify(c.arguments)}}))}:{role:m.role,content:m.content});
     wire[0].content+=` Answer in ${language}. Final response MUST be a JSON object with exactly sourceIds FIRST and text SECOND, in that order: {"sourceIds":["id"],"text":"answer"}. JSON is required.`;
-    const body={model,messages:wire,...(tools.length?{tools:tools.map(t=>({type:'function',function:t}))}:{}),max_tokens:1024,...(provider==='deepseek'?{reasoning_effort:'none'}:/^qwen/i.test(model)?{enable_thinking:false}:{}),stream:true,stream_options:{include_usage:true}};
+    const body={model,messages:wire,...(provider==='bailian' && model==='qwen-plus' && !tools.length?{response_format:{type:'json_object'}}:{}),...(tools.length?{tools:tools.map(t=>({type:'function',function:t}))}:{}),max_tokens:1024,...(provider==='deepseek'?{reasoning_effort:'none'}:/^qwen/i.test(model)?{enable_thinking:false}:{}),stream:true,stream_options:{include_usage:true}};
+    let callbackError;
     try {
       const response=await fetchImpl(endpoint,{method:'POST',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(15000)]),headers:{'Content-Type':'application/json',Authorization:`Bearer ${apiKey}`},body:JSON.stringify(body)});
       if(!response.ok){await response.body?.cancel();throw new AgentError(502,'provider_unavailable');}
-      return await readProviderStream(response,{signal,onText});
-    } catch(error) {if(signal.aborted) throw signal.reason;const failure=new AgentError(502,error instanceof AgentError?error.code:'invalid_model_response');if(!(error instanceof AgentError))failure.diagnosticCategory=providerFailureCategory(error);throw failure;}
+      return await readProviderStream(response,{signal,onText:onText?((...args)=>{try {return onText(...args);}catch(error){callbackError=error;throw error;}}):undefined});
+    } catch(error) {if(callbackError && error===callbackError)throw error;if(signal.aborted) throw signal.reason;const failure=new AgentError(502,error instanceof AgentError?error.code:'invalid_model_response');if(!(error instanceof AgentError))failure.diagnosticCategory=providerFailureCategory(error);throw failure;}
   };
 }
 
