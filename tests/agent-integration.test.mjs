@@ -63,3 +63,27 @@ test('failed model calls report only safe diagnostics and a broken logger cannot
  await client.ask({question:'Try a different topic',language:'en'});
  assert.equal(calls,2);
 });
+
+test('cross-page follow-up keeps the actual concept step order in server-owned history',async t=>{
+ const origin='https://houx15.github.io',seen=[];
+ const guard=createGuard({store:new MemoryAgentStore(),secret:'a'.repeat(40),dailyTokens:1000000,enabled:()=>true});
+ const complete=async args=>{
+   seen.push(args);
+   if(seen.length===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{id:'profile'}},{id:'draw',name:'show_concept_flow',arguments:{title:'Two aspects',labels:['First aspect','Second aspect'],descriptions:['First interpretation','Second interpretation'],sourceIds:['profile:profile','profile:profile']}}]};
+   if(seen.length===2)return {text:'Two aspects are shown.',sourceIds:['profile:profile']};
+   if(seen.length===3){
+     const prior=JSON.parse(args.messages.find(message=>message.role==='assistant').content);
+     assert.equal(prior.visuals[0].items[1].title,'Second aspect');assert.equal(prior.visuals[0].items[1].position,2);
+     assert.equal(prior.visuals[0].items[1].sourceId,'profile:profile');
+     return {toolCalls:[{id:'reread',name:'read_profile',arguments:{id:'profile'}}]};
+   }
+   return {text:'A freshly sourced explanation.',sourceIds:['profile:profile']};
+ };
+ const server=createAgentServer({origin,corpus:{schemaVersion:1,revision:'fixture',documents:[]},guard,complete,verifyChallenge:async()=>{},enabled:()=>true,production:false});
+ server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>{server.closeAllConnections();server.close();});
+ const storage=new Map(),sessionStore={getItem:key=>storage.get(key),setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)};
+ const client=()=>createAgentClient(`http://localhost:${server.address().port}`,(url,options)=>fetch(url.replace('localhost','127.0.0.1'),{...options,headers:{...options.headers,Origin:origin}}),{sessionStore});
+ const first=client();await first.openSession('fixture');await first.ask({question:'Draw two aspects',language:'en',supportsConceptFlow:true});
+ const events=[];await client().ask({question:'Explain the second aspect',language:'en',supportsConceptFlow:true},{onEvent:event=>events.push(event)});
+ assert.equal(seen.length,4);assert.equal(events.at(-1).type,'done');assert.equal(events.find(event=>event.type==='answer').text,'A freshly sourced explanation.');
+});

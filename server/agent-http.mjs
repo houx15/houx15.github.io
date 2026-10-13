@@ -1,3 +1,4 @@
+import { rememberAgentAnswer } from './agent-memory.mjs';
 import { MODEL_OUTPUT_TOKENS, MODEL_WIRE_ALLOWANCE } from './agent-limits.mjs';
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
@@ -73,7 +74,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       signal.throwIfAborted();
       for(const source of answer.sources)if(!emittedSources.has(source.id))emit('source',{source});
       partial=true;emit('answer',{text:answer.text,sourceIds:answer.sources.map(s=>s.id),revision:answer.revision});
-      stage='finish';await guard.finish(requestId,[{role:'user',content:userContext},{role:'assistant',content:answer.text.slice(0,4000)}]);admitted=false;
+      stage='finish';await guard.finish(requestId,[{role:'user',content:userContext},{role:'assistant',content:rememberAgentAnswer(answer)}]);admitted=false;
       emit('done',{outcome:'complete'});res.end();
     } catch(error) {
       try {if(step>0)onDiagnostic(agentFailureRecord({requestId,stage,modelCalls:step,partial,error}));}catch{/* Diagnostics must never break response or accounting cleanup. */}

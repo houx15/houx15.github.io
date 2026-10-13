@@ -111,3 +111,9 @@ The next candidate gives truncation its own fixed output_limit category and cent
 A bounded candidate operator test did not complete: six calls, 19,705 known reconciled tokens, final_shape. Increasing output capacity alone is therefore not a proven reliability fix. The candidate has not replaced production. Further diagnosis should inspect the allowed action sequence and final shape without recording request text, raw provider output or secrets.
 
 A shape-only action trace of another bounded candidate test recorded search_content and a failed short document-ID read, then a corrected read_content call, followed by a timeout in the third provider invocation (4,464 known tokens before that failure). No raw tool arguments or content were logged. The candidate now allows 30 seconds for an individual model call while keeping the entire HTTP request deadline at 45 seconds. This accommodates longer diagram output without allowing an unbounded turn. It is not yet a proven fix for all observed failures.
+
+## Ordered visual references in conversational memory
+
+The candidate stores a bounded, server-owned summary of successful concept diagrams alongside concise answer text: diagram title, ordered step titles and source IDs. Plain-text-only turns retain their existing representation. Older diagrams that do not fit are explicitly counted as omitted; arbitrary presentation payloads and descriptions are not persisted in model history. The existing 4000-character per-message and three-exchange history bounds remain.
+
+An HTTP/client integration test creates a diagram, reconstructs the client as after navigation, asks about its second step, and verifies that the model receives the actual ordered visual summary before rereading the source. A separate test proves remembered IDs alone cannot authorize an answer. Full verification passed. This preserves conversational references; it is not semantic long-term memory or proof of model factual accuracy.
