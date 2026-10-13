@@ -69,7 +69,7 @@ test('JSON-action provider executes source reads before emitting an evidenced st
  const action=requests[1].messages.find(message=>message.role==='assistant');
  assert.equal(JSON.parse(action.content).toolCalls[0].name,'read_profile');
  const toolResult=JSON.parse(requests[1].messages.at(-1).content);
- assert.equal(toolResult.type,'tool_result');assert.equal(toolResult.callId,'p');assert.equal(JSON.parse(toolResult.data).source.id,'profile:profile');
+ assert.equal(toolResult.type,'tool_result');assert.equal(toolResult.callId,'p');assert.equal(toolResult.data.source.id,'profile:profile');
  assert.ok(events.findIndex(event=>event.phase==='tool_completed')<events.findIndex(event=>event.type==='answer_delta'));
  assert.equal(events.filter(event=>event.type==='answer_delta').map(event=>event.text).join(''),'A sourced introduction.');
 });

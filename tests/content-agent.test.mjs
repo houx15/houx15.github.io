@@ -206,3 +206,20 @@ test('invalid arguments supply no evidence and can be corrected within the exist
  assert.equal(round,3);assert.equal(answer.sources[0].id,'notes/cache/en:0');
  assert.equal(events.filter(event=>event.phase==='tool_started').length,1);
 });
+
+test('overlong diagram copy is rejected before display and can be corrected without truncating it',async()=>{
+ let round=0;const events=[];
+ const args={title:'Cache',labels:['Store','Reuse'],descriptions:['x'.repeat(129),'Reuse the stored values.'],sourceIds:['notes/cache/en:0','notes/cache/en:0']};
+ const result=await runContentAgent({question:'Draw the mechanism',corpus,onEvent:event=>events.push(event),complete:async({messages})=>{
+   if(++round===1)return {toolCalls:[{id:'r',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(round===2)return {toolCalls:[{id:'long',name:'show_concept_flow',arguments:args}]};
+   if(round===3){
+     assert.equal(events.filter(event=>event.type==='block').length,0);
+     const feedback=JSON.parse(messages.at(-1).content);
+     assert.equal(feedback.schema.properties.descriptions.items.maxLength,128);
+     return {toolCalls:[{id:'short',name:'show_concept_flow',arguments:{...args,descriptions:['Store keys and values.','Reuse the stored values.']}}]};
+   }
+   return {text:'The figure shows the mechanism.',sourceIds:['notes/cache/en:0']};
+ }});
+ assert.equal(result.blocks.length,1);assert.equal(result.blocks[0].items[0].description,'Store keys and values.');
+});
