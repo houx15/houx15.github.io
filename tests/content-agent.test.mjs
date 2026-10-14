@@ -801,3 +801,32 @@ test('agent cards default to conversation language, allow explicit editions, and
   assert.ok(!events.some(event=>event.type==='answer_delta' && event.text.includes('Unjustified')));
  }
 });
+
+test('a sourced concept caption finishes with the diagram and no trailing model call',async()=>{
+ let rounds=0;const events=[];
+ const answer=await runContentAgent({question:'Explain cache with two steps',corpus,onEvent:event=>events.push(event),complete:async()=>{
+  if(++rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+  if(rounds===2)return {toolCalls:[{id:'draw',name:'show_concept_flow',arguments:{title:'Cache reuse',labels:['Store','Reuse'],descriptions:['Keep keys and values.','Reuse the saved values.'],sourceIds:['notes/cache/en:0'],quoteIds:['q0','q0'],caption:'Stored values can be reused.'}}]};
+  assert.fail('The completed diagram must not need a trailing model request');
+ }});
+ assert.equal(rounds,2);assert.equal(answer.text,'Stored values can be reused.');
+ assert.deepEqual(answer.sources.map(source=>source.id),['notes/cache/en:0']);
+ assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['block','answer_delta','answer']);
+ assert.equal(answer.blocks.length,1);assert.ok(answer.blocks[0].visualId);
+});
+
+test('terminal concept captions reject unread evidence, malformed batches and biography inflation before display',async()=>{
+ for(const kind of ['unread','empty','oversized','batch','identity']) {
+  const events=[];let rounds=0;
+  const args={title:'Public work',labels:['One','Two'],descriptions:['First explanation.','Second explanation.'],sourceIds:['event:princeton'],caption:'A public research experience.'};
+  await runContentAgent({question:'Draw her public research work',corpus,onEvent:event=>events.push(event),complete:async()=>{
+   rounds++;
+   if(rounds===1 && kind!=='unread')return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'princeton'}}]};
+   if(rounds===(kind==='unread'?1:2))return {toolCalls:[{id:'invalid',name:'show_concept_flow',arguments:{...args,caption:kind==='empty'?' ':kind==='oversized'?'x'.repeat(161):kind==='identity'?'She was a Visiting Scholar at Princeton.':args.caption}},...(kind==='batch'?[{id:'extra',name:'read_profile',arguments:{eventId:'princeton'}}]:[])]};
+   assert.equal(events.filter(event=>['block','answer_delta','answer'].includes(event.type)).length,0);
+   if(kind==='unread' && rounds===2)return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'princeton'}}]};
+   return {toolCalls:[{id:'fixed',name:'show_concept_flow',arguments:args}]};
+  }});
+  assert.equal(rounds,3);assert.equal(events.filter(event=>event.type==='block').length,1);
+ }
+});
