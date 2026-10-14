@@ -61,6 +61,28 @@ test('published corpus excludes drafts even in preview, strips paths, preserves 
   } finally {await fs.rm(root,{recursive:true,force:true});}
 });
 
+test('corpus preserves separate resource links without rewriting prose or leaking links into other chunks', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(),'agent-links-'));
+  try {
+    const directory = path.join(root,'content/notes/public');
+    await fs.mkdir(directory,{recursive:true});
+    await fs.writeFile(path.join(directory,'index.md'),`---\ntitle: Public\ndraft: false\ndate: "2026-10-01"\n---\n## Sources\n\n[System **docs**](https://example.com/docs) · [Deployment records](/records/).\n\n## Long\n\n${'x'.repeat(2500)} [Later](https://example.com/later)\n\n## Plain\n\nNo links.`);
+    const document = (await buildCorpus(root)).documents[0];
+    const [sources, first, second, plain] = document.sections;
+    assert.equal(sources.text,'System docs · Deployment records.');
+    assert.deepEqual(sources.linkedResources,[
+      {label:'System docs',url:'https://example.com/docs'},
+      {label:'Deployment records',url:'https://houx15.github.io/records/'}
+    ]);
+    assert.equal(first.linkedResources,undefined);
+    assert.deepEqual(second.linkedResources,[{label:'Later',url:'https://example.com/later'}]);
+    assert.equal(plain.linkedResources,undefined);
+    const read = createContentTools({schemaVersion:1,revision:'links',documents:[document]}).read_content({id:document.id,sectionId:sources.id});
+    assert.deepEqual(read.sections[0].linkedResources,sources.linkedResources);
+    assert.equal(read.sections.length,1);
+  } finally { await fs.rm(root,{recursive:true,force:true}); }
+});
+
 test('agent executes tools, emits verified blocks and only cites sections actually read', async () => {
   let round = 0; const events = [];
   const answer = await runContentAgent({question:'Explain KV cache',corpus,onEvent:event=>events.push(event),complete:async () => {
