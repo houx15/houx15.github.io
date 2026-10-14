@@ -3,8 +3,32 @@ import {proseSentences} from './agent-prose-boundaries.mjs';
 // A narrow provenance check for affirmative, explicitly quoted self-recollection.
 // This does not validate paraphrases, source interpretation, or claims of absence.
 // In particular, a failed match means "not in retained text", never "never said".
-const quoted='[“「『"]([^”」』"\\n]+)[”」』"]';
-const directQuote=new RegExp('^\\s*(?:我(?:在)?(刚才|上一轮|上次|先前|之前|此前)(?:(?:的)?(?:回答|回复))?(?:中)?(?:说(?:过|的|的是)?|写(?:过|的|的是)?|用(?:了)?|把|将|提到(?:了)?|称为)\\s*[:：]?\\s*'+quoted+'|\\bI\\s+(previously|earlier|just)\\s+(?:said|wrote|called it|used)\\s*:?\\s*'+quoted+')','giu');
+// Parse top-level quotation spans so quoted questions and nested speech cannot
+// be mistaken for the assistant's own affirmative recollection.
+function* quotations(text) {
+  const closing={'“':'”','「':'」','『':'』','"':'"'},stack=[];
+  let start,escaped=false;
+  for(let i=0;i<text.length;i++) {
+    const char=text[i];
+    if(escaped){escaped=false;continue;}
+    if(char==='\\'){escaped=true;continue;}
+    if(stack.at(-1)===char) {
+      stack.pop();
+      if(!stack.length)yield {start,end:i+1,text:text.slice(start+1,i)};
+    } else if(Object.hasOwn(closing,char)) {
+      if(!stack.length)start=i;
+      stack.push(closing[char]);
+    }
+  }
+}
+function selfAttribution(prefix) {
+  // Clauses before a comma cannot negate a later "but I previously said".
+  const clause=prefix.split(/[，,；;]/u).at(-1);
+  const chinese=/我(?:在)?(刚才|上一轮|上次|先前|之前|此前)(.{0,24})$/u.exec(clause);
+  if(chinese && /说|写|表述|使用|提到|概括|称|用|把|将/u.test(chinese[2]) && !/不|没|未|若|如果|假如|是否/u.test(clause))return chinese[1];
+  const english=/\bI\s+(previously|earlier|just)\s+(?:said|wrote|called it|used)\s*:?\s*$/iu.exec(clause);
+  if(english && !/\b(?:not|never|if|whether|cannot|can't|didn't)\b/iu.test(clause))return english[1];
+}
 const normalize=text=>text.replace(/\s+/gu,' ').trim();
 function retainedText(message) {
   if(message.role!=='assistant')return;
@@ -17,12 +41,18 @@ function retainedText(message) {
 export function createConversationQuoteCheck(history=[],earlierHistory=[]) {
   const records=[...earlierHistory,...history].map(retainedText).filter(Boolean);
   return text=>{
-    for(const sentence of proseSentences(text))for(const match of sentence.matchAll(directQuote)) {
-      const timing=match[1] || match[3],quote=match[2] || match[4];
-      const latest=['刚才','上一轮','上次','just'].includes(timing.toLowerCase());
-      const candidates=latest?records.slice(-1):records;
-      if(candidates.some(record=>normalize(record.text).includes(normalize(quote))))continue;
-      throw Object.assign(new Error('Invalid prose claim'),{proseIssue:{reason:'conversation_quote',clause:sentence.trim().slice(0,400),quote,scope:latest?'most_recent_answer':'retained_answers',retainedAnswers:candidates.slice(-3),olderAnswersOmitted:candidates.length>3}});
+    for(const sentence of proseSentences(text)) {
+      if(/[?？]\s*$/u.test(sentence) || /^(?:如果|假如|若|假设|if\b|suppose\b)/iu.test(sentence.trim()))continue;
+      let previousEnd=0;
+      for(const span of quotations(sentence)) {
+        const timing=selfAttribution(sentence.slice(previousEnd,span.start));previousEnd=span.end;
+        if(!timing)continue;
+        const quote=span.text;
+        const latest=['刚才','上一轮','上次','just'].includes(timing.toLowerCase());
+        const candidates=latest?records.slice(-1):records;
+        if(candidates.some(record=>normalize(record.text).includes(normalize(quote))))continue;
+        throw Object.assign(new Error('Invalid prose claim'),{proseIssue:{reason:'conversation_quote',clause:sentence.trim().slice(0,400),quote,scope:latest?'most_recent_answer':'retained_answers',retainedAnswers:candidates.slice(-3),olderAnswersOmitted:candidates.length>3}});
+      }
     }
   };
 }

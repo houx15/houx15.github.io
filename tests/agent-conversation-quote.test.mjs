@@ -30,7 +30,7 @@ test('streamed fabricated recollection stays private and repair preserves alread
  let round=0;
  const result=await runContentAgent({question:'Check your prior answer',history:[answer('Actual earlier wording')],corpus,onEvent:e=>events.push(e),complete:async({messages,onText})=>{
   if(++round===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'n'}}]};
-  if(round===2){onText('The note says “Source wording.”. ',['s']);onText('I previously said "Invented wording". ',['s']);throw new Error('unreachable');}
+  if(round===2){onText('The note says “Source wording.”. ',['s']);onText('However, I previously said "Invented wording". ',['s']);throw new Error('unreachable');}
   assert.equal(JSON.parse(messages.at(-1).content).issue.reason,'conversation_quote');
   return {text:'I previously said "Actual earlier wording". That was my earlier wording.',sourceIds:['s']};
  }});
@@ -50,4 +50,11 @@ test('attribution examples are system guidance for follow-ups, not fabricated co
   }});
   assert.equal(inspected,true);
  }
+});
+
+test('clause-position self-quotations are checked without treating quoted questions or denials as assertions',()=>{
+ const check=createConversationQuoteCheck([answer('Actual earlier wording')]);
+ for(const text of ['原文没有这么写，但我上一轮把它说成“最难审查的一项”。','我上一轮的表述是“最难审查”。','The source does not say this, but I previously said "always".'])assert.throws(()=>check(text),/Invalid prose claim/);
+ for(const text of ['我上一轮并没有把它说成“最难审查”。','如果我上一轮说过“最难审查”，那是不准确的。','访客问：“我上一轮说过『最难审查』吗？”','我上一轮说过“最难审查”吗？','不能声称我上一轮说过“最难审查”。','如果记忆有遗漏，我上一轮说过“最难审查”也不能由此确认。','If the record is incomplete, I previously said "always" would be an unverified claim.'])assert.doesNotThrow(()=>check(text));
+ assert.doesNotThrow(()=>check('先核对记录，但我上一轮的实际表述是“Actual earlier wording”。'));
 });
