@@ -61,6 +61,28 @@ test('published corpus excludes drafts even in preview, strips paths, preserves 
   } finally {await fs.rm(root,{recursive:true,force:true});}
 });
 
+test('corpus preserves separate resource links without rewriting prose or leaking links into other chunks', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(),'agent-links-'));
+  try {
+    const directory = path.join(root,'content/notes/public');
+    await fs.mkdir(directory,{recursive:true});
+    await fs.writeFile(path.join(directory,'index.md'),`---\ntitle: Public\ndraft: false\ndate: "2026-10-01"\n---\n## Sources\n\n[System **docs**](https://example.com/docs) · [Deployment records](/records/).\n\n## Long\n\n${'x'.repeat(2500)} [Later](https://example.com/later)\n\n## Plain\n\nNo links.`);
+    const document = (await buildCorpus(root)).documents[0];
+    const [sources, first, second, plain] = document.sections;
+    assert.equal(sources.text,'System docs · Deployment records.');
+    assert.deepEqual(sources.linkedResources,[
+      {label:'System docs',url:'https://example.com/docs'},
+      {label:'Deployment records',url:'https://houx15.github.io/records/'}
+    ]);
+    assert.equal(first.linkedResources,undefined);
+    assert.deepEqual(second.linkedResources,[{label:'Later',url:'https://example.com/later'}]);
+    assert.equal(plain.linkedResources,undefined);
+    const read = createContentTools({schemaVersion:1,revision:'links',documents:[document]}).read_content({id:document.id,sectionId:sources.id});
+    assert.deepEqual(read.sections[0].linkedResources,sources.linkedResources);
+    assert.equal(read.sections.length,1);
+  } finally { await fs.rm(root,{recursive:true,force:true}); }
+});
+
 test('agent executes tools, emits verified blocks and only cites sections actually read', async () => {
   let round = 0; const events = [];
   const answer = await runContentAgent({question:'Explain KV cache',corpus,onEvent:event=>events.push(event),complete:async () => {
@@ -886,5 +908,32 @@ test('follow-up buttons carry the concrete question and require evidence from th
   }});
   if(mode==='valid')assert.deepEqual(answer.blocks[0].items,[{documentId:'notes/cache/en',label:'What does the cache retain?',query:'What does the cache retain?'}]);
   else assert.equal(answer.blocks.length,0);
+ }
+});
+
+test('compact-page context reads supporting body while preserving the requested reading position',async()=>{
+ const project=doc('project','Project','unused');
+ project.sections=Array.from({length:4},(_,index)=>({id:`${project.id}:${index}`,heading:index===3?'Sources':`Part ${index}`,text:index===2?'Learning outcomes were not evaluated.':`Public section ${index}.`,url:`${project.url}#part-${index}`}));
+ const context={documentId:project.id,sectionId:project.sections[3].id};
+ const answer=await runContentAgent({question:'Were outcomes verified?',corpus:{...corpus,documents:[project]},pageContext:context,complete:async({messages})=>{
+  const reads=messages.filter(message=>message.role==='tool').map(message=>JSON.parse(message.content));
+  assert.deepEqual(reads.flatMap(read=>read.sections.map(section=>section.id)),project.sections.map(section=>section.id));
+  assert.equal(reads.length,2);
+  assert.deepEqual(JSON.parse(messages.find(message=>message.role==='user').content).pageContext,context);
+  return {text:'Learning outcomes were not evaluated.',sourceIds:[project.sections[2].id]};
+ }});
+ assert.equal(answer.sources[0].id,project.sections[2].id);
+});
+
+test('section context does not automatically expand long or section-heavy documents',async()=>{
+ for(const [count,size] of [[7,20],[4,1600]]) {
+  const project=doc('large','Large','unused');
+  project.sections=Array.from({length:count},(_,index)=>({id:`${project.id}:${index}`,heading:`Part ${index}`,text:'x'.repeat(size),url:`${project.url}#part-${index}`}));
+  const target=project.sections.at(-1);
+  await runContentAgent({question:'Explain this section',corpus:{...corpus,documents:[project]},pageContext:{documentId:project.id,sectionId:target.id},complete:async({messages})=>{
+   const reads=messages.filter(message=>message.role==='tool').map(message=>JSON.parse(message.content));
+   assert.equal(reads.length,1);assert.deepEqual(reads[0].sections.map(section=>section.id),[target.id]);
+   return {text:'This is the selected section.',sourceIds:[target.id]};
+  }});
  }
 });

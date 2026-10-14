@@ -41,6 +41,7 @@ export function initCompanion(document) {
     if(dialog?.open && JSON.stringify(headings)!==JSON.stringify(readingLookup))loadReadingPosition(headings);
     openingDraft.edit(input.value,currentOpeningContext());
     root.classList.toggle('has-draft',Boolean(input.value.trim()));
+    sendButton.disabled=busy || !input.value.trim();
     input.style.height='34px';
     input.style.height=`${Math.min(Math.max(34,input.scrollHeight),Math.max(58,Math.min(154,window.innerHeight*.25)))}px`;
     if(readingSection)showReadingPosition();
@@ -103,6 +104,7 @@ export function initCompanion(document) {
     const restore=returnToComposer && (focused===stopButton || focused===document.body);
     busy = value; status.textContent = text;
     root.querySelectorAll('button,textarea').forEach(button => { button.disabled = (value && button!==jump) || Boolean(button.closest('.is-incomplete')); });
+    sendButton.disabled=value || !input.value.trim();
     stopButton.hidden=!(value && activeController);stopButton.disabled=false;sendButton.hidden=!stopButton.hidden;
     if(value && returnToComposer && !stopButton.hidden) stopButton.focus({preventScroll:true});
     if(!value) {
@@ -245,7 +247,7 @@ export function initCompanion(document) {
     } finally {challenge.hidden=true;challenge.replaceChildren();activeController=null;setBusy(false);}
   }
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
-  input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();form.requestSubmit();}});
+  input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();if(!busy && input.value.trim())form.requestSubmit();}});
   root.querySelector('[data-opening]').addEventListener('click',()=>{
     if(opening==='dice')roll();else if(opening==='read')readPage();
     else render({kind:'story',question:openingCopy[language].story.action});

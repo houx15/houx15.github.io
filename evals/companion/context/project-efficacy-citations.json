@@ -1,0 +1,22 @@
+{
+  "turns": [
+    {
+      "question": "你为什么推荐它给我？这个页面能证明它改善了学习效果吗？两句话说明。",
+      "language": "zh-CN",
+      "pageContext": {
+        "documentId": "projects/mind-imprint/zh-CN",
+        "sectionAnchor": "section-来源"
+      }
+    }
+  ],
+  "history": [
+    {
+      "role": "user",
+      "content": "{\"question\": \"我对 AI 辅助学习感兴趣，推荐一个煜欣的作品，简短说说为什么。\", \"language\": \"zh-CN\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"text\": \"推荐「Mind Imprint · 思维印记」，这是一个整合阅读、写作、课程与研究工作的 AI 学习平台，并提供结构化思维工具。它直接把 AI 嵌入学习流程而非仅作问答，适合希望用 AI 辅助系统性学习的场景。\", \"textTruncated\": false, \"sourceIds\": [\"projects/mind-imprint/zh-CN:0\"], \"visuals\": []}"
+    }
+  ]
+}

@@ -23,7 +23,7 @@ export const contentToolDefinitions = [
   ['query_profile_events', 'Read approved biography chronology without displaying anything. Use this to look up or compare dates. Preserves overlapping and uncertain ranges.', {language:{enum:['en','zh-CN']}}, []],
   ['show_profile_timeline', 'Display selected biography events after reading them in this turn. Use when the visitor asks for a timeline or when chronology materially helps an overview. Do not use for a short date answer. Choose only relevant eventIds; original order, names and date qualifications are preserved. For a brief timeline introduction, provide caption to display one short connecting sentence and finish the turn immediately, without a second prose answer. With caption, call this tool ALONE after reading evidence and after completing every other requested deliverable. If the visitor also asks for a work or reading recommendation, first search/read its source and show_post_cards; project names in a diagram are not a recommendation card. The caption must be at most 160 characters; avoid repeating dates and institutions already visible in the timeline or inventing an interpretation. If the visitor asks a specific additional detail, answer it in the caption when brief; otherwise omit caption and continue normally.', {eventIds:{type:'array',items:{type:'string',enum:profileEventIds},maxItems:8},language:{enum:['en','zh-CN']},caption:{type:'string',maxLength:160}}, ['eventIds']],
   ['search_content', 'Search published documents; query is required. For a specific article or follow-up, pass documentId to search its individual sections (multiple passages may be returned). Search excerpts are navigation aids. includedReads contains full original sections for at most the top three matches, already read for this turn; cite those section IDs when they support the claim. Other matches require read_content. Matching passages are not an exhaustive survey and do not establish that a recommendation is unique.', { query: {type:'string',maxLength:400}, documentId:{type:'string'}, type:{enum:['notes','reports','projects']}, from:{type:'string'}, to:{type:'string'}, language:{enum:['en','zh-CN']}, offset:{type:'integer'}, limit:{type:'integer'} }, ['query']],
-  ['read_content', 'Read source text before making claims. When search_content returns a relevant sectionId, read that section directly, including on the first read. Only use exact sectionIds returned by a tool; never guess them. Omit sectionId only to discover sections or read the article opening, which returns the first three sections rather than the entire article. Continue with nextOffset when needed. Article sections are returned as ordered original-text fragments; fragments of up to 400 characters have quoteIds for exact reuse in diagrams.', {id:{type:'string'},sectionId:{type:'string'},offset:{type:'integer'}}, ['id']],
+  ['read_content', 'Read source text before making claims. When search_content returns a relevant sectionId, read that section directly, including on the first read. Only use exact sectionIds returned by a tool; never guess them. Omit sectionId only to discover sections or read the article opening, which returns the first three sections rather than the entire article. Continue with nextOffset when needed. linkedResources lists link labels and destinations present in that section; target contents have not been read and are not evidence. Article sections are returned as ordered original-text fragments; fragments of up to 400 characters have quoteIds for exact reuse in diagrams.', {id:{type:'string'},sectionId:{type:'string'},offset:{type:'integer'}}, ['id']],
   ['find_related_posts', 'Find related reading; pass id or query.', {id:{type:'string'},query:{type:'string'},language:{enum:['en','zh-CN']}}, []],
   ['query_timeline', 'Publication dates only, never employment or project duration.', {from:{type:'string'},to:{type:'string'},language:{enum:['en','zh-CN']}}, []],
   ['show_post_cards', 'Display reading recommendations as up to three cards. Use exact document ids returned by search_content or read_content, not titles, slugs or story-card IDs. Cards default to the current conversation language when a published translation exists; otherwise retain the selected document. Set language only when the visitor requests another language. The returned card IDs and URLs identify the displayed edition. Displaying a translated card does not read that edition or authorize its sections as evidence.', {ids:{type:'array',items:{type:'string'},maxItems:3},language:{enum:['en','zh-CN']}}, ['ids']],
@@ -74,14 +74,25 @@ export async function runContentAgent({ question, language = 'en', history = [],
     onEvent({type:'status',phase:'tool_completed',tool:'read_profile',callId});
   }
   if(pageContext?.sectionId) {
-    signal?.throwIfAborted();
-    const args={id:pageContext.documentId,sectionId:pageContext.sectionId},callId=`context_read_${++calls}`;
-    messages.push({role:'assistant',toolCalls:[{id:callId,name:'read_content',arguments:args}]});
-    onEvent({type:'status',phase:'tool_started',tool:'read_content',callId});
-    const output=tools.read_content(args);
-    for(const section of output.sections){passages.set(section.id,section.text);evidence.set(section.id,{id:section.id,label:`${output.title} · ${section.heading}`,url:section.url});}
-    messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(quoteFragments.present(output))});
-    onEvent({type:'status',phase:'tool_completed',tool:'read_content',callId});
+    const currentDocument=corpus.documents.find(doc=>doc.id===pageContext.documentId);
+    // Short pages often end in a bibliography. Read their bounded body as well,
+    // while retaining pageContext.sectionId as the visitor's reading position.
+    const compact=currentDocument?.sections.some(section=>section.id===pageContext.sectionId)
+      && currentDocument.sections.length<=6
+      && currentDocument.sections.reduce((size,section)=>size+section.text.length,0)<=6000;
+    const reads=compact
+      ?Array.from({length:Math.ceil(currentDocument.sections.length/3)},(_,index)=>({id:pageContext.documentId,offset:index*3}))
+      :[{id:pageContext.documentId,sectionId:pageContext.sectionId}];
+    for(const args of reads) {
+      signal?.throwIfAborted();
+      const callId=`context_read_${++calls}`;
+      messages.push({role:'assistant',toolCalls:[{id:callId,name:'read_content',arguments:args}]});
+      onEvent({type:'status',phase:'tool_started',tool:'read_content',callId});
+      const output=tools.read_content(args);
+      for(const section of output.sections){passages.set(section.id,section.text);evidence.set(section.id,{id:section.id,label:`${output.title} · ${section.heading}`,url:section.url});}
+      messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(quoteFragments.present(output))});
+      onEvent({type:'status',phase:'tool_completed',tool:'read_content',callId});
+    }
   }
   // Re-read a bounded set of the most recent sourced answer or diagram references. The model sees
   // fresh tool results rather than treating conversation memory as evidence.
