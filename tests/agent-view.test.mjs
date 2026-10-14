@@ -4,6 +4,7 @@ import { createAgentTurn } from '../src/assets/agent-view.js';
 
 class Element {
   constructor(tag){this.tag=tag;this.children=[];this.className='';this.textContent='';this.attributes={};this.classList={add:name=>{this.className+=' '+name;},remove:name=>{this.className=this.className.split(' ').filter(x=>x!==name).join(' ');},toggle:(name,value)=>{if(value)this.classList.add(name);else this.classList.remove(name);}};}
+  contains(node){return this===node || this.children.some(child=>child.contains(node));}
   get lastElementChild(){return this.children.at(-1) ?? null;}
   append(...nodes){for(const node of nodes){node.parent=this;this.children.push(node);}}
   replaceChildren(...nodes){this.children=[];this.append(...nodes);}
@@ -85,7 +86,7 @@ test('concept diagrams show an interpretation label, one expanded step, and cano
   assert.equal(log.querySelectorAll('a')[0].href,'/notes/test/#evidence');
   assert.ok(log.querySelectorAll('p').some(p=>p.textContent.includes('非作者原图')));
   assert.ok(log.querySelectorAll('p').some(p=>p.textContent==='<script>plain text</script>'));
-  assert.equal(log.querySelectorAll('blockquote').length,1);
+  assert.equal(log.querySelectorAll('blockquote').filter(node=>!node.hidden).length,1);
   assert.ok(log.querySelectorAll('p').some(p=>p.textContent==='<img src=x> stays literal in a quotation.'));
 });
 
@@ -199,5 +200,37 @@ test('connection phases share one progress label and cannot overwrite a complete
   turn.event({type:'answer_delta',text:'A partial answer'});assert.match(label.textContent,/正在回答|Writing/);
   turn.interrupt('Stopped for this test');
   turn.connectionPhase('verification');assert.equal(label.textContent,'Stopped for this test');
+ }
+});
+
+test('successful revisions update one stable target only after done and replay identically',()=>{
+ const visualId='concept-00000000-0000-0000-0000-000000000001',otherId='concept-00000000-0000-0000-0000-000000000002';
+ const source={id:'s',label:'Source',url:'/notes/test/'};
+ const flow={id:'first',type:'concept_flow',visualId,title:'Same title',interpretation:true,items:[{title:'One',description:'Will happen',source},{title:'Two',description:'Unchanged',source}]};
+ const revision={id:'edit',type:'concept_revision',visualId,title:'Same title',items:[{position:1,title:'One',previousDescription:'Will happen',description:'May happen',quote:'Possibly',source}]};
+ for(const restored of [false,true]) {
+  const log=new Element('div');
+  const original=createAgentTurn(document,{log,question:'Draw',restored});original.event({type:'block',block:flow});original.event({type:'done'});
+  const other=createAgentTurn(document,{log,question:'Another',restored});other.event({type:'block',block:{...flow,id:'other',visualId:otherId}});other.event({type:'done'});
+  const turn=createAgentTurn(document,{log,question:'Correct',restored});turn.event({type:'block',block:revision});
+  assert.ok(original.row.querySelectorAll('p').some(node=>node.textContent==='Will happen'));
+  turn.event({type:'done'});
+  assert.ok(original.row.querySelectorAll('p').some(node=>node.textContent==='May happen'));
+  assert.ok(other.row.querySelectorAll('p').some(node=>node.textContent==='Will happen'));
+  assert.ok(turn.row.querySelectorAll('summary').some(node=>node.textContent.includes('updated in the original')));
+ }
+});
+
+test('failed, stale or absent diagram revisions never claim to update an original',()=>{
+ const visualId='concept-00000000-0000-0000-0000-000000000001',source={id:'s',label:'Source',url:'/notes/test/'};
+ for(const scenario of ['failed','absent','stale']) {
+  const log=new Element('div'),original=createAgentTurn(document,{log,question:'Draw'});
+  original.event({type:'block',block:{id:'f',type:'concept_flow',visualId,title:'Flow',interpretation:true,items:[{title:'One',description:'Will happen',source},{title:'Two',description:'Unchanged',source}]}});original.event({type:'done'});
+  if(scenario==='absent')log.replaceChildren();
+  const turn=createAgentTurn(document,{log,question:'Correct'});
+  turn.event({type:'block',block:{id:'r',type:'concept_revision',visualId,title:'Flow',items:[{position:1,title:'One',previousDescription:scenario==='stale'?'Wrong previous':'Will happen',description:'May happen',source}]}});
+  if(scenario==='failed')turn.interrupt();else turn.event({type:'done'});
+  assert.ok(original.row.querySelectorAll('p').some(node=>node.textContent==='Will happen'));
+  assert.ok(!turn.row.querySelectorAll('summary').some(node=>node.textContent.includes('updated in the original')));
  }
 });

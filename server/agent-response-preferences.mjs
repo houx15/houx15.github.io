@@ -5,4 +5,4 @@ export function requestsYearOnly(question) {
     /(?:^|[.!?;]\s*)(?:please\s+)?(?:answer\s+)?only\s+(?:the\s+)?year[.!]?\s*$/iu.test(question.trim());
 }
 
-export const presentationTools = new Set(['show_post_cards','show_visualization','show_reading_map','show_concept_flow','suggest_questions','show_profile_timeline']);
+export const presentationTools = new Set(['show_post_cards','show_visualization','show_reading_map','show_concept_flow','revise_concept_step','suggest_questions','show_profile_timeline']);

@@ -211,7 +211,7 @@ export function initCompanion(document) {
         await liveClient.openSession(token,controller.signal);challenge.hidden=true;
       }
       const openingContext=openingContextFor(history,{article:root.dataset.article==='true'});
-      await liveClient.ask({question,language,supportsConceptFlow:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
+      await liveClient.ask({question,language,supportsConceptFlow:true,supportsConceptRevisions:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
         {signal:controller.signal,onEvent:event=>{
           presentAgentEvent(log,turn,event);
           if(['source','block','answer','done'].includes(event.type))savedEvents.push(event);

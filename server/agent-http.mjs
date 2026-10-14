@@ -43,8 +43,9 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
         await verifyChallenge(input.challengeToken,signal);signal.throwIfAborted();
         json(201,await guard.issue());return;
       }
-      if(!object(input,['question','language','pageContext','openingContext','supportsConceptFlow']) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language)) invalid();
+      if(!object(input,['question','language','pageContext','openingContext','supportsConceptFlow','supportsConceptRevisions']) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language)) invalid();
       let openingContext;try {openingContext=resolveOpeningContext(input.openingContext,input.language);}catch {invalid();}
+      if(input.supportsConceptRevisions!==undefined && typeof input.supportsConceptRevisions!=='boolean') invalid();
       if(input.supportsConceptFlow!==undefined && typeof input.supportsConceptFlow!=='boolean') invalid();
       try {input.pageContext=validatePageContext(input.pageContext,corpus);}catch {invalid();}
       // Preserve the page that 'this note' referred to, not just the question text.

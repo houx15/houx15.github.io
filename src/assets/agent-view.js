@@ -1,5 +1,7 @@
 import { validateAgentBlock } from './agent-stream.js';
 
+const conceptViews=new WeakMap();
+
 // Use only local, reviewed copy; never expose raw provider errors to visitors.
 export function agentFailureMessage(code, language = 'en', {partial = false, resetsAt} = {}) {
   const zh = language === 'zh-CN';
@@ -36,30 +38,39 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
   const body=make('div','','comic-live-body');log.append(row);
   let bodyShown=false;
   const showBody=()=>{if(bodyShown)return false;bodyShown=true;row.append(body);return true;};
+  let views=conceptViews.get(log);if(!views){views=new Map();conceptViews.set(log,views);}
+  for(const [id,view] of views)if(view && !log.contains(view.container))views.delete(id);
+  const newViews=new Map(),pendingRevisions=new Map();
   const sources=new Map(),blocks=new Map(),statuses=[];let finished=false, failedTurn=false, questionBlock;
-  const toolLabels={recall_conversation:zh?'回顾前面的对话':'Revisiting an earlier exchange',search_content:zh?'在笔记中找线索':'Finding relevant notes',read_content:zh?'正在读原文':'Reading the source',read_profile:zh?'核对她的公开经历':'Checking her public biography',query_profile_events:zh?'核对经历与时间':'Checking experience and dates',show_profile_timeline:zh?'整理经历的时间线':'Tracing her story',show_post_cards:zh?'挑选接下来值得读的内容':'Choosing a next read',show_concept_flow:zh?'画出理解这件事的步骤':'Drawing the explanation',show_visualization:zh?'整理图中的信息':'Arranging the visual',find_related_posts:zh?'寻找相关内容':'Finding related reading',suggest_questions:zh?'准备下一步问题':'Preparing a follow-up'};
+  const toolLabels={revise_concept_step:zh?'核对并修订这一步':'Checking and correcting this step',recall_conversation:zh?'回顾前面的对话':'Revisiting an earlier exchange',search_content:zh?'在笔记中找线索':'Finding relevant notes',read_content:zh?'正在读原文':'Reading the source',read_profile:zh?'核对她的公开经历':'Checking her public biography',query_profile_events:zh?'核对经历与时间':'Checking experience and dates',show_profile_timeline:zh?'整理经历的时间线':'Tracing her story',show_post_cards:zh?'挑选接下来值得读的内容':'Choosing a next read',show_concept_flow:zh?'画出理解这件事的步骤':'Drawing the explanation',show_visualization:zh?'整理图中的信息':'Arranging the visual',find_related_posts:zh?'寻找相关内容':'Finding related reading',suggest_questions:zh?'准备下一步问题':'Preparing a follow-up'};
   function renderBlock(block) {
     validateAgentBlock(block);
     let container=blocks.get(block.id);
     if(!container){container=make('section','','comic-agent-block');blocks.set(block.id,container);row.append(container);}
     container.replaceChildren();
+    if(block.type==='concept_revision') {
+      const item=block.items[0];
+      const record=make('details','','comic-evidence');
+      const notice=make('summary',zh?'修订待完成':'Revision pending');
+      record.append(notice,make('p',`${block.title} · ${zh?'第 '+item.position+' 步':'Step '+item.position}`),make('p',item.description));container.append(record);
+      pendingRevisions.set(block.id,{block,notice});return;
+    }
     if(block.type==='concept_flow') {
       container.classList.add('comic-concept-flow');
       container.append(make('h3',block.title));
       container.append(make('p',zh?'AI 根据原文整理的解释示意，非作者原图。逐步展开查看依据。':'An AI interpretation of the sources, not an author’s diagram. Unfold a step to check its basis.','comic-visual-note'));
-      const list=make('ol');
+      const list=make('ol'),steps=[];
       for(const [index,item] of block.items.entries()) {
         const step=make('li'),details=make('details');details.setAttribute('name',`concept-${block.id}`);if(index===0)details.open=true;
         const summary=make('summary');summary.append(make('span',String(index+1).padStart(2,'0'),'comic-concept-number'),make('span',item.title));
-        details.append(summary,make('p',item.description));
-        if(item.quote) {
-          const evidence=make('blockquote','','comic-concept-quote');
-          evidence.append(make('span',zh?'原文摘录':'SOURCE EXCERPT','comic-card-number'),make('p',item.quote));
-          details.append(evidence);
-        }
+        const description=make('p',item.description),evidence=make('blockquote','','comic-concept-quote'),quote=make('p',item.quote || '');
+        evidence.hidden=!item.quote;
+        evidence.append(make('span',zh?'原文摘录':'SOURCE EXCERPT','comic-card-number'),quote);
+        details.append(summary,description,evidence);
+        steps.push({description,quote,evidence,sourceId:item.source.id,details});
         const source=make('a',zh?'核对这一步的原文 ↗':'Check this step in the source ↗');source.href=item.source.url;details.append(source);step.append(details);list.append(step);
       }
-      container.append(list);return;
+      container.append(list);if(block.visualId)newViews.set(block.visualId,{container,steps});return;
     }
     if(block.type==='reading_map') {
       container.classList.add('comic-reading-map');
@@ -114,7 +125,16 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
       const link=make('a',zh?'先读学习笔记 ↗':'Explore the learning notes ↗','comic-recovery-link');
       link.href=zh?'/zh/notes/':'/notes/';progress.append(link);
     }
+    for(const {block,notice} of pendingRevisions.values()) {
+      const item=block.items[0],view=views.get(block.visualId),step=view?.steps[item.position-1];
+      if(!failed && view && log.contains(view.container) && step && step.sourceId===item.source.id && step.description.textContent===item.previousDescription) {
+        step.description.textContent=item.description;step.quote.textContent=item.quote || '';step.evidence.hidden=!item.quote;
+        if(!step.revised){step.revised=make('span',zh?'已修订':'Revised','comic-visual-note');step.details.append(step.revised);}
+        notice.textContent=zh?'已更新原图中的这一步。':'This step has been updated in the original diagram.';
+      } else notice.textContent=failed?(zh?'回答未完成，原图未修改。':'The answer did not complete; the original diagram was not changed.'):(zh?'此处保留更正说明；当前无法更新原图。':'The correction is recorded here; the original diagram could not be updated.');
+    }
     if(!failed) {
+      for(const [id,view] of newViews)views.set(id,views.has(id)?null:view);
       progress.removeAttribute('role');
       if(restored){progress.remove();}
       else if(!statuses.length){progress.remove();}

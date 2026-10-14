@@ -57,7 +57,7 @@ try {
     await guard.beginDevelopment(requestId);
     try {
       const paid=createPaidCompletion({guard,requestId,complete,signal,beforeCall:()=>{calls++;currentModelCalls=calls;stream?.event({type:'status',phase:'model_started'});}});
-      const answer=await runContentAgent({...input,supportsConceptFlow:true,corpus,history:exchanges.slice(-6),earlierHistory:exchanges.slice(0,-6),complete:paid,signal,onEvent:event=>{
+      const answer=await runContentAgent({...input,supportsConceptFlow:true,supportsConceptRevisions:true,corpus,history:exchanges.slice(-6),earlierHistory:exchanges.slice(0,-6),complete:paid,signal,onEvent:event=>{
         if(stream && ['block','answer_delta'].includes(event.type))currentPartial=true;
         if(stream)stream.event(event);
         else if(event.type==='status')process.stdout.write(JSON.stringify({turn:index+1,...event})+'\n');

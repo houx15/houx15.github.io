@@ -3,10 +3,14 @@ import {isVisualId} from '../src/assets/agent-visual-id.js';
 // Keep the existing 4000-character history limit and never store arbitrary blocks.
 export function rememberAgentAnswer(answer) {
   const concepts=(answer.blocks || []).filter(block=>block.type==='concept_flow');
+  const revisions=(answer.blocks || []).filter(block=>block.type==='concept_revision').flatMap(block=>block.items.map(item=>({visualId:block.visualId,position:item.position,previousDescription:item.previousDescription,description:item.description,sourceId:item.source.id})));
   const sourceIds=[...new Set((answer.sources || []).map(source=>source.id))].filter(id=>typeof id==='string' && id.length<=400).slice(0,3);
-  if(!concepts.length && !sourceIds.length && answer.text.length<=4000)return answer.text;
+  if(!revisions.length && !concepts.length && !sourceIds.length && answer.text.length<=4000)return answer.text;
   const prefix=answer.text.slice(0,1000).replace(/[\uD800-\uDBFF]$/u,'');
   const memory={text:prefix,textTruncated:prefix.length<answer.text.length,sourceIds:[],visuals:[],omittedVisuals:0};
+  // Reserve the accepted edit before prose: losing it would resurrect an old claim.
+  if(revisions.length)memory.revisions=revisions;
+  if(JSON.stringify({...memory,text:''}).length>3900)throw new Error('Revision memory overflow');
   // JSON escaping can expand a character to six bytes of history text. Bound the
   // serialized record itself, including its explicit indication of missing prose.
   while(JSON.stringify(memory).length>3900) {
