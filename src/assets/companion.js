@@ -238,7 +238,10 @@ export function initCompanion(document) {
     } catch(error) {
       const message=agentFailureMessage(controller.signal.aborted?'stopped':error.message,language,{partial:savedEvents.length>0,resetsAt:error.resetsAt});
       turn.interrupt(message,{code:controller.signal.aborted?'stopped':error.message});
-      if(!controller.signal.aborted) {input.value=question;draftContext.restore(readingSnapshot.headings);openingDraft.edit('');openingDraft.edit(question,openingContext);updateComposer();}
+      // Stopping is also an opportunity to revise the question. Preserve its
+      // source context, just as for transport failures; never auto-resubmit it.
+      input.value=question;draftContext.restore(readingSnapshot.headings);
+      openingDraft.edit('');openingDraft.edit(question,openingContext);updateComposer();
     } finally {challenge.hidden=true;challenge.replaceChildren();activeController=null;setBusy(false);}
   }
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
