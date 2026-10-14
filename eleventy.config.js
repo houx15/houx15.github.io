@@ -6,9 +6,13 @@ import { markdown } from './lib/markdown.mjs';
 import { loadContent, copyPublishedAssets } from './lib/content.mjs';
 import { buildCorpus } from './lib/agent-corpus.mjs';
 
-const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js', 'knowledge-zh.js', 'ui.js', 'navigation.js', 'biography.js', 'journey.js', 'notes.js', 'agent-tools.js', 'content-explorer.js', 'companion.js', 'companion-reset.js', 'companion-stories.js', 'agent-stream.js', 'agent-view.js', 'agent-history.js', 'visitor-check.js'];
+async function assistantModules() {
+  return (await fs.readdir('src/assets', {withFileTypes:true}))
+    .filter(entry=>entry.isFile() && entry.name.endsWith('.js'))
+    .map(entry=>entry.name).sort();
+}
 async function assistantVersion() {
-  const sources = await Promise.all(assistantModules.map(name => fs.readFile(`src/assets/${name}`, 'utf8')));
+  const sources = await Promise.all((await assistantModules()).map(async name => name+'\0'+await fs.readFile(`src/assets/${name}`, 'utf8')));
   return createHash('sha256').update(sources.join('\0')).digest('hex').slice(0, 12);
 }
 
@@ -76,10 +80,11 @@ export default function (config) {
     const corpus = await buildCorpus();
     await fs.writeFile(path.join(dir.output, 'assets', 'agent-corpus.json'), JSON.stringify(corpus));
     const version = await assistantVersion();
-    for (const name of assistantModules) {
+    const modules = await assistantModules();
+    for (const name of modules) {
       const source = await fs.readFile(`src/assets/${name}`, 'utf8');
-      const output = source.replace(/from (['"])\.\/([\w-]+\.js)\1/g, (match, quote, dependency) =>
-        assistantModules.includes(dependency) ? `from ${quote}./${dependency}?v=${version}${quote}` : match);
+      const output = source.replace(/from (['"])\.\/([\w-]+\.js)(?:\?v=[\w.-]+)?\1/g, (match, quote, dependency) =>
+        modules.includes(dependency) ? `from ${quote}./${dependency}?v=${version}${quote}` : match);
       await fs.writeFile(path.join(dir.output, 'assets', name), output);
     }
   });
