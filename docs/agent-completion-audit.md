@@ -742,3 +742,11 @@ Private Chinese timeline/follow-up replay used two calls then one. The caption n
 A separate English test explicitly requests only the bachelor completion year, followed by clarification of 2015. It returned that the completion year is not provided (two calls, no visual), then correctly separated documented admission from both unknown completion years (one call, no visual). Thus this observed unknown-date case did not invent a number to satisfy the year-only instruction. Fixture: evals/companion/education-dates.json; logs: /tmp/education-dates-en.log and /tmp/education-dates-en-errors.log. These are individual model samples, not proof of general factual fidelity.
 
 Full 244 tests, build and site checks passed. The isolated server stage was removed after testing; the running production service was not modified.
+
+## One visible progress location (2026-10-13)
+
+A fresh 390×600 local browser review captured opening, dice story, live-request waiting and failure recovery. It found two simultaneous progress messages: connecting within the answer and verification in the footer. The client now updates verification/connection in the turn's existing progress label; model/tool/writing events continue in that same location. The footer retains its stable AI notice. Local phases accept only reviewed labels, cannot overwrite a finished turn, and are not added to the source-checking history or wire protocol.
+
+Before/after screenshots and numbered findings are in .verification/companion-flow/report.md. The request failed before a completed answer; the exact cause was not established in this audit. The original question and input focus were restored. No CAPTCHA was solved, no public protection changed, and no successful paid-browser flow is claimed. An initial recovery screenshot affected by the dev-server reload was rejected and recaptured after the build. Physical mobile keyboard and screen-reader behavior remain unverified.
+
+Full 245 tests, build and site checks passed. Tests exercise local phase → tool status → streamed writing → failure and ensure a late local phase cannot erase the error. Production remains unchanged.

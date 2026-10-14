@@ -187,3 +187,17 @@ test('long timelines reveal an ordered preview and keep remaining entries in one
   if(more){assert.equal(more.open,undefined);assert.equal(more.querySelectorAll('li').length,count-2);assert.equal(more.querySelectorAll('ol')[0].attributes.start,'3');}
  }
 });
+
+test('connection phases share one progress label and cannot overwrite a completed failure',()=>{
+ for(const language of ['en','zh-CN']) {
+  const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Hello',language});
+  const label=log.querySelectorAll('span')[0];
+  turn.connectionPhase('verification');assert.match(label.textContent,/无需注册|No account/);
+  turn.connectionPhase('arbitrary provider text');assert.match(label.textContent,/无需注册|No account/);
+  turn.connectionPhase('connecting');assert.match(label.textContent,/正在连接|Connecting/);
+  turn.event({type:'status',phase:'tool_started',tool:'read_profile'});assert.match(label.textContent,/公开经历|public biography/);
+  turn.event({type:'answer_delta',text:'A partial answer'});assert.match(label.textContent,/正在回答|Writing/);
+  turn.interrupt('Stopped for this test');
+  turn.connectionPhase('verification');assert.equal(label.textContent,'Stopped for this test');
+ }
+});

@@ -190,7 +190,7 @@ export function initCompanion(document) {
   }
   async function askLive(question) {
     activeController=new AbortController();const controller=activeController;
-    setBusy(true,zh?'正在连接…':'Connecting…');
+    setBusy(true);
     root.classList.add('has-conversation');
     log.querySelectorAll('button').forEach(button=>button.remove());
     const turn=createAgentTurn(document,{log,question,language,onQuestion:ask,retry:lastLiveTurn});
@@ -204,16 +204,16 @@ export function initCompanion(document) {
       const pageContext=root.dataset.documentId?{documentId:root.dataset.documentId,...(readingSection?{sectionAnchor:readingSection.anchor}:{})}:undefined;
       if(!liveClient.hasSession()) {
         if(restorationNotice)restorationNotice.textContent=restorationCopy(false);
-        status.textContent=zh?'确认访客身份，无需注册或登录。':'Checking the visitor session. No account or login needed.';
+        turn.connectionPhase('verification');
         challenge.hidden=false;
         const token=await verifyVisitor(document,challenge,turnstileSiteKey,controller.signal);
+        turn.connectionPhase('connecting');
         await liveClient.openSession(token,controller.signal);challenge.hidden=true;
       }
       const openingContext=openingContextFor(history,{article:root.dataset.article==='true'});
       await liveClient.ask({question,language,supportsConceptFlow:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
         {signal:controller.signal,onEvent:event=>{
           presentAgentEvent(log,turn,event);
-          if(event.type==='status')status.textContent=zh?'正在查阅资料并组织回答…':'Checking sources and preparing an answer…';
           if(['source','block','answer','done'].includes(event.type))savedEvents.push(event);
         }});
       const saved=validateSavedTurn({kind:'agent',question,events:savedEvents});

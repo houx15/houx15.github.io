@@ -129,6 +129,12 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     row,
     get question() {return question;},
     get canReplace() {return finished && failedTurn && !body.children.length && !blocks.size;},
+    connectionPhase(phase) {
+      if(finished)return;
+      const labels={verification:zh?'确认访客身份，无需注册或登录。':'Checking the visitor session. No account or login needed.',connecting:zh?'正在连接…':'Connecting…'};
+      if(!Object.hasOwn(labels,phase))return;
+      progressText.textContent=labels[phase];
+    },
     event(event) {
       if(finished)return;
       if(event.type==='status') {
