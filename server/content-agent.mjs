@@ -1,3 +1,4 @@
+import {modelHistory} from './agent-model-history.mjs';
 import {createQuoteFragments} from './agent-quote-fragments.mjs';
 import {conversationReasons,conversationReply} from './agent-conversation-reply.mjs';
 import { validatePageContext } from './agent-page-context.mjs';
@@ -48,7 +49,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const tools = {...createContentTools(corpus),...createProfileTools(),recall_conversation:args=>recall.read(args)}, evidence = new Map(), passages = new Map(), blocks = [];
   const availableTools=contentToolDefinitions.filter(tool=>(supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || tool.name!=='recall_conversation'));
   const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
-  const messages = [{role:'system',content:instructions}, ...(earlierHistory.length?[{role:'user',content:JSON.stringify(recall.index)}]:[]), ...history, {role:'user',content:JSON.stringify({question,language,pageContext,openingContext:opening})}];
+  const messages = [{role:'system',content:instructions}, ...(earlierHistory.length?[{role:'user',content:JSON.stringify(recall.index)}]:[]), ...modelHistory(history), {role:'user',content:JSON.stringify({question,language,pageContext,openingContext:opening})}];
   let calls = 0, outputLimitRepairs = 0, conversationRepairs = 0, searched = false;
   if(opening?.type==='biography_event' && !pageContext) {
     const args={eventId:opening.eventId,language},callId=`opening_read_${++calls}`;

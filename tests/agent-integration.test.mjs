@@ -36,7 +36,10 @@ test('browser client restores a session after navigation and preserves server-ow
   await client.ask({question:'How does the previous note relate to this one?',language:'en',supportsConceptFlow:true,pageContext:{documentId:'notes/attention/en'}});
   assert.ok(seen[2].messages.some(message=>message.role==='assistant' && JSON.parse(message.content || '{}').text==='Keys and values are cached.'));
   const userTurns=seen[2].messages.filter(message=>message.role==='user').map(message=>JSON.parse(message.content));
-  assert.deepEqual(userTurns,[
+  assert.equal(userTurns.length,3);
+  assert.equal(userTurns[1].type,'previous_display_metadata');
+  assert.equal(userTurns[1].textTruncated,false);
+  assert.deepEqual(userTurns.filter(turn=>turn.type!=='previous_display_metadata'),[
     {question:'Explain this note',language:'en',pageContext:{documentId:'notes/cache/en'}},
     {question:'How does the previous note relate to this one?',language:'en',pageContext:{documentId:'notes/attention/en'}}
   ]);
@@ -72,7 +75,10 @@ test('cross-page follow-up keeps the actual concept step order in server-owned h
    if(seen.length===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{id:'profile'}},{id:'draw',name:'show_concept_flow',arguments:{title:'Two aspects',labels:['First aspect','Second aspect'],descriptions:['First interpretation','Second interpretation'],sourceIds:['profile:profile','profile:profile']}}]};
    if(seen.length===2)return {text:'Two aspects are shown.',sourceIds:['profile:profile']};
    if(seen.length===3){
-     const prior=JSON.parse(args.messages.find(message=>message.role==='assistant').content);
+     const prior=args.messages.filter(message=>message.role==='user').map(message=>JSON.parse(message.content)).find(record=>record.type==='previous_display_metadata');
+     const answer=JSON.parse(args.messages.find(message=>message.role==='assistant').content);
+     assert.deepEqual(Object.keys(answer),['sourceIds','text']);
+     assert.equal(answer.text,'Two aspects are shown.');
      assert.equal(prior.visuals[0].items[1].title,'Second aspect');assert.equal(prior.visuals[0].items[1].position,2);
      assert.equal(prior.visuals[0].items[1].sourceId,'profile:profile');
      return {toolCalls:[{id:'reread',name:'read_profile',arguments:{id:'profile'}}]};

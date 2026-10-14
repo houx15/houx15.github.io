@@ -69,3 +69,28 @@ test('JSON escape expansion cannot overflow the history envelope',()=>{
  assert.ok(saved.length<=4000);const memory=JSON.parse(saved);
  assert.equal(memory.textTruncated,true);assert.ok(text.startsWith(memory.text));
 });
+
+
+test('model history separates display metadata from final-answer examples without losing recall',async()=>{
+ const {modelHistory}=await import('../server/agent-model-history.mjs');
+ const saved=rememberAgentAnswer({text:'A prior answer.',sources:[{id:'doc:2'}],blocks:[flow]});
+ const history=[{role:'user',content:'Explain this.'},{role:'assistant',content:saved}];
+ const original=structuredClone(history),wire=modelHistory(history);
+ assert.deepEqual(history,original);
+ assert.equal(wire.length,3);assert.equal(wire[1].role,'user');assert.equal(wire[2].role,'assistant');
+ const metadata=JSON.parse(wire[1].content),answer=JSON.parse(wire[2].content),memory=JSON.parse(saved);
+ assert.deepEqual(Object.keys(answer),['sourceIds','text']);
+ assert.deepEqual(answer,{sourceIds:memory.sourceIds,text:memory.text});
+ assert.deepEqual(metadata.visuals,memory.visuals);
+ assert.equal(metadata.textTruncated,memory.textTruncated);
+ assert.equal(metadata.omittedVisuals,memory.omittedVisuals);
+ assert.equal(metadata.type,'previous_display_metadata');
+ assert.ok(!wire.some(message=>message.role==='system'));
+});
+
+test('model history preserves legacy prose and unrecognized records as untrusted assistant content',async()=>{
+ const {modelHistory}=await import('../server/agent-model-history.mjs');
+ for(const content of ['Plain answer.','null','[]','{"text":"x","sourceIds":[]}', '{"text":"x","sourceIds":[],"visuals":[],"unexpected":"leave intact"}']) {
+  const history=[{role:'assistant',content}];assert.deepEqual(modelHistory(history),history);
+ }
+});
