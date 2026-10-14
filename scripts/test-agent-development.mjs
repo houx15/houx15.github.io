@@ -44,8 +44,8 @@ try {
     const modelCall=++attempt;
     try {return await providerComplete(args);}
     catch(error) {
-      const {category,detail}=agentFailureRecord({error});
-      process.stderr.write(JSON.stringify({event:'development_model_failure',modelCall,category,...(detail?{detail}:{})})+'\n');
+      const {category,detail,providerPhase}=agentFailureRecord({error});
+      process.stderr.write(JSON.stringify({event:'development_model_failure',modelCall,category,...(detail?{detail}:{}),...(providerPhase?{providerPhase}:{})})+'\n');
       throw error;
     }
   };

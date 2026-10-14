@@ -38,12 +38,25 @@ export function createModelAgent({apiKey,model,provider='deepseek',baseURL,fetch
     }
     wire[0].content+=` Answer in ${language}. Final response MUST be a JSON object with exactly sourceIds FIRST and text SECOND, in that order: {"sourceIds":["id"],"text":"answer"}. JSON is required. A request such as "only the dates" or "just the years" constrains the text value, never this JSON envelope. Never return a bare number, string, array, or repeated sequence; put the brief answer inside text.`;
     const body={model,messages:wire,...(jsonOutput?{response_format:{type:'json_object'}}:{}),...(!jsonActions && tools.length?{tools:tools.map(t=>({type:'function',function:t}))}:{}),max_tokens:MODEL_OUTPUT_TOKENS,...(provider==='deepseek'?{reasoning_effort:'none'}:/^qwen/i.test(model)?{enable_thinking:false}:{}),stream:true,stream_options:{include_usage:true}};
-    let callbackError;
+    const providerSignal=AbortSignal.any([signal,AbortSignal.timeout(MODEL_CALL_TIMEOUT_MS)]);
+    let callbackError,providerPhase='request_headers';
     try {
-      const response=await fetchImpl(endpoint,{method:'POST',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(MODEL_CALL_TIMEOUT_MS)]),headers:{'Content-Type':'application/json',Authorization:`Bearer ${apiKey}`},body:JSON.stringify(body)});
+      const response=await fetchImpl(endpoint,{method:'POST',redirect:'error',signal:providerSignal,headers:{'Content-Type':'application/json',Authorization:`Bearer ${apiKey}`},body:JSON.stringify(body)});
+      providerPhase='response_stream';
       if(!response.ok){await response.body?.cancel();throw new AgentError(502,'provider_unavailable');}
-      return await readProviderStream(response,{signal,allowJsonTools:jsonActions && tools.length>0,requireJsonObject:jsonActions,onText:onText?((...args)=>{try {return onText(...args);}catch(error){callbackError=error;throw error;}}):undefined});
-    } catch(error) {if(callbackError && error===callbackError)throw error;if(signal.aborted) throw signal.reason;const failure=new AgentError(502,error instanceof AgentError?error.code:'invalid_model_response');if(!(error instanceof AgentError)){failure.diagnosticCategory=providerFailureCategory(error);const detail=providerFailureDetail(error);if(detail)failure.diagnosticDetail=detail;}throw failure;}
+      return await readProviderStream(response,{signal:providerSignal,allowJsonTools:jsonActions && tools.length>0,requireJsonObject:jsonActions,onText:onText?((...args)=>{try {return onText(...args);}catch(error){callbackError=error;throw error;}}):undefined});
+    } catch(error) {
+      if(callbackError && error===callbackError)throw error;
+      if(signal.aborted)throw signal.reason;
+      const cause=providerSignal.aborted?providerSignal.reason:error;
+      const failure=new AgentError(502,cause instanceof AgentError?cause.code:'invalid_model_response');
+      failure.diagnosticPhase=providerPhase;
+      if(!(cause instanceof AgentError)) {
+        failure.diagnosticCategory=providerFailureCategory(cause);
+        const detail=providerFailureDetail(cause);if(detail)failure.diagnosticDetail=detail;
+      }
+      throw failure;
+    }
   };
 }
 

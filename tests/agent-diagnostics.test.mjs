@@ -189,3 +189,36 @@ test('JSON parse diagnostics identify the protocol layer without retaining malfo
  assert.equal(agentFailureRecord({error:{diagnosticCategory:'json_parse',diagnosticDetail:secret}}).detail,undefined);
  assert.equal(agentFailureRecord({error:{diagnosticCategory:'timeout',diagnosticDetail:'final_answer'}}).detail,undefined);
 });
+
+test('provider phases separate header failures from body failures with fixed metadata',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ for(const phase of ['request_headers','response_stream']) {
+  const complete=createModelAgent({apiKey:'PRIVATE-key',model:'test',fetchImpl:async()=>{
+   if(phase==='request_headers')throw new TypeError('PRIVATE-error');
+   return new Response(new ReadableStream({start(controller){controller.error(new TypeError('PRIVATE-body'));}}),{headers:{'Content-Type':'text/event-stream'}});
+  }});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
+   const record=agentFailureRecord({error});assert.equal(record.providerPhase,phase);assert.equal(record.category,'provider_transport');
+   assert.ok(!JSON.stringify(record).includes('PRIVATE'));return true;
+  });
+ }
+ assert.equal(agentFailureRecord({error:{diagnosticPhase:'PRIVATE-arbitrary'}}).providerPhase,undefined);
+});
+
+test('provider deadline survives a generic stream abort while caller cancellation keeps identity',async t=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ for(const callerAbort of [false,true]) {
+  const deadline=new AbortController(),caller=new AbortController();
+  t.mock.method(AbortSignal,'timeout',()=>deadline.signal);
+  const reason=new DOMException('PRIVATE-reason',callerAbort?'AbortError':'TimeoutError');
+  const complete=createModelAgent({apiKey:'PRIVATE-key',model:'test',fetchImpl:async()=>new Response(new ReadableStream({pull(controller){
+   (callerAbort?caller:deadline).abort(reason);controller.error(new TypeError('PRIVATE-generic-stream-error'));
+  }}),{headers:{'Content-Type':'text/event-stream'}})});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:caller.signal,language:'en'}),error=>{
+   if(callerAbort)assert.equal(error,reason);
+   else {const record=agentFailureRecord({error});assert.equal(record.category,'timeout');assert.equal(record.providerPhase,'response_stream');assert.ok(!JSON.stringify(record).includes('PRIVATE'));}
+   return true;
+  });
+  t.mock.restoreAll();
+ }
+});
