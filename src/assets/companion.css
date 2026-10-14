@@ -42,7 +42,7 @@
 .comic-hello {font:26px/1.5 var(--font-sans);margin:0 0 15px;}
 .comic-invitation {font-size:13px;color:#555;line-height:1.8;margin:0;}
 .comic-play {display:flex;justify-content:center;margin:8px 0 auto;padding-bottom:45px;flex-shrink:0;}
-.has-draft .comic-play,.has-draft [data-reading-action] {display:none;}
+.has-draft .comic-play,.has-draft [data-reading-action],.has-draft .comic-follow,.has-draft .comic-reroll {display:none;}
 .has-draft:not(.has-conversation) .comic-welcome {margin:auto 0;}
 .comic-dice-action {display:flex;gap:12px;align-items:center;border:1.3px solid #333;background:#fff;border-radius:6px 9px 7px 5px;padding:10px 17px;font-size:12px!important;}
 .comic-dice-action:hover {background:#f7f7f5;}

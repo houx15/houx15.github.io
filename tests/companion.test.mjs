@@ -29,3 +29,24 @@ test('only the latest authored opening supplies follow-up context',async()=>{
   assert.equal(openingContextFor([]),undefined);
   assert.equal(openingContextFor([{kind:'dice',id:'startup'}],{article:true}),undefined);
 });
+
+test('a typed story question preserves its original card even if current history changes',async()=>{
+ const {createOpeningDraftContext,openingContextFor}=await import('../src/assets/companion-stories.js');
+ const history=[{kind:'story',eventId:'tsinghua'}],draft=createOpeningDraftContext();
+ draft.edit('这段经历',openingContextFor(history));
+ const original=draft.snapshot();history[0].eventId='startup';
+ draft.edit('这段经历和现在的研究有什么联系？',openingContextFor(history));
+ assert.deepEqual(draft.snapshot(openingContextFor(history)),original);
+ const snapshot=draft.snapshot();snapshot.storyId='mutated';assert.deepEqual(draft.snapshot(),original);
+ draft.edit('');draft.edit('另一段经历',openingContextFor(history));
+ assert.deepEqual(draft.snapshot(),{storyId:'event:startup'});
+});
+
+test('a draft started without an opening does not acquire later context; retry restores its original context',async()=>{
+ const {createOpeningDraftContext}=await import('../src/assets/companion-stories.js'),draft=createOpeningDraftContext();
+ draft.edit('A question',undefined);assert.equal(draft.snapshot({storyId:'mind'}),undefined);
+ draft.edit('');draft.edit('This project',{storyId:'mind'});const submitted=draft.snapshot();
+ draft.edit('');draft.edit('This project',submitted);draft.edit('This project again',{storyId:'startup'});
+ assert.deepEqual(draft.snapshot(),{storyId:'mind'});
+ draft.edit('');assert.equal(draft.snapshot(),undefined);
+});

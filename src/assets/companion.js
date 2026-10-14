@@ -2,7 +2,7 @@ import {createBiographyChapter} from './biography-chapter.js';
 import {createDiceCard} from './dice-card.js';
 import {captureReadingSelection,selectionQuestion,createReadingDraftContext} from './reading-selection.js';
 import { captureReadingAnchor,restoreReadingAnchor,readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
-import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
+import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor, createOpeningDraftContext } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
 import { milestones } from './biography.js';
 import { createContentTools } from './agent-tools.js';
@@ -34,9 +34,11 @@ export function initCompanion(document) {
   const log = root.querySelector('[data-companion-log]'), status = root.querySelector('[data-companion-status]');
   followConversationResize(log);
   const form = root.querySelector('form'), input = form.querySelector('textarea');
-  const draftContext=createReadingDraftContext();
+  const draftContext=createReadingDraftContext(),openingDraft=createOpeningDraftContext();
+  const currentOpeningContext=()=>openingContextFor(history,{article:root.dataset.article==='true'});
   function updateComposer() {
     draftContext.edit(input.value);
+    openingDraft.edit(input.value,currentOpeningContext());
     root.classList.toggle('has-draft',Boolean(input.value.trim()));
     input.style.height='34px';
     input.style.height=`${Math.min(Math.max(34,input.scrollHeight),Math.max(58,Math.min(154,window.innerHeight*.25)))}px`;
@@ -44,6 +46,8 @@ export function initCompanion(document) {
   }
   input.addEventListener('input',updateComposer);
   window.addEventListener('resize',updateComposer);
+  // Back navigation may restore form text after module initialization.
+  window.addEventListener('pageshow',()=>window.requestAnimationFrame(updateComposer));
   const mascot = root.querySelector('[data-poke]'), hello = root.querySelector('[data-hello]');
   const dialog = document.querySelector('#companion-dialog'), launcher = document.querySelector('[data-companion-open]');
   const storageKey = `companion-opening-v1:${language}`;
@@ -177,10 +181,11 @@ export function initCompanion(document) {
   }
   async function ask(value) {
     const question=value.trim().slice(0,400);if(!question||busy)return;
+    const openingContext=question===input.value.trim()?openingDraft.snapshot(currentOpeningContext()):currentOpeningContext();
     input.value='';updateComposer();
     if(/^(掷骰子|roll(?: a die)?)$/i.test(question)){await roll();return;}
     if(/^(带我看看她的经历|看看她的经历|show me her story)[。.!?？]?$/i.test(question)){render({kind:'story',question});return;}
-    if(liveClient) { await askLive(question);return; }
+    if(liveClient) { await askLive(question,openingContext);return; }
     const answer=answerQuestion(question,language);
     if(answer.id !== 'empty') {
       render({kind:'text',question,text:answer.text,sources:answer.sources});
@@ -188,7 +193,7 @@ export function initCompanion(document) {
     }
     render({kind:'text',question,text:zh?'这个问题需要真正的 AI 对话，我现在还接不上。你可以先掷个骰子，或者让我带你看看她的经历；等模型接通，我们再展开聊。':'That needs a live conversation, which isn’t connected yet. For now, roll the die or explore her story; we can go further when the model is ready.'});
   }
-  async function askLive(question) {
+  async function askLive(question,openingContext) {
     activeController=new AbortController();const controller=activeController;
     setBusy(true);
     root.classList.add('has-conversation');
@@ -210,7 +215,6 @@ export function initCompanion(document) {
         turn.connectionPhase('connecting');
         await liveClient.openSession(token,controller.signal);challenge.hidden=true;
       }
-      const openingContext=openingContextFor(history,{article:root.dataset.article==='true'});
       await liveClient.ask({question,language,supportsConceptFlow:true,supportsConceptRevisions:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
         {signal:controller.signal,onEvent:event=>{
           presentAgentEvent(log,turn,event);
@@ -221,7 +225,7 @@ export function initCompanion(document) {
     } catch(error) {
       const message=agentFailureMessage(controller.signal.aborted?'stopped':error.message,language,{partial:savedEvents.length>0,resetsAt:error.resetsAt});
       turn.interrupt(message,{code:controller.signal.aborted?'stopped':error.message});
-      if(!controller.signal.aborted) {input.value=question;updateComposer();}
+      if(!controller.signal.aborted) {input.value=question;openingDraft.edit('');openingDraft.edit(question,openingContext);updateComposer();}
     } finally {challenge.hidden=true;challenge.replaceChildren();activeController=null;setBusy(false);}
   }
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
@@ -232,7 +236,7 @@ export function initCompanion(document) {
   });
   stopButton.addEventListener('click',()=>activeController?.abort());
   window.addEventListener('pagehide',()=>activeController?.abort());
-  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
+  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;openingDraft.edit('');updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
     // The reset button just disappeared. Keep keyboard navigation in this conversation.
     if(input.value.trim())input.focus({preventScroll:true});
     else {hello.setAttribute('tabindex','-1');hello.focus({preventScroll:true});}

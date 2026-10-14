@@ -63,3 +63,17 @@ export const openingCopy = {
     read:{prompt:'Let’s begin with the page you’re reading.',action:'Read this with me'}
   }
 };
+
+// Resolve “this experience” against the card visible when typing began.
+// A locked undefined value also matters: later cards cannot attach new context.
+export function createOpeningDraftContext() {
+  let locked=false,context;
+  const copy=value=>value?{...value}:undefined;
+  return {
+    edit(text,current) {
+      if(!text.trim()){locked=false;context=undefined;}
+      else if(!locked){locked=true;context=copy(current);}
+    },
+    snapshot(current) {return copy(locked?context:current);}
+  };
+}
