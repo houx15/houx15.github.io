@@ -64,5 +64,23 @@
     "claim": "缺少时序验证时，当前提交工具只做提示性处理：记录警告并打上未验证标记，而非硬性门槛阻断。",
     "sourceId": "reports/evaluation-and-information-access/zh-CN:3",
     "reviewCriterion": "Preserve the advisory behavior as a documented fact."
+  },
+  {
+    "id": "learnability-definition-control",
+    "claim": "要满足笔记中“可学习性”的定义，当前上下文需要提供作出示范行动所需的信息。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Preserve the conditional definition. Necessary conditions within a defined property are not automatically an unsupported operational mandate."
+  },
+  {
+    "id": "learnability-operational-mandate",
+    "claim": "所有成功轨迹都必须按这些维度逐条筛选，否则不能用于训练。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Identify the unsupported universal procedure and training prohibition. Definitions of quality dimensions do not establish this operational rule."
+  },
+  {
+    "id": "source-brief-ambiguous-requirement",
+    "claim": "数据质量要求可学习性：当前上下文必须提供作出示范行动所需的信息。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Distinguish the supported definition of learnability from a claim that the author imposed a universal training-data requirement. Do not reject the word must alone; make the definitional scope explicit."
   }
 ]

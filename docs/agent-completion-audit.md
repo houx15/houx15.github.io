@@ -632,3 +632,8 @@ The previous browser captures showed focus falling to the page when opening/rese
 ## Source-force classification candidate rejected (2026-10-13)
 
 A fresh baseline/candidate evaluation showed that adding required evidence-force fields to the diagram call does not establish faithful generation. The candidate mislabeled a possible risk as documented fact and still emitted categorical consequences and added screening requirements. Both variants used two calls per preloaded turn; the report warning-vs-hard-gate control was preserved. See evals/companion/README.md for the bounded observations. Candidate code stayed outside the accepted source tree and production; model-side grounding remains an open completion gate.
+
+
+## Separate evidence brief did not pass (2026-10-13)
+
+An isolated preloaded-reading prototype spent one extra paid completion on source interpretation before diagram generation (three total calls per turn within the existing six-call ceiling). Its brief identified the uncertain risk, but displayed labels/final prose still strengthened certainty, and normative scope remained ambiguous. A report control remained accurate. This candidate was not adopted; details and nuanced definition-versus-operational-rule review controls are in evals/companion/. No public service or quota was changed.
