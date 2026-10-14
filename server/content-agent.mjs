@@ -1,4 +1,4 @@
-import {attributionGuidance} from './agent-attribution-guidance.mjs';
+import {attributionInstructions} from './agent-attribution-guidance.mjs';
 import {createConversationQuoteCheck,conversationQuoteRepairGuidance} from './agent-conversation-quote.mjs';
 import {proseSentenceEnds} from './agent-prose-boundaries.mjs';
 import {checkProseClaims,proseRepairGuidance,repairSentenceRepeated,repairContinuation} from './agent-prose-check.mjs';
@@ -61,7 +61,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const availableTools=contentToolDefinitions.filter(tool=>(!yearOnly || !presentationTools.has(tool.name)) && (supportsConceptRevisions || tool.name!=='revise_concept_step') && (supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || history.length || tool.name!=='recall_conversation'));
   const instructions=contentInstructions+(supportsConceptRevisions?' When asked to correct a displayed concept step, use revise_concept_step after checking its original evidence; do not leave the old claim unchanged while saying it was edited.':' This client cannot edit existing diagrams. You may explain a correction in prose, but never claim the old diagram was updated.')+(supportsConceptFlow?'':' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.')+(yearOnly?' For THIS turn the visitor explicitly requests only the year. Read the relevant evidence, then answer the latest question with the supported year and sourceIds. Do not resume the previous question or display cards, suggestions or diagrams. If the year is unknown, briefly say it is unknown; never guess.':'');
   const messages = [{role:'system',content:instructions}, ...(earlierHistory.length?[{role:'user',content:JSON.stringify(recall.index)}]:[]), ...modelHistory(history), {role:'user',content:JSON.stringify({question,language,pageContext,openingContext:opening})}];
-  if(history.length || earlierHistory.length)messages[0].content+='\n\n'+attributionGuidance;
+  if(history.length || earlierHistory.length)messages[0].content+='\n\n'+attributionInstructions(history,earlierHistory);
   let visibleText='',visibleIds,proseRepairs=0,repairingProse=false;
   let calls = 0, outputLimitRepairs = 0, finalJsonRepairs = 0, conversationRepairs = 0, searched = false;
   if(opening?.type==='biography_event' && !pageContext) {
