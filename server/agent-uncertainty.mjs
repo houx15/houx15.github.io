@@ -9,6 +9,7 @@ export function findUncertaintyConflict(text,sourceText) {
   const source=sourceText.replace(/不可能|没有可能/gu,'');
   if(!possible.test(source))return null;
   for(const clause of text.split(/[，。！？；,;.!?\n]/u)) {
+    if(/(?:并未|没有|未曾|不能)(?:断言|证明|表明|说明|认定)[^但却仍]{0,64}(?:必然|必定|一定会|肯定会|总会)/u.test(clause))continue;
     if(prediction.test(clause) && !qualified.test(clause) && !/并非必然|不是必然|而非必然|而不是必然|不代表必然|不意味着必然|不必定|不会总是|\bnot always\b/iu.test(clause))return clause.trim();
   }
   return null;
