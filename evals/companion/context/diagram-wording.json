@@ -1,0 +1,18 @@
+{
+  "turns": [
+    {
+      "question": "第二步展开后的说明里，你具体写了哪句话？请先逐字引用，再对照原文核对其中没有依据的断言。不要再画图。",
+      "language": "zh-CN"
+    }
+  ],
+  "history": [
+    {
+      "role": "user",
+      "content": "{\"question\":\"请根据 MASS 笔记的 8.1 节，画一个两到三步的小图解释：为什么成功的轨迹也不能直接拿来训练？\",\"language\":\"zh-CN\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"text\":\"最终成功不等于每步正确，整条照搬会同时强化补救与坏习惯，需按数据质量维度筛选后再用于训练。\",\"textTruncated\":false,\"sourceIds\":[\"notes/mass-multi-agent-self-supervision/zh-CN:20\"],\"visuals\":[{\"type\":\"concept_flow\",\"title\":\"成功轨迹为何不能直接训练\",\"items\":[{\"position\":1,\"title\":\"轨迹包含混合行为\",\"sourceId\":\"notes/mass-multi-agent-self-supervision/zh-CN:20\",\"description\":\"一条成功轨迹可能同时包含正确分工、工作者遗漏约束与编排者偶然补救等多种行为。\"},{\"position\":2,\"title\":\"整条照搬强化坏习惯\",\"sourceId\":\"notes/mass-multi-agent-self-supervision/zh-CN:20\",\"description\":\"若将整条轨迹直接用于训练，模型可能同时学到有用的补救措施和前面的错误习惯。\"},{\"position\":3,\"title\":\"需按数据质量筛选\",\"sourceId\":\"notes/mass-multi-agent-self-supervision/zh-CN:20\",\"description\":\"因此需按正确性、真实性、可学习性、覆盖性与学习效用等维度筛选，而非仅看最终结果。\"}],\"omittedDescriptions\":0}],\"omittedVisuals\":0}"
+    }
+  ]
+}
