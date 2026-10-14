@@ -830,3 +830,23 @@ test('terminal concept captions reject unread evidence, malformed batches and bi
   assert.equal(rounds,3);assert.equal(events.filter(event=>event.type==='block').length,1);
  }
 });
+
+test('a terminal visual waits for an explicitly requested recommendation card',async()=>{
+ let rounds=0;const events=[];
+ const visual={id:'visual',name:'show_profile_timeline',arguments:{eventIds:['pku'],language:'en',caption:'Her doctoral studies.'}};
+ const answer=await runContentAgent({question:'Show her recent background. Also recommend a project.',corpus,onEvent:event=>events.push(event),complete:async({messages})=>{
+  rounds++;
+  if(rounds===1)return {toolCalls:[{id:'bio',name:'query_profile_events',arguments:{language:'en'}},{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+  if(rounds===2)return {toolCalls:[visual]};
+  if(rounds===3){
+   assert.match(messages.at(-1).content,/unfinished_recommendation/);
+   assert.equal(events.filter(event=>event.type==='block').length,0);
+   return {toolCalls:[{id:'card',name:'show_post_cards',arguments:{ids:['notes/cache/en']}}]};
+  }
+  if(rounds===4)return {toolCalls:[{...visual,id:'complete'}]};
+  assert.fail('The complete card and captioned visual must finish within the existing budget');
+ }});
+ assert.equal(rounds,4);
+ assert.deepEqual(answer.blocks.map(block=>block.type),['post_cards','event_timeline']);
+ assert.equal(events.filter(event=>event.type==='answer').length,1);
+});
