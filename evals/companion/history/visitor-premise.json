@@ -1,0 +1,30 @@
+{
+  "turns": [
+    {
+      "question": "你刚才说学习效用是这五个维度里最难评估的。这是作者的观点吗？请核对你刚才的回答和原文，简短解释。",
+      "language": "zh-CN",
+      "pageContext": {
+        "documentId": "notes/mass-multi-agent-self-supervision/zh-CN",
+        "sectionAnchor": "section-81-最终成功不代表每一步都值得模仿"
+      }
+    }
+  ],
+  "history": [
+    {
+      "role": "user",
+      "content": "{\"question\":\"陪我读这一节：解释它的核心意思，再给出一个值得继续讨论的问题。\",\"language\":\"zh-CN\",\"pageContext\":{\"documentId\":\"notes/mass-multi-agent-self-supervision/zh-CN\",\"sectionAnchor\":\"section-81-最终成功不代表每一步都值得模仿\"}}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"text\":\"这一节的核心观点是：最终任务成功并不等于轨迹中的每一步都值得模仿，因为成功可能包含偶然补救或隐藏的错误习惯。因此，数据质量不能只看结果，而需从正确性、真实性、可学习性、覆盖性和学习效用五个维度评估，其中前四项是可审查的依据，最后一项才最接近训练数据的实际价值，且会随模型与目标能力而变化。\",\"textTruncated\":false,\"sourceIds\":[\"notes/mass-multi-agent-self-supervision/zh-CN:20\"],\"visuals\":[],\"omittedVisuals\":0,\"followUp\":{\"question\":\"如果学习效用随模型和目标变化，是否意味着不存在通用数据质量阈值，而需为每个训练目标单独校准筛选标准？\",\"documentId\":\"notes/mass-multi-agent-self-supervision/zh-CN\"}}"
+    },
+    {
+      "role": "user",
+      "content": "{\"question\":\"你刚才为什么问这个问题？请用两句话解释它与这一节的关系。\",\"language\":\"zh-CN\",\"pageContext\":{\"documentId\":\"notes/mass-multi-agent-self-supervision/zh-CN\",\"sectionAnchor\":\"section-81-最终成功不代表每一步都值得模仿\"}}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"text\":\"这一节明确指出“学习效用”会随模型与目标能力而变化，前四项维度可审查但最后一项才最接近实际价值。我因此提问，是想顺着这个区分探讨：既然效用不固定，是否意味着筛选标准也需按训练目标单独校准，而非依赖统一阈值。\",\"textTruncated\":false,\"sourceIds\":[\"notes/mass-multi-agent-self-supervision/zh-CN:20\"],\"visuals\":[],\"omittedVisuals\":0}"
+    }
+  ]
+}
