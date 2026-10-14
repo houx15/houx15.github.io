@@ -38,6 +38,9 @@ test('a typed story question preserves its original card even if current history
  draft.edit('这段经历和现在的研究有什么联系？',openingContextFor(history));
  assert.deepEqual(draft.snapshot(openingContextFor(history)),original);
  const snapshot=draft.snapshot();snapshot.storyId='mutated';assert.deepEqual(draft.snapshot(),original);
+ history.length=0;draft.edit('这段经历和现在的研究有什么联系？',openingContextFor(history));
+ assert.deepEqual(draft.snapshot(),original);
+ history.push({kind:'story',eventId:'startup'});
  draft.edit('');draft.edit('另一段经历',openingContextFor(history));
  assert.deepEqual(draft.snapshot(),{storyId:'event:startup'});
 });
