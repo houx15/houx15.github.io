@@ -1,3 +1,4 @@
+import {readableProse} from './agent-prose.js';
 import { validateAgentBlock } from './agent-stream.js';
 
 const conceptViews=new WeakMap();
@@ -36,7 +37,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
   const progress=make('div','','comic-progress');progress.setAttribute('role','status');
   const progressText=make('span',zh?'正在连接…':'Connecting…');progress.append(progressText);row.append(progress);
   const body=make('div','','comic-live-body');log.append(row);
-  let bodyShown=false;
+  let bodyShown=false,rawProse='';
   const showBody=()=>{if(bodyShown)return false;bodyShown=true;row.append(body);return true;};
   let views=conceptViews.get(log);if(!views){views=new Map();conceptViews.set(log,views);}
   for(const [id,view] of views)if(view && !log.contains(view.container))views.delete(id);
@@ -172,7 +173,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
       } else if(event.type==='answer_delta') {
         let paragraph=body.querySelector('.comic-reply');
         if(!paragraph){showBody();paragraph=make('p','','comic-reply');body.append(paragraph);}
-        paragraph.textContent+=event.text;
+        rawProse+=event.text;paragraph.textContent=readableProse(rawProse);
         showAnswerSources(event.sourceIds);
         progressText.textContent=zh?'正在回答…':'Writing…';progress.classList.add('is-active');
       } else if(event.type==='source')sources.set(event.source.id,event.source);
@@ -185,7 +186,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
         const fresh=showBody();
         let paragraph=body.querySelector('.comic-reply');
         if(!paragraph){paragraph=make('p','','comic-reply');body.append(paragraph);}
-        paragraph.textContent=event.text;
+        rawProse=event.text;paragraph.textContent=readableProse(rawProse);
         // Keep the same disclosure node so finishing does not close it or displace focus.
         showAnswerSources(event.sourceIds);
         if(fresh)return body;

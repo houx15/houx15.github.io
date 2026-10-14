@@ -1,3 +1,4 @@
+import {checkProseClaims,proseRepairGuidance,repairSentenceRepeated,repairContinuation} from './agent-prose-check.mjs';
 import {checkConceptUncertainty} from './agent-uncertainty.mjs';
 import {reviseConceptStep} from './agent-concept-revision.mjs';
 import {modelHistory} from './agent-model-history.mjs';
@@ -56,6 +57,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const availableTools=contentToolDefinitions.filter(tool=>(!yearOnly || !presentationTools.has(tool.name)) && (supportsConceptRevisions || tool.name!=='revise_concept_step') && (supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || tool.name!=='recall_conversation'));
   const instructions=contentInstructions+(supportsConceptRevisions?' When asked to correct a displayed concept step, use revise_concept_step after checking its original evidence; do not leave the old claim unchanged while saying it was edited.':' This client cannot edit existing diagrams. You may explain a correction in prose, but never claim the old diagram was updated.')+(supportsConceptFlow?'':' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.')+(yearOnly?' For THIS turn the visitor explicitly requests only the year. Read the relevant evidence, then answer the latest question with the supported year and sourceIds. Do not resume the previous question or display cards, suggestions or diagrams. If the year is unknown, briefly say it is unknown; never guess.':'');
   const messages = [{role:'system',content:instructions}, ...(earlierHistory.length?[{role:'user',content:JSON.stringify(recall.index)}]:[]), ...modelHistory(history), {role:'user',content:JSON.stringify({question,language,pageContext,openingContext:opening})}];
+  let visibleText='',visibleIds,proseRepairs=0,repairingProse=false;
   let calls = 0, outputLimitRepairs = 0, conversationRepairs = 0, searched = false;
   if(opening?.type==='biography_event' && !pageContext) {
     const args={eventId:opening.eventId,language},callId=`opening_read_${++calls}`;
@@ -107,7 +109,8 @@ export async function runContentAgent({ question, language = 'en', history = [],
   }
   for (let step = 0; step < 6; step++) {
     signal?.throwIfAborted();
-    let streamed='',shown='',pending='',streamIds;
+    let streamed='',shown='',pending='',streamIds,processed=0;
+    const replayPrefix=visibleText;
     const finalPass=step===5 || calls>=8;
     const modelMessages=structuredClone(messages);
     if(!finalPass) modelMessages[0].content+=` Remaining tool-capable rounds including this one: ${5-step}; remaining individual tool calls: ${8-calls}. Once you have sufficient evidence, stop redundant lookup. If the visitor requested a diagram, call the presentation tool before these rounds run out; the final round cannot draw. You may read multiple relevant sources in one action batch. After a diagram is emitted, the final answer should contain only a short takeaway, not another list of steps.`;
@@ -126,25 +129,38 @@ export async function runContentAgent({ question, language = 'en', history = [],
       messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',...(format?{format}:{}),guidance:'The proposed answer was not shown. Return the required {sourceIds,text} object. Search snippets and conversation history are NOT evidence. Only original sections in includedReads or read_content provide article evidence. Read the actual source with a reading tool before citing it, using exact IDs returned by tools. You may instead acknowledge insufficient evidence with sourceIds: []. Do not infer personal beliefs from a project feature or a reading topic.',...(biography?{biographyIdentity:biographyRepairGuidance}:{}),availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
     }
     let result;
-    try { result = await complete({ messages: modelMessages, tools: finalPass?roundTools.filter(tool=>tool.name==='reply_conversationally'):roundTools, language, signal, onText:(text,sourceIds)=>{
+    try { result = await complete({ messages: modelMessages, tools: repairingProse?[]:finalPass?roundTools.filter(tool=>tool.name==='reply_conversationally'):roundTools, language, signal, onText:(text,sourceIds)=>{
       signal?.throwIfAborted();
       if(!Array.isArray(sourceIds) || sourceIds.length>10 || sourceIds.some(id=>!evidence.has(id)))throw new Error('Invalid answer evidence');
       sourceIds=[...new Set(sourceIds)];
       if(!sourceIds.length)return; // Unsupported prose never reaches the visitor.
-      if(typeof text!=='string' || streamed.length+text.length>10000 || (streamIds && JSON.stringify(streamIds)!==JSON.stringify(sourceIds)))throw new Error('Invalid answer delta');
+      if(typeof text!=='string' || replayPrefix.length+streamed.length+text.length>10000 || (streamIds && JSON.stringify(streamIds)!==JSON.stringify(sourceIds)))throw new Error('Invalid answer delta');
       streamIds=sourceIds;streamed+=text;
-      if(usesBiographyEvidence(sourceIds)) {
-        pending+=text;
-        // Keep partial sentences private so chunk boundaries cannot bypass checks.
-        const end=[...pending.matchAll(/[。！？!?\n]|\.(?=\s)/g)].at(-1);
-        if(!end)return;
-        const ready=pending.slice(0,end.index+1);checkBiographySentence(ready);
-        pending=pending.slice(end.index+1);shown+=ready;
+      if(replayPrefix && streamed.startsWith(replayPrefix))throw new Error('Invalid answer continuation');
+      if(visibleIds && JSON.stringify(sourceIds)!==JSON.stringify(visibleIds))throw new Error('Invalid answer continuation');
+      pending+=streamed.slice(processed);processed=streamed.length;
+      // Validate complete sentences, never a token fragment. A rejected suffix
+      // stays private; repair can retain an already displayed prefix unchanged.
+      const boundaries=[...pending.matchAll(/[。！？!?\n]|\.(?=\s)/g)];
+      let consumed=0;
+      for(const end of boundaries) {
+        const ready=pending.slice(consumed,end.index+1);
+        if(replayPrefix && repairSentenceRepeated(ready,replayPrefix)){consumed=end.index+1;continue;}
+        if(usesBiographyEvidence(sourceIds))checkBiographySentence(ready);
+        checkProseClaims(ready,sourceIds,passages);
+        shown+=ready;visibleText+=ready;visibleIds=sourceIds;
         onEvent({type:'answer_delta',text:ready,sources:sourceIds.map(id=>evidence.get(id))});
-      } else {shown+=text;onEvent({type:'answer_delta',text,sources:sourceIds.map(id=>evidence.get(id))});}
+        consumed=end.index+1;
+      }
+      pending=pending.slice(consumed);
     }});
     } catch(error) {
-      if(error.diagnosticCategory==='output_limit' && !shown && outputLimitRepairs===0 && step<5 && !signal?.aborted) {
+      if(['Invalid prose claim','Invalid answer continuation'].includes(error.message) && proseRepairs<2 && step<5 && !signal?.aborted) {
+        proseRepairs++;repairingProse=true;
+        messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'prose_claim',issue:error.proseIssue,alreadyShownPrefix:visibleText,sourceIds:visibleIds || streamIds,guidance:proseRepairGuidance})});
+        continue;
+      }
+      if(error.diagnosticCategory==='output_limit' && !shown && !visibleText && outputLimitRepairs===0 && step<5 && !signal?.aborted) {
         outputLimitRepairs++;
         messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'output_limit',guidance:'The previous response exceeded the output limit and was not shown. Do not repeat it or produce a bare number, string, array or repeating sequence. Return one short JSON object with exactly sourceIds first and text second. A request for only dates constrains text, not the object. Cite only sources already read; if none have been read, read the needed evidence first. Do not reproduce a visual already displayed.',availableSources:[...evidence.values()].map(source=>({id:source.id,label:source.label}))})});
         continue;
@@ -152,11 +168,12 @@ export async function runContentAgent({ question, language = 'en', history = [],
       const repairable=['Invalid answer evidence','Invalid biography identity'].includes(error.message) || ['final_shape','json_root'].includes(error.diagnosticCategory);
       // A rejected, unshown candidate may be corrected within this same budget.
       // Never retry a transport failure or revise prose the visitor already saw.
-      if(!repairable || shown || step===5 || signal?.aborted)throw error;
+      if(!repairable || shown || visibleText || step===5 || signal?.aborted)throw error;
       requestAnswerRepair(error.message==='Invalid biography identity',error.diagnosticCategory==='final_shape'?error.diagnosticDetail:undefined);
       continue;
     }
     signal?.throwIfAborted();
+    if(repairingProse && result.toolCalls?.length)throw new Error('Invalid answer continuation');
     if (result.toolCalls?.length) {
       if(finalPass && !(result.toolCalls.length===1 && result.toolCalls[0].name==='reply_conversationally'))throw new Error('Agent step budget exceeded');
       if(streamed)throw new Error('Mixed answer and tool calls');
@@ -288,22 +305,34 @@ export async function runContentAgent({ question, language = 'en', history = [],
       }
       continue;
     }
-    if (typeof result.text !== 'string' || !result.text.trim() || result.text.length > 10000 || !Array.isArray(result.sourceIds) || result.sourceIds.length > 10 || result.sourceIds.some(id => !evidence.has(id))) {
-      if(!streamed && step<5){requestAnswerRepair();continue;}
+    if (typeof result.text !== 'string' || !result.text.trim() || replayPrefix.length+result.text.length > 10000 || !Array.isArray(result.sourceIds) || result.sourceIds.length > 10 || result.sourceIds.some(id => !evidence.has(id))) {
+      if(!streamed && !visibleText && step<5){requestAnswerRepair();continue;}
       throw new Error('Invalid answer evidence');
     }
-    if(!result.sourceIds.length && !shown && !conversationRepairs && step<5) {
+    if(!result.sourceIds.length && !shown && !visibleText && !conversationRepairs && step<5) {
       conversationRepairs++;
       messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'uncited_reply',guidance:'This uncited prose has not been displayed. For a purely social greeting, thanks, AI identity, privacy boundary, unrelated request, or uncertainty after lookup, end with reply_conversationally using the matching reason. These conversational acts do not require invented citations. For a substantive factual answer, read relevant public sources and cite their exact IDs. Do not confuse an unconfirmed personal view with an unrelated topic. Do not repeat an uncited final text.'})});
       continue;
     }
+    try {
+      if(replayPrefix && result.text.startsWith(replayPrefix))throw new Error('Invalid answer continuation');
+      if(visibleIds && JSON.stringify([...new Set(result.sourceIds)])!==JSON.stringify(visibleIds))throw new Error('Invalid answer continuation');
+      checkProseClaims(result.text,result.sourceIds,passages);
+    } catch(error) {
+      if(proseRepairs<2 && step<5 && !signal?.aborted) {
+        proseRepairs++;repairingProse=true;
+        messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'prose_claim',issue:error.proseIssue,alreadyShownPrefix:visibleText,sourceIds:visibleIds || result.sourceIds,guidance:proseRepairGuidance})});
+        continue;
+      }
+      throw error;
+    }
     if(usesBiographyEvidence(result.sourceIds)) {
       try {checkBiographySentence(result.text);}
-      catch(error) {if(!shown && step<5){requestAnswerRepair(true);continue;}throw error;}
+      catch(error) {if(!shown && !visibleText && step<5){requestAnswerRepair(true);continue;}throw error;}
     }
     if(streamed && (!result.text.startsWith(streamed) || JSON.stringify([...new Set(result.sourceIds)])!==JSON.stringify(streamIds)))throw new Error('Changed answer');
-    if(pending)onEvent({type:'answer_delta',text:pending,sources:streamIds.map(id=>evidence.get(id))});
-    const text = result.sourceIds.length ? result.text : language === 'zh-CN' ? '我没有足够的公开资料回答这个问题。可以问我 Yuxin 的公开作品，或围绕学习笔记继续提问。' : 'I do not have enough public evidence to answer that. Ask about Yuxin’s published work or a related reading question.';
+    if(pending && !repairSentenceRepeated(pending,replayPrefix))onEvent({type:'answer_delta',text:pending,sources:streamIds.map(id=>evidence.get(id))});
+    const text = result.sourceIds.length ? replayPrefix+(replayPrefix?repairContinuation(result.text,replayPrefix):result.text) : language === 'zh-CN' ? '我没有足够的公开资料回答这个问题。可以问我 Yuxin 的公开作品，或围绕学习笔记继续提问。' : 'I do not have enough public evidence to answer that. Ask about Yuxin’s published work or a related reading question.';
     const answer = {type:'answer',text,sources:[...new Set(result.sourceIds)].map(id => evidence.get(id)),blocks,revision:`${corpus.revision}:${profileRevision}`};
     onEvent(answer); return answer;
   }

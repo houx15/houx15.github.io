@@ -138,8 +138,8 @@ test('HTTP forwards incremental prose before the provider finishes, and finalize
   let round=0,release;const gate=new Promise(resolve=>release=resolve);
   const {post}=await serve(t,{complete:async({onText})=>{
     if(++round===1)return {toolCalls:[{id:'r',name:'read_content',arguments:{id:'notes/cache/en'}}]};
-    onText('Keys ',['notes/cache/en:0']);await gate;
-    onText('are cached.',['notes/cache/en:0']);return {text:'Keys are cached.',sourceIds:['notes/cache/en:0']};
+    onText('Keys are cached. ',['notes/cache/en:0']);await gate;
+    onText('Values are retained.',['notes/cache/en:0']);return {text:'Keys are cached. Values are retained.',sourceIds:['notes/cache/en:0']};
   }});
   const timeout=setTimeout(release,2000);t.after(()=>clearTimeout(timeout));
   const response=await post('/v2/agent',{question:'cache',language:'en'},await issue(post));

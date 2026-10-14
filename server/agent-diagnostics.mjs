@@ -24,7 +24,7 @@ const parseDetails=new Set(['stream_frame','tool_arguments','final_answer']);
 export const providerFailureDetail=error=>(error?.message==='Invalid final' && finalDetails.has(error?.diagnosticDetail)) || (error?.name==='SyntaxError' && parseDetails.has(error?.diagnosticDetail))?error.diagnosticDetail:undefined;
 const categories=new Set([...providerReasons.values(),...transportReasons.values(),'json_parse','timeout','provider_transport']);
 const runtimeReasons=new Map([
-  ['Invalid biography identity','biography_identity'],['deadline','request_deadline'],['Invalid answer evidence','answer_evidence'],['Invalid answer delta','answer_delta'],['Changed answer','changed_answer'],
+  ['Invalid prose claim','prose_claim'],['Invalid answer continuation','answer_continuation'],['Invalid biography identity','biography_identity'],['deadline','request_deadline'],['Invalid answer evidence','answer_evidence'],['Invalid answer delta','answer_delta'],['Changed answer','changed_answer'],
   ['Invalid tool call','tool_call'],['Invalid tool argument','tool_arguments'],['Missing tool argument','tool_arguments'],
   ['Invalid concept evidence','concept_evidence'],['Agent step budget exceeded','step_limit'],['Tool budget exceeded','tool_limit']
 ]);
