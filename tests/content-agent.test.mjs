@@ -888,3 +888,30 @@ test('follow-up buttons carry the concrete question and require evidence from th
   else assert.equal(answer.blocks.length,0);
  }
 });
+
+test('compact-page context reads supporting body while preserving the requested reading position',async()=>{
+ const project=doc('project','Project','unused');
+ project.sections=Array.from({length:4},(_,index)=>({id:`${project.id}:${index}`,heading:index===3?'Sources':`Part ${index}`,text:index===2?'Learning outcomes were not evaluated.':`Public section ${index}.`,url:`${project.url}#part-${index}`}));
+ const context={documentId:project.id,sectionId:project.sections[3].id};
+ const answer=await runContentAgent({question:'Were outcomes verified?',corpus:{...corpus,documents:[project]},pageContext:context,complete:async({messages})=>{
+  const reads=messages.filter(message=>message.role==='tool').map(message=>JSON.parse(message.content));
+  assert.deepEqual(reads.flatMap(read=>read.sections.map(section=>section.id)),project.sections.map(section=>section.id));
+  assert.equal(reads.length,2);
+  assert.deepEqual(JSON.parse(messages.find(message=>message.role==='user').content).pageContext,context);
+  return {text:'Learning outcomes were not evaluated.',sourceIds:[project.sections[2].id]};
+ }});
+ assert.equal(answer.sources[0].id,project.sections[2].id);
+});
+
+test('section context does not automatically expand long or section-heavy documents',async()=>{
+ for(const [count,size] of [[7,20],[4,1600]]) {
+  const project=doc('large','Large','unused');
+  project.sections=Array.from({length:count},(_,index)=>({id:`${project.id}:${index}`,heading:`Part ${index}`,text:'x'.repeat(size),url:`${project.url}#part-${index}`}));
+  const target=project.sections.at(-1);
+  await runContentAgent({question:'Explain this section',corpus:{...corpus,documents:[project]},pageContext:{documentId:project.id,sectionId:target.id},complete:async({messages})=>{
+   const reads=messages.filter(message=>message.role==='tool').map(message=>JSON.parse(message.content));
+   assert.equal(reads.length,1);assert.deepEqual(reads[0].sections.map(section=>section.id),[target.id]);
+   return {text:'This is the selected section.',sourceIds:[target.id]};
+  }});
+ }
+});

@@ -74,14 +74,25 @@ export async function runContentAgent({ question, language = 'en', history = [],
     onEvent({type:'status',phase:'tool_completed',tool:'read_profile',callId});
   }
   if(pageContext?.sectionId) {
-    signal?.throwIfAborted();
-    const args={id:pageContext.documentId,sectionId:pageContext.sectionId},callId=`context_read_${++calls}`;
-    messages.push({role:'assistant',toolCalls:[{id:callId,name:'read_content',arguments:args}]});
-    onEvent({type:'status',phase:'tool_started',tool:'read_content',callId});
-    const output=tools.read_content(args);
-    for(const section of output.sections){passages.set(section.id,section.text);evidence.set(section.id,{id:section.id,label:`${output.title} · ${section.heading}`,url:section.url});}
-    messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(quoteFragments.present(output))});
-    onEvent({type:'status',phase:'tool_completed',tool:'read_content',callId});
+    const currentDocument=corpus.documents.find(doc=>doc.id===pageContext.documentId);
+    // Short pages often end in a bibliography. Read their bounded body as well,
+    // while retaining pageContext.sectionId as the visitor's reading position.
+    const compact=currentDocument?.sections.some(section=>section.id===pageContext.sectionId)
+      && currentDocument.sections.length<=6
+      && currentDocument.sections.reduce((size,section)=>size+section.text.length,0)<=6000;
+    const reads=compact
+      ?Array.from({length:Math.ceil(currentDocument.sections.length/3)},(_,index)=>({id:pageContext.documentId,offset:index*3}))
+      :[{id:pageContext.documentId,sectionId:pageContext.sectionId}];
+    for(const args of reads) {
+      signal?.throwIfAborted();
+      const callId=`context_read_${++calls}`;
+      messages.push({role:'assistant',toolCalls:[{id:callId,name:'read_content',arguments:args}]});
+      onEvent({type:'status',phase:'tool_started',tool:'read_content',callId});
+      const output=tools.read_content(args);
+      for(const section of output.sections){passages.set(section.id,section.text);evidence.set(section.id,{id:section.id,label:`${output.title} · ${section.heading}`,url:section.url});}
+      messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(quoteFragments.present(output))});
+      onEvent({type:'status',phase:'tool_completed',tool:'read_content',callId});
+    }
   }
   // Re-read a bounded set of the most recent sourced answer or diagram references. The model sees
   // fresh tool results rather than treating conversation memory as evidence.
