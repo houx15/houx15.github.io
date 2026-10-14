@@ -1,11 +1,11 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {rememberAgentAnswer} from '../server/agent-memory.mjs';
-const flow={type:'concept_flow',title:'Method',items:[{title:'Search',description:'not stored',source:{id:'doc:1',url:'/note/#one'}},{title:'Filter',description:'not stored',source:{id:'doc:2',url:'/note/#two'}}]};
+const flow={type:'concept_flow',title:'Method',items:[{title:'Search',description:'The earlier explanation may be mistaken.',source:{id:'doc:1',url:'/note/#one'}},{title:'Filter',description:'The earlier explanation may be mistaken.',source:{id:'doc:2',url:'/note/#two'}}]};
 test('concept history retains ordering and source references even when prose does not repeat the diagram',()=>{
  const saved=JSON.parse(rememberAgentAnswer({text:'These stages form a loop.',blocks:[flow]}));
  assert.equal(saved.visuals[0].items[1].position,2);assert.equal(saved.visuals[0].items[1].title,'Filter');assert.equal(saved.visuals[0].items[1].sourceId,'doc:2');
- assert.ok(!JSON.stringify(saved).includes('not stored'));assert.equal(saved.text,'These stages form a loop.');
+ assert.equal(saved.visuals[0].items[1].description,flow.items[1].description);assert.equal(saved.visuals[0].omittedDescriptions,0);assert.equal(saved.text,'These stages form a loop.');
 });
 test('visual history remains bounded, explicitly omits older diagrams and retains plain answer compatibility',()=>{
  assert.equal(rememberAgentAnswer({text:'Plain answer.',blocks:[]}), 'Plain answer.');
@@ -26,4 +26,22 @@ test('plain sourced answers retain bounded canonical references without source p
  assert.equal(saved.text,'A biography.');assert.ok(!JSON.stringify(saved).includes('not stored'));
  const large=rememberAgentAnswer({text:'"'.repeat(10000),sources:[1,2,3].map(i=>({id:String(i)+'"'.repeat(399)}))});
  assert.ok(large.length<=4000);assert.doesNotThrow(()=>JSON.parse(large));
+});
+
+
+test('same-titled diagrams retain their own displayed claims, not each other’s descriptions',()=>{
+ const later={...flow,items:flow.items.map(item=>({...item,description:'A corrected explanation.'}))};
+ const memory=JSON.parse(rememberAgentAnswer({text:'Correction.',blocks:[flow,later]}));
+ assert.equal(memory.visuals[0].items[0].description,flow.items[0].description);
+ assert.equal(memory.visuals[1].items[0].description,'A corrected explanation.');
+});
+
+test('missing description capacity is explicit and never truncates a claim into a different statement',()=>{
+ const large={...flow,items:Array.from({length:5},(_,i)=>({title:'Step '+i,description:'\"'.repeat(128),source:{id:'doc:'+i+':'+ 's'.repeat(350)}}))};
+ const serialized=rememberAgentAnswer({text:'x'.repeat(1000),blocks:[large]});
+ const memory=JSON.parse(serialized),visual=memory.visuals[0];
+ assert.ok(serialized.length<=4000);assert.ok(visual.omittedDescriptions>0);
+ assert.equal(visual.omittedDescriptions,visual.items.filter(item=>!item.description).length);
+ for(const item of visual.items)if(item.description)assert.equal(item.description,large.items[0].description);
+ assert.equal(visual.items.length,5);
 });
