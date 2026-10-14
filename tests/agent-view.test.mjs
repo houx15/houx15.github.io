@@ -29,7 +29,7 @@ test('live view presents one suggested next action and only unlocks it after com
   const turn=createAgentTurn(document,{log,question:'A question',language:'zh-CN',onQuestion:q=>clicked.push(q)});
   turn.event({type:'block',block:{id:'b',type:'questions',items:[{documentId:'a',label:'First',query:'one'},{documentId:'b',label:'Second',query:'two'}]}});
   turn.event({type:'block',block:{id:'another',type:'questions',items:[{documentId:'c',label:'Third',query:'three'}]}});
-  assert.equal(log.querySelectorAll('button').length,1);assert.equal(log.querySelectorAll('button')[0].disabled,true);
+  assert.equal(log.querySelectorAll('button').length,0);
   turn.event({type:'source',source:{id:'s',label:'<script>not executable</script>',url:'/notes/test/'}});
   turn.event({type:'answer',text:'<img src=x onerror=bad>',sourceIds:['s']});
   assert.ok(log.querySelectorAll('p').some(node=>node.textContent==='<img src=x onerror=bad>'));
@@ -292,4 +292,16 @@ test('an interrupted response retains valid pending recommendation cards',()=>{
  assert.equal(log.contains(card),true);
  assert.match(turn.row.className,/is-incomplete/);
  assert.equal(turn.canReplace,false);
+});
+
+test('follow-up invitation follows the answer and is omitted on interruption',()=>{
+ for(const failed of [false,true]) {
+  const turn=createAgentTurn(document,{log:new Element('div'),question:'Explain'});
+  turn.event({type:'block',block:{id:'q',type:'questions',items:[{documentId:'note',label:'How does it work?',query:'How does it work?'}]}});
+  assert.equal(turn.row.querySelectorAll('button').length,0);
+  turn.event({type:'answer',text:'A short explanation.',sourceIds:[]});
+  if(failed)turn.interrupt();else turn.event({type:'done'});
+  assert.equal(turn.row.querySelectorAll('button').length,failed?0:1);
+  if(!failed)assert.equal(turn.row.lastElementChild.querySelectorAll('button')[0].textContent,'How does it work? ↗');
+ }
 });

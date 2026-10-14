@@ -52,7 +52,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
       // Recommendations are the next step, not a competing action while the
       // explanation is still arriving. Keep them detached until the turn ends.
       if(block.type==='post_cards')pendingCards.set(block.id,container);
-      else row.append(container);
+      else if(block.type!=='questions')row.append(container);
     }
     container.replaceChildren();
     if(block.type==='concept_revision') {
@@ -139,6 +139,8 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     const nextRead=pendingCards.values().next().value;
     for(const card of pendingCards.values())row.append(card);
     pendingCards.clear();
+    const nextQuestion=questionBlock && blocks.get(questionBlock);
+    if(nextQuestion && !failed)row.append(nextQuestion);
     finished=true;failedTurn=failed;row.classList.toggle('is-incomplete',failed);progress.classList.remove('is-active');
     progressText.textContent=message;
     if(failed && ['daily_budget_exhausted','monthly_budget_exhausted','budget_exhausted'].includes(code)) {
@@ -164,7 +166,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
       }
       for(const button of row.querySelectorAll('button'))button.disabled=false;
     }
-    return nextRead;
+    return nextRead || (!failed && nextQuestion) || undefined;
   }
   return {
     row,

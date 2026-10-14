@@ -116,7 +116,12 @@ export function createContentTools(corpus) {
     const result = search_content({ query: (query || `${doc?.title || ''} ${doc?.tags.join(' ') || ''}`).slice(0, 400), language, limit: 10 });
     return result.results.filter(item => !excluded.has(docs.get(item.id).canonicalId)).slice(0, 3);
   }
-  function suggest_questions({ id, language } = {}) {
+  function suggest_questions({ id, language, question } = {}) {
+    if(question!==undefined) {
+      const doc=requireDoc(id);
+      if(typeof question!=='string' || !question.trim() || question.length>200)throw new Error('Invalid follow-up question');
+      return {type:'questions',items:[{documentId:doc.id,label:question.trim(),query:question.trim()}]};
+    }
     const zh = language === 'zh-CN';
     const selected = id ? [requireDoc(id)] : query_timeline({ language }).items.slice(0, 3).map(item => docs.get(item.id));
     return { type: 'questions', items: selected.map(doc => ({ documentId: doc.id,
