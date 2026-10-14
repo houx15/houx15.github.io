@@ -41,3 +41,19 @@ test('a draft in the article opening does not silently acquire a later section',
  assert.deepEqual(context.open(['section-1']),[]);
  context.edit('');assert.deepEqual(context.open(['section-1']),['section-1']);
 });
+
+test('clearing a resumed question returns to the latest reading position without reopening',()=>{
+ const context=createReadingDraftContext();context.open(['section-81']);context.edit('Why?');
+ context.open(['section-82']);assert.deepEqual(context.snapshot(),['section-81']);
+ assert.deepEqual(context.edit(''),['section-82']);
+ assert.deepEqual(context.edit('A new question'),['section-82']);
+ assert.deepEqual(context.open(['section-83']),['section-82']);
+});
+
+test('submitted position is immutable and failure restoration does not replace the current reading position',()=>{
+ const context=createReadingDraftContext();context.open(['section-81']);context.edit('Why?');context.open(['section-82']);
+ const submitted=context.snapshot();context.edit('');assert.deepEqual(context.snapshot(),['section-82']);assert.deepEqual(submitted,['section-81']);
+ context.restore(submitted);submitted[0]='mutated';assert.deepEqual(context.edit('Why?'),['section-81']);
+ assert.deepEqual(context.edit(''),['section-82']);
+ context.open([]);context.edit('Article opening');context.open(['section-1']);assert.deepEqual(context.edit(''),['section-1']);
+});

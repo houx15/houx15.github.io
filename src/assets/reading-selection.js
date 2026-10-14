@@ -21,9 +21,15 @@ export function selectionQuestion(text,language) {
 // A question belongs to the passage where it was started, even if the reader
 // closes the dialog and scrolls elsewhere before sending it.
 export function createReadingDraftContext() {
-  let reading=[],draft;
+  let reading=[],latest=[],draft;
   return {
-    open(headings) {reading=[...(draft ?? headings)];return [...reading];},
-    edit(text) {draft=text.trim()?(draft ?? [...reading]):undefined;}
+    open(headings) {latest=[...headings];reading=[...(draft ?? latest)];return [...reading];},
+    edit(text) {
+      if(text.trim())draft=draft ?? [...reading];
+      else {draft=undefined;reading=[...latest];}
+      return [...reading];
+    },
+    snapshot() {return [...reading];},
+    restore(headings) {draft=[...headings];reading=[...headings];}
   };
 }

@@ -37,7 +37,8 @@ export function initCompanion(document) {
   const draftContext=createReadingDraftContext(),openingDraft=createOpeningDraftContext();
   const currentOpeningContext=()=>openingContextFor(history,{article:root.dataset.article==='true'});
   function updateComposer() {
-    draftContext.edit(input.value);
+    const headings=draftContext.edit(input.value);
+    if(dialog?.open && JSON.stringify(headings)!==JSON.stringify(readingLookup))loadReadingPosition(headings);
     openingDraft.edit(input.value,currentOpeningContext());
     root.classList.toggle('has-draft',Boolean(input.value.trim()));
     input.style.height='34px';
@@ -56,7 +57,7 @@ export function initCompanion(document) {
   const idle = liveClient ? (zh?'AI 会参考公开资料回答，也可能出错。':'AI answers from public sources and can make mistakes.') : (zh ? '开场试玩 · AI 自由对话尚未接通' : 'Opening experience · live AI conversation not yet connected');
   const seen = []; let history = [], busy = false, corpusPromise, activeController, lastLiveTurn, restorationNotice;
   const stopButton=root.querySelector('[data-stop-answer]'), sendButton=form.querySelector('[type=submit]');
-  let readingSection,readingReady=Promise.resolve(),readingGeneration=0;
+  let readingSection,readingReady=Promise.resolve(),readingGeneration=0,readingLookup=[];
   const readingNote=document.createElement('p');readingNote.className='comic-reading-position';readingNote.hidden=true;form.before(readingNote);
   let opening, returnToComposer = false;
   function resetOpening() {
@@ -68,6 +69,17 @@ export function initCompanion(document) {
       ? (zh?`读到《${root.dataset.pageTitle}》了？我陪你。`:`Reading “${root.dataset.pageTitle}”? I’m here with you.`)
       : chooseGreeting(language);
     if(readingSection)showReadingPosition();
+  }
+  function loadReadingPosition(headings) {
+    readingLookup=[...headings];const generation=++readingGeneration;
+    readingSection=undefined;readingNote.hidden=true;resetOpening();
+    readingReady=root.dataset.documentId?getTools().then(({corpus})=>{
+      const section=resolveReadingPosition(corpus.documents.find(doc=>doc.id===root.dataset.documentId),headings);
+      if(generation===readingGeneration){readingSection=section;if(section)showReadingPosition();}
+      // A submitted question keeps this promise's own section even when the UI
+      // begins resolving a new reading position after its input is cleared.
+      return section;
+    }).catch(()=>undefined):Promise.resolve();
   }
   function showReadingPosition() {
     readingNote.textContent=(input.value.trim()?(zh?'问题对应：':'Question about: '):(zh?'正在读：':'Reading: '))+readingSection.title;readingNote.hidden=false;
@@ -182,10 +194,11 @@ export function initCompanion(document) {
   async function ask(value) {
     const question=value.trim().slice(0,400);if(!question||busy)return;
     const openingContext=question===input.value.trim()?openingDraft.snapshot(currentOpeningContext()):currentOpeningContext();
+    const readingSnapshot={ready:readingReady,headings:draftContext.snapshot()};
     input.value='';updateComposer();
     if(/^(掷骰子|roll(?: a die)?)$/i.test(question)){await roll();return;}
     if(/^(带我看看她的经历|看看她的经历|show me her story)[。.!?？]?$/i.test(question)){render({kind:'story',question});return;}
-    if(liveClient) { await askLive(question,openingContext);return; }
+    if(liveClient) { await askLive(question,openingContext,readingSnapshot);return; }
     const answer=answerQuestion(question,language);
     if(answer.id !== 'empty') {
       render({kind:'text',question,text:answer.text,sources:answer.sources});
@@ -193,7 +206,7 @@ export function initCompanion(document) {
     }
     render({kind:'text',question,text:zh?'这个问题需要真正的 AI 对话，我现在还接不上。你可以先掷个骰子，或者让我带你看看她的经历；等模型接通，我们再展开聊。':'That needs a live conversation, which isn’t connected yet. For now, roll the die or explore her story; we can go further when the model is ready.'});
   }
-  async function askLive(question,openingContext) {
+  async function askLive(question,openingContext,readingSnapshot) {
     activeController=new AbortController();const controller=activeController;
     setBusy(true);
     root.classList.add('has-conversation');
@@ -203,10 +216,10 @@ export function initCompanion(document) {
     turn.row.scrollIntoView({block:'start',behavior:'instant'});
     const challenge=root.querySelector('[data-visitor-check]');
     const savedEvents=[];
-    const positionReady=readingReady;
+    const positionReady=readingSnapshot.ready;
     try {
-      await waitForReadingContext(positionReady,controller.signal);controller.signal.throwIfAborted();
-      const pageContext=root.dataset.documentId?{documentId:root.dataset.documentId,...(readingSection?{sectionAnchor:readingSection.anchor}:{})}:undefined;
+      const questionSection=await waitForReadingContext(positionReady,controller.signal);controller.signal.throwIfAborted();
+      const pageContext=root.dataset.documentId?{documentId:root.dataset.documentId,...(questionSection?{sectionAnchor:questionSection.anchor}:{})}:undefined;
       if(!liveClient.hasSession()) {
         if(restorationNotice)restorationNotice.textContent=restorationCopy(false);
         turn.connectionPhase('verification');
@@ -225,7 +238,7 @@ export function initCompanion(document) {
     } catch(error) {
       const message=agentFailureMessage(controller.signal.aborted?'stopped':error.message,language,{partial:savedEvents.length>0,resetsAt:error.resetsAt});
       turn.interrupt(message,{code:controller.signal.aborted?'stopped':error.message});
-      if(!controller.signal.aborted) {input.value=question;openingDraft.edit('');openingDraft.edit(question,openingContext);updateComposer();}
+      if(!controller.signal.aborted) {input.value=question;draftContext.restore(readingSnapshot.headings);openingDraft.edit('');openingDraft.edit(question,openingContext);updateComposer();}
     } finally {challenge.hidden=true;challenge.replaceChildren();activeController=null;setBusy(false);}
   }
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
@@ -295,15 +308,8 @@ export function initCompanion(document) {
     launcher.addEventListener('click',()=>{
       const selected=!input.value.trim()?(pointerSelection || selectedPassage()):undefined;pointerSelection=undefined;
       returnAnchor=captureReadingAnchor(document);
-      const headings=draftContext.open(selected?selected.headings:readingHeadings(document)),generation=++readingGeneration;
-      readingSection=undefined;readingNote.hidden=true;
-      resetOpening();
-      readingReady=root.dataset.documentId?getTools().then(({corpus})=>{
-        if(generation!==readingGeneration)return;
-        readingSection=resolveReadingPosition(corpus.documents.find(doc=>doc.id===root.dataset.documentId),headings);
-        if(!readingSection)return;
-        showReadingPosition();
-      }).catch(()=>{}):Promise.resolve();
+      const headings=draftContext.open(selected?selected.headings:readingHeadings(document));
+      loadReadingPosition(headings);
       dialog.showModal();document.body.classList.add('comic-open');log.scrollTop=log.scrollHeight;
       if(selected)input.value=selectionQuestion(selected.text,language);
       updateComposer();
