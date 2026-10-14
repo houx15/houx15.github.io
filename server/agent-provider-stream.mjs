@@ -1,4 +1,8 @@
 // Decode provider SSE incrementally. Only public answer text is forwarded; never reasoning.
+function parseProviderJSON(text,stage) {
+  try {return JSON.parse(text);}
+  catch {throw Object.assign(new SyntaxError('Invalid provider JSON'),{diagnosticDetail:stage});}
+}
 function visiblePrefix(content) {
   const match=content.match(/^\s*\{\s*"sourceIds"\s*:\s*(\[(?:\s*"(?:[^"\\]|\\.)*"\s*,?)*\s*\])\s*,\s*"text"\s*:\s*"/);
   if(!match)return null;
@@ -21,7 +25,7 @@ export async function readProviderStream(response,{signal,allowJsonTools=false,r
     const data=value.split('\n').filter(line=>line.startsWith('data:')).map(line=>line.slice(5).trimStart()).join('\n');
     if(!data)return;if(done || ++frames>4096)throw new Error('Invalid stream');
     if(data==='[DONE]'){done=true;return;}
-    const part=JSON.parse(data);if(part.usage)usage=part.usage;
+    const part=parseProviderJSON(data,'stream_frame');if(part.usage)usage=part.usage;
     if(!Array.isArray(part.choices) || part.choices.length>1)throw new Error('Invalid choices');
     const choice=part.choices[0];if(!choice)return;
     if(choice.index!==0 || finish)throw new Error('Invalid choice');
@@ -60,15 +64,20 @@ export async function readProviderStream(response,{signal,allowJsonTools=false,r
       if(buffer.length>100000)throw new Error('Oversized frame');
     }
     buffer+=decoder.decode();if(buffer.trim() || !done)throw new Error('Truncated stream');
-    if(finish==='tool_calls' && calls.size && !sent)return {toolCalls:[...calls.entries()].sort((a,b)=>a[0]-b[0]).map(([,call])=>({...call,arguments:JSON.parse(call.arguments)})),usage};
+    if(finish==='tool_calls' && calls.size && !sent)return {toolCalls:[...calls.entries()].sort((a,b)=>a[0]-b[0]).map(([,call])=>({...call,arguments:parseProviderJSON(call.arguments,'tool_arguments')})),usage};
     if(finish==='length')throw new Error('Output token limit');
     if(finish!=='stop' || calls.size)throw new Error('Invalid finish');
-    const result=JSON.parse(content);
+    const result=parseProviderJSON(content,'final_answer');
     if(allowJsonTools && result && Object.hasOwn(result,'toolCalls')) {
       if(sent || Object.keys(result).length!==1 || !Array.isArray(result.toolCalls) || result.toolCalls.length<1 || result.toolCalls.length>8 || result.toolCalls.some(call=>!call || typeof call!=='object' || Object.keys(call).some(key=>!['id','name','arguments'].includes(key)) || typeof call.id!=='string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(call.id) || typeof call.name!=='string' || call.name.length>100 || !call.arguments || typeof call.arguments!=='object' || Array.isArray(call.arguments)) || new Set(result.toolCalls.map(call=>call.id)).size!==result.toolCalls.length)throw new Error('Invalid tool delta');
       return {toolCalls:result.toolCalls,usage};
     }
-    if(!result || Object.keys(result).some(key=>!['text','sourceIds'].includes(key)) || typeof result.text!=='string' || !Array.isArray(result.sourceIds) || !result.text.startsWith(sent))throw new Error('Invalid final');
+    const detail=!result || typeof result!=='object' || Array.isArray(result)?'nonobject_result'
+      :Object.keys(result).some(key=>!['text','sourceIds'].includes(key))?'additional_fields'
+      :typeof result.text!=='string'?'invalid_text_field'
+      :!Array.isArray(result.sourceIds)?'invalid_sources_field'
+      :!result.text.startsWith(sent)?'changed_stream_text':undefined;
+    if(detail)throw Object.assign(new Error('Invalid final'),{diagnosticDetail:detail});
     return {...result,usage};
   } finally {await reader.cancel().catch(()=>{});reader.releaseLock();}
 }

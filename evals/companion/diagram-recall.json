@@ -1,0 +1,18 @@
+[
+  {
+    "question": "请用两步小图解释：为什么不能把成功轨迹整条照搬来训练？",
+    "language": "zh-CN",
+    "pageContext": {
+      "documentId": "notes/mass-multi-agent-self-supervision/zh-CN",
+      "sectionId": "notes/mass-multi-agent-self-supervision/zh-CN:20"
+    }
+  },
+  {
+    "question": "第二步展开后的说明里，你具体写了哪句话？请先逐字引用，再对照原文核对其中没有依据的断言。不要再画图。",
+    "language": "zh-CN"
+  },
+  {
+    "question": "那请把你的最终结论压缩成一句话，保留原文的限定。",
+    "language": "zh-CN"
+  }
+]

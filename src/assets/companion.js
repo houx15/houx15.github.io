@@ -1,8 +1,8 @@
 import {createBiographyChapter} from './biography-chapter.js';
 import {createDiceCard} from './dice-card.js';
-import {captureReadingSelection,selectionQuestion} from './reading-selection.js';
+import {captureReadingSelection,selectionQuestion,createReadingDraftContext} from './reading-selection.js';
 import { captureReadingAnchor,restoreReadingAnchor,readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
-import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
+import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor, createOpeningDraftContext } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
 import { milestones } from './biography.js';
 import { createContentTools } from './agent-tools.js';
@@ -34,13 +34,21 @@ export function initCompanion(document) {
   const log = root.querySelector('[data-companion-log]'), status = root.querySelector('[data-companion-status]');
   followConversationResize(log);
   const form = root.querySelector('form'), input = form.querySelector('textarea');
+  const draftContext=createReadingDraftContext(),openingDraft=createOpeningDraftContext();
+  const currentOpeningContext=()=>openingContextFor(history,{article:root.dataset.article==='true'});
   function updateComposer() {
+    const headings=draftContext.edit(input.value);
+    if(dialog?.open && JSON.stringify(headings)!==JSON.stringify(readingLookup))loadReadingPosition(headings);
+    openingDraft.edit(input.value,currentOpeningContext());
     root.classList.toggle('has-draft',Boolean(input.value.trim()));
     input.style.height='34px';
     input.style.height=`${Math.min(Math.max(34,input.scrollHeight),Math.max(58,Math.min(154,window.innerHeight*.25)))}px`;
+    if(readingSection)showReadingPosition();
   }
   input.addEventListener('input',updateComposer);
   window.addEventListener('resize',updateComposer);
+  // Back navigation may restore form text after module initialization.
+  window.addEventListener('pageshow',()=>window.requestAnimationFrame(updateComposer));
   const mascot = root.querySelector('[data-poke]'), hello = root.querySelector('[data-hello]');
   const dialog = document.querySelector('#companion-dialog'), launcher = document.querySelector('[data-companion-open]');
   const storageKey = `companion-opening-v1:${language}`;
@@ -49,22 +57,37 @@ export function initCompanion(document) {
   const idle = liveClient ? (zh?'AI 会参考公开资料回答，也可能出错。':'AI answers from public sources and can make mistakes.') : (zh ? '开场试玩 · AI 自由对话尚未接通' : 'Opening experience · live AI conversation not yet connected');
   const seen = []; let history = [], busy = false, corpusPromise, activeController, lastLiveTurn, restorationNotice;
   const stopButton=root.querySelector('[data-stop-answer]'), sendButton=form.querySelector('[type=submit]');
-  let readingSection,readingReady=Promise.resolve(),readingGeneration=0;
+  let readingSection,readingReady=Promise.resolve(),readingGeneration=0,readingLookup=[];
   const readingNote=document.createElement('p');readingNote.className='comic-reading-position';readingNote.hidden=true;form.before(readingNote);
   let opening, returnToComposer = false;
   function resetOpening() {
     opening=chooseOpening({article:root.dataset.article==='true'});
     root.querySelector('[data-opening-label]').textContent=openingCopy[language][opening].action;
+    root.querySelectorAll('[data-reading-action]').forEach(button=>{button.textContent=openingCopy[language].read.action+' ↗';});
     root.querySelector('.comic-die').style.display=opening==='dice'?'':'none';
     root.querySelector('[data-invitation]').textContent=opening==='read'
       ? (zh?`读到《${root.dataset.pageTitle}》了？我陪你。`:`Reading “${root.dataset.pageTitle}”? I’m here with you.`)
       : chooseGreeting(language);
     if(readingSection)showReadingPosition();
   }
+  function loadReadingPosition(headings) {
+    readingLookup=[...headings];const generation=++readingGeneration;
+    readingSection=undefined;readingNote.hidden=true;resetOpening();
+    readingReady=root.dataset.documentId?getTools().then(({corpus})=>{
+      const section=resolveReadingPosition(corpus.documents.find(doc=>doc.id===root.dataset.documentId),headings);
+      if(generation===readingGeneration){readingSection=section;if(section)showReadingPosition();}
+      // A submitted question keeps this promise's own section even when the UI
+      // begins resolving a new reading position after its input is cleared.
+      return section;
+    }).catch(()=>undefined):Promise.resolve();
+  }
   function showReadingPosition() {
-    readingNote.textContent=(zh?'正在读：':'Reading: ')+readingSection.title;readingNote.hidden=false;
-    root.querySelector('[data-invitation]').textContent=zh?`读到「${readingSection.title}」了？我陪你。`:`Reading “${readingSection.title}”? I’m here with you.`;
+    readingNote.textContent=(input.value.trim()?(zh?'问题对应：':'Question about: '):(zh?'正在读：':'Reading: '))+readingSection.title;readingNote.hidden=false;
+    root.querySelector('[data-invitation]').textContent=input.value.trim()
+      ? (zh?`这条问题对应「${readingSection.title}」。`:`This question is about “${readingSection.title}”.`)
+      : (zh?`读到「${readingSection.title}」了？我陪你。`:`Reading “${readingSection.title}”? I’m here with you.`);
     root.querySelector('[data-opening-label]').textContent=zh?'一起读这一节':'Read this section with me';
+    root.querySelectorAll('[data-reading-action]').forEach(button=>{button.textContent=(zh?'一起读这一节':'Read this section with me')+' ↗';});
   }
   resetOpening();
   status.textContent = idle;
@@ -95,6 +118,7 @@ export function initCompanion(document) {
     for(const source of items.slice(0,5)) if(safeSource(source.url)) {const link = add(details,'a',source.label);link.href = source.url;}
   }
   function render(item, remember = true) {
+    const focusChapter=remember && item.kind==='story' && root.contains(document.activeElement) && document.activeElement.tagName==='BUTTON';
     if(item.kind==='story' && !milestones.some(event=>event.id===item.eventId))item.eventId=milestones[0].id;
     if (remember) { history.push(item);history = history.slice(-10);save(); }
     root.classList.add('has-conversation');
@@ -132,6 +156,7 @@ export function initCompanion(document) {
     while(log.children.length > 10) log.firstElementChild.remove();
     if(remember && item.kind==='dice')row.querySelector('.comic-dice-card').scrollIntoView({block:'start',behavior:'instant'});
     else if(remember) row.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    if(focusChapter && (!dialog || dialog.open))row.querySelector('.comic-biography-chapter h2').focus({preventScroll:true});
     return row;
   }
   async function roll() {
@@ -168,10 +193,12 @@ export function initCompanion(document) {
   }
   async function ask(value) {
     const question=value.trim().slice(0,400);if(!question||busy)return;
+    const openingContext=question===input.value.trim()?openingDraft.snapshot(currentOpeningContext()):currentOpeningContext();
+    const readingSnapshot={ready:readingReady,headings:draftContext.snapshot()};
     input.value='';updateComposer();
     if(/^(掷骰子|roll(?: a die)?)$/i.test(question)){await roll();return;}
     if(/^(带我看看她的经历|看看她的经历|show me her story)[。.!?？]?$/i.test(question)){render({kind:'story',question});return;}
-    if(liveClient) { await askLive(question);return; }
+    if(liveClient) { await askLive(question,openingContext,readingSnapshot);return; }
     const answer=answerQuestion(question,language);
     if(answer.id !== 'empty') {
       render({kind:'text',question,text:answer.text,sources:answer.sources});
@@ -179,9 +206,9 @@ export function initCompanion(document) {
     }
     render({kind:'text',question,text:zh?'这个问题需要真正的 AI 对话，我现在还接不上。你可以先掷个骰子，或者让我带你看看她的经历；等模型接通，我们再展开聊。':'That needs a live conversation, which isn’t connected yet. For now, roll the die or explore her story; we can go further when the model is ready.'});
   }
-  async function askLive(question) {
+  async function askLive(question,openingContext,readingSnapshot) {
     activeController=new AbortController();const controller=activeController;
-    setBusy(true,zh?'正在连接…':'Connecting…');
+    setBusy(true);
     root.classList.add('has-conversation');
     log.querySelectorAll('button').forEach(button=>button.remove());
     const turn=createAgentTurn(document,{log,question,language,onQuestion:ask,retry:lastLiveTurn});
@@ -189,22 +216,21 @@ export function initCompanion(document) {
     turn.row.scrollIntoView({block:'start',behavior:'instant'});
     const challenge=root.querySelector('[data-visitor-check]');
     const savedEvents=[];
-    const positionReady=readingReady;
+    const positionReady=readingSnapshot.ready;
     try {
-      await waitForReadingContext(positionReady,controller.signal);controller.signal.throwIfAborted();
-      const pageContext=root.dataset.documentId?{documentId:root.dataset.documentId,...(readingSection?{sectionAnchor:readingSection.anchor}:{})}:undefined;
+      const questionSection=await waitForReadingContext(positionReady,controller.signal);controller.signal.throwIfAborted();
+      const pageContext=root.dataset.documentId?{documentId:root.dataset.documentId,...(questionSection?{sectionAnchor:questionSection.anchor}:{})}:undefined;
       if(!liveClient.hasSession()) {
         if(restorationNotice)restorationNotice.textContent=restorationCopy(false);
-        status.textContent=zh?'确认访客身份，无需注册或登录。':'Checking the visitor session. No account or login needed.';
+        turn.connectionPhase('verification');
         challenge.hidden=false;
         const token=await verifyVisitor(document,challenge,turnstileSiteKey,controller.signal);
+        turn.connectionPhase('connecting');
         await liveClient.openSession(token,controller.signal);challenge.hidden=true;
       }
-      const openingContext=openingContextFor(history,{article:root.dataset.article==='true'});
-      await liveClient.ask({question,language,supportsConceptFlow:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
+      await liveClient.ask({question,language,supportsConceptFlow:true,supportsConceptRevisions:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
         {signal:controller.signal,onEvent:event=>{
           presentAgentEvent(log,turn,event);
-          if(event.type==='status')status.textContent=zh?'正在查阅资料并组织回答…':'Checking sources and preparing an answer…';
           if(['source','block','answer','done'].includes(event.type))savedEvents.push(event);
         }});
       const saved=validateSavedTurn({kind:'agent',question,events:savedEvents});
@@ -212,7 +238,10 @@ export function initCompanion(document) {
     } catch(error) {
       const message=agentFailureMessage(controller.signal.aborted?'stopped':error.message,language,{partial:savedEvents.length>0,resetsAt:error.resetsAt});
       turn.interrupt(message,{code:controller.signal.aborted?'stopped':error.message});
-      if(!controller.signal.aborted) {input.value=question;updateComposer();}
+      // Stopping is also an opportunity to revise the question. Preserve its
+      // source context, just as for transport failures; never auto-resubmit it.
+      input.value=question;draftContext.restore(readingSnapshot.headings);
+      openingDraft.edit('');openingDraft.edit(question,openingContext);updateComposer();
     } finally {challenge.hidden=true;challenge.replaceChildren();activeController=null;setBusy(false);}
   }
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
@@ -223,7 +252,11 @@ export function initCompanion(document) {
   });
   stopButton.addEventListener('click',()=>activeController?.abort());
   window.addEventListener('pagehide',()=>activeController?.abort());
-  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();});
+  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;openingDraft.edit('');updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
+    // The reset button just disappeared. Keep keyboard navigation in this conversation.
+    if(input.value.trim())input.focus({preventScroll:true});
+    else {hello.setAttribute('tabindex','-1');hello.focus({preventScroll:true});}
+  });
   try {
     const stored=JSON.parse(sessionStorage.getItem(storageKey)||'[]');
     if(Array.isArray(stored)) for(const item of stored.slice(-10)) {
@@ -248,7 +281,7 @@ export function initCompanion(document) {
     log.querySelectorAll('button').forEach(button=>button.remove());
     const context = add(log,'article','','comic-message comic-context');
     add(context,'p',zh?`现在翻到《${root.dataset.pageTitle}》了。`:`We’ve opened “${root.dataset.pageTitle}”.`,'comic-reply');
-    const next=add(context,'button',openingCopy[language].read.action+' ↗','comic-follow');next.type='button';next.addEventListener('click',readPage);
+    const next=add(context,'button',openingCopy[language].read.action+' ↗','comic-follow');next.type='button';next.dataset.readingAction='';next.addEventListener('click',readPage);
   }
   if(dialog&&launcher) {
     let returnAnchor,pointerSelection;
@@ -278,18 +311,14 @@ export function initCompanion(document) {
     launcher.addEventListener('click',()=>{
       const selected=!input.value.trim()?(pointerSelection || selectedPassage()):undefined;pointerSelection=undefined;
       returnAnchor=captureReadingAnchor(document);
-      const headings=selected?selected.headings:readingHeadings(document),generation=++readingGeneration;
-      readingSection=undefined;readingNote.hidden=true;
-      resetOpening();
-      readingReady=root.dataset.documentId?getTools().then(({corpus})=>{
-        if(generation!==readingGeneration)return;
-        readingSection=resolveReadingPosition(corpus.documents.find(doc=>doc.id===root.dataset.documentId),headings);
-        if(!readingSection)return;
-        showReadingPosition();
-      }).catch(()=>{}):Promise.resolve();
+      const headings=draftContext.open(selected?selected.headings:readingHeadings(document));
+      loadReadingPosition(headings);
       dialog.showModal();document.body.classList.add('comic-open');log.scrollTop=log.scrollHeight;
-      if(selected){input.value=selectionQuestion(selected.text,language);input.focus({preventScroll:true});}
+      if(selected)input.value=selectionQuestion(selected.text,language);
       updateComposer();
+      // Resume an unfinished question without moving its caret or the reading page.
+      // Keep the normal welcome focus when there is no draft to continue.
+      if(input.value.trim())input.focus({preventScroll:true});
     });
     document.querySelector('[data-companion-close]').addEventListener('click',()=>dialog.close());
     dialog.addEventListener('close',()=>{

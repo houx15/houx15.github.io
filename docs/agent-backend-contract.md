@@ -1,6 +1,6 @@
 # Content agent HTTP contract — v2
 
-Status: local implementation, no live provider or deployment verified. Existing `/v1/assistant` is unchanged. No new dependencies. Entry: `node server/agent-index.mjs`. Production is disabled unless explicitly enabled and configured with shared Redis REST state, Turnstile, signing key, provider and nonzero global token budget. Never expose runtime secrets in static configuration.
+Status: implemented and integrated with the browser client; candidate capabilities and public deployment can differ. See [current architecture](content-agent.md) and [release procedure](agent-release.md) for dated evidence. Entry: `node server/agent-index.mjs`. Production requires explicit enablement, durable SQLite or Redis state, Turnstile, a signing key, provider configuration and nonzero budgets. Keep runtime secrets outside static configuration.
 
 ## Sessions and deployment
 
@@ -10,7 +10,7 @@ For github.io + unrelated API domain use `Authorization: Bearer <sessionToken>`,
 
 ## Conversation
 
-`POST /v2/agent`, application/json, authorization header, body `{question, language, pageContext?}`. Question: nonempty <=400 UTF-16 characters. Language: `en` or `zh-CN`. Optional pageContext: `{documentId}` resolving to the server's published corpus. No client transcript, arbitrary URL, role, or session ID is accepted. Server retains up to twenty successful exchanges, bounded to 4000 characters per message, for session lifetime. The most recent three exchanges enter model context directly; earlier exchanges have a question index and are read only through the session-scoped recall_conversation tool. Neither the index nor a recalled record grants citation evidence. Clients cannot submit either history. Evidence must be read anew for each turn. One concurrent request per session. Requests are not retried/replayed automatically; a new submission can incur new calls. No paid calls for greeting/dice/page load.
+`POST /v2/agent`, application/json, authorization header, body `{question, language, pageContext?}`. Question: nonempty <=400 UTF-16 characters. Language: `en` or `zh-CN`. Optional pageContext: `{documentId, sectionId?}` or `{documentId, sectionAnchor?}` resolving to the server's published corpus; the section fields are mutually exclusive. Optional openingContext and capability booleans are server-validated; see the capability sections below. No client transcript, arbitrary URL, role, or session ID is accepted. Server retains up to twenty successful exchanges, bounded to 4000 characters per message, for session lifetime. The most recent three exchanges enter model context directly; earlier exchanges have a question index and are read only through the session-scoped recall_conversation tool. Neither the index nor a recalled record grants citation evidence. Clients cannot submit either history. Evidence must be read anew for each turn. One concurrent request per session. Requests are not retried/replayed automatically; a new submission can incur new calls. No paid calls for greeting/dice/page load.
 
 Successful admission returns text/event-stream; use fetch streaming, not EventSource. Each frame has `id: <request UUID>:<sequence>`, `event: <type>`, and one JSON `data:` envelope `{version:2,requestId,id,type,...}`. IDs are stable within the response; there is no reconnect/resume endpoint. Disable proxy buffering.
 
@@ -23,7 +23,7 @@ Events:
 - `done`: `{outcome:"complete"}` after server history save.
 - `error`: `{code,partial}` terminal instead of done. Blocks/status may precede failure; keep them marked incomplete and never invent an answer. Transport ending without done/error is interrupted. No failed exchanges saved.
 
-Before streaming, errors are JSON `{error:{code}}` with 400 invalid_request, 401 invalid_session, 403 forbidden/challenge_failed, 429 rate_limited, 503 unavailable. After headers, errors are sanitized SSE. AbortController/client disconnect cancels upstream and prevents subsequent paid calls. Deadline 45 seconds; per-provider deadline 15 seconds. No raw upstream details, prompts, tokens, or credentials are logged.
+Before streaming, errors are JSON `{error:{code}}` with 400 invalid_request, 401 invalid_session, 403 forbidden/challenge_failed, 429 rate_limited, 503 unavailable. After headers, errors are sanitized SSE. AbortController/client disconnect cancels upstream and prevents subsequent paid calls. Deadline 45 seconds; per-provider deadline defined by the configured adapter, bounded by the overall turn deadline. No raw upstream details, prompts, tokens, or credentials are logged.
 
 ## Limits and accounting
 
@@ -33,13 +33,13 @@ Shared Redis REST adapter uses versioned compare-and-set Lua transactions for se
 
 ## Frontend integration and remaining evidence
 
-Point only the public backend origin in frontend config after approval; shared UI/config/package files are intentionally untouched. Add Turnstile using a public site key, hostname allowlist and action `agent_session`; retain the returned one-hour bearer in memory and optional per-tab sessionStorage, as described above. Use the v2 routes and schema above. Do not claim local mocks are live execution. `read_profile` reads the existing approved public facts; `query_profile_events` returns the existing owner-approved biography with its 2026-10-10 asOf date and original uncertain/overlapping periods. No new biographical facts are invented. Citation IDs can be article section IDs, `profile:<factId>` or `event:<eventId>`. Revision includes both article and biography revisions.
+Frontend configuration contains only the public backend origin and public Turnstile site key; private keys remain on the server. Add Turnstile using a public site key, hostname allowlist and action `agent_session`; retain the returned one-hour bearer in memory and optional per-tab sessionStorage, as described above. Use the v2 routes and schema above. Do not claim local mocks are live execution. `read_profile` reads the existing approved public facts; `query_profile_events` returns the existing owner-approved biography with its 2026-10-10 asOf date and original uncertain/overlapping periods. No new biographical facts are invented. Citation IDs can be article section IDs, `profile:<factId>` or `event:<eventId>`. Revision includes both article and biography revisions.
 
 Scope is enforced through model instructions and evidence requirement, with fixed server-authored refusal for missing evidence. Related learning explanations are allowed. Prompt/keyword filters cannot guarantee relevance or resistance to injection; real-model evaluation must precede public launch. See `docs/agent-backend-evaluation.md`.
 
 ### Integration delta for the concurrently built client
 
-The frontend validates and renders post cards, suggestions, publication timelines, biography timelines, reading maps, and incremental answer deltas. Source URLs remain site-relative; rendering uses textContent. Live service configuration is still disabled pending real-provider verification.
+The frontend validates and renders post cards, suggestions, publication timelines, biography timelines, reading maps, and incremental answer deltas. Source URLs remain site-relative; rendering uses textContent. Public release state must be checked independently of this contract; consult the dated architecture and release records.
 
 ### Reading outline block
 
@@ -52,7 +52,7 @@ The `reading_map` block contains `id`, `type`, `documentId`, `title`, `url`, and
 
 The DeepSeek adapter requests stream:true and include_usage:true, incrementally assembles fragmented tool arguments, and decodes the final JSON answer with sourceIds before text. It forwards only decoded public prose; reasoning_content is not displayed. Partial unicode/escapes are held until complete. Truncated, oversized, mixed tool/prose and length-limited responses fail. Upstream usage is reconciled only when available; missing usage retains the reservation. The final answer and done event are still mandatory. The UI marks interrupted prose as incomplete, and presentation history stores only successfully completed answers.
 
-Reference: https://api-docs.deepseek.com/api/create-chat-completion/ (stream, delta, finish_reason and usage fields). The 84-test local suite includes text delivery before provider completion, fragmented arguments, unicode, provenance gating and partial interruption. Paid model behavior remains unverified.
+Reference: https://api-docs.deepseek.com/api/create-chat-completion/ (stream, delta, finish_reason and usage fields). The 84-test local suite includes text delivery before provider completion, fragmented arguments, unicode, provenance gating and partial interruption. This historical adapter test count is not current acceptance evidence; see the dated evaluation records for real-provider observations and unresolved failures.
 
 ### Conceptual explanation steps
 
@@ -69,3 +69,23 @@ After a reserved model call has started, failures produce one bounded operationa
 The runtime allows at most five lookup rounds and eight tool calls, followed by at most one final synthesis round with no provider tools. This sixth completion is not an automatic retry: it uses the evidence already read and must still reserve cost through the same guard. The overall 45-second request deadline, per-call output limit, daily allowance and monthly ceiling remain unchanged. If the tool-call cap is reached earlier, the next completion is already tool-free.
 
 Quota errors retain HTTP 429 / terminal SSE behavior. `daily_budget_exhausted` and `monthly_budget_exhausted` carry `resetsAt` as Unix milliseconds (daily UTC midnight; monthly Beijing midnight). Clients validate this optional timestamp and display it in the visitor’s timezone. This reports the quota reset, not a promise of service availability or an automatic retry. Legacy `budget_exhausted` remains readable. No amounts, visitor identifiers or credentials are included.
+
+### Targeted concept corrections
+
+Clients opt into `supportsConceptRevisions: true` (optional boolean, default false). The server then offers `revise_concept_step` for one retained concept step per turn. `visualId` identifies a server-recorded diagram; it is not authorization. Browser-supplied history remains rejected. The tool resolves the step against retained successful exchanges, including earlier history and subsequent revisions. Missing descriptions, legacy diagrams without stable IDs, duplicate IDs and stale revision chains cannot authorize an edit.
+
+A revision must re-read the step's original source in the current turn. Article steps require an exact source quote or a matching fresh quoteId. The original diagram title, step title, position and source identity remain fixed; only its explanation and quote change. This verifies provenance, not semantic entailment.
+
+The emitted block is `{id,type:'concept_revision',visualId,title,items:[{position,title,previousDescription,description,quote?,source}]}`. It is a pending change until `done`. On completion the client applies it only to a successfully completed, still-mounted target with the same source ID and previous description. On interruption the old diagram remains unchanged. If the target is no longer displayed, a standalone correction record is retained without claiming that the old diagram changed. The record is collapsed by default. No scrolling or focus change is triggered by updating the old step.
+
+Successful revision events are preserved in client saved turns and replayed in order. Server memory retains complete before/after descriptions before allocating space to prose, within its existing serialized bound. Original diagram records remain immutable; subsequent revisions supersede their description for later references. A backend supporting this capability must be deployed before a frontend begins sending the new request field.
+
+### Self-contained concept captions
+
+`show_concept_flow` optionally accepts a nonempty `caption` of at most 160 characters. Like a captioned biography timeline, this must be the only tool in its batch and its sources must already have been read. Once the normal concept/evidence/quotation validation succeeds, the server emits the diagram, one caption delta and the final answer without another model completion. Source references are deduplicated. Biography captions retain the biography identity check. Omit caption when the question still needs additional explanation or tools; the ordinary streaming-answer path remains available. The existing v2 browser protocol is unchanged.
+
+### Explicit uncertainty tripwire
+
+Before emitting a concept diagram or applying a concept revision, a lexical check compares explicit possibility markers in its cited quote (or read passage when no quote is supplied) with unqualified prediction markers in that step's title and explanation. Diagram-wide titles and terminal captions are checked against the selected read passages. Clauses are separated so a “可能” in one clause cannot qualify an unrelated “会” in the next. Negative certainty can also conflict with uncertain evidence. Common non-modal Chinese words such as 社会/学会 are excluded from the 会 prediction pattern.
+
+A conflict returns bounded tool feedback before display; the model may repair within the existing call/tool budget. There is no extra review model, automatic rewriting, network retry or budget increase. This is deliberately not semantic entailment: marker-free categorical claims, mixed certainty within one source, paraphrases, scope, negation and cross-language semantics are not fully resolved. The check may be conservative for a passage containing both uncertain and definite claims. Passing it never establishes factual accuracy, and the final prose path is not a general semantic filter.

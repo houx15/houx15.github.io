@@ -549,3 +549,332 @@ A private bounded-thinking probe completed in four calls but still overstated th
 The implemented change adds optional original quotations alongside concept-step interpretations. The agent retains section text only from this turn's actual reads, including preloaded and reread history sections. Each supplied quote must occur in its corresponding source after whitespace normalization; invented, empty, paraphrased, cross-source or mismatched-count quotations reject the unshown diagram with recoverable feedback. This does not establish that a real quotation entails the generated claim or preserves all surrounding context. Legacy diagrams without quotes remain accepted. The client validates quote shape/length and renders it as plain text in a separately labelled blockquote, with the existing source-context link and one-expanded-step behavior.
 
 Real development-accounted candidate runs completed the preloaded MASS/report pair in two calls each and the independently retrieved MASS case in five calls. Displayed excerpts matched their cited sections. However, the MASS labels/descriptions still strengthened certainty despite correct quotations, and the report mentioned a log implementation detail absent from the read passage. This feature improves inspectability rather than fixing those known generation failures. A labelled browser replay of the actual preloaded MASS answer at 390×600 showed one expanded step and no horizontal overflow; it deliberately preserved the overstated explanation beside the original “可能” quote. This was a static replay with disabled composer, not a public live-model browser test. Screenshots/report are in .verification/concept-quotes/. Regression checks cover read-bound quotation matching, correction before emission, preloaded source text, malformed client values, literal HTML text and legacy diagrams.
+
+## Preserve the section belonging to an unsent question — 2026-10-13
+
+The preceding quota check confirmed deployed developer admission matches local code and all four isolation tests pass; it required no configuration change. Work resumed on the unfinished reading journey rather than waiting for visitor quota. Baseline browser reproduction showed an 8.1 selected quotation retained in the composer while reopening after scrolling to 8.2 silently changed its section context.
+
+The composer now binds a nonempty draft to its starting headings, retaining them across closing, scrolling and reopening. Clearing or submitting releases that binding for the next opening. An empty heading list deliberately retains article-opening context. The invitation distinguishes the draft's section from the current reading position. Tests cover edits, copied arrays, clearing and article-opening drafts.
+
+In the actual local browser, selecting the 8.1 sentence prepared its quotation without sending. Closing and using the chapter-9 table-of-contents link moved the reading position to 9.1; reopening preserved the quotation and explicitly displayed 8.1. Clearing, closing and reopening then displayed 9.1 and restored the reading invitation. The inspected screenshot is .verification/reading-draft/02-fixed.png. This verifies draft/context UI behavior, not paid submission or model fidelity. No model call, quota change or backend change was needed. Source entailment, the complete public paid-browser journey and real mobile keyboard behavior remain open.
+
+## Resume editing a reading draft — 2026-10-13
+
+The previous turn completed draft-section binding as bb5053d with 221 passing tests and branch CI 38490701932. Main publication was rejected by automatic approval review pending explicit authorization; no main merge or deployment occurred. That publication remains pending and is not retried here.
+
+Independent local work corrected reopening focus: a nonempty draft now receives composer focus after dialog opening and resizing, without resetting its selection or scrolling the article. Empty openings keep their normal welcome focus. The conversation's compact context label now says “问题对应” / “Question about” while a draft exists, matching the welcome invitation rather than calling an earlier draft section the current reading position.
+
+Actual browser verification typed a draft, placed the caret at offset 7, closed the dialog and reopened it. The focused element was the composer with selectionStart and selectionEnd still 7. Typing inserted text at that position. Clearing, closing and reopening returned focus to the normal close control with the welcome action present. This verifies desktop keyboard continuity, not real mobile software-keyboard behavior. No model requests or public configuration changes were made.
+
+## Remember the explanation a visitor actually saw — 2026-10-13
+
+The preceding goal turn improved draft focus, pushed 0af4e27 and passed branch CI 38490938125; formal publication remains pending explicit approval after the earlier review rejection. No publication was retried this turn.
+
+A real production-model reading/correction conversation exposed the existing certainty failure again, while a direct challenge and final concise follow-up preserved the source's possibility. Code inspection found a distinct conversational defect: stored diagrams included ordered labels and source IDs but discarded expanded descriptions. A visitor asking about the assistant's own wording could therefore receive an invented recollection.
+
+Diagram memory now retains exact displayed descriptions when they fit after the existing navigation references. It prioritizes newer retained diagrams, stays within the existing serialized history bound, never partially truncates a description, and explicitly counts omitted descriptions. Same-titled diagrams keep separate associations. Prior claims remain conversational context, not evidence; fresh source reading and evidence validation remain unchanged. Tests cover accurate retention, duplicate titles, bounded omission and the prohibition on treating memory IDs as fresh evidence.
+
+A controlled SSH context-stream comparison supplied the same actual first-turn output as title-only memory versus enriched memory. The baseline quoted the source excerpt instead of its earlier description and incorrectly declared it supported. The candidate quoted the displayed explanation exactly and identified the unsupported new-task consequence, although it did not separately correct strengthened certainty in the first clause. Both completed with one model call and a fresh source read. This is targeted recall/correction evidence, not a general semantic pass or a public browser journey. Full local verification passed 223 tests, build and site checks. No visitor limit, monthly cap, secret, public API or running service was changed. Reusable conversation and detailed criteria are in evals/companion/diagram-recall.json and its README.
+
+## Explicit boundaries of compressed conversation memory — 2026-10-13
+
+The previous turn made concrete progress by retaining diagram descriptions and evaluating the same captured output with old versus enriched memory. The follow-up log correction f99340a passed branch CI 38491420668. Main and service publication remain pending; this turn did not retry them.
+
+Inspection found a related completeness defect: sourced answer prose was silently sliced at 1,000 characters, and long unsourced prose at 4,000, without telling the next model turn that wording was missing. Retained structured prose now includes textTruncated. Long unsourced answers use the same explicit envelope; short plain answers remain unchanged. Prefixes avoid splitting surrogate pairs and are bounded by serialized JSON length even when escaping expands characters. Existing history and monetary limits remain unchanged. Current-turn instructions and the earlier-conversation retrieval qualification distinguish retained claims from complete transcripts and from fresh source explanations, including the possibility that legacy records were abbreviated without flags. No old records are rewritten.
+
+Tests cover complete versus truncated prose, long Chinese text with a trailing qualification outside the retained prefix, emoji at the prefix boundary, and heavily escaped text that previously could overflow the serialized history envelope. Full local verification passed 226 tests plus build/site checks, with focused memory tests repeated after the Chinese fixture update. This proves the representation and bounds, not that a model will always acknowledge omissions correctly. No real-model call was made in this turn; the initial generation certainty problem and full public-browser journey remain open.
+
+## Larger reasoning budget did not resolve certainty — 2026-10-13
+
+The previous goal turn made concrete progress by explicitly marking truncated conversation memory; 53a9b64 passed branch CI 38491670831. Publication remains pending authorization after the earlier automatic-review rejection. This turn continued independent quality evaluation without attempting deployment.
+
+A separate candidate copy enabled 4096 thinking tokens and a 6128 total completion cap, reserving 6144 output tokens through the same paid-completion module and durable monthly ledger. It retained all request, call-count and development-run limits. No model key was copied locally or printed; no public service was restarted. The two preloaded source/control questions completed in two calls each. MASS labels, a description and final prose still strengthened possibility into certainty; the report preserved its documented advisory behavior. The candidate was rejected without further sample hunting or a production switch. Detailed settings, source documentation, evidence and limitations are in evals/companion/README.md. This result directs the next iteration away from simply increasing reasoning allowance. It does not close the semantic-quality gate, and no latency or billing improvement is claimed.
+
+## A more specific evidence-checking experiment — 2026-10-13
+
+The previous goal turn ruled out a larger thinking budget using real source/control answers, recorded ea7b577 and left production configuration unchanged. This turn inspected the earlier failed whole-diagram reviewer before testing a distinct claim-level analysis protocol.
+
+Six contrast cases, a batched version of those cases, five fields from real failed output, and a fragment-ID variant were evaluated through the private paid path. Per-claim force analysis detected overstatement, contradiction and unsupported additions while preserving the possibility, fact and negation controls in these samples. The actual-output quote variant exposed two strict quotation mismatches; the fragment-ID variant instead reconstructed all excerpts from the provided original fragments, including the possibility introduction for a hypothetical example. Three problematic fields were flagged and two controls preserved in one 7.199-second call. Generated counterexamples contained speculative mechanisms and are not suitable as user-facing evidence or factual correction feedback.
+
+The result supports a bounded correction-loop prototype, not production enablement or a general semantic-fidelity claim. Reusable claims and human criteria are saved in evals/companion/claim-support.json; detailed findings, raw log locations and required integration checks are in the README. No runtime files or website code changed. Formal publication remains pending the earlier explicit-authorization requirement; no attempt was made to bypass it. Initial answer fidelity, correction behavior under full request limits, public browser continuity and overall design acceptance remain unproven.
+
+## Full-loop evaluation contradicted reviewer-only success — 2026-10-13
+
+The preceding goal turn produced targeted claim-level evidence and reusable contrast cases in acb7ec6. This turn implemented and tested a bounded correction-loop candidate, preserving the six model calls, eight site tool calls, 45-second request deadline and shared monetary guard. Its runtime option was only passed by an isolated SSH developer runner. The public route did not enable it and no service was restarted.
+
+The candidate withheld rejected diagrams, returned bounded issue feedback with original fragment text, allowed one diagram correction and buffered article prose for final review. Unit tests and full verification passed (231 tests). Real preloaded MASS corrected the principal certainty problem but retained unsupported screening requirements, taking six calls and 25.841 seconds. The report control matched the source in four calls and 9.037 seconds. The independent-home case exhausted six calls after retrieval and review, so it could not correct the rejected proposal and failed without displaying that diagram. This failure is not hidden by the successful preloaded case.
+
+The candidate was archived locally and removed from runtime source. Its known issues are semantic overreach outside modal words, insufficient correction capacity after normal retrieval, and buffered rather than incremental final prose. It has not earned production activation. Evidence and replay locations are recorded in evals/companion/README.md. Deployment of the earlier accepted changes still awaits the explicit authorization required by automatic review; no attempt was made to work around that boundary.
+
+## Remove conflicting first-read instructions — 2026-10-13
+
+The preceding turn rejected the full review-loop candidate after ordinary retrieval left no correction budget, recording 2dff0b6. This turn inspected the read/search tool contract and found an explicit contradiction: a returned sectionId was supposed to be read, but the first-read instruction prohibited using it. The read tool now permits direct first access to a relevant found section and accurately describes section-less reads as the article opening/section discovery, not the complete document.
+
+A real private two-turn candidate conversation searched once and read MASS :20 directly. It then correctly switched to a section-less opening read when asked about the beginning. The first answer still took five calls because two diagram proposals produced only one displayed diagram; no error cause was recorded for the first proposal. Semantic overreach also remained. The second answer took two calls and cited the opening. Full verification passed 226 tests and site checks. The navigation trace, durations, remaining defects and reusable conversation are documented in evals/companion/README.md and direct-section.json. No reviewer was enabled, budget altered or public service restarted. The change is prepared on the development branch; formal publication remains pending explicit authorization.
+
+## Exact diagram quotations selected by ID — 2026-10-13
+
+The preceding accepted navigation change 8a5ed9b passed branch CI 38494031293. This turn addressed quotation retranscription without re-enabling the rejected semantic reviewer. A turn-local registry presents read article sections as ordered fragments, retaining long paragraphs in full and assigning selectable IDs only to whole paragraphs within the existing 400-character quotation limit. Diagram IDs must belong to the corresponding actually-read source. Legacy custom excerpts still undergo the original matching check. No additional model call is required for resolution.
+
+The three-turn private evaluation used quoteIds in both diagrams and produced five matching original quotations. A missing read argument and a final-shape failure were recovered; they are retained in the evaluation record rather than hidden behind successful answers. Semantic overstatement remains, including in a correctly quoted diagram. A 390×600 real-output replay verified scroll access to the full source quote, one-expanded-step behavior and a visible disabled composer without overflow or console errors. It was not a live public request. Full verification passed 231 tests and site checks. Detailed evidence, durations and limitations are in evals/companion/README.md. Earlier accepted changes and this one remain on the development branch pending publication authorization; no production activation occurred.
+
+
+## Compact conversation presence (2026-10-13)
+
+A fresh 390×600 capture showed the persistent greeting occupying 65px after a conversation started. The mascot now remains centered in the existing top navigation band, while greeting copy is hidden only during conversations. The log grew from 335px to 400px with the composer unchanged. Initial opening and reset retain the large mascot. Browser clicks through the local biography opening and reset confirmed both transitions; console had no errors. Before/after and transition screenshots were inspected and are presented in `.verification/chat-focus/report.html`. The answer comparison is explicitly a disabled-input replay of prior real model output, not a fresh paid browser test or proof of semantic correctness. Physical keyboard, screen reader and production end-to-end gates remain open. Full `bun run verify` passed after allowing tests to bind loopback sockets. This branch remains unpublished.
+
+
+## Keyboard continuity at opening/reset (2026-10-13)
+
+The previous browser captures showed focus falling to the page when opening/reset controls disappeared. Fresh local keyboard verification now confirms Return on the biography opener focuses the first chapter heading; Tab reaches its next-chapter button; Return advances and focuses the next heading. Reset without a draft focuses the greeting and Tab reaches the single opening action. Reset with an unsent draft preserves the text and focuses the composer. Restored history does not opt into initial chapter focus. The browser console remained clean, and all 231 tests, build and site checks passed. These were local authored interactions with no paid model calls. Actual screen-reader announcements and public live chat remain unverified.
+
+
+## Source-force classification candidate rejected (2026-10-13)
+
+A fresh baseline/candidate evaluation showed that adding required evidence-force fields to the diagram call does not establish faithful generation. The candidate mislabeled a possible risk as documented fact and still emitted categorical consequences and added screening requirements. Both variants used two calls per preloaded turn; the report warning-vs-hard-gate control was preserved. See evals/companion/README.md for the bounded observations. Candidate code stayed outside the accepted source tree and production; model-side grounding remains an open completion gate.
+
+
+## Separate evidence brief did not pass (2026-10-13)
+
+An isolated preloaded-reading prototype spent one extra paid completion on source interpretation before diagram generation (three total calls per turn within the existing six-call ceiling). Its brief identified the uncertain risk, but displayed labels/final prose still strengthened certainty, and normative scope remained ambiguous. A report control remained accurate. This candidate was not adopted; details and nuanced definition-versus-operational-rule review controls are in evals/companion/. No public service or quota was changed.
+
+
+## Real private-browser streaming and cancellation (2026-10-13)
+
+The actual local development bridge was exercised against the SSH production runner, with the real provider, SSE parser, answer renderer and current local styles. This was not a static replay, a public visitor session, or a Turnstile/nginx test. The production backend remains at its earlier deployed revision; pending branch-only backend changes were not part of this test.
+
+A completed biography response rendered a timeline followed by prose. It arrived as one visible text delta (the generated prose was one long sentence), so that turn alone did not prove incremental text rendering. An attempted stop lost the race to completion and was not counted as a cancellation. A second request was stopped during connection; a subsequent question referring to the completed biography correctly answered the departure year, “2022年”. A third request was stopped after the UI changed from connecting to organizing the answer. A server-side process-count check observed one development runner while it was active, then zero after cancellation.
+
+A fourth request asked for three prose paragraphs about MASS. The live browser reported six answer deltas and showed an unfinished sentence while Stop remained present. Clicking Stop ended with eight deltas (two arrived between observation and the click), marked the partial answer “已停止”, hid Stop, and restored the composer. A later DOM comparison showed the partial text unchanged, and the development runner count was zero. The UI snapshot and inspected screenshot are in .verification/stream-cancel/. Browser logs showed no errors before the final partial-stream test. This verifies cancellation and observed worker termination in the private bridge; it does not establish provider-side refund, cancellation latency, public-path cancellation, all model semantics, or multi-device behavior. Unknown usage remains conservatively charged.
+
+
+## Cross-page reading invitation scope and draft focus (2026-10-13)
+
+A fresh browser journey rolled two authored cards, opened the Mind Imprint card's source, selected the Implementation chapter in its TOC, and reopened the global companion. The two prior cards survived, and the reading position correctly said Implementation, but the new contextual action still said “read this article”. Typing a draft also left this default-question action available; its existing readPage path would clear the draft when asking the predefined question.
+
+The contextual reading action now follows the same current-section label as the initial reading invitation. It resets to article scope when reopening at the article beginning. Like the original welcome action, it is hidden while a nonempty draft is being edited and restored when the draft is cleared. The actual browser confirmed each of those states. A same-page source link closed the dialog, focused the ARTICLE and removed the old section hash; reopening then showed article scope. Browser logs were clean. These were authored local interactions without a model call, not proof of public session continuity or all article languages. Full 231-test verification, build and site checks passed.
+
+
+## Reading-map entry before its long excerpt (2026-10-13)
+
+The recommendation conversation returned one relevant card, then one specific reading-map section. A fresh 390×600 replay showed the actual navigation link below the long source excerpt and outside the initial conversation viewport. Reading-map links now precede their excerpts and have a measured 44px touch height. The inspected after screenshot shows the link in the initial viewport; no horizontal overflow was present. Clicking it navigated to the actual Application Features heading and focused that heading. Before/after screenshots are .verification/reading-next/01-before.png and 02-after.png. The replay input was explicitly disabled; it is separate from the real SSH model evaluation. Full 231-test verification, build and site checks passed. The model's unsupported “only content” claim is recorded in evals/companion/README.md and remains a semantic-quality failure, not concealed by the UI pass.
+
+
+## Fixed-category final-format diagnostics (2026-10-13)
+
+Repeated paid evaluations previously collapsed every final-object rejection into final_shape. The provider now retains a bounded subcategory for invalid root, extra fields, invalid text/sources fields or changed streamed text. The server diagnostic record and SSH runner allowlist those fixed values; arbitrary field names, response text, exceptions and credentials remain excluded. Accepted/rejected wire shapes and repair limits are unchanged. Tests exercise all five categories through the actual provider wrapper, including duplicate JSON text keys that change already-streamed text, and reject unknown diagnostic details. Full 232-test verification, build and site checks passed; the expanded focused suite also passed after adding the duplicate-key case. A real isolated follow-up reproduced an additional_fields rejection and recovery in three calls. This improves failure attribution, not model accuracy or production availability.
+
+
+## Explain rejected final formats precisely (2026-10-13)
+
+Format repair now receives bounded problem-specific feedback instead of only the generic object reminder. Extra fields must be removed; invalid text and source containers must use the required types. The existing primary category, strict validator, six-call limit and no-retry-after-visible-text behavior are unchanged. Unknown diagnostic strings are not inserted into model context. A real isolated run recovered an additional_fields failure in three calls, the same count as its baseline, without resolving unsupported cross-document prose. Full 233 tests plus build/site checks passed. This is a correction-feedback improvement, not a claimed semantic or latency pass.
+
+
+## Source-link touch targets and biography flow (2026-10-13)
+
+Fresh in-app-browser screenshots cover desktop home → chat → first biography chapter, then a 390×600 viewport, second chapter → original biography source → global companion. The chapter position survived navigation. The opening retains a single authored invitation plus the composer; the next-chapter action focuses the new heading. Screenshots: `.verification/source-target/01-home.png` through `08-source-expanded.png`.
+
+The original source disclosure measured only 19.25px high with 11px type. Its shared companion style now provides a measured 44px target with 13px type; expanded source links also measure 44px high with 14px type. No additional controls were introduced. The updated screenshots retain the next-chapter action and composer in the narrow viewport. Tab from the disclosure reached its source link; Return navigated to the same-page source heading and closed the dialog. Browser error logs were empty. Full 233-test verification, build and site checks passed.
+
+This is a local authored-story/navigation audit, not paid-chat verification or a full accessibility audit. Real touch, mobile virtual keyboard, screen-reader speech, model-generated diagrams and recommendation conversations were not tested in this run. The viewport override was reset after inspection.
+
+
+## Separate display memory from assistant output examples (2026-10-13)
+
+Stored assistant records include textTruncated, visuals and omittedVisuals in addition to text/sourceIds. Passing that entire JSON record as an assistant message creates a conflicting output example. The new modelHistory adapter retains sourceIds-first/text-second assistant examples and places display metadata in a labeled user-context record immediately before the corresponding earlier answer. No stored history, recall directory, evidence preloading, context limits, source validation, provider schema or retry limits change. Unknown/legacy records remain intact; metadata is never elevated to system instructions.
+
+A private shape probe of the previous code observed final_shape/additional_fields with text/sourceIds and three other fields; their names were not logged. A subsequent probe adding the three known memory-field names to the fixed allowlist failed with provider_transport before reaching that result, so exact field identity remains unconfirmed. No diagnostic probe was added to application code.
+
+The separated-history candidate completed the same saved recommendation follow-up in four model calls with 15 answer deltas and no final_shape failure; one answer_evidence failure was recovered. It still mentioned MASS without reading/citing it, so semantic fidelity fails and this is not a latency win over the three-call baseline. A separate replay retained a real prior diagram and asked for the second step's exact wording: one model call, 51 deltas, exact description recalled and compared against the preloaded source. That response unnecessarily exposed “quoteId q2” in prose; this remains a presentation-quality defect. No new diagram was requested or emitted.
+
+Full 235 tests plus build/site checks passed. Cross-page integration checks now verify prior text and ordered visual metadata in their distinct model-facing locations. Unit checks cover unchanged stored records, truncation/omission metadata, legacy content and absence of elevated roles. Local evidence: /tmp/shape-fields.sse, /tmp/shape-fields-errors.log, /tmp/shape-memory-errors.log, /tmp/separated-memory.sse, /tmp/separated-memory-errors.log, /tmp/separated-recall.sse, /tmp/separated-recall-errors.log. Isolated server files were removed after testing; production remains unchanged.
+
+
+## Reader-facing citations and transport diagnostics (2026-10-13)
+
+The prior real diagram-recall answer exposed `quoteId q2` in prose. Instructions now explicitly keep fragment IDs and memory field names in tool/structured arguments, and direct source comparisons to section names and actual quotations. History guidance names the new previous_display_metadata record and retains legacy compatibility. The final-object example now agrees with the provider's sourceIds-first order. This is guidance, not a sanitizing filter or a guaranteed non-disclosure mechanism.
+
+An isolated replay of the same retained diagram failed on model call 1 with provider_transport before producing an answer. Therefore the new wording's real-output effectiveness remains unverified. The runner did not retry. A subsequent credential-free GET from the server to the public configured completion URL returned expected HTTP 401 in 0.641 seconds (DNS 0.003, connect 0.212, TLS 0.428). That proves only point-in-time network reachability; it neither diagnoses the failed stream nor proves model-service health. The temporary remote stage was removed. Evidence: /tmp/reader-citations.sse and /tmp/reader-citations-errors.log.
+
+To make the next failure actionable, diagnostics now map a small allowlist of direct/cause transport codes into connection_timeout, response_timeout, connection_closed, dns_failure and connection_refused. Unknown codes still become provider_transport. No exception text, cause object, hostname, address, credentials or response content is emitted; no retry policy changes. Tests inject wrapped fetch failures through the actual provider adapter and diagnostic record, including unknown private values and cancellation precedence. Full 236 tests, build and site checks passed. No production files or service were changed.
+
+
+## Reader-facing citation replay passed (2026-10-13)
+
+The previously unverified wording guidance was tested on the exact retained diagram context. Current branch code 1f4fea1 completed privately in one model call, producing 39 deltas and no diagnostic failure. It quoted the stored second-step description exactly, compared it to the read section, preserved “可能”, and omitted the previously leaked fragment ID. The stream concatenation matched the final answer. The fixture is now preserved at evals/companion/context/diagram-wording.json with human acceptance criteria in the evaluation README. This is a narrow successful replay, not general semantic validation or a public production test. The isolated remote files were removed afterward.
+
+
+## Visible timeline preview before progressive expansion (2026-10-13)
+
+A private browser run of candidate fa227f5 generated four sourced biography events, but the renderer hid the entire timeline behind a disclosure. The first view showed only its title and repeated chronology in prose. Long timelines now display their first two entries directly and place only the remaining entries in one disclosure. Timelines with at most three entries remain fully visible. The same behavior applies to publication timelines; event order, source links, asOf information and publication-date qualifications remain intact. The remaining ordered list starts at 3.
+
+The actual recorded four-event answer was replayed with the real renderer, without another model request. Desktop shows the two entries and continuation action; 390×600 shows a real first entry and the beginning of the second without horizontal overflow. Return expands the remaining two entries in order, and the summary measures 44.4px high. Browser error logs were empty. Screenshots: .verification/timeline-preview/01-desktop.png, 02-mobile.png and 03-expanded.png. Input was explicitly disabled in this visual replay; it is not fresh streaming or public HTTP validation. The recorded model prose still repeats dates and ambiguously compresses the Tsinghua entry; this UI change does not fix that prose.
+
+Renderer tests cover Chinese/English, biography/publication timelines and 1/3/4/8 entries, preserving all titles and source links without duplicate entries. Full 237 tests, build and site checks passed. Temporary preview files, server and viewport override were cleaned up. This extends the draft PR; production remains unchanged.
+
+
+## Optional terminal timeline captions (2026-10-13)
+
+show_profile_timeline can now include an optional caption of at most 160 characters. After evidence has been read, a standalone valid call emits the original source-bound timeline, one caption delta and the completed answer; it does not request another model completion. Omitting caption keeps the existing continuation path for questions requiring more explanation. The tool description explicitly preserves additional requested details. Caption calls in multi-tool batches, empty/oversized captions and known invalid biography identities are rejected before display; unread events cannot authorize a terminal answer. Sources are resolved from the selected, validated timeline events.
+
+The same private biography introduction that previously used three model calls completed in two calls, with four original chronology entries and a brief caption naming the education/startup overview. It did not repeat all dates or add the prior unsupported undergraduate-period claim. This is one successful sample, not a latency benchmark or a general semantic guarantee. The optional caption is a single completed tool result rather than word-by-word tool-argument streaming; ordinary prose streaming is unchanged.
+
+A separate two-turn control asks whether 2015 is admission or degree completion, then asks the startup departure year. It failed with provider_transport on its first model call, so live handling of this explicit additional-detail scenario remains unverified. The fixture is preserved in evals/companion/timeline-caption.json. Logs: /tmp/timeline-caption.log, /tmp/timeline-caption-errors.log, /tmp/timeline-caption-control.log, /tmp/timeline-caption-control-errors.log.
+
+Full 241 tests, build and site checks passed. Tests cover terminal event ordering, no extra completion, invalid-caption repair, source-reading requirements and HTTP/SSE delivery followed by a restored-session factual follow-up. The private stage was removed; production remains unchanged.
+
+## Explicit year-only follow-up control (2026-10-13)
+
+The live two-turn timeline-caption fixture reproduced a failure: after the admission-date timeline, “她离开公司是哪一年？只答年份。” produced another timeline and repeated the old admission/startup overview. This contradicts the earlier mocked restored-session test; that test alone did not establish model behavior.
+
+The candidate now recognizes a deliberately narrow set of explicit terminal Chinese/English year-only instructions. It removes presentation tools for that turn while retaining evidence lookup, and rejects an attempted known presentation call with recoverable feedback before any block or terminal caption can be emitted. Quoted/embedded examples, negation and a subsequent instruction do not match the supported clause patterns. This is not a general natural-language format parser and does not guarantee all concise-answer phrasings.
+
+The same real two-turn fixture then completed with two model calls for the timeline and one for the follow-up: text “2022”, zero blocks. Logs: /tmp/year-only-live.log and /tmp/year-only-live-errors.log. The first answer still overstates the admission-date evidence as “并非获得学位的年份”; unknown degree-completion dates remain a separate unresolved semantic problem. A single successful rerun does not establish general model reliability.
+
+Full 243 tests, build and site checks passed. New tests cover clause boundaries and a prior-topic follow-up whose model attempts a disabled presentation, then reads the correct source and answers without displaying a block. The private staging directory was removed. Production remains unchanged.
+
+## Education-date uncertainty (2026-10-13)
+
+Education lookups now explicitly distinguish the documented 2015 Tsinghua admission year from the unspecified bachelor/master completion years. The qualification accompanies the general profile, individual Tsinghua event and chronology lookup, and participates in the profile revision hash. It adds no inferred completion dates and leaves unrelated events unchanged.
+
+Private Chinese timeline/follow-up replay used two calls then one. The caption now includes that exact graduation years are unpublished, but still says “并非获得学位的年份”; this remains stronger than the intended statement about what the date labels. The departure follow-up returned 2022 without a visual. Logs: /tmp/education-dates-live.log and /tmp/education-dates-live-errors.log.
+
+A separate English test explicitly requests only the bachelor completion year, followed by clarification of 2015. It returned that the completion year is not provided (two calls, no visual), then correctly separated documented admission from both unknown completion years (one call, no visual). Thus this observed unknown-date case did not invent a number to satisfy the year-only instruction. Fixture: evals/companion/education-dates.json; logs: /tmp/education-dates-en.log and /tmp/education-dates-en-errors.log. These are individual model samples, not proof of general factual fidelity.
+
+Full 244 tests, build and site checks passed. The isolated server stage was removed after testing; the running production service was not modified.
+
+## One visible progress location (2026-10-13)
+
+A fresh 390×600 local browser review captured opening, dice story, live-request waiting and failure recovery. It found two simultaneous progress messages: connecting within the answer and verification in the footer. The client now updates verification/connection in the turn's existing progress label; model/tool/writing events continue in that same location. The footer retains its stable AI notice. Local phases accept only reviewed labels, cannot overwrite a finished turn, and are not added to the source-checking history or wire protocol.
+
+Before/after screenshots and numbered findings are in .verification/companion-flow/report.md. The request failed before a completed answer; the exact cause was not established in this audit. The original question and input focus were restored. No CAPTCHA was solved, no public protection changed, and no successful paid-browser flow is claimed. An initial recovery screenshot affected by the dev-server reload was rejected and recaptured after the build. Physical mobile keyboard and screen-reader behavior remain unverified.
+
+Full 245 tests, build and site checks passed. Tests exercise local phase → tool status → streamed writing → failure and ensure a late local phase cannot erase the error. Production remains unchanged.
+
+## Real recommendation journey and rejected instruction change (2026-10-13)
+
+The current candidate completed a private browser three-turn recommendation journey: one Mind Imprint card (four model calls, 18 text deltas), one relevant section entrance (two calls, nine deltas), then a scope challenge (two calls, 20 deltas). The actual parser/renderer/scrolling helper delivered the outputs; the separate preview form does not establish public Turnstile/nginx or full companion-state coverage. No source link was clicked in this run.
+
+Semantic review failed two claims. “可立即上手” was unsupported by the applications section cited, while the published contribution/status section says learning sessions were not run. The scope answer described MASS and AI attitudes without reading them and claimed an exclusive personal-learning role while citing only the Mind Imprint applications section. This confirms source-ID validation is insufficient for comparison/coverage claims.
+
+A candidate instruction clarifying non-exhaustive recommendations, read-before-compare and workflow-validation boundaries passed 245 tests/build/site checks, but live tests did not justify adoption: recommendation displayed an English card then answer_evidence failed on call six; replay of the original completed two-turn history failed with json_parse on call two. The instruction was reverted, not released. No claim is made that the prompt caused either failure or that a deterministic guard now solves semantic coverage.
+
+Saved replay: evals/companion/context/recommendation-scope.json. It is a context-stream envelope of public questions and completed model answers, including the unsupported original claim, for regression investigation. Screenshots/report: .verification/recommendation-journey/report.md. Logs: /tmp/recommendation-browser-{1,2,3,4}.{sse,log}, /tmp/recommendation-scope-candidate.{sse,log}; rejected patch /tmp/recommendation-boundary-rejected.patch. The private preview and isolated server stage were removed. Production remains unchanged.
+
+## Recommendation card edition selection (2026-10-13)
+
+The private recommendation run exposed a Chinese conversation receiving an English card despite an available Chinese edition. show_post_cards now accepts language; the agent's existing tool-argument defaulting supplies the conversation language when omitted. A published same-canonicalId edition is selected for title, summary, ID and URL. An explicit language request selects that edition; when no translation exists, the original document remains. Unknown IDs are still rejected and duplicate editions collapse to one card. No text is translated or invented.
+
+This presentation mapping does not add the translated edition to read evidence. An agent-loop test attempts to cite an unread translated section after displaying its card; the answer is rejected before display and corrected to a genuinely read source. Tests cover the conversation default, explicit English override, missing translation and canonical deduplication. Full 247 tests, build and site checks passed. Direct inspection of the built public corpus confirms the originally selected English Mind Imprint ID yields the Chinese title/summary/link under zh-CN and the original edition under en.
+
+This is deterministic tool/agent-loop validation, not a new live-model or browser success claim. It fixes edition selection when the language is omitted or correctly requested; a model can still explicitly request the wrong language. The earlier recommendation coverage and usability overclaims remain unresolved. Production remains unchanged.
+
+## JSON parse layer diagnostics (2026-10-13)
+
+Provider JSON syntax failures now retain one allowlisted detail: stream_frame, tool_arguments, or final_answer. The category remains json_parse, so public error behavior and retry policy do not change. The parser replaces the raw SyntaxError with a fixed message before the adapter receives it; diagnostics retain no offending content, arbitrary exception text or credentials. Both provider wrapping and agent records preserve only the allowlisted layer. Tests exercise malformed payloads in all three locations and reject arbitrary or mismatched details.
+
+Full 248 tests, build and site checks passed. A private replay of evals/companion/context/recommendation-scope.json completed in two model calls this time; no parse failure was reproduced, so no live root cause has been established. The answer still asserted Mind Imprint was the only directly relevant tool introduction while citing only its applications section. Successful protocol delivery did not resolve semantic coverage. Logs: /tmp/json-layer-live.sse and /tmp/json-layer-live.log. No automatic retry or raw provider capture was added. The private stage was removed; production remains unchanged.
+
+## Reading-coverage snapshot experiment — inconclusive (2026-10-13)
+
+An isolated candidate appended a current-turn coverage snapshot after tool messages: the original question, document/section IDs actually read, their section counts, and canonical inventory count. Fixed guidance distinguished a recommendation from an exhaustive survey and avoided treating unread validation sections as evidence of product readiness. It did not automatically read other documents or grant extra citation authority.
+
+Replay of evals/companion/context/recommendation-scope.json failed on the first model call with provider_transport before any answer or new tool call. This does not establish a network cause, nor support or refute the proposed coverage guidance. The application change was reverted; the unverified patch remains at /tmp/reading-coverage-unverified.patch. Logs: /tmp/reading-coverage-live.sse and /tmp/reading-coverage-live.log. The stage was removed. No tests were rerun for this documentation-only retained change. Accepted application code and production remain unchanged. Next investigation should distinguish failures before response headers from failures while reading the provider stream, retaining fixed metadata only.
+
+## Provider phase and deadline attribution (2026-10-13)
+
+The provider adapter now keeps the combined per-call/caller AbortSignal through both fetch and stream reading. If the per-call deadline has fired but the body reports a generic error, the recorded cause remains the deadline; caller cancellation and evidence-callback error identity are preserved. Tests reproduce the generic-body-error/deadline case and caller cancellation. This fixes attribution; it does not extend timeouts or add retries.
+
+Errors now carry only an allowlisted providerPhase: request_headers (fetch has not returned a response) or response_stream (response received; includes subsequent status/stream processing). The private runner and failure records preserve this field, without payloads, credentials or arbitrary error messages. Full 250 tests, build and site checks passed.
+
+For diagnosis only, the previously unverified reading-coverage patch was applied to the temporary stage and the captured scope conversation replayed. The first model call failed with provider_transport / request_headers. Thus this sample failed before response parsing and was not identified as an expired deadline; its underlying cause remains unknown. The coverage prompt remains unadopted in application code. Logs: /tmp/provider-phase-live.sse and /tmp/provider-phase-live.log. A subsequent credential-free /models request returned 401 in 2.040 seconds (DNS .002, TCP 1.372, TLS 1.708), showing only momentary endpoint reachability, not authenticated POST reliability. The temporary stage was removed. Production remains unchanged.
+
+## Native-runtime reachability and coverage replay (2026-10-13)
+
+Three credential-free requests to /models from the agent's Node 24 runtime returned 401 in 966, 923 and 226 ms. This confirms reachability at those moments only. A temporary authenticated replay wrapped fetch with a diagnostic that could emit only allowlisted error class/code chains (no request headers, keys, messages, response bodies or arbitrary codes). It used the unadopted reading-coverage experiment solely in the isolated stage. The request succeeded, so no fetch-error chain was observed and the intermittent pre-response failure remains unexplained.
+
+The coverage experiment now has an observable semantic result: three model calls, one recoverable answer_evidence rejection, and a completed answer still comparing MASS and AI attitudes without reading them. It softened the exclusivity wording but retained an unsupported cross-document comparison, citing only the Mind Imprint applications section. Therefore the coverage snapshot is not sufficient as the proposed grounding fix and remains unadopted. Logs: /tmp/provider-cause-live.sse and /tmp/provider-cause-live.log; the temporary wrapper source is /tmp/provider-cause-stage/scripts/test-agent-development.mjs. The stage was removed. No application code or production changed. Latest accepted code CI passed for 81c23e8 (runs 38505409002 and 38505405379).
+
+## Bounded original sections returned by search (2026-10-13)
+
+The agent-facing search result now includes full original corpus sections for up to the first three returned matches, each at most the existing 2,400-character corpus chunk bound. These sections are read through read_content, registered as current-turn passage evidence and supplied through the existing quotation-fragment mechanism. Remaining matches and oversized sections stay navigation-only; no citation authority comes from snippets or summaries. The standalone browser/search tool contract remains unchanged. Search ranking still cannot establish absence or uniqueness across the site.
+
+The previously failed recommendation-scope context replay completed in two model calls with citations to both Mind Imprint applications and MASS section 6.3, distinguishing personal learning records from model-training signals and avoiding the earlier exclusivity claim. The actual MASS passage was inspected and supports that distinction. Logs: /tmp/retrieval-reading-live.sse and /tmp/retrieval-reading-live.log.
+
+The full three-turn recommendation fixture then completed in 3/2/2 model calls: one card, one section entry, then a comparison citing both supplied original passages. The first answer omitted the earlier immediate-usability promise; the final answer distinguished execution records, reasoning explanations and process supervision without claiming uniqueness. This is two successful scope samples and one full journey, not proof of general semantic correctness or a latency benchmark. The initial recommendation still uses a broad comparative judgment about research notes; broader recommendation quality remains open. Logs: /tmp/retrieval-reading-journey.log and /tmp/retrieval-reading-journey-errors.log.
+
+Full 252 tests, build and site checks passed. The old search-only rejection test was replaced with a test inspecting the supplied original passage and its successful citation. New tests ensure lower-ranked matches outside the three-read bound and oversized sections still cannot be cited without a later explicit read. Original-section retrieval changes tool evidence availability, not the output/cost/deadline limits. The private stage was removed. Production remains unchanged.
+
+## Real concept diagram and correction follow-up (2026-10-13)
+
+With bounded original-section search enabled, a fresh private browser request produced a three-step MASS 8.1 concept flow in four model calls and eight final-prose deltas. Opening the second step closed the first and displayed its original quote/link. The final takeaway retained “可能”, but the second step still replaced the source's “可能同时强化” with “会同时强化”. Thus retrieval improvement does not establish semantic fidelity of diagrams.
+
+A direct follow-up completed in one call with 21 deltas and no new visual, correctly recalling the second-step wording and correcting it to “可能同时强化”. The old diagram remains unchanged; this is prose correction only, leaving a coherence gap when revisiting the visual. This is an actual model/renderer/memory success for the specific follow-up, not proof that diagrams are always accurate or revised in place.
+
+Screenshots and numbered findings: .verification/concept-journey/report.md. Context replay: evals/companion/context/concept-modal-correction.json. Logs: /tmp/concept-browser-{1,2}.{sse,log}. Application code unchanged; no test suite rerun for the retained fixture/documentation. The private preview, tab and isolated stage were removed. Production unchanged.
+
+## Stable diagram references for future correction (2026-10-13)
+
+Generated concept flows now receive a server-generated concept UUID in visualId, separate from the request-prefixed SSE block ID. The bounded assistant memory retains that reference when present; stream validation accepts only the expected format and only on concept flows. Legacy diagrams without a stable reference continue to render and remain in memory without an invented identity. The model cannot provide this property through show_concept_flow arguments.
+
+A regression test generates two same-titled diagrams, passes them through real development SSE serialization/parsing and saved-turn validation, and checks their distinct identities survive into server/model history even though the transport block ID changes. Another test verifies legacy compatibility and malformed-reference rejection. Full 254 tests, build and site checks passed.
+
+This is foundational identity work, not an implemented visual edit action. The prior inconsistency (textual correction leaving an old visual unchanged) remains open. No diagram layout or public deployment was changed, and no new paid model test was needed for the deterministic identity path.
+
+## Targeted concept revision implementation and live check
+
+Implemented a capability-negotiated `revise_concept_step` action, fresh-source/exact-quote checks, server-history target resolution, bounded immutable revision history, and client updates committed only on successful completion. Failed or missing targets retain an honest standalone correction. The correction record is collapsed to avoid repeating the same explanation above the final answer. Titles and topology are not editable through this action.
+
+Full verification passed: 263 tests plus build and site checks. Coverage includes public HTTP capability validation and session persistence, real SSE parsing/saved-turn validation, same-title distinct targets, old/stale/missing targets, pending/error behavior, and ordered replay. These tests do not establish semantic accuracy of arbitrary generated claims.
+
+Private real-model browser evidence: the MASS diagram request emitted a diagram but failed on model call 3 with `provider_transport` / `request_headers`; it remained incomplete and was not admitted as revision history. A separate Mind Imprint request completed in 6 calls with 9 text deltas. Its first step included reading/writing/course contexts absent from its attached excerpt. On a request to limit that step to the quoted application's functionality, the agent reread the source and emitted a concept revision, completing in 2 calls with 8 deltas. The original description changed to “应用将 AI 对话与结构化思维工具卡结合，用户打开并完成卡片。” and showed “已修订”; no replacement diagram was emitted.
+
+The same recorded successful events were replayed with the final compact UI and inspected in a real browser. Screenshots are in `.verification/concept-revision/`: the initial verbose correction, final collapsed correction, and updated original diagram. This was a private development preview and recorded-event replay, not a production deployment or a public Turnstile acceptance test. Model reliability and initial-answer semantic precision remain open. Visitor quota and the shared monthly ceiling are unchanged.
+
+## Self-contained concept captions
+
+The previous private MASS run displayed a diagram and then failed before response headers on the trailing model request. Added optional terminal captions to concept flows, reusing the timeline's single-tool/validated-source completion pattern. Simple diagram answers can now finish with one short takeaway without a further provider call. Ordinary uncaptained diagrams remain compatible and can continue to additional explanation. No retry, quota increase or transport-security change was introduced.
+
+265 tests and full build/site checks passed, including no trailing completion, source deduplication, event ordering, unread source rejection, invalid/oversized/batched captions and biography identity checks. The same MASS question completed in a private real-model run with three calls (search, read, captioned diagram). This demonstrates the shorter completion path for one sample, not a measured general reliability improvement.
+
+Semantic inspection still failed: the source says “整条照搬可能同时强化…”, but the caption says “直接训练会同时强化坏习惯” and step two says “模型会把…一并学习”. Preserving a hypothetical first step and attaching exact quotes did not prevent this stronger causal claim. Recorded `evals/companion/concept-caption-certainty.json` as a manual failure regression, not a passing evaluation. No production release occurred. Output logs: `/tmp/concept-caption-live.jsonl` and `/tmp/concept-caption-live.log`; independent server stage removed after testing.
+
+## Explicit source-uncertainty tripwire
+
+Added a pre-display lexical check for concepts and their revisions, including step titles, explanations and terminal captions. When a selected quote/read passage explicitly retains possibility but the explanation makes an unqualified prediction, the tool returns repair guidance instead of emitting the diagram. The guidance asks for a meaningful correction rather than deleting a modal word. Existing model/tool budgets remain unchanged; no separate review call or automatic rewrite is introduced.
+
+270 tests plus build/site checks passed. The actual saved MASS failure is now exercised by an automated lexical regression. Counterexamples cover qualified and negative statements, definite source text, Chinese non-modal 会 words, per-step source associations, no visible output before repair, and revised descriptions. This does not convert the broader manual semantic scenario into a universally passing evaluation.
+
+Private real-model replay of the same MASS question completed in 5 calls. The status log contains search, read, search, and two concept-tool attempts, with only one final diagram. The final caption was “成功轨迹可能包含错误与偶然补救，整条照搬可能同时强化坏习惯。” Step two also retained “可能同时强化…”. The final output passed manual inspection for the specific possibility-versus-certainty issue. Tool rejection payloads were not retained in this live log, so the precise reason for the first rejected attempt is not independently established by that log; deterministic tests establish the tripwire's repair behavior. This sample does not establish broad semantic fidelity or acceptable general latency. Logs: `/tmp/uncertainty-live.jsonl`, `/tmp/uncertainty-live.log`. No production deployment, visitor-quota change or accounting reset occurred.
+
+## Mobile draft focus and story-reference continuity
+
+A fresh mobile-width browser audit reproduced a referent shift: after typing “这段经历和她现在做的研究有什么联系？” on the Tsinghua chapter, the still-visible next-chapter action changed the card to startup work while retaining the unfinished question. `askLive` previously derived its opening context after verification from current history.
+
+The composer now snapshots the opening reference when typing starts and passes it into the live request before clearing the input. A failed request restores the same reference. Clearing or explicitly resetting releases it. While a draft exists, next-story, reroll and preset-question controls are hidden; source disclosure remains available. Browser-back restoration also required a pageshow/frame update because form text could be restored after module initialization without an input event.
+
+Inspected current screenshots in `.verification/mobile-journey/report.md` covering entry, opening, story, the reproduced shift, focused draft, source navigation, back restoration and clear-to-resume. 272 tests plus build/site checks pass, with tests for stable story references, undefined initial references, copying and retry restoration. Browser checks confirmed next controls disappear with text, stay hidden after returning from a source, and reappear when text is cleared. No paid chat or CAPTCHA was submitted in this audit; physical keyboard, screen reader and broad accessibility compliance remain unverified. No new persisted draft text or production deployment was introduced.
+
+## Reading draft release without reopening
+
+A fresh mobile reading journey confirmed that a draft started in MASS §8.1 remained associated with that section after closing the companion, scrolling to later text and reopening. It also reproduced a gap: clearing that question kept the old section as the welcome/read-action context until another close/reopen.
+
+The reading-draft controller now distinguishes latest reading position from the draft position. Clearing immediately releases to the latest position captured on opening. Requests snapshot their own section-resolution promise before clearing input; later UI resolution cannot change the submitted section. Failure restoration returns to the original draft headings. Resolution generations control UI updates while each promise retains its own result.
+
+274 tests plus build/site checks passed. Browser verification repeated the flow from §8.2 to §8.3: the old question retained §8.2, clearing switched the welcome/read action to §8.3 without reopening. Actual screenshots and five-step findings are in `.verification/reading-journey/report.md`. The check did not submit a paid request or complete Turnstile; physical mobile keyboards, screen readers and full production flows remain outside this evidence. No article content or production release changed.
+
+## Live reading-section switch conversation
+
+Added `evals/companion/reading-section-switch.json`, a three-turn private developer conversation using the actual public corpus section IDs. The first two questions are identical (“这一节最重要的提醒是什么？用两句话说明，不画图。”); only page context changes from MASS §8.1 to §8.3. The third explicitly returns to the first topic while page context stays at §8.3.
+
+The current candidate completed all three turns in 1 / 1 / 2 provider calls. Turn one explained successful trajectories versus process/data quality and cited section `:20` (§8.1). Turn two explained learning curves, held-out outcomes, compute/data separation and old-capability regression and cited `:22` (§8.3). Turn three reread §8.1 and distinguished correctness from downstream learning utility, citing `:20`. Each answer used two sentences and emitted no diagram or card. Manual inspection against the public source found the expected topic and qualified distinction in each answer.
+
+These results verify one actual multi-turn model conversation through the private runner's retained successful history and source tools. They do not prove the browser submitted those exact page contexts, public Turnstile/session behavior, or reliability across arbitrary questions. The preceding browser audit and this backend check are complementary evidence, not a full public end-to-end test. Raw public-test output and fixed diagnostic logs are in `/tmp/section-switch-live.jsonl` and `/tmp/section-switch-live.log`. No application change, production deployment, budget change or visitor session was involved. The independent server stage was cleaned up after completion.
+
+### Stop-and-edit browser verification — 2026-10-14
+
+Application revision `3f70772` was checked in the local in-app browser on the actual `/zh/chat/` and published MASS note pages. Submitting with Enter moves focus to Stop; immediately activating that focused button with Space cancels before visitor verification completes. The chat displays “已停止”, restores the full original question to the editable composer and returns focus there. The Stop control disappears. Repeated empty failures of the same question replace the previous empty failure rather than accumulating duplicate turns.
+
+On the note, the companion identified §8.1, “最终成功不代表每一步都值得模仿”. After cancelling a question about that section, the restored composer retained the exact question and displayed “问题对应：8.1 最终成功不代表每一步都值得模仿”. Read-only DOM evidence is saved locally at `.verification/stop-edit/reading-state.json`. Navigating to the chat page in the same tab showed a fresh opening, with no cancelled turn restored as a successful conversation record. The temporary tab was closed; the existing preview server was left running.
+
+Two earlier mouse attempts lost the race to verification failure and are not counted as successful stop tests. The successful checks used keyboard activation before verification, without solving a challenge or calling the model. This establishes composer/context restoration for that cancellation stage, not mid-stream backend cancellation, server memory, mobile software keyboard behavior or public Turnstile integration. Existing full validation after the application change passed 274 tests plus build and site checks; this evidence-only update does not change code.

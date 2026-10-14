@@ -262,3 +262,23 @@ test('HTTP validates section ownership and retains reading position in server hi
  for(const context of [{...pageContext,sectionId:'other:0'},{...pageContext,text:'injected source'}])assert.equal((await post('/v2/agent',{question:'This?',language:'en',pageContext:context},token)).status,400);
  assert.equal(calls,1);
 });
+
+test('HTTP negotiates concept revisions and stores successful edits in its own session',async t=>{
+ let round=0,target;
+ const {post,guard}=await serve(t,{complete:async({tools,messages})=>{
+  assert.ok(tools.some(tool=>tool.name==='revise_concept_step'));
+  round++;
+  if(round===1 || round===4)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+  if(round===2)return {toolCalls:[{id:'draw',name:'show_concept_flow',arguments:{title:'Cache',labels:['One','Two'],descriptions:['Cached keys.','Cached values.'],sourceIds:['notes/cache/en:0'],quoteIds:['q0','q0']}}]};
+  if(round===5){target=JSON.parse(messages.find(m=>m.role==='user' && m.content?.includes('previous_display_metadata')).content).visuals[0].visualId;return {toolCalls:[{id:'edit',name:'revise_concept_step',arguments:{visualId:target,position:1,description:'Keys and values are cached.',quoteId:'q0'}}]};}
+  return {text:'Cache explanation.',sourceIds:['notes/cache/en:0']};
+ }});
+ const token=await issue(post),input={question:'Explain cache',language:'en',supportsConceptFlow:true,supportsConceptRevisions:true};
+ for(const value of ['true',1,null])assert.equal((await post('/v2/agent',{...input,supportsConceptRevisions:value},token)).status,400);
+ assert.equal(round,0);
+ assert.match(await (await post('/v2/agent',input,token)).text(),/event: done/);
+ const output=await (await post('/v2/agent',{...input,question:'Correct step one'},token)).text();
+ assert.match(output,/concept_revision/);assert.match(output,/event: done/);
+ const memory=JSON.parse(Object.values(guard.store.state.sessions)[0].history.at(-1).content);
+ assert.equal(memory.revisions[0].visualId,target);assert.equal(memory.revisions[0].description,'Keys and values are cached.');
+});

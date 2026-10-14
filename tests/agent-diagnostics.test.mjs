@@ -129,3 +129,96 @@ test('native Qwen tools keep provider roles while constraining final prose to JS
   else {assert.equal(result.text,text);assert.equal(streamed,text);}
  }
 });
+
+
+test('provider final-shape details survive diagnostics without payloads and keep the repair category',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ const secret='PRIVATE-payload-and-field';
+ const cases=[
+  [[secret],'nonobject_result'],
+  [{text:secret,sourceIds:[],[secret]:secret},'additional_fields'],
+  [{text:{private:secret},sourceIds:[]},'invalid_text_field'],
+  [{text:secret,sourceIds:secret},'invalid_sources_field']
+ ].map(([value,detail])=>[JSON.stringify(value),detail]);
+ cases.push(['{"sourceIds":[],"text":"original","text":"changed"}','changed_stream_text']);
+ for(const [content,detail] of cases) {
+  const body='data: '+JSON.stringify({choices:[{index:0,delta:{content},finish_reason:'stop'}]})+'\n\ndata: [DONE]\n\n';
+  const complete=createModelAgent({apiKey:'not-a-real-key',model:'qwen3.8-max-0902',provider:'bailian',baseURL:'https://dashscope.aliyuncs.com/compatible-mode/v1',fetchImpl:async()=>new Response(body,{headers:{'Content-Type':'text/event-stream'}})});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
+   const record=agentFailureRecord({error});
+   assert.equal(record.category,'final_shape');assert.equal(record.detail,detail);assert.ok(!JSON.stringify(record).includes(secret));return true;
+  });
+ }
+ assert.equal(agentFailureRecord({error:{diagnosticCategory:'final_shape',diagnosticDetail:secret}}).detail,undefined);
+ assert.equal(agentFailureRecord({error:{diagnosticCategory:'timeout',diagnosticDetail:'additional_fields'}}).detail,undefined);
+});
+
+
+test('fetch transport diagnostics keep only allowlisted cause categories',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ for(const [code,category] of [['UND_ERR_CONNECT_TIMEOUT','connection_timeout'],['UND_ERR_HEADERS_TIMEOUT','response_timeout'],['UND_ERR_BODY_TIMEOUT','response_timeout'],['UND_ERR_SOCKET','connection_closed'],['ECONNRESET','connection_closed'],['EPIPE','connection_closed'],['ENOTFOUND','dns_failure'],['EAI_AGAIN','dns_failure'],['ECONNREFUSED','connection_refused'],['PRIVATE-unknown-code','provider_transport']]) {
+  const cause=Object.assign(new Error('PRIVATE-host-address'),{code});
+  const complete=createModelAgent({apiKey:'PRIVATE-key',model:'test',fetchImpl:async()=>{throw new TypeError('PRIVATE-fetch-details',{cause});}});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
+   assert.equal(error.diagnosticCategory,category);
+   const record=agentFailureRecord({stage:'model',error});assert.equal(record.category,category);
+   assert.ok(!JSON.stringify(record).includes('PRIVATE'));assert.ok(!JSON.stringify(error).includes('PRIVATE'));return true;
+  });
+ }
+ assert.equal(providerFailureCategory(Object.assign(new Error('private'),{code:'ECONNRESET'})),'connection_closed');
+ assert.equal(providerFailureCategory(Object.assign(new DOMException('private','AbortError'),{cause:{code:'ECONNRESET'}})),'timeout');
+});
+
+test('JSON parse diagnostics identify the protocol layer without retaining malformed payloads',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ const secret='PRIVATE-malformed-payload';
+ const frame=choice=>'data: '+JSON.stringify({choices:[choice]})+'\n\ndata: [DONE]\n\n';
+ const cases=[
+  ['data: {'+secret+'\n\ndata: [DONE]\n\n','stream_frame'],
+  [frame({index:0,delta:{tool_calls:[{index:0,id:'c1',type:'function',function:{name:'read_profile',arguments:'{'+secret}}]},finish_reason:'tool_calls'}),'tool_arguments'],
+  [frame({index:0,delta:{content:'{'+secret},finish_reason:'stop'}),'final_answer']
+ ];
+ for(const [body,detail] of cases) {
+  const complete=createModelAgent({apiKey:'not-a-real-key',model:'qwen3.8-max-0902',provider:'bailian',baseURL:'https://dashscope.aliyuncs.com/compatible-mode/v1',fetchImpl:async()=>new Response(body,{headers:{'Content-Type':'text/event-stream'}})});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
+   const record=agentFailureRecord({error});
+   assert.equal(record.category,'json_parse');assert.equal(record.detail,detail);
+   assert.ok(!JSON.stringify(record).includes(secret));assert.ok(!JSON.stringify(error).includes(secret));return true;
+  });
+ }
+ assert.equal(agentFailureRecord({error:{diagnosticCategory:'json_parse',diagnosticDetail:secret}}).detail,undefined);
+ assert.equal(agentFailureRecord({error:{diagnosticCategory:'timeout',diagnosticDetail:'final_answer'}}).detail,undefined);
+});
+
+test('provider phases separate header failures from body failures with fixed metadata',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ for(const phase of ['request_headers','response_stream']) {
+  const complete=createModelAgent({apiKey:'PRIVATE-key',model:'test',fetchImpl:async()=>{
+   if(phase==='request_headers')throw new TypeError('PRIVATE-error');
+   return new Response(new ReadableStream({start(controller){controller.error(new TypeError('PRIVATE-body'));}}),{headers:{'Content-Type':'text/event-stream'}});
+  }});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
+   const record=agentFailureRecord({error});assert.equal(record.providerPhase,phase);assert.equal(record.category,'provider_transport');
+   assert.ok(!JSON.stringify(record).includes('PRIVATE'));return true;
+  });
+ }
+ assert.equal(agentFailureRecord({error:{diagnosticPhase:'PRIVATE-arbitrary'}}).providerPhase,undefined);
+});
+
+test('provider deadline survives a generic stream abort while caller cancellation keeps identity',async t=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ for(const callerAbort of [false,true]) {
+  const deadline=new AbortController(),caller=new AbortController();
+  t.mock.method(AbortSignal,'timeout',()=>deadline.signal);
+  const reason=new DOMException('PRIVATE-reason',callerAbort?'AbortError':'TimeoutError');
+  const complete=createModelAgent({apiKey:'PRIVATE-key',model:'test',fetchImpl:async()=>new Response(new ReadableStream({pull(controller){
+   (callerAbort?caller:deadline).abort(reason);controller.error(new TypeError('PRIVATE-generic-stream-error'));
+  }}),{headers:{'Content-Type':'text/event-stream'}})});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:caller.signal,language:'en'}),error=>{
+   if(callerAbort)assert.equal(error,reason);
+   else {const record=agentFailureRecord({error});assert.equal(record.category,'timeout');assert.equal(record.providerPhase,'response_stream');assert.ok(!JSON.stringify(record).includes('PRIVATE'));}
+   return true;
+  });
+  t.mock.restoreAll();
+ }
+});

@@ -289,7 +289,7 @@ test('diagram follow-up refreshes real source text before the first model answer
  const events=[];let calls=0;
  const result=await runContentAgent({question:'Explain step two',corpus,history:[{role:'assistant',content:JSON.stringify(memory)}],onEvent:event=>events.push(event),complete:async({messages,onText})=>{
    calls++;const read=JSON.parse(messages.at(-1).content);
-   assert.equal(read.sections[0].text,corpus.documents[0].sections[0].text);
+   assert.equal(read.sections[0].fragments.map(fragment=>fragment.text).join('\n'),corpus.documents[0].sections[0].text);
    assert.equal(events.filter(event=>event.phase==='tool_completed').length,1);
    onText('Reuse stored keys and values.',['notes/cache/en:0']);
    return {text:'Reuse stored keys and values.',sourceIds:['notes/cache/en:0']};
@@ -430,13 +430,36 @@ test('within-article retrieval returns distinct relevant passages, with paginati
  assert.equal(tools.read_content({id:article.id,sectionId:result.results[0].sectionId}).sections.length,1);
 });
 
-test('scoped search passages must still be read before an agent can cite them',async()=>{
+test('scoped search provides its actual original section as citation evidence',async()=>{
  let calls=0;const id='notes/cache/en:0';
- await assert.rejects(runContentAgent({question:'What is cached?',corpus,complete:async()=>{
+ const answer=await runContentAgent({question:'What is cached?',corpus,complete:async({messages})=>{
   if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'keys',documentId:'notes/cache/en'}}]};
+  const output=JSON.parse(messages.at(-1).content);
+  assert.equal(output.includedReads[0].sections[0].id,id);
+  assert.equal(output.includedReads[0].sections[0].fragments[0].text,'Attention stores keys and values. torch.compile is exact.');
   return {text:'Keys are cached.',sourceIds:[id]};
+ }});
+ assert.equal(calls,2);assert.equal(answer.sources[0].id,id);
+});
+
+test('search does not grant evidence to matches beyond the bounded original reads',async()=>{
+ const many={schemaVersion:1,revision:'bounded',documents:Array.from({length:5},(_,i)=>doc(`source-${i}`,`Source ${i}`,'Shared search term.'))};
+ let calls=0,unread;
+ await assert.rejects(runContentAgent({question:'Explain',corpus:many,complete:async({messages})=>{
+  if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'shared',limit:5}}]};
+  if(calls===2){const output=JSON.parse(messages.at(-1).content);assert.equal(output.includedReads.length,3);assert.equal(output.results.length,5);unread=output.results[3].sectionId;assert.ok(!output.includedReads.some(read=>read.sections.some(section=>section.id===unread)));}
+  return {text:'This unprovided passage is not evidence.',sourceIds:[unread]};
  }}),/Invalid answer evidence/);
- assert.equal(calls,6);
+});
+
+test('oversized matching sections remain navigation-only until explicitly read',async()=>{
+ const large={schemaVersion:1,revision:'large',documents:[doc('long','Long source','shared '.repeat(400))]};
+ let calls=0;
+ await assert.rejects(runContentAgent({question:'Explain',corpus:large,complete:async({messages})=>{
+  if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'shared'}}]};
+  if(calls===2)assert.deepEqual(JSON.parse(messages.at(-1).content).includedReads,[]);
+  return {text:'Unsupported.',sourceIds:['notes/long/en:0']};
+ }}),/Invalid answer evidence/);
 });
 
 test('an unknown scoped document can be corrected without granting evidence',async()=>{
@@ -662,4 +685,148 @@ test('an uncited identity reply is repaired once without showing or citing model
  }});
  assert.equal(round,2);assert.match(answer.text,/not Yuxin herself/);
  assert.equal(events.filter(e=>e.type==='answer_delta').length,0);
+});
+
+
+test('final-shape repair explains only fixed shape problems and preserves evidence requirements',async()=>{
+ const details=['nonobject_result','additional_fields','invalid_text_field','invalid_sources_field','changed_stream_text','PRIVATE-unknown-detail'];
+ for(const detail of details)for(const readFirst of [false,true]) {
+  let rounds=0;
+  const result=await runContentAgent({question:'Explain',corpus,complete:async({messages})=>{
+   rounds++;
+   if(readFirst&&rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(rounds===(readFirst?2:1))throw Object.assign(new Error('PRIVATE-provider-payload'),{diagnosticCategory:'final_shape',diagnosticDetail:detail});
+   if(rounds===(readFirst?3:2)) {
+    const feedback=JSON.parse(messages.at(-1).content);
+    assert.ok(!JSON.stringify(feedback).includes('PRIVATE'));
+    if(detail.startsWith('PRIVATE'))assert.equal(feedback.format,undefined);
+    else {assert.equal(feedback.format.problem,detail);assert.deepEqual(feedback.format.fields,['sourceIds','text']);assert.ok(feedback.format.guidance.length>20);}
+    if(!readFirst){assert.equal(feedback.reason,'no_source_read_yet');return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};}
+   }
+   return {text:'Attention stores keys and values.',sourceIds:['notes/cache/en:0']};
+  }});
+  assert.equal(result.text,'Attention stores keys and values.');assert.equal(rounds,3);
+ }
+});
+
+test('a sourced timeline caption completes once without an extra model answer',async()=>{
+ let rounds=0;const events=[];
+ const answer=await runContentAgent({question:'A brief timeline',corpus,onEvent:event=>events.push(event),complete:async()=>{
+  if(++rounds===1)return {toolCalls:[{id:'read',name:'query_profile_events',arguments:{language:'en'}}]};
+  if(rounds===2)return {toolCalls:[{id:'show',name:'show_profile_timeline',arguments:{eventIds:['startup','pku'],caption:'Study and professional work overlap.',language:'en'}}]};
+  assert.fail('A terminal caption must not request another model completion');
+ }});
+ assert.equal(rounds,2);assert.equal(answer.text,'Study and professional work overlap.');
+ assert.deepEqual(answer.sources.map(source=>source.id),['event:startup','event:pku']);
+ assert.equal(answer.blocks.length,1);assert.equal(answer.blocks[0].items.length,2);
+ assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['block','answer_delta','answer']);
+ assert.equal(events.find(event=>event.type==='answer_delta').text,answer.text);
+});
+
+test('invalid terminal captions are corrected before a timeline or text reaches the visitor',async()=>{
+ for(const kind of ['empty','oversized','identity','batch']) {
+  let rounds=0;const events=[];
+  const answer=await runContentAgent({question:'Show her timeline',corpus,onEvent:event=>events.push(event),complete:async()=>{
+   rounds++;
+   if(rounds===1)return {toolCalls:[{id:'read',name:'query_profile_events',arguments:{language:'en'}}]};
+   if(rounds===2) {
+    const caption=kind==='empty'?' ':kind==='oversized'?'x'.repeat(161):kind==='identity'?'She was a Visiting Scholar at Princeton.':'A short introduction.';
+    return {toolCalls:[{id:'bad',name:'show_profile_timeline',arguments:{eventIds:['princeton'],caption}},...(kind==='batch'?[{id:'extra',name:'read_profile',arguments:{eventId:'princeton'}}]:[])]};
+   }
+   assert.equal(events.filter(event=>['block','answer_delta','answer'].includes(event.type)).length,0);
+   return {toolCalls:[{id:'fixed',name:'show_profile_timeline',arguments:{eventIds:['princeton'],caption:'She is a Visiting Student Research Collaborator (VSRC).',language:'en'}}]};
+  }});
+  assert.equal(rounds,3);assert.equal(answer.blocks.length,1);
+  assert.equal(answer.text,'She is a Visiting Student Research Collaborator (VSRC).');
+ }
+});
+
+test('a terminal timeline caption cannot skip reading its selected events',async()=>{
+ let rounds=0;const events=[];
+ const show={id:'show',name:'show_profile_timeline',arguments:{eventIds:['startup'],caption:'Her startup experience.',language:'en'}};
+ await runContentAgent({question:'Show startup timeline',corpus,onEvent:event=>events.push(event),complete:async()=>{
+  rounds++;
+  if(rounds===1)return {toolCalls:[show]};
+  if(rounds===2){assert.equal(events.filter(event=>event.type==='block').length,0);return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',language:'en'}}]};}
+  return {toolCalls:[{...show,id:'fixed'}]};
+ }});
+ assert.equal(rounds,3);assert.equal(events.filter(event=>event.type==='block').length,1);
+});
+
+test('year-only follow-ups with prior visuals retain evidence tools and reject presentation before display',async()=>{
+ const events=[];let round=0;
+ const answer=await runContentAgent({question:'她离开公司是哪一年？只答年份。',language:'zh-CN',corpus,
+ history:[{role:'user',content:'Show her timeline'},{role:'assistant',content:JSON.stringify({text:'Her education and startup experience.',sourceIds:['event:startup'],visuals:[]})}],
+ onEvent:event=>events.push(event),complete:async({tools,messages})=>{
+  assert.ok(tools.some(tool=>tool.name==='read_profile'));
+  assert.ok(!tools.some(tool=>tool.name.startsWith('show_') || tool.name==='suggest_questions'));
+  if(++round===1)return {toolCalls:[{id:'wrong',name:'show_profile_timeline',arguments:{eventIds:['startup'],caption:'Repeating the earlier timeline.'}}]};
+  if(round===2){
+   assert.ok(messages.some(message=>message.role==='tool' && JSON.parse(message.content).error==='presentation_not_requested'));
+   return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',language:'zh-CN'}}]};
+  }
+  return {text:'2022',sourceIds:['event:startup']};
+ }});
+ assert.equal(answer.text,'2022');assert.equal(answer.blocks.length,0);
+ assert.ok(!events.some(event=>event.type==='block'));
+ assert.deepEqual(answer.sources.map(source=>source.id),['event:startup']);
+});
+
+test('recommendation cards resolve published editions without inventing translations',()=>{
+ const tools=createContentTools(corpus);
+ const cards=tools.show_post_cards({ids:['notes/cache/en','notes/cache/zh-CN','notes/other/en'],language:'zh-CN'});
+ assert.deepEqual(cards.items.map(item=>item.id),['notes/cache/zh-CN','notes/other/en']);
+ assert.equal(cards.items[0].title,'KV cache 笔记');assert.equal(cards.items[0].url,'/zh/notes/cache/');
+ assert.equal(tools.show_post_cards({ids:['notes/cache/zh-CN'],language:'en'}).items[0].id,'notes/cache/en');
+ assert.equal(tools.show_post_cards({ids:['notes/cache/en']}).items[0].id,'notes/cache/en');
+ assert.throws(()=>tools.show_post_cards({ids:['unknown'],language:'zh-CN'}),/Unknown document/);
+});
+
+test('agent cards default to conversation language, allow explicit editions, and do not grant translation evidence',async()=>{
+ for(const override of [undefined,'en']) {
+  let round=0;const events=[];
+  const answer=await runContentAgent({question:'推荐一篇',language:'zh-CN',corpus,onEvent:e=>events.push(e),complete:async({messages})=>{
+   if(++round===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(round===2)return {toolCalls:[{id:'card',name:'show_post_cards',arguments:{ids:['notes/cache/en'],...(override?{language:override}:{})}}]};
+   if(round===3){
+    const result=JSON.parse(messages.find(message=>message.role==='tool' && message.toolCallId==='card').content);
+    assert.equal(result.items[0].id,override?'notes/cache/en':'notes/cache/zh-CN');
+    return {text:'Unjustified translation citation',sourceIds:['notes/cache/zh-CN:0']};
+   }
+   assert.ok(messages.some(message=>message.content?.includes('answer_rejected')));
+   return {text:'这篇介绍键值缓存。',sourceIds:['notes/cache/en:0']};
+  }});
+  assert.equal(answer.blocks[0].items[0].id,override?'notes/cache/en':'notes/cache/zh-CN');
+  assert.deepEqual(answer.sources.map(source=>source.id),['notes/cache/en:0']);
+  assert.ok(!events.some(event=>event.type==='answer_delta' && event.text.includes('Unjustified')));
+ }
+});
+
+test('a sourced concept caption finishes with the diagram and no trailing model call',async()=>{
+ let rounds=0;const events=[];
+ const answer=await runContentAgent({question:'Explain cache with two steps',corpus,onEvent:event=>events.push(event),complete:async()=>{
+  if(++rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+  if(rounds===2)return {toolCalls:[{id:'draw',name:'show_concept_flow',arguments:{title:'Cache reuse',labels:['Store','Reuse'],descriptions:['Keep keys and values.','Reuse the saved values.'],sourceIds:['notes/cache/en:0'],quoteIds:['q0','q0'],caption:'Stored values can be reused.'}}]};
+  assert.fail('The completed diagram must not need a trailing model request');
+ }});
+ assert.equal(rounds,2);assert.equal(answer.text,'Stored values can be reused.');
+ assert.deepEqual(answer.sources.map(source=>source.id),['notes/cache/en:0']);
+ assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['block','answer_delta','answer']);
+ assert.equal(answer.blocks.length,1);assert.ok(answer.blocks[0].visualId);
+});
+
+test('terminal concept captions reject unread evidence, malformed batches and biography inflation before display',async()=>{
+ for(const kind of ['unread','empty','oversized','batch','identity']) {
+  const events=[];let rounds=0;
+  const args={title:'Public work',labels:['One','Two'],descriptions:['First explanation.','Second explanation.'],sourceIds:['event:princeton'],caption:'A public research experience.'};
+  await runContentAgent({question:'Draw her public research work',corpus,onEvent:event=>events.push(event),complete:async()=>{
+   rounds++;
+   if(rounds===1 && kind!=='unread')return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'princeton'}}]};
+   if(rounds===(kind==='unread'?1:2))return {toolCalls:[{id:'invalid',name:'show_concept_flow',arguments:{...args,caption:kind==='empty'?' ':kind==='oversized'?'x'.repeat(161):kind==='identity'?'She was a Visiting Scholar at Princeton.':args.caption}},...(kind==='batch'?[{id:'extra',name:'read_profile',arguments:{eventId:'princeton'}}]:[])]};
+   assert.equal(events.filter(event=>['block','answer_delta','answer'].includes(event.type)).length,0);
+   if(kind==='unread' && rounds===2)return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'princeton'}}]};
+   return {toolCalls:[{id:'fixed',name:'show_concept_flow',arguments:args}]};
+  }});
+  assert.equal(rounds,3);assert.equal(events.filter(event=>event.type==='block').length,1);
+ }
 });

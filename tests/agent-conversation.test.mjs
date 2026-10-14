@@ -35,7 +35,7 @@ test('recall followed by a fresh read permits an evidenced answer',async()=>{
   calls++;
   if(calls===1){assert.ok(messages.some(m=>m.content?.includes('earlier_conversation_index')));return {toolCalls:[{id:'recall',name:'recall_conversation',arguments:{turn:1}}]};}
   if(calls===2){assert.equal(JSON.parse(messages.at(-1).content).type,'conversation_record');return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'note-1'}}]};}
-  assert.equal(JSON.parse(messages.at(-1).content).sections[0].text,'Current evidence');return {text:'Current evidence',sourceIds:['source-1']};
+  assert.deepEqual(JSON.parse(messages.at(-1).content).sections[0].fragments,[{quoteId:'q0',text:'Current evidence'}]);return {text:'Current evidence',sourceIds:['source-1']};
  }});
  assert.equal(result.sources[0].id,'source-1');assert.equal(calls,3);
 });

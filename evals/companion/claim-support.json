@@ -1,0 +1,86 @@
+[
+  {
+    "id": "mass-certain",
+    "claim": "整条照搬会同时强化有用的补救和前面的坏习惯。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Identify strengthened certainty."
+  },
+  {
+    "id": "mass-possible",
+    "claim": "整条照搬可能同时强化有用的补救和前面的坏习惯。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Preserve the supported possibility; no invented gap."
+  },
+  {
+    "id": "report-hard-gate",
+    "claim": "缺少时序验证时，提交工具会直接阻断提交。",
+    "sourceId": "reports/evaluation-and-information-access/zh-CN:3",
+    "reviewCriterion": "Identify the contradiction with documented advisory behavior."
+  },
+  {
+    "id": "report-advisory",
+    "claim": "缺少时序验证时，提交工具记录警告和未验证标记。",
+    "sourceId": "reports/evaluation-and-information-access/zh-CN:3",
+    "reviewCriterion": "Preserve the documented fact without unnecessary hedging."
+  },
+  {
+    "id": "mass-negation",
+    "claim": "原文并没有断言整条照搬一定会强化坏习惯。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Recognize denial of certainty, not an assertion of inevitability."
+  },
+  {
+    "id": "mass-new-task",
+    "claim": "整条照搬会导致模型在新任务上复现不良模式。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Identify both strengthened certainty and an unsupported new-task outcome."
+  },
+  {
+    "id": "actual-label",
+    "claim": "整条照搬会连带强化坏习惯",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Identify certainty strengthened in a displayed label."
+  },
+  {
+    "id": "actual-description",
+    "claim": "若把整条轨迹当作示范直接训练，模型会同时学到有用的补救动作和前面的错误习惯，无法只保留前者。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Identify the unsupported impossibility of keeping only useful behavior and the strengthened modal."
+  },
+  {
+    "id": "actual-takeaway",
+    "claim": "结果成功不等于过程每一步都值得模仿：轨迹里可能混着偶然补救，整条照搬会连坏习惯一起强化，所以要按数据质量维度筛选。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Identify certainty strengthened in final prose; distinguish the normative addition from stated source facts."
+  },
+  {
+    "id": "actual-qualified-example",
+    "claim": "一条轨迹可能是正确分工后工作者遗漏约束，再由编排者偶然补救才成功，最终结果掩盖了中间的问题步骤。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Preserve the qualified example and include its introducing possibility fragment as evidence."
+  },
+  {
+    "id": "actual-report",
+    "claim": "缺少时序验证时，当前提交工具只做提示性处理：记录警告并打上未验证标记，而非硬性门槛阻断。",
+    "sourceId": "reports/evaluation-and-information-access/zh-CN:3",
+    "reviewCriterion": "Preserve the advisory behavior as a documented fact."
+  },
+  {
+    "id": "learnability-definition-control",
+    "claim": "要满足笔记中“可学习性”的定义，当前上下文需要提供作出示范行动所需的信息。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Preserve the conditional definition. Necessary conditions within a defined property are not automatically an unsupported operational mandate."
+  },
+  {
+    "id": "learnability-operational-mandate",
+    "claim": "所有成功轨迹都必须按这些维度逐条筛选，否则不能用于训练。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Identify the unsupported universal procedure and training prohibition. Definitions of quality dimensions do not establish this operational rule."
+  },
+  {
+    "id": "source-brief-ambiguous-requirement",
+    "claim": "数据质量要求可学习性：当前上下文必须提供作出示范行动所需的信息。",
+    "sourceId": "notes/mass-multi-agent-self-supervision/zh-CN:20",
+    "reviewCriterion": "Distinguish the supported definition of learnability from a claim that the author imposed a universal training-data requirement. Do not reject the word must alone; make the definitional scope explicit."
+  }
+]

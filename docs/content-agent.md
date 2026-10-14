@@ -1,50 +1,43 @@
-# Content agent: implementation and next steps
+# Content agent: architecture and release status
 
-## Current stage
+## Status and evidence
 
-This is the first implementation stage, not a deployed live AI agent. No provider key is needed to build, test, or use the local content explorer. The existing `/v1/assistant` endpoint and its approved-fact-only contract remain unchanged. `server/content-agent.mjs` is an independently tested, provider-injected tool loop; it is not yet attached to HTTP or the old chat UI.
+The repository implements a provider-backed, streaming content agent and its browser UI. It is no longer the original local explorer prototype. Repository implementation, private model evaluation and public deployment are separate evidence levels.
 
-Run `bun run verify`, then `bun run dev` and open `/` or `/zh/`. The homepage is now a single entrance: an irregular black outline with eyes, a looping animation, and one typewritten invitation. Clicking enters full-screen chat. The separate search panel was removed following owner feedback; retrieval stays behind the character.
+On 2026-10-14, the public site's `/build-info.json` reported `323c4de2b6b38122e049bac0b9b0ab70e6997d76`; the API `/health` returned `{available:true,version:2}`. Health does not prove a particular backend revision, successful Turnstile verification, available quota or a successful model answer. Candidate application revision `47304f70ccbab50e785036becc0a68e1e88a8f71` has additional capabilities awaiting publication. See [release procedure](agent-release.md), [completion audit](agent-completion-audit.md) and [evaluation fixtures](../evals/companion/README.md) for evidence and remaining gaps.
 
-The reading pages keep their academic typography. A small character opens the same full-screen conversation layer, with current-article context. Closing returns to reading. The first conversation offers one action; accepting it hides the invitation and reveals a sourced story with one follow-up. Earlier turns no longer retain competing action buttons. Opening interactions use authored public material, not paid inference. This is an interaction prototype, not a completed live agent.
+## Visitor experience
 
-Ten recent opening-interaction turns persist in optional per-tab session storage; reset clears them. This is UI continuity, never authentication or enforceable quota. Reduced-motion preferences disable animation and typing. Article retrieval reads only the published index and currently returns an excerpt, not AI explanation.
+The homepage offers an eyes-only irregular outline character and one typewritten invitation. The invitation opens full-screen conversation. Authored greetings, encounters and story interactions require no model call. Controls appear progressively; a draft question retains the story it began with and hides competing opening actions. Reduced-motion preferences disable animation and typing.
 
-## Publication and retrieval
+Academic reading pages retain their typography. The companion opens a conversation over the current article; closing restores reading. A draft retains its starting section across closing and reopening. Clearing the draft adopts the current section. Submission snapshots that section before clearing the composer, so asynchronous verification cannot silently change the question's context.
 
-Every site build exports `assets/agent-corpus.json`, including only published projects, reports and learning notes, even in draft preview. It projects approved fields rather than copying arbitrary frontmatter. It preserves heading links, image alt text, language, canonical document IDs, publication dates and a content hash. Edits/deletions change the hash and the page's index URL. The build requires no model credentials.
+Answers stream alongside validated source links, reading cards, article outlines, biography timelines and conceptual step diagrams. Progress labels reflect actual execution events. Failed or interrupted answers remain incomplete. Concept corrections update a matching original diagram only after successful completion; missing targets receive a standalone correction record. No decorative reasoning transcript or invented context-compression status is shown.
 
-The shared browser/server engine builds an inverted index with BM25-style scoring, weighted titles/tags/headings, NFKC normalization, Chinese bigrams and preserved technical identifiers. Unquoted terms use OR matching; quoted phrases must occur in a matching section. It supports date/type filters, offset/limit, and translation deduplication. It has no semantic synonym expansion or vector retrieval yet. Query-time postings are indexed, but the local explorer downloads the full corpus on first interaction: move queries to the backend before a large corpus makes mobile transfer/indexing expensive. The 2,500-document test verifies discoverability, not a production latency target.
+## Retrieval and evidence
 
-Tools: `search_content`, `read_content`, `find_related_posts`, `query_timeline`, `show_post_cards`, `show_visualization`, `suggest_questions`.
+Every build exports `assets/agent-corpus.json` from published projects, reports and learning notes, including heading links, language, canonical IDs, original text and a content revision. Drafts are excluded even during preview. No model credentials are needed to build.
 
-Cards resolve real document IDs, not model-supplied links. The only visual is currently a **publication timeline**, not a biography/event timeline. Suggestions are document-specific reading starters, not generated conversational questions. Related reading uses title/tag relevance, excluding the current canonical document; diversification and prerequisites remain future work.
+The shared keyword engine uses weighted BM25-style retrieval, normalization, Chinese bigrams, technical identifiers, quoted phrases, filters and translation deduplication. The server searches its published corpus. Agent search includes up to three bounded original sections as read evidence; other search hits require `read_content`. Reading-page position lookup also loads the public corpus in the browser, which remains a scaling concern. There is no vector or semantic synonym retrieval yet.
 
-## Agent protocol
+Biography tools read approved facts and event dates; publication dates never stand in for career dates. Recommendation cards resolve existing document IDs and published language editions. Showing a card does not read its content. Related-post ranking is relevance-based, not evidence that a recommendation is unique or optimal.
 
-`runContentAgent` accepts a question, bounded conversation history, a public corpus, an injected `complete` adapter, cancellation signal, and event callback. It allows five completions and eight tool calls. History cannot supply system or tool roles. Tool names/arguments are allowlisted; citations must identify sections read in this invocation. Presentation blocks have stable IDs, and are emitted after validation. The final answer includes sources and corpus revision.
+Citation IDs must refer to evidence read in the current turn. Exact quotation checks and a limited uncertainty-marker check constrain concept diagrams and revisions. These checks establish neither general semantic entailment nor factual accuracy. Mixed-certainty passages, implicit claims and ordinary answer prose still require substantive evaluation.
 
-The adapter receives normalized messages and tool definitions, and returns either `{toolCalls:[{id,name,arguments}]}` or `{text,sourceIds}`. These are internal shapes, not a specific provider's API format. Tests use scripted adapters; real model tool selection, factual grounding and prompt-injection resistance have not been evaluated. Valid citation IDs prove provenance, not that every generated claim is supported. Final prose currently emits as one validated event, not token streaming.
+## Runtime and memory
 
-## Next implementation stages
+`server/agent-index.mjs` connects the provider, durable accounting, corpus and v2 HTTP service. The browser obtains a signed anonymous session after server-validated Turnstile, then uses fetch-based SSE. The provider supports incremental public prose and function calls; private reasoning is not displayed. A turn allows at most six model completions and eight tool calls, under bounded input, output and execution time.
 
-1. Choose model/provider and runtime hosting. Add its adapter, per-completion budget reservation, token caps, timeout/abort propagation and sanitized errors. Keep API keys solely in runtime secrets. GitHub Actions secrets may provision a deployment; never inject them into static assets.
-2. Connect a new versioned HTTP streaming route and browser client. Validate each block, preserve conversation context, and explicitly display partial failures. Retain global/per-client limits, and use shared atomic accounting if deploying multiple instances. The existing ledger assumes a single process.
-3. Add a profile tool and event records from the approved biography, preserving uncertain/overlapping dates. Add event timelines, then evidence-backed overview/relationship visuals. Publication timestamps must never substitute for event timestamps.
-4. Integrate the new agent into the main conversation UI with current-page context, source-aware follow-up questions and text/block streaming. Evaluate genuine provider responses before enabling publicly.
-5. Measure retrieval on owner-reviewed questions; add hybrid semantic retrieval if it improves recall. Test missing evidence, quoted opinions, evolving views, cross-language queries, malicious source text, recommendations, mobile layout, latency and costs.
+The server retains up to twenty successful exchanges. The latest three enter model context directly; earlier exchanges have an index and session-scoped recall tool. Recalled statements are conversational context, not new citation authority. Browser-supplied transcripts are rejected. Retained diagrams carry stable identities so later corrections can target their steps.
 
-No changes in this stage publish content, configure secrets, call paid models, or deploy a backend.
+See [HTTP contract](agent-backend-contract.md) for wire details. No tool executes arbitrary code, publishes files, accesses private biography or reveals runtime credentials.
 
-## Visitor protection before live launch (planned, not active)
+## Cost and access
 
-- Keep greeting, dice, and authored encounters free of model calls. No expensive call on initial page load, hover, or animation.
-- Establish a server-issued, random, signed, expiring visitor session. Prefer a first-party HttpOnly Secure cookie on a same-site deployment. The current github.io frontend plus an unrelated API hostname needs an explicit cross-site design; do not assume third-party cookies work. Session storage is not an identity or quota authority.
-- Validate a Turnstile challenge server-side when establishing an AI session or stepping up suspicious traffic. Check expected hostname/action and reject expired/replayed/invalid tokens. Avoid an account/login requirement. Official documentation: https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
-- Anonymous sessions distinguish browser sessions, not unique humans. Clearing cookies, changing browsers/IPs, or automation can create new identities. Combine per-session daily quota, short-window rate/concurrency limits, session-issuance limits, conservative IP/network controls, and a global hard budget. Do not rely on CORS, client counters, or a challenge alone.
-- Reserve estimated worst-case cost atomically before every paid completion, including routing/summarization; reconcile actual use afterward. Abort work on disconnect. Apply model token, tool-step and output-size limits. Use persistent shared accounting for multiple instances and keep an operator kill switch.
-- Scope the assistant to Yuxin's public biography, work, views, and explanations relevant to the current published reading. Related conceptual questions are useful; an unrelated general assistant request should receive a short redirect. Evaluate this on real prompts, including prompt injection in both questions and source documents; do not claim a keyword filter or prompt alone guarantees scope.
-- Never display fabricated thinking/tool progress. UI statuses are generated by actual tool/stream events. Context summarization is a future capability, not a decorative status animation.
-- Treat all retrieved content and visitor history as untrusted. Visitors cannot write author viewpoints, publish files, or access server credentials. No real model endpoint is enabled until these controls are integrated and evaluated.
+Visitor sessions, addresses, request rates and daily usage are limited. Anonymous sessions are not unique-human identity; Turnstile and rate limits reduce abuse without providing that guarantee. Durable SQLite or Redis accounting reserves conservative cost before each paid completion and preserves charges for unknown usage.
 
-Cookie deployment reference: https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Third-party_cookies
+Private SSH developer admission is separate from visitor daily/session quotas. Development and visitors share the approved ¥500 monthly ceiling and global concurrency. There is no browser flag or public endpoint granting developer privileges. Follow [developer testing](agent-development.md); never reset accounting to unblock development or place keys in source, HTML or GitHub artifacts.
+
+## Remaining acceptance work
+
+Publish compatible backend and frontend in order after release approval, then verify the actual public Turnstile → streamed answer → follow-up → interruption flow. Private runner success is not public-browser proof. Continue evaluating semantic fidelity, relevant recommendations, provider failures, mobile keyboard/accessibility and owner acceptance of the experience. Large-corpus retrieval quality and browser corpus transfer remain open engineering questions.

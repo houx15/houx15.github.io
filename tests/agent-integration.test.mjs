@@ -36,7 +36,10 @@ test('browser client restores a session after navigation and preserves server-ow
   await client.ask({question:'How does the previous note relate to this one?',language:'en',supportsConceptFlow:true,pageContext:{documentId:'notes/attention/en'}});
   assert.ok(seen[2].messages.some(message=>message.role==='assistant' && JSON.parse(message.content || '{}').text==='Keys and values are cached.'));
   const userTurns=seen[2].messages.filter(message=>message.role==='user').map(message=>JSON.parse(message.content));
-  assert.deepEqual(userTurns,[
+  assert.equal(userTurns.length,3);
+  assert.equal(userTurns[1].type,'previous_display_metadata');
+  assert.equal(userTurns[1].textTruncated,false);
+  assert.deepEqual(userTurns.filter(turn=>turn.type!=='previous_display_metadata'),[
     {question:'Explain this note',language:'en',pageContext:{documentId:'notes/cache/en'}},
     {question:'How does the previous note relate to this one?',language:'en',pageContext:{documentId:'notes/attention/en'}}
   ]);
@@ -72,7 +75,10 @@ test('cross-page follow-up keeps the actual concept step order in server-owned h
    if(seen.length===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{id:'profile'}},{id:'draw',name:'show_concept_flow',arguments:{title:'Two aspects',labels:['First aspect','Second aspect'],descriptions:['First interpretation','Second interpretation'],sourceIds:['profile:profile','profile:profile']}}]};
    if(seen.length===2)return {text:'Two aspects are shown.',sourceIds:['profile:profile']};
    if(seen.length===3){
-     const prior=JSON.parse(args.messages.find(message=>message.role==='assistant').content);
+     const prior=args.messages.filter(message=>message.role==='user').map(message=>JSON.parse(message.content)).find(record=>record.type==='previous_display_metadata');
+     const answer=JSON.parse(args.messages.find(message=>message.role==='assistant').content);
+     assert.deepEqual(Object.keys(answer),['sourceIds','text']);
+     assert.equal(answer.text,'Two aspects are shown.');
      assert.equal(prior.visuals[0].items[1].title,'Second aspect');assert.equal(prior.visuals[0].items[1].position,2);
      assert.equal(prior.visuals[0].items[1].sourceId,'profile:profile');
      return {toolCalls:[{id:'reread',name:'read_profile',arguments:{id:'profile'}}]};
@@ -143,4 +149,29 @@ test('authored social replies survive the public HTTP stream and actual browser 
  assert.match(events.find(e=>e.type==='answer').text,/嗨，我在/);
  assert.deepEqual(events.find(e=>e.type==='answer').sourceIds,[]);
  assert.equal(events.at(-1).type,'done');
+});
+
+test('terminal timeline captions stream through HTTP and remain available to a later session client',async t=>{
+ const origin='https://houx15.github.io',store=new MemoryAgentStore();let calls=0;
+ const guard=createGuard({store,secret:'a'.repeat(40),dailyTokens:1000000,enabled:()=>true});
+ const complete=async({messages})=>{
+  calls++;
+  if(calls===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',language:'en'}}]};
+  if(calls===2)return {toolCalls:[{id:'draw',name:'show_profile_timeline',arguments:{eventIds:['startup'],caption:'Her startup experience.',language:'en'}}]};
+  const prior=messages.filter(message=>message.role==='assistant' && message.content).map(message=>JSON.parse(message.content));
+  assert.ok(prior.some(answer=>answer.text==='Her startup experience.' && answer.sourceIds.includes('event:startup')));
+  assert.ok(messages.some(message=>message.role==='tool' && JSON.parse(message.content).source?.id==='event:startup'));
+  return {text:'2022',sourceIds:['event:startup']};
+ };
+ const server=createAgentServer({origin,corpus:{schemaVersion:1,revision:'fixture',documents:[]},guard,complete,verifyChallenge:async()=>{},enabled:()=>true,production:false});
+ server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>{server.closeAllConnections();server.close();});
+ const saved=new Map(),sessionStore={getItem:key=>saved.get(key),setItem:(key,value)=>saved.set(key,value),removeItem:key=>saved.delete(key)};
+ const client=()=>createAgentClient(`http://localhost:${server.address().port}`,(url,options)=>fetch(url.replace('localhost','127.0.0.1'),{...options,headers:{...options.headers,Origin:origin}}),{sessionStore});
+ const first=client();await first.openSession('fixture');const events=[];
+ await first.ask({question:'Show her startup timeline',language:'en'},{onEvent:event=>events.push(event)});
+ assert.equal(calls,2);assert.equal(events.at(-1).type,'done');
+ assert.equal(events.find(event=>event.type==='answer').text,'Her startup experience.');
+ assert.ok(events.findIndex(event=>event.type==='block')<events.findIndex(event=>event.type==='answer_delta'));
+ const later=[];await client().ask({question:'When did she leave? Only the year.',language:'en'},{onEvent:event=>later.push(event)});
+ assert.equal(calls,3);assert.equal(later.find(event=>event.type==='answer').text,'2022');assert.equal(later.at(-1).type,'done');
 });

@@ -1,0 +1,17 @@
+{
+  "name": "concept-caption-preserves-source-uncertainty",
+  "language": "zh-CN",
+  "question": "请根据 MASS 笔记的 8.1 节，画一个两到三步的小图解释：为什么成功的轨迹也不能直接拿来训练？",
+  "sourceQuote": "整条照搬可能同时强化有用的补救和前面的坏习惯。数据质量至少包含五个维度：",
+  "observedFailure": {
+    "caption": "成功轨迹可能包含错误与偶然补救，直接训练会同时强化坏习惯。",
+    "stepDescription": "若将整条轨迹直接作为监督微调数据，模型会把正确补救与前面的错误习惯一并学习。"
+  },
+  "expectations": [
+    "A self-contained source-backed diagram can finish without a model request after its display.",
+    "Preserve the source's possible consequence as possible in captions, titles and explanations.",
+    "A hypothetical trajectory must remain a hypothetical example.",
+    "A valid quotation or citation does not establish that the generated interpretation is faithful."
+  ],
+  "verification": "Private real-model run completed in three model calls. Completion path passed; semantic uncertainty preservation failed. This file records a manual regression scenario, not an automated semantic pass."
+}
