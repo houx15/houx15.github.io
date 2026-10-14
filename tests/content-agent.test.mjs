@@ -351,7 +351,7 @@ test('invalid final structure can be corrected without retrying transport or par
    rounds++;
    if(failure==='partial' && rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
    if(rounds===(failure==='partial'?2:1)) {
-    if(failure==='partial')onText('Visible text',['notes/cache/en:0']);
+    if(failure==='partial')onText('Visible text. ',['notes/cache/en:0']);
     const error=new Error('invalid_model_response');error.diagnosticCategory=failure==='partial'?'final_shape':failure;throw error;
    }
    return {text:'No verified evidence.',sourceIds:[]};
@@ -560,7 +560,7 @@ test('output-limit correction is bounded and never replaces already-visible pros
    rounds++;
    if(rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
    if(rounds===2 || mode==='repeat') {
-    if(mode==='partial')onText('Visible prose',['notes/cache/en:0']);
+    if(mode==='partial')onText('Visible prose. ',['notes/cache/en:0']);
     const error=new Error('invalid_model_response');error.diagnosticCategory='output_limit';throw error;
    }
    assert.equal(JSON.parse(messages.at(-1).content).reason,'output_limit');
