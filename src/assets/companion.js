@@ -1,6 +1,6 @@
 import {createBiographyChapter} from './biography-chapter.js';
 import {createDiceCard} from './dice-card.js';
-import {captureReadingSelection,selectionQuestion} from './reading-selection.js';
+import {captureReadingSelection,selectionQuestion,createReadingDraftContext} from './reading-selection.js';
 import { captureReadingAnchor,restoreReadingAnchor,readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
 import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
@@ -34,10 +34,13 @@ export function initCompanion(document) {
   const log = root.querySelector('[data-companion-log]'), status = root.querySelector('[data-companion-status]');
   followConversationResize(log);
   const form = root.querySelector('form'), input = form.querySelector('textarea');
+  const draftContext=createReadingDraftContext();
   function updateComposer() {
+    draftContext.edit(input.value);
     root.classList.toggle('has-draft',Boolean(input.value.trim()));
     input.style.height='34px';
     input.style.height=`${Math.min(Math.max(34,input.scrollHeight),Math.max(58,Math.min(154,window.innerHeight*.25)))}px`;
+    if(readingSection)showReadingPosition();
   }
   input.addEventListener('input',updateComposer);
   window.addEventListener('resize',updateComposer);
@@ -63,7 +66,9 @@ export function initCompanion(document) {
   }
   function showReadingPosition() {
     readingNote.textContent=(zh?'正在读：':'Reading: ')+readingSection.title;readingNote.hidden=false;
-    root.querySelector('[data-invitation]').textContent=zh?`读到「${readingSection.title}」了？我陪你。`:`Reading “${readingSection.title}”? I’m here with you.`;
+    root.querySelector('[data-invitation]').textContent=input.value.trim()
+      ? (zh?`这条问题对应「${readingSection.title}」。`:`This question is about “${readingSection.title}”.`)
+      : (zh?`读到「${readingSection.title}」了？我陪你。`:`Reading “${readingSection.title}”? I’m here with you.`);
     root.querySelector('[data-opening-label]').textContent=zh?'一起读这一节':'Read this section with me';
   }
   resetOpening();
@@ -278,7 +283,7 @@ export function initCompanion(document) {
     launcher.addEventListener('click',()=>{
       const selected=!input.value.trim()?(pointerSelection || selectedPassage()):undefined;pointerSelection=undefined;
       returnAnchor=captureReadingAnchor(document);
-      const headings=selected?selected.headings:readingHeadings(document),generation=++readingGeneration;
+      const headings=draftContext.open(selected?selected.headings:readingHeadings(document)),generation=++readingGeneration;
       readingSection=undefined;readingNote.hidden=true;
       resetOpening();
       readingReady=root.dataset.documentId?getTools().then(({corpus})=>{

@@ -17,3 +17,13 @@ export function captureReadingSelection(document) {
 export function selectionQuestion(text,language) {
   return language==='zh-CN'?`请结合原文解释这段话：\n「${text}」`:`Please explain this passage in its original context:\n“${text}”`;
 }
+
+// A question belongs to the passage where it was started, even if the reader
+// closes the dialog and scrolls elsewhere before sending it.
+export function createReadingDraftContext() {
+  let reading=[],draft;
+  return {
+    open(headings) {reading=[...(draft ?? headings)];return [...reading];},
+    edit(text) {draft=text.trim()?(draft ?? [...reading]):undefined;}
+  };
+}

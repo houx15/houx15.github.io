@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {captureReadingSelection,selectionQuestion} from '../src/assets/reading-selection.js';
+import {captureReadingSelection,selectionQuestion,createReadingDraftContext} from '../src/assets/reading-selection.js';
 
 function fixture({text='A possible risk.',start=2,end=2,outside=false,collapsed=false,count=1}={}) {
  const startNode={order:start},endNode={order:end};
@@ -23,4 +23,21 @@ test('draft question preserves selected wording and fits the existing request bo
   assert.ok(selectionQuestion(selection.text,lang).includes(selection.text));
   assert.ok(selectionQuestion('x'.repeat(280),lang).length<=400);
  }
+});
+
+test('an unsent draft keeps its starting section across reopen and edits, then releases it when cleared',()=>{
+ const context=createReadingDraftContext(),headings=['section-81'];
+ assert.deepEqual(context.open(headings),['section-81']);context.edit('Explain this sentence');
+ headings[0]='mutated';
+ const reopened=context.open(['section-82']);assert.deepEqual(reopened,['section-81']);
+ reopened[0]='also-mutated';context.edit('Explain it in two sentences');
+ assert.deepEqual(context.open(['section-83']),['section-81']);
+ context.edit('  ');assert.deepEqual(context.open(['section-83']),['section-83']);
+ context.edit('A new question');assert.deepEqual(context.open(['section-84']),['section-83']);
+});
+
+test('a draft in the article opening does not silently acquire a later section',()=>{
+ const context=createReadingDraftContext();context.open([]);context.edit('Explain this opening');
+ assert.deepEqual(context.open(['section-1']),[]);
+ context.edit('');assert.deepEqual(context.open(['section-1']),['section-1']);
 });
