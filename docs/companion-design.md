@@ -1,5 +1,7 @@
 # Companion experience: design direction
 
+Current implementation status and remaining gates: [agent-experience-status.md](agent-experience-status.md). The prototype/integration observations below are dated history; live model access and cross-page sessions have since been connected.
+
 Owner decisions, 12 October 2026. This document concerns interaction design; the separate backend thread owns the runtime/API contract.
 
 ## Two spaces
@@ -22,13 +24,13 @@ https://fakecheese.me/ was inspected in a real browser. Its first screen combine
 
 The owner approved the cleaner circle-and-eyes direction but expects higher standards than generic feature assembly. Review actual screenshots and interactions, not just DOM correctness. Prioritize proportion, negative space, expression, transition continuity and timing. Avoid adding controls to solve every requirement visibly.
 
-## Current prototype and next design pass
+## Prototype observation — 12 October 2026
 
 Implemented locally: single homepage entrance; looping outlined character; typed greeting; full-screen chat; sequential authored dice stories; source links; article entry; optional per-tab continuity. Live models are not connected. Backend work must not be blocked by visual iteration.
 
 Next design pass: refine the first encounter and the transition into conversation as one continuous scene; then refine the reveal of one sourced story and one diagram. Do not expand the game/menu count before those interactions are convincing. Assess desktop, narrow screens, keyboard use and reduced motion. Do not deploy until publication is requested.
 
-## Parallel ownership
+## Original parallel ownership — historical
 
 Backend thread: “个人网站 Agent 后端与安全架构”, ID `01a1320b-8a28-7ce1-96c0-41edc1fedda1`. It writes `server/**`, `lib/agent-corpus.mjs`, `src/assets/agent-tools.js`, backend tests and new `docs/agent-backend*.md`. It will define the versioned HTTP/SSE contract in `docs/agent-backend-contract.md`.
 
