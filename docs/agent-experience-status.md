@@ -6,8 +6,9 @@ Reviewed 2026-10-14. This is a current-state index; older dated observations in 
 
 - Last verified public release: PR #6, frontend `4ad6d31b738a33e9b36ac8cfb9d16fda75fcec76`, backend `20261014-14bd263`. Live model access is connected. The initial Pages timeout was resolved by retrying its cancelled deployment.
 - Pending PR #7: `7f20a06`, brief caption before its visual, with first prose position retained after restoration. Exact source, CI and inactive release preparation passed. Publication approval is pending; do not activate the superseded `b61af43` package.
-- Pending PR #8 application: `8780919`, bounded malformed-final-JSON correction, concrete source-bound follow-ups shown after completion, and retained follow-up conversational context. Its branch has 296 passing tests/build/site checks. It has not been deployed or prepared as an approved immutable release.
-- A temporary combination of #7 and #8 passed 298 tests/build/site checks. Application changes merged automatically; both appended view test cases were retained to resolve their file conflict. This does not merge either PR or authorize publication.
+- Pending PR #8: `e217dba`, includes PR #7 plus bounded malformed-final-JSON correction, concrete source-bound follow-ups shown after completion, and retained follow-up context. 298 tests/build/site checks passed from exact source; inactive server release was prepared. GitHub remains open; not published.
+- PR #9 builds on #8 with recent-exchange recall, retained draft card references, contextual latest-answer navigation and neutral uncertainty wording. 301 tests/build/site checks pass. Local browser checks cover reset-and-resend client context and phone-width navigation. Unsuccessful extra attribution prompts and thinking experiments were removed/not adopted. This candidate does not fix the demonstrated semantic attribution failures.
+
 
 Recheck GitHub, live build metadata and the actual running backend before publishing; these dated identifiers are not future authority.
 
