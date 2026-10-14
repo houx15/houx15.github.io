@@ -668,3 +668,12 @@ Repeated paid evaluations previously collapsed every final-object rejection into
 ## Explain rejected final formats precisely (2026-10-13)
 
 Format repair now receives bounded problem-specific feedback instead of only the generic object reminder. Extra fields must be removed; invalid text and source containers must use the required types. The existing primary category, strict validator, six-call limit and no-retry-after-visible-text behavior are unchanged. Unknown diagnostic strings are not inserted into model context. A real isolated run recovered an additional_fields failure in three calls, the same count as its baseline, without resolving unsupported cross-document prose. Full 233 tests plus build/site checks passed. This is a correction-feedback improvement, not a claimed semantic or latency pass.
+
+
+## Source-link touch targets and biography flow (2026-10-13)
+
+Fresh in-app-browser screenshots cover desktop home → chat → first biography chapter, then a 390×600 viewport, second chapter → original biography source → global companion. The chapter position survived navigation. The opening retains a single authored invitation plus the composer; the next-chapter action focuses the new heading. Screenshots: `.verification/source-target/01-home.png` through `08-source-expanded.png`.
+
+The original source disclosure measured only 19.25px high with 11px type. Its shared companion style now provides a measured 44px target with 13px type; expanded source links also measure 44px high with 14px type. No additional controls were introduced. The updated screenshots retain the next-chapter action and composer in the narrow viewport. Tab from the disclosure reached its source link; Return navigated to the same-page source heading and closed the dialog. Browser error logs were empty. Full 233-test verification, build and site checks passed.
+
+This is a local authored-story/navigation audit, not paid-chat verification or a full accessibility audit. Real touch, mobile virtual keyboard, screen-reader speech, model-generated diagrams and recommendation conversations were not tested in this run. The viewport override was reset after inspection.

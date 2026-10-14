@@ -77,9 +77,9 @@
 .comic-story-card p {font-size:14px;line-height:1.9;}
 .comic-follow {background:none;border:0;border-bottom:1px dashed #888;margin-top:17px;padding:6px 0;font-size:12px!important;text-align:left;}
 .comic-evidence {margin:15px 0 0;font-size:11px;}
-.comic-evidence summary {cursor:pointer;color:#777;}
+.comic-evidence summary {cursor:pointer;color:#666;font-size:13px;line-height:20px;min-height:44px;padding:12px 0;box-sizing:border-box;}
 .comic-room a {color:inherit;text-decoration:underline;text-underline-offset:4px;}
-.comic-evidence a {display:block;margin:10px 0;}
+.comic-evidence a {display:flex;align-items:center;min-height:44px;padding:10px 0;box-sizing:border-box;font-size:14px;line-height:1.7;}
 .comic-progress {font-size:11px;color:#777;margin:12px 0 20px;}
 .comic-progress.is-active::before {content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:8px;}
 .comic-work-record summary,.comic-more-reading summary {cursor:pointer;font-size:11px;color:#777;}
