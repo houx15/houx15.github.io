@@ -14,3 +14,15 @@ test('all biography routes carrying the joint NGO period preserve its missing in
   assert.equal(tools.read_profile({eventId:'startup',language}).dateQualifications,undefined);
  }
 });
+
+test('all education lookup paths distinguish admission from unknown degree dates',()=>{
+ const tools=createProfileTools();
+ for(const language of ['en','zh-CN']) {
+  for(const result of [tools.read_profile({id:'profile',language}),tools.read_profile({eventId:'tsinghua',language}),tools.query_profile_events({language})]) {
+   assert.equal(result.educationDates.admissionYear,2015);
+   assert.equal(result.educationDates.bachelorCompletionYear,null);
+   assert.equal(result.educationDates.masterCompletionYear,null);
+  }
+  assert.equal(tools.read_profile({eventId:'startup',language}).educationDates,undefined);
+ }
+});

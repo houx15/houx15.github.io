@@ -732,3 +732,13 @@ The candidate now recognizes a deliberately narrow set of explicit terminal Chin
 The same real two-turn fixture then completed with two model calls for the timeline and one for the follow-up: text “2022”, zero blocks. Logs: /tmp/year-only-live.log and /tmp/year-only-live-errors.log. The first answer still overstates the admission-date evidence as “并非获得学位的年份”; unknown degree-completion dates remain a separate unresolved semantic problem. A single successful rerun does not establish general model reliability.
 
 Full 243 tests, build and site checks passed. New tests cover clause boundaries and a prior-topic follow-up whose model attempts a disabled presentation, then reads the correct source and answers without displaying a block. The private staging directory was removed. Production remains unchanged.
+
+## Education-date uncertainty (2026-10-13)
+
+Education lookups now explicitly distinguish the documented 2015 Tsinghua admission year from the unspecified bachelor/master completion years. The qualification accompanies the general profile, individual Tsinghua event and chronology lookup, and participates in the profile revision hash. It adds no inferred completion dates and leaves unrelated events unchanged.
+
+Private Chinese timeline/follow-up replay used two calls then one. The caption now includes that exact graduation years are unpublished, but still says “并非获得学位的年份”; this remains stronger than the intended statement about what the date labels. The departure follow-up returned 2022 without a visual. Logs: /tmp/education-dates-live.log and /tmp/education-dates-live-errors.log.
+
+A separate English test explicitly requests only the bachelor completion year, followed by clarification of 2015. It returned that the completion year is not provided (two calls, no visual), then correctly separated documented admission from both unknown completion years (one call, no visual). Thus this observed unknown-date case did not invent a number to satisfy the year-only instruction. Fixture: evals/companion/education-dates.json; logs: /tmp/education-dates-en.log and /tmp/education-dates-en-errors.log. These are individual model samples, not proof of general factual fidelity.
+
+Full 244 tests, build and site checks passed. The isolated server stage was removed after testing; the running production service was not modified.
