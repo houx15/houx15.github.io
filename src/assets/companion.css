@@ -176,3 +176,12 @@
 
 .comic-biography-chapter .comic-chapter-position {font:11px/1.6 ui-monospace,monospace;color:#666;margin:0;}
 .comic-biography-chapter .comic-follow {min-height:44px;margin-top:10px;font-size:14px!important;}
+
+.comic-reset-confirm {width:min(360px,calc(100vw - 40px));padding:26px;border:1.5px solid #333;border-radius:14px 11px 16px 12px;background:#fff;color:#191919;}
+.comic-reset-confirm::backdrop {background:rgb(0 0 0 / .12);}
+.comic-reset-confirm h2 {font:22px/1.4 var(--font-sans);margin:0 0 12px;}
+.comic-reset-confirm p {font:14px/1.8 var(--font-sans);margin:0 0 20px;}
+.comic-reset-actions {display:flex;flex-wrap:wrap;gap:10px;}
+.comic-reset-actions button {flex:1;min-height:44px;border:1px solid #333;border-radius:9px 7px 10px 8px;padding:9px 12px;background:#fff;color:#191919;font:14px/1.5 var(--font-sans);cursor:pointer;}
+.comic-reset-actions .comic-reset-clear {border-color:transparent;color:#666;}
+.comic-reset-actions button:focus-visible {outline:2px dashed #333;outline-offset:3px;}

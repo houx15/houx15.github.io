@@ -6,7 +6,7 @@ import { markdown } from './lib/markdown.mjs';
 import { loadContent, copyPublishedAssets } from './lib/content.mjs';
 import { buildCorpus } from './lib/agent-corpus.mjs';
 
-const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js', 'knowledge-zh.js', 'ui.js', 'navigation.js', 'biography.js', 'journey.js', 'notes.js', 'agent-tools.js', 'content-explorer.js', 'companion.js', 'companion-stories.js', 'agent-stream.js', 'agent-view.js', 'agent-history.js', 'visitor-check.js'];
+const assistantModules = ['portfolio.js', 'knowledge.js', 'assistant-client.js', 'assistant-config.js', 'knowledge-zh.js', 'ui.js', 'navigation.js', 'biography.js', 'journey.js', 'notes.js', 'agent-tools.js', 'content-explorer.js', 'companion.js', 'companion-reset.js', 'companion-stories.js', 'agent-stream.js', 'agent-view.js', 'agent-history.js', 'visitor-check.js'];
 async function assistantVersion() {
   const sources = await Promise.all(assistantModules.map(name => fs.readFile(`src/assets/${name}`, 'utf8')));
   return createHash('sha256').update(sources.join('\0')).digest('hex').slice(0, 12);

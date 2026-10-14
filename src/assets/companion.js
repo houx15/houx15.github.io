@@ -1,4 +1,5 @@
 import {createBiographyChapter} from './biography-chapter.js';
+import {confirmConversationReset} from './companion-reset.js';
 import {createDiceCard} from './dice-card.js';
 import {captureReadingSelection,selectionQuestion,createReadingDraftContext} from './reading-selection.js';
 import { captureReadingAnchor,restoreReadingAnchor,readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
@@ -252,7 +253,9 @@ export function initCompanion(document) {
   });
   stopButton.addEventListener('click',()=>activeController?.abort());
   window.addEventListener('pagehide',()=>activeController?.abort());
-  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;openingDraft.edit('');updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
+  root.querySelector('[data-companion-reset]').addEventListener('click',async()=>{
+    if(busy || !await confirmConversationReset(document,{language,hasDraft:Boolean(input.value.trim())}))return;
+    liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;openingDraft.edit('');updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
     // The reset button just disappeared. Keep keyboard navigation in this conversation.
     if(input.value.trim())input.focus({preventScroll:true});
     else {hello.setAttribute('tabindex','-1');hello.focus({preventScroll:true});}
