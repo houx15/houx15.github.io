@@ -748,3 +748,33 @@ test('year-only follow-ups with prior visuals retain evidence tools and reject p
  assert.ok(!events.some(event=>event.type==='block'));
  assert.deepEqual(answer.sources.map(source=>source.id),['event:startup']);
 });
+
+test('recommendation cards resolve published editions without inventing translations',()=>{
+ const tools=createContentTools(corpus);
+ const cards=tools.show_post_cards({ids:['notes/cache/en','notes/cache/zh-CN','notes/other/en'],language:'zh-CN'});
+ assert.deepEqual(cards.items.map(item=>item.id),['notes/cache/zh-CN','notes/other/en']);
+ assert.equal(cards.items[0].title,'KV cache 笔记');assert.equal(cards.items[0].url,'/zh/notes/cache/');
+ assert.equal(tools.show_post_cards({ids:['notes/cache/zh-CN'],language:'en'}).items[0].id,'notes/cache/en');
+ assert.equal(tools.show_post_cards({ids:['notes/cache/en']}).items[0].id,'notes/cache/en');
+ assert.throws(()=>tools.show_post_cards({ids:['unknown'],language:'zh-CN'}),/Unknown document/);
+});
+
+test('agent cards default to conversation language, allow explicit editions, and do not grant translation evidence',async()=>{
+ for(const override of [undefined,'en']) {
+  let round=0;const events=[];
+  const answer=await runContentAgent({question:'推荐一篇',language:'zh-CN',corpus,onEvent:e=>events.push(e),complete:async({messages})=>{
+   if(++round===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(round===2)return {toolCalls:[{id:'card',name:'show_post_cards',arguments:{ids:['notes/cache/en'],...(override?{language:override}:{})}}]};
+   if(round===3){
+    const result=JSON.parse(messages.find(message=>message.role==='tool' && message.toolCallId==='card').content);
+    assert.equal(result.items[0].id,override?'notes/cache/en':'notes/cache/zh-CN');
+    return {text:'Unjustified translation citation',sourceIds:['notes/cache/zh-CN:0']};
+   }
+   assert.ok(messages.some(message=>message.content?.includes('answer_rejected')));
+   return {text:'这篇介绍键值缓存。',sourceIds:['notes/cache/en:0']};
+  }});
+  assert.equal(answer.blocks[0].items[0].id,override?'notes/cache/en':'notes/cache/zh-CN');
+  assert.deepEqual(answer.sources.map(source=>source.id),['notes/cache/en:0']);
+  assert.ok(!events.some(event=>event.type==='answer_delta' && event.text.includes('Unjustified')));
+ }
+});

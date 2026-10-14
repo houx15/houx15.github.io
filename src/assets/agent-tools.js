@@ -97,10 +97,11 @@ export function createContentTools(corpus) {
     const selected = sectionId ? doc.sections.filter(section => section.id === sectionId) : doc.sections.slice(offset, offset + 3);
     return { ...card(doc), sections: selected, nextOffset: !sectionId && offset + 3 < doc.sections.length ? offset + 3 : null };
   }
-  function show_post_cards({ ids } = {}) {
+  function show_post_cards({ ids, language } = {}) {
     if (!Array.isArray(ids) || ids.length > 3) throw new Error('At most three cards');
     const seen = new Set();
-    return { type: 'post_cards', items: ids.map(requireDoc).filter(doc => !seen.has(doc.canonicalId) && seen.add(doc.canonicalId)).map(card) };
+    const localized=doc=>language?[...docs.values()].find(other=>other.canonicalId===doc.canonicalId && other.language===language) || doc:doc;
+    return { type: 'post_cards', items: ids.map(requireDoc).filter(doc => !seen.has(doc.canonicalId) && seen.add(doc.canonicalId)).map(localized).map(card) };
   }
   function query_timeline({ from, to, language } = {}) {
     const seen = new Set();
