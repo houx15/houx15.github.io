@@ -42,12 +42,18 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
   let views=conceptViews.get(log);if(!views){views=new Map();conceptViews.set(log,views);}
   for(const [id,view] of views)if(view && !log.contains(view.container))views.delete(id);
   const newViews=new Map(),pendingRevisions=new Map();
-  const sources=new Map(),blocks=new Map(),statuses=[];let finished=false, failedTurn=false, questionBlock;
+  const sources=new Map(),blocks=new Map(),pendingCards=new Map(),statuses=[];let finished=false, failedTurn=false, questionBlock;
   const toolLabels={revise_concept_step:zh?'核对并修订这一步':'Checking and correcting this step',recall_conversation:zh?'回顾前面的对话':'Revisiting an earlier exchange',search_content:zh?'在笔记中找线索':'Finding relevant notes',read_content:zh?'正在读原文':'Reading the source',read_profile:zh?'核对她的公开经历':'Checking her public biography',query_profile_events:zh?'核对经历与时间':'Checking experience and dates',show_profile_timeline:zh?'整理经历的时间线':'Tracing her story',show_post_cards:zh?'挑选接下来值得读的内容':'Choosing a next read',show_concept_flow:zh?'画出理解这件事的步骤':'Drawing the explanation',show_visualization:zh?'整理图中的信息':'Arranging the visual',find_related_posts:zh?'寻找相关内容':'Finding related reading',suggest_questions:zh?'准备下一步问题':'Preparing a follow-up'};
   function renderBlock(block) {
     validateAgentBlock(block);
     let container=blocks.get(block.id);
-    if(!container){container=make('section','','comic-agent-block');blocks.set(block.id,container);row.append(container);}
+    if(!container){
+      container=make('section','','comic-agent-block');blocks.set(block.id,container);
+      // Recommendations are the next step, not a competing action while the
+      // explanation is still arriving. Keep them detached until the turn ends.
+      if(block.type==='post_cards')pendingCards.set(block.id,container);
+      else row.append(container);
+    }
     container.replaceChildren();
     if(block.type==='concept_revision') {
       const item=block.items[0];
@@ -129,6 +135,10 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     body.append(answerSources);
   }
   function end(failed, message, code) {
+    if(finished)return;
+    const nextRead=pendingCards.values().next().value;
+    for(const card of pendingCards.values())row.append(card);
+    pendingCards.clear();
     finished=true;failedTurn=failed;row.classList.toggle('is-incomplete',failed);progress.classList.remove('is-active');
     progressText.textContent=message;
     if(failed && ['daily_budget_exhausted','monthly_budget_exhausted','budget_exhausted'].includes(code)) {
@@ -154,6 +164,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
       }
       for(const button of row.querySelectorAll('button'))button.disabled=false;
     }
+    return nextRead;
   }
   return {
     row,
@@ -190,8 +201,8 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
         // Keep the same disclosure node so finishing does not close it or displace focus.
         showAnswerSources(event.sourceIds);
         if(fresh)return body;
-      } else if(event.type==='done')end(false,'');
-      else if(event.type==='error')end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || blocks.size>0,resetsAt:event.resetsAt}),event.code);
+      } else if(event.type==='done')return end(false,'');
+      else if(event.type==='error')return end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || blocks.size>0,resetsAt:event.resetsAt}),event.code);
     },
     interrupt(message,{code}={}) {if(!finished)end(true,message||(zh?'连接中断了。可以重新发送，但我不会自动重复请求。':'The connection stopped. You can send again; I won’t retry automatically.'),code);}
   };
