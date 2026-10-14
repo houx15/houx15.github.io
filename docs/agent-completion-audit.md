@@ -702,3 +702,12 @@ To make the next failure actionable, diagnostics now map a small allowlist of di
 ## Reader-facing citation replay passed (2026-10-13)
 
 The previously unverified wording guidance was tested on the exact retained diagram context. Current branch code 1f4fea1 completed privately in one model call, producing 39 deltas and no diagnostic failure. It quoted the stored second-step description exactly, compared it to the read section, preserved “可能”, and omitted the previously leaked fragment ID. The stream concatenation matched the final answer. The fixture is now preserved at evals/companion/context/diagram-wording.json with human acceptance criteria in the evaluation README. This is a narrow successful replay, not general semantic validation or a public production test. The isolated remote files were removed afterward.
+
+
+## Visible timeline preview before progressive expansion (2026-10-13)
+
+A private browser run of candidate fa227f5 generated four sourced biography events, but the renderer hid the entire timeline behind a disclosure. The first view showed only its title and repeated chronology in prose. Long timelines now display their first two entries directly and place only the remaining entries in one disclosure. Timelines with at most three entries remain fully visible. The same behavior applies to publication timelines; event order, source links, asOf information and publication-date qualifications remain intact. The remaining ordered list starts at 3.
+
+The actual recorded four-event answer was replayed with the real renderer, without another model request. Desktop shows the two entries and continuation action; 390×600 shows a real first entry and the beginning of the second without horizontal overflow. Return expands the remaining two entries in order, and the summary measures 44.4px high. Browser error logs were empty. Screenshots: .verification/timeline-preview/01-desktop.png, 02-mobile.png and 03-expanded.png. Input was explicitly disabled in this visual replay; it is not fresh streaming or public HTTP validation. The recorded model prose still repeats dates and ambiguously compresses the Tsinghua entry; this UI change does not fix that prose.
+
+Renderer tests cover Chinese/English, biography/publication timelines and 1/3/4/8 entries, preserving all titles and source links without duplicate entries. Full 237 tests, build and site checks passed. Temporary preview files, server and viewport override were cleaned up. This extends the draft PR; production remains unchanged.

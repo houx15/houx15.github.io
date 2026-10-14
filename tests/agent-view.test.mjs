@@ -171,3 +171,19 @@ test('quota failures offer one localized reading exit, including admission error
   turn.interrupt('Failure',{code});assert.equal(log.querySelectorAll('a').length,0);
  }
 });
+
+
+test('long timelines reveal an ordered preview and keep remaining entries in one disclosure',()=>{
+ for(const language of ['zh-CN','en'])for(const count of [1,3,4,8])for(const biography of [true,false]) {
+  const items=Array.from({length:count},(_,i)=>biography?{id:`event:${i}`,title:`Chapter ${i}`,period:'2020',description:`Description ${i}`,source:{id:`event:${i}`,label:`Chapter ${i}`,url:'/about/#sources'}}:{id:`post:${i}`,title:`Post ${i}`,summary:'Summary',type:'notes',date:'2020-01-01',url:'/notes/test/'});
+  const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Show a timeline',language});
+  turn.event({type:'block',block:{id:'timeline',type:biography?'event_timeline':'publication_timeline',dateKind:biography?'biography':'publication',asOf:'2026-10-10',items}});
+  const block=turn.row.children.find(node=>node.className.includes('comic-agent-block'));
+  const preview=block.children.find(node=>node.tag==='ol'),more=block.children.find(node=>node.tag==='details');
+  assert.equal(preview.children.length,count>3?2:count);
+  assert.equal(Boolean(more),count>3);
+  assert.deepEqual(block.querySelectorAll('h3').map(node=>node.textContent),items.map(item=>item.title));
+  assert.equal(block.querySelectorAll('a').length,count);
+  if(more){assert.equal(more.open,undefined);assert.equal(more.querySelectorAll('li').length,count-2);assert.equal(more.querySelectorAll('ol')[0].attributes.start,'3');}
+ }
+});

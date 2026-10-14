@@ -123,8 +123,8 @@
 .comic-reading-map blockquote {margin:14px 0;padding:0;border:0;font-size:12px;line-height:1.9;color:#555;overflow-wrap:anywhere;}
 .comic-reading-map a {display:flex;align-items:center;min-height:44px;font-size:13px;}
 
-.comic-timeline-expand {border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:14px 0;margin:12px 0;}
-.comic-timeline-expand summary {cursor:pointer;font-size:14px;line-height:1.6;}
+.comic-timeline-expand {border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:0;margin:12px 0;}
+.comic-timeline-expand summary {cursor:pointer;font-size:14px;line-height:1.6;min-height:44px;padding:11px 0;box-sizing:border-box;}
 .comic-timeline-expand summary:focus-visible {outline:2px solid currentColor;outline-offset:5px;}
 .comic-timeline-expand[open] summary {margin-bottom:18px;}
 
