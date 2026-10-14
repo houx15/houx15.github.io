@@ -152,3 +152,19 @@ test('provider final-shape details survive diagnostics without payloads and keep
  assert.equal(agentFailureRecord({error:{diagnosticCategory:'final_shape',diagnosticDetail:secret}}).detail,undefined);
  assert.equal(agentFailureRecord({error:{diagnosticCategory:'timeout',diagnosticDetail:'additional_fields'}}).detail,undefined);
 });
+
+
+test('fetch transport diagnostics keep only allowlisted cause categories',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ for(const [code,category] of [['UND_ERR_CONNECT_TIMEOUT','connection_timeout'],['UND_ERR_HEADERS_TIMEOUT','response_timeout'],['UND_ERR_BODY_TIMEOUT','response_timeout'],['UND_ERR_SOCKET','connection_closed'],['ECONNRESET','connection_closed'],['EPIPE','connection_closed'],['ENOTFOUND','dns_failure'],['EAI_AGAIN','dns_failure'],['ECONNREFUSED','connection_refused'],['PRIVATE-unknown-code','provider_transport']]) {
+  const cause=Object.assign(new Error('PRIVATE-host-address'),{code});
+  const complete=createModelAgent({apiKey:'PRIVATE-key',model:'test',fetchImpl:async()=>{throw new TypeError('PRIVATE-fetch-details',{cause});}});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
+   assert.equal(error.diagnosticCategory,category);
+   const record=agentFailureRecord({stage:'model',error});assert.equal(record.category,category);
+   assert.ok(!JSON.stringify(record).includes('PRIVATE'));assert.ok(!JSON.stringify(error).includes('PRIVATE'));return true;
+  });
+ }
+ assert.equal(providerFailureCategory(Object.assign(new Error('private'),{code:'ECONNRESET'})),'connection_closed');
+ assert.equal(providerFailureCategory(Object.assign(new DOMException('private','AbortError'),{cause:{code:'ECONNRESET'}})),'timeout');
+});

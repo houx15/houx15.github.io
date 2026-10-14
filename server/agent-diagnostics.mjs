@@ -6,15 +6,22 @@ const providerReasons=new Map([
   ['Oversized result','size_limit'],['Oversized stream','size_limit'],['Oversized frame','size_limit'],
   ['Truncated stream','truncated_stream'],['Invalid finish','finish_reason'],['Output token limit','output_limit'],['Invalid final','final_shape'],['Invalid biography identity','biography_identity']
 ]);
+// Node fetch may wrap a transport failure in TypeError.cause. Keep only fixed
+// categories, never cause.message, hostnames, addresses or provider bodies.
+const transportReasons=new Map([
+  ['UND_ERR_CONNECT_TIMEOUT','connection_timeout'],['UND_ERR_HEADERS_TIMEOUT','response_timeout'],['UND_ERR_BODY_TIMEOUT','response_timeout'],
+  ['UND_ERR_SOCKET','connection_closed'],['ECONNRESET','connection_closed'],['EPIPE','connection_closed'],
+  ['ENOTFOUND','dns_failure'],['EAI_AGAIN','dns_failure'],['ECONNREFUSED','connection_refused']
+]);
 export function providerFailureCategory(error) {
   if(providerReasons.has(error?.message))return providerReasons.get(error.message);
   if(error?.name==='SyntaxError')return 'json_parse';
   if(['TimeoutError','AbortError'].includes(error?.name))return 'timeout';
-  return 'provider_transport';
+  return transportReasons.get(error?.cause?.code) || transportReasons.get(error?.code) || 'provider_transport';
 }
 const finalDetails=new Set(['nonobject_result','additional_fields','invalid_text_field','invalid_sources_field','changed_stream_text']);
 export const providerFailureDetail=error=>error?.message==='Invalid final' && finalDetails.has(error?.diagnosticDetail)?error.diagnosticDetail:undefined;
-const categories=new Set([...providerReasons.values(),'json_parse','timeout','provider_transport']);
+const categories=new Set([...providerReasons.values(),...transportReasons.values(),'json_parse','timeout','provider_transport']);
 const runtimeReasons=new Map([
   ['Invalid biography identity','biography_identity'],['deadline','request_deadline'],['Invalid answer evidence','answer_evidence'],['Invalid answer delta','answer_delta'],['Changed answer','changed_answer'],
   ['Invalid tool call','tool_call'],['Invalid tool argument','tool_arguments'],['Missing tool argument','tool_arguments'],
