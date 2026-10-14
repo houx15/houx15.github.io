@@ -53,7 +53,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const opening=resolveOpeningContext(openingContext,language);
   const recall=conversationRecall(earlierHistory);
   const quoteFragments=createQuoteFragments();
-  const tools = {...createContentTools(corpus),...createProfileTools(),recall_conversation:args=>recall.read(args)}, evidence = new Map(), passages = new Map(), blocks = [];
+  const tools = {...createContentTools(corpus),...createProfileTools(),recall_conversation:args=>recall.read(args)}, evidence = new Map(), passages = new Map(), profilePassages = new Map(), blocks = [];
   const yearOnly=requestsYearOnly(question);
   const availableTools=contentToolDefinitions.filter(tool=>(!yearOnly || !presentationTools.has(tool.name)) && (supportsConceptRevisions || tool.name!=='revise_concept_step') && (supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || tool.name!=='recall_conversation'));
   const instructions=contentInstructions+(supportsConceptRevisions?' When asked to correct a displayed concept step, use revise_concept_step after checking its original evidence; do not leave the old claim unchanged while saying it was edited.':' This client cannot edit existing diagrams. You may explain a correction in prose, but never claim the old diagram was updated.')+(supportsConceptFlow?'':' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.')+(yearOnly?' For THIS turn the visitor explicitly requests only the year. Read the relevant evidence, then answer the latest question with the supported year and sourceIds. Do not resume the previous question or display cards, suggestions or diagrams. If the year is unknown, briefly say it is unknown; never guess.':'');
@@ -65,7 +65,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
     signal?.throwIfAborted();
     messages.push({role:'assistant',toolCalls:[{id:callId,name:'read_profile',arguments:args}]});
     onEvent({type:'status',phase:'tool_started',tool:'read_profile',callId});
-    const output=tools.read_profile(args);evidence.set(output.source.id,output.source);
+    const output=tools.read_profile(args);evidence.set(output.source.id,output.source);profilePassages.set(output.source.id,output.text);
     messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(output)});
     onEvent({type:'status',phase:'tool_completed',tool:'read_profile',callId});
   }
@@ -101,7 +101,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
       const callId=`context_read_${++calls}`;
       messages.push({role:'assistant',toolCalls:[{id:callId,name,arguments:args}]});
       onEvent({type:'status',phase:'tool_started',tool:name,callId});
-      if(name==='read_profile')evidence.set(output.source.id,output.source);
+      if(name==='read_profile'){evidence.set(output.source.id,output.source);profilePassages.set(output.source.id,output.text);}
       else for(const section of output.sections){passages.set(section.id,section.text);evidence.set(section.id,{id:section.id,label:`${output.title} · ${section.heading}`,url:section.url});}
       onEvent({type:'status',phase:'tool_completed',tool:name,callId});
       messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(name==='read_content'?quoteFragments.present(output):output)});
@@ -148,7 +148,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
         const ready=pending.slice(consumed,end);
         if(replayPrefix && repairSentenceRepeated(ready,replayPrefix)){consumed=end;continue;}
         if(usesBiographyEvidence(sourceIds))checkBiographySentence(ready);
-        checkProseClaims(ready,sourceIds,passages);
+        checkProseClaims(ready,sourceIds,new Map([...passages,...profilePassages]));
         shown+=ready;visibleText+=ready;visibleIds=sourceIds;
         onEvent({type:'answer_delta',text:ready,sources:sourceIds.map(id=>evidence.get(id))});
         consumed=end;
@@ -292,8 +292,16 @@ export async function runContentAgent({ question, language = 'en', history = [],
           output={...output,includedReads:reads.map(read=>quoteFragments.present(read)),coverage:'Only these matching original sections were read. Search ranking and matching passages cannot establish absence or uniqueness across the whole site.'};
         }
         if (call.name === 'read_content') for (const section of output.sections) {passages.set(section.id,section.text);evidence.set(section.id, {id:section.id,label:`${output.title} · ${section.heading}`,url:section.url});}
-        if (call.name === 'read_profile') evidence.set(output.source.id, output.source);
-        if (call.name === 'query_profile_events') for (const item of output.items) evidence.set(item.source.id,item.source);
+        if (call.name === 'read_profile'){evidence.set(output.source.id, output.source);profilePassages.set(output.source.id,output.text);}
+        if (call.name === 'query_profile_events') for (const item of output.items){evidence.set(item.source.id,item.source);profilePassages.set(item.source.id,`${item.period}: ${item.title}. ${item.description}`);}
+        if(['show_profile_timeline','show_concept_flow'].includes(call.name) && call.arguments.caption!==undefined) {
+          try {checkProseClaims(call.arguments.caption,output.items.map(item=>item.source.id),new Map([...passages,...profilePassages]));}
+          catch(error) {
+            if(error.message!=='Invalid prose claim')throw error;
+            messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'unsupported_caption_claim',issue:error.proseIssue,guidance:'Nothing from this display call was shown. Correct the caption using only the read source facts. Do not infer the owner’s beliefs from her work or biography. Preserve source uncertainty and scope; omit unsupported comparisons or prerequisites. Retry the display tool or answer with sourced prose.'})});
+            continue;
+          }
+        }
         if (['show_post_cards','show_visualization','show_reading_map','show_concept_flow','revise_concept_step','suggest_questions','show_profile_timeline'].includes(call.name)) {
           const block = { ...output, id: `block-${blocks.length}`,...(output.type==='concept_flow'?{visualId:`concept-${randomUUID()}`}:{}) }; blocks.push(block); onEvent({type:'block',block});
         }
@@ -318,7 +326,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
     try {
       if(replayPrefix && result.text.startsWith(replayPrefix))throw new Error('Invalid answer continuation');
       if(visibleIds && JSON.stringify([...new Set(result.sourceIds)])!==JSON.stringify(visibleIds))throw new Error('Invalid answer continuation');
-      checkProseClaims(result.text,result.sourceIds,passages);
+      checkProseClaims(result.text,result.sourceIds,new Map([...passages,...profilePassages]));
     } catch(error) {
       if(proseRepairs<2 && step<5 && !signal?.aborted) {
         proseRepairs++;repairingProse=true;

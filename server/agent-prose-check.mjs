@@ -16,7 +16,7 @@ export function checkProseClaims(text,ids,passages) {
     if(/必要(?:但不充分)?(?:的)?(?:筛选)?(?:标准|条件|前提)/u.test(positive) && !/必要/.test(source) && !/(?:并非|不是|不构成|不能视为|不代表|未必是)[^，。；]{0,12}必要/.test(positive))reason='logical_strength';
     if(positive.includes('取决于') && !source.includes('取决于') && !/(?:不|并非)取决于/.test(positive))reason='unsupported_dependency';
     if(/(?:最具体|最明确|最适合|唯一的|最重要的)/u.test(positive) && !source.includes(positive.trim()))reason='unsupported_comparison';
-    if(/(?:她|煜欣|侯煜欣)(?:认为|主张|坚信|相信|倡导|强调)/u.test(positive) && !/(?:我认为|我主张|我相信|我倡导|我坚信)/u.test(source))reason='personal_stance';
+    if(/(?:她|煜欣|侯煜欣)(?:认为|主张|坚信|相信|倡导|强调)|\b(?:she|Yuxin|Evie)\s+(?:believes|advocates|insists|argues|maintains)\b/iu.test(positive) && !/(?:我认为|我主张|我相信|我倡导|我坚信)|\bI\s+(?:believe|think|advocate|argue)\b/iu.test(source))reason='personal_stance';
     if(/(?:并非|不是|不呈|并不)[^。！？]{0,12}线性/u.test(positive) && !source.includes('线性'))reason='unsupported_relation';
     if(/学习效用才是[^。！？]{0,12}实际价值所在/u.test(positive) && source.includes('最接近') && !source.includes('实际价值所在'))reason='logical_strength';
     if(!ids.some(id=>id.startsWith('profile:') || id.startsWith('event:')) && [...positive.matchAll(/普林斯顿|VSRC|北京大学|清华大学/gu)].some(match=>!source.includes(match[0])))reason='unsupported_biography_context';

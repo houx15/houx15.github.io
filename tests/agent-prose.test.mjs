@@ -68,3 +68,20 @@ test('quoted source punctuation cannot flush a half quotation into claim checkin
  assert.equal(round,2);assert.equal(answer.text,output);
  assert.equal(events.filter(e=>e.type==='answer_delta').map(e=>e.text).join(''),output);
 });
+
+test('profile facts cannot turn into personal stances in prose or terminal timeline captions',async()=>{
+ for(const mode of ['prose','caption','english']) {
+  let round=0;const events=[];
+  const answer=await runContentAgent({question:'介绍她',language:mode==='english'?'en':'zh-CN',corpus,onEvent:e=>events.push(e),complete:async({onText,messages})=>{
+   if(++round===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',language:'zh-CN'}}]};
+   if(round===2) {
+    if(mode==='caption')return {toolCalls:[{id:'show',name:'show_profile_timeline',arguments:{eventIds:['startup'],caption:'她认为创业是唯一的人生道路。',language:'zh-CN'}}]};
+    onText(mode==='english'?'She believes entrepreneurship is the only meaningful career. ':'她认为创业是唯一的人生道路。',['event:startup']);assert.fail('stance should be rejected');
+   }
+   assert.equal(events.filter(e=>e.type==='block'||e.type==='answer_delta').length,0);
+   if(mode==='caption')assert.equal(JSON.parse(messages.at(-1).content).error,'unsupported_caption_claim');
+   return {text:'她曾创办公司并担任 CTO。',sourceIds:['event:startup']};
+  }});
+  assert.equal(round,3);assert.equal(answer.text,'她曾创办公司并担任 CTO。');
+ }
+});
