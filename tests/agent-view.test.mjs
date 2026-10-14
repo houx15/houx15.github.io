@@ -143,7 +143,7 @@ test('quota feedback distinguishes daily from monthly and includes a local reset
 });
 
 test('streamed diagrams and prose retain their arrival order without inserting above an existing diagram',()=>{
- const card=id=>({type:'block',block:{id,type:'post_cards',items:[{id:'a',title:'Source',summary:'Summary',url:'/notes/test/',date:'2026-10-12',type:'notes'}]}});
+ const card=id=>({type:'block',block:{id,type:'publication_timeline',dateKind:'publication',items:[{id:'a',title:'Source',summary:'Summary',url:'/notes/test/',date:'2026-10-12',type:'notes'}]}});
  for(const diagramFirst of [true,false]) {
   const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Explain'});
   if(diagramFirst)turn.event(card('first'));
@@ -264,4 +264,32 @@ test('completion preserves the open source disclosure instead of replacing it',(
  assert.equal(disclosure.open,true);
  assert.equal(log.querySelectorAll('a').length,1);
  assert.equal(log.querySelector('.comic-reply').textContent,'First part and conclusion.');
+});
+
+test('recommendations arrive after the explanation, regardless of tool emission order',()=>{
+ const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Show and recommend'});
+ const card={type:'post_cards',id:'card',items:[{id:'projects/demo/en',title:'Demo',summary:'A public project.',url:'/projects/demo/',date:'2026-10-10',type:'projects'}]};
+ const pending=turn.event({type:'block',block:card});
+ assert.equal(log.contains(pending),false);
+ assert.equal(log.querySelectorAll('a').length,0);
+ turn.event({type:'block',block:{id:'timeline',type:'publication_timeline',dateKind:'publication',items:[{id:'projects/demo/en',title:'Demo',summary:'A public project.',url:'/projects/demo/',date:'2026-10-10',type:'projects'}]}});
+ turn.event({type:'answer_delta',text:'A brief introduction.'});
+ const body=turn.row.children.find(node=>node.className==='comic-live-body');
+ assert.ok(body);
+ const revealed=turn.event({type:'done'});
+ assert.equal(revealed,pending);
+ assert.ok(turn.row.children.indexOf(revealed)>turn.row.children.indexOf(body));
+ assert.equal(log.querySelectorAll('a').length,2);
+ turn.event({type:'done'});
+ assert.equal(log.querySelectorAll('a').length,2);
+});
+
+test('an interrupted response retains valid pending recommendation cards',()=>{
+ const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Recommend'});
+ const card=turn.event({type:'block',block:{type:'post_cards',id:'card',items:[{id:'projects/demo/en',title:'Demo',summary:'A public project.',url:'/projects/demo/',date:'2026-10-10',type:'projects'}]}});
+ assert.equal(log.contains(card),false);
+ turn.interrupt('Stopped');
+ assert.equal(log.contains(card),true);
+ assert.match(turn.row.className,/is-incomplete/);
+ assert.equal(turn.canReplace,false);
 });
