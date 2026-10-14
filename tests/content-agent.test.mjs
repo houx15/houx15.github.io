@@ -289,7 +289,7 @@ test('diagram follow-up refreshes real source text before the first model answer
  const events=[];let calls=0;
  const result=await runContentAgent({question:'Explain step two',corpus,history:[{role:'assistant',content:JSON.stringify(memory)}],onEvent:event=>events.push(event),complete:async({messages,onText})=>{
    calls++;const read=JSON.parse(messages.at(-1).content);
-   assert.equal(read.sections[0].text,corpus.documents[0].sections[0].text);
+   assert.equal(read.sections[0].fragments.map(fragment=>fragment.text).join('\n'),corpus.documents[0].sections[0].text);
    assert.equal(events.filter(event=>event.phase==='tool_completed').length,1);
    onText('Reuse stored keys and values.',['notes/cache/en:0']);
    return {text:'Reuse stored keys and values.',sourceIds:['notes/cache/en:0']};

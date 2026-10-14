@@ -1,3 +1,4 @@
+import {createQuoteFragments} from './agent-quote-fragments.mjs';
 import {conversationReasons,conversationReply} from './agent-conversation-reply.mjs';
 import { validatePageContext } from './agent-page-context.mjs';
 import { resolveOpeningContext } from './agent-opening.mjs';
@@ -13,12 +14,12 @@ export const contentToolDefinitions = [
   ['query_profile_events', 'Read approved biography chronology without displaying anything. Use this to look up or compare dates. Preserves overlapping and uncertain ranges.', {language:{enum:['en','zh-CN']}}, []],
   ['show_profile_timeline', 'Display selected biography events after reading them in this turn. Use when the visitor asks for a timeline or when chronology materially helps an overview. Do not use for a short date answer. Choose only relevant eventIds; original order, names and date qualifications are preserved.', {eventIds:{type:'array',items:{type:'string',enum:profileEventIds},maxItems:8},language:{enum:['en','zh-CN']}}, ['eventIds']],
   ['search_content', 'Search published documents; query is required. For a specific article or follow-up, pass documentId to search its individual sections (multiple passages may be returned). Search excerpts are navigation aids: read the exact returned sectionId before citing a claim.', { query: {type:'string',maxLength:400}, documentId:{type:'string'}, type:{enum:['notes','reports','projects']}, from:{type:'string'}, to:{type:'string'}, language:{enum:['en','zh-CN']}, offset:{type:'integer'}, limit:{type:'integer'} }, ['query']],
-  ['read_content', 'Read source text before making claims. When search_content returns a relevant sectionId, read that section directly, including on the first read. Only use exact sectionIds returned by a tool; never guess them. Omit sectionId only to discover sections or read the article opening, which returns the first three sections rather than the entire article. Continue with nextOffset when needed.', {id:{type:'string'},sectionId:{type:'string'},offset:{type:'integer'}}, ['id']],
+  ['read_content', 'Read source text before making claims. When search_content returns a relevant sectionId, read that section directly, including on the first read. Only use exact sectionIds returned by a tool; never guess them. Omit sectionId only to discover sections or read the article opening, which returns the first three sections rather than the entire article. Continue with nextOffset when needed. Article sections are returned as ordered original-text fragments; fragments of up to 400 characters have quoteIds for exact reuse in diagrams.', {id:{type:'string'},sectionId:{type:'string'},offset:{type:'integer'}}, ['id']],
   ['find_related_posts', 'Find related reading; pass id or query.', {id:{type:'string'},query:{type:'string'},language:{enum:['en','zh-CN']}}, []],
   ['query_timeline', 'Publication dates only, never employment or project duration.', {from:{type:'string'},to:{type:'string'},language:{enum:['en','zh-CN']}}, []],
   ['show_post_cards', 'Display reading recommendations as up to three cards. Use exact document ids returned by search_content or read_content, not titles, slugs or story-card IDs.', {ids:{type:'array',items:{type:'string'},maxItems:3}}, ['ids']],
   ['show_reading_map', 'Display an article outline using its original section headings and excerpts, in source order. Read the sections first. Useful for explaining how to approach a note; not a causal or conceptual graph.', {id:{type:'string'},sectionIds:{type:'array',items:{type:'string'},maxItems:6}}, ['id','sectionIds']],
-  ['show_concept_flow', 'Explain a mechanism as 2–5 concise conceptual steps, not article headings. Use a short descriptive title (normally 6–14 Chinese characters or 3–7 English words) naming the mechanism, not a restatement of the visitor question. For a simple why-question prefer 2–3 steps: the relevant situation, the mechanism, and its consequence. Keep only steps needed to answer this question; do not append adjacent topics just because they occur in the same source. Write every title, label and description entirely in the requested language (proper names may stay unchanged). Preserve hypothetical examples as hypothetical: use “例如/可能” or “for example/may”, never narrate a possible trajectory as an observed event. Give each step one short sentence (35–80 Chinese characters is usually enough). The UI supplies source links: do not repeat citations or quotations inside descriptions. Read evidence first. Include a quotes array with one short verbatim passage per step when citing article sections; each quotation must occur in its cited section exactly (whitespace may differ). Keep qualifiers and context, and do not translate or paraphrase a quotation. Quotes are displayed separately from your interpretation so readers can compare them. Omit quotes for biography sources that do not supply section text. Pass equal-length labels and descriptions arrays. sourceIds may contain ONE already-read source shared by every step, or one already-read source per step. The UI marks this as an AI interpretation, not an author diagram. Do not invent causal links or chronology unsupported by the sources. Preserve the source’s uncertainty: “可能/may” must not become “会/will”. Do not add performance claims such as reduced efficiency, or additional actors such as external factors, unless the read passage explicitly supports them.', {title:{type:'string',maxLength:120},labels:{type:'array',items:{type:'string',maxLength:60},maxItems:5},descriptions:{type:'array',items:{type:'string',maxLength:128},maxItems:5},sourceIds:{type:'array',items:{type:'string',maxLength:400},maxItems:5},quotes:{type:'array',items:{type:'string',maxLength:400},maxItems:5}}, ['title','labels','descriptions','sourceIds']],
+  ['show_concept_flow', 'Explain a mechanism as 2–5 concise conceptual steps, not article headings. Use a short descriptive title (normally 6–14 Chinese characters or 3–7 English words) naming the mechanism, not a restatement of the visitor question. For a simple why-question prefer 2–3 steps: the relevant situation, the mechanism, and its consequence. Keep only steps needed to answer this question; do not append adjacent topics just because they occur in the same source. Write every title, label and description entirely in the requested language (proper names may stay unchanged). Preserve hypothetical examples as hypothetical: use “例如/可能” or “for example/may”, never narrate a possible trajectory as an observed event. Give each step one short sentence (35–80 Chinese characters is usually enough). The UI supplies source links: do not repeat citations or quotations inside descriptions. Read evidence first. For article sources, prefer quoteIds: one returned fragment quoteId per step, belonging to that step’s sourceId. The server inserts the original text. Do not retype a quotation when a suitable quoteId exists. For a shorter excerpt from a long paragraph without a quoteId, use quotes with one short verbatim passage per step instead. Never supply both quoteIds and quotes. Keep qualifiers and context; do not translate or paraphrase quotations. Quotes are displayed separately from your interpretation so readers can compare them. Omit quotes for biography sources that do not supply section text. Pass equal-length labels and descriptions arrays. sourceIds may contain ONE already-read source shared by every step, or one already-read source per step. The UI marks this as an AI interpretation, not an author diagram. Do not invent causal links or chronology unsupported by the sources. Preserve the source’s uncertainty: “可能/may” must not become “会/will”. Do not add performance claims such as reduced efficiency, or additional actors such as external factors, unless the read passage explicitly supports them.', {title:{type:'string',maxLength:120},labels:{type:'array',items:{type:'string',maxLength:60},maxItems:5},descriptions:{type:'array',items:{type:'string',maxLength:128},maxItems:5},sourceIds:{type:'array',items:{type:'string',maxLength:400},maxItems:5},quotes:{type:'array',items:{type:'string',maxLength:400},maxItems:5},quoteIds:{type:'array',items:{type:'string',maxLength:30},maxItems:5}}, ['title','labels','descriptions','sourceIds']],
   ['show_visualization', 'Present a publication timeline from verified document IDs.', {kind:{enum:['publication_timeline']},ids:{type:'array',items:{type:'string'},maxItems:12}}, ['kind','ids']],
   ['suggest_questions', 'Offer source-backed reading starters.', {id:{type:'string'},language:{enum:['en','zh-CN']}}, []]
 ].map(([name, description, properties, required]) => ({ name, description, parameters: {type:'object',properties,required,additionalProperties:false} }));
@@ -35,6 +36,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   pageContext=validatePageContext(pageContext,corpus);
   const opening=resolveOpeningContext(openingContext,language);
   const recall=conversationRecall(earlierHistory);
+  const quoteFragments=createQuoteFragments();
   const tools = {...createContentTools(corpus),...createProfileTools(),recall_conversation:args=>recall.read(args)}, evidence = new Map(), passages = new Map(), blocks = [];
   const availableTools=contentToolDefinitions.filter(tool=>(supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || tool.name!=='recall_conversation'));
   const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
@@ -56,7 +58,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
     onEvent({type:'status',phase:'tool_started',tool:'read_content',callId});
     const output=tools.read_content(args);
     for(const section of output.sections){passages.set(section.id,section.text);evidence.set(section.id,{id:section.id,label:`${output.title} · ${section.heading}`,url:section.url});}
-    messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(output)});
+    messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(quoteFragments.present(output))});
     onEvent({type:'status',phase:'tool_completed',tool:'read_content',callId});
   }
   // Re-read a bounded set of the most recent sourced answer or diagram references. The model sees
@@ -84,7 +86,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
       if(name==='read_profile')evidence.set(output.source.id,output.source);
       else for(const section of output.sections){passages.set(section.id,section.text);evidence.set(section.id,{id:section.id,label:`${output.title} · ${section.heading}`,url:section.url});}
       onEvent({type:'status',phase:'tool_completed',tool:name,callId});
-      messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(output)});
+      messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(name==='read_content'?quoteFragments.present(output):output)});
     }
     break;
   }
@@ -189,12 +191,12 @@ export async function runContentAgent({ question, language = 'en', history = [],
             if(!ids.length || new Set(ids).size!==ids.length || ids.some(id=>!profileEventIds.includes(id) || !evidence.has(`event:${id}`)))throw new Error('Invalid timeline evidence');
             const timeline=tools.query_profile_events({language:call.arguments.language || language});
             output={...timeline,items:timeline.items.filter(item=>ids.includes(item.id.slice(6)))};
-          } else output = call.name==='show_concept_flow' ? conceptFlow(call.arguments,evidence,passages) : tools[call.name]({...call.arguments,...(definition.parameters.properties.language && call.arguments.language===undefined?{language}: {})});
+          } else output = call.name==='show_concept_flow' ? conceptFlow(call.arguments,evidence,passages,quoteFragments) : tools[call.name]({...call.arguments,...(definition.parameters.properties.language && call.arguments.language===undefined?{language}: {})});
         }
         catch(error) {
           if(call.name==='show_concept_flow' && error.message==='Invalid concept quotation') {
             onEvent({type:'status',phase:'tool_completed',tool:call.name,callId:call.id});
-            messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'invalid_concept_quotation',guidance:'No diagram was displayed. Supply one nonempty quotes entry per step, copied verbatim from its cited article section read in this turn. Whitespace may differ; wording, qualifiers and punctuation must not. Never attach a quotation from another source. Re-read if needed; omit quotes only for sources without article-section text.'})});
+            messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'invalid_concept_quotation',guidance:'No diagram was displayed. Supply one quoteIds entry per step from fragments returned by an actual read of its cited source in this turn. For a custom excerpt use quotes instead, never both. A quotes entry must be copied verbatim from its cited section. Whitespace may differ; wording, qualifiers and punctuation must not. Never attach a quotation from another source. Re-read if needed; omit quotes only for sources without article-section text.'})});
             continue;
           }
           if(call.name==='show_profile_timeline' && error.message==='Invalid timeline evidence') {
@@ -230,7 +232,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
         if (['show_post_cards','show_visualization','show_reading_map','show_concept_flow','suggest_questions','show_profile_timeline'].includes(call.name)) {
           const block = { ...output, id: `block-${blocks.length}` }; blocks.push(block); onEvent({type:'block',block});
         }
-        messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify(output)});
+        messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify(call.name==='read_content'?quoteFragments.present(output):output)});
       }
       continue;
     }
@@ -256,9 +258,13 @@ export async function runContentAgent({ question, language = 'en', history = [],
   throw new Error('Agent step budget exceeded');
 }
 
-function conceptFlow({title,labels,descriptions,sourceIds,quotes},evidence,passages) {
+function conceptFlow({title,labels,descriptions,sourceIds,quotes,quoteIds},evidence,passages,quoteFragments) {
   if(sourceIds.length===1)sourceIds=labels.map(()=>sourceIds[0]);
   if(!title.trim() || labels.length<2 || labels.length!==descriptions.length || labels.length!==sourceIds.length || labels.some(label=>!label.trim() || label.length>100) || descriptions.some(text=>!text.trim() || text.length>400) || sourceIds.some(id=>!evidence.has(id))) throw new Error('Invalid concept evidence');
+  if(quoteIds) {
+    if(quotes || quoteIds.length!==labels.length)throw new Error('Invalid concept quotation');
+    quotes=quoteIds.map((id,index)=>quoteFragments.resolve(id,sourceIds[index]));
+  }
   const normalize=text=>typeof text==='string'?text.replace(/\s+/g,' ').trim():'';
   if(quotes && (quotes.length!==labels.length || quotes.some((quote,index)=>!normalize(quote) || !normalize(passages.get(sourceIds[index])).includes(normalize(quote)))))throw new Error('Invalid concept quotation');
   return {type:'concept_flow',title,interpretation:true,items:labels.map((label,index)=>({title:label,description:descriptions[index],...(quotes?{quote:normalize(quotes[index])}:{}),source:{...evidence.get(sourceIds[index])}}))};
