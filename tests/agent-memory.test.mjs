@@ -45,3 +45,27 @@ test('missing description capacity is explicit and never truncates a claim into 
  for(const item of visual.items)if(item.description)assert.equal(item.description,large.items[0].description);
  assert.equal(visual.items.length,5);
 });
+
+test('truncated prose is explicitly a prefix, including unsourced long answers',()=>{
+ for(const sources of [[],[{id:'doc:1'}]]) {
+  const text='示例'.repeat(2050)+' 上述内容只是一个假设，并非已观察到的结果。';
+  const memory=JSON.parse(rememberAgentAnswer({text,sources}));
+  assert.equal(memory.textTruncated,true);assert.ok(text.startsWith(memory.text));
+  assert.ok(memory.text.length<text.length);
+ }
+});
+
+test('ordinary retained prose is complete and Unicode is not split at the prefix boundary',()=>{
+ const short=JSON.parse(rememberAgentAnswer({text:'Complete statement.',sources:[{id:'doc:1'}]}));
+ assert.equal(short.textTruncated,false);
+ const text='x'.repeat(999)+'😀'+' remainder';
+ const memory=JSON.parse(rememberAgentAnswer({text,sources:[{id:'doc:1'}]}));
+ assert.equal(memory.text,'x'.repeat(999));assert.equal(memory.textTruncated,true);
+});
+
+test('JSON escape expansion cannot overflow the history envelope',()=>{
+ const text='\u0001'.repeat(5000);
+ const saved=rememberAgentAnswer({text,sources:[{id:'doc:1'}],blocks:[flow]});
+ assert.ok(saved.length<=4000);const memory=JSON.parse(saved);
+ assert.equal(memory.textTruncated,true);assert.ok(text.startsWith(memory.text));
+});

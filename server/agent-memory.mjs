@@ -3,8 +3,15 @@
 export function rememberAgentAnswer(answer) {
   const concepts=(answer.blocks || []).filter(block=>block.type==='concept_flow');
   const sourceIds=[...new Set((answer.sources || []).map(source=>source.id))].filter(id=>typeof id==='string' && id.length<=400).slice(0,3);
-  if(!concepts.length && !sourceIds.length)return answer.text.slice(0,4000);
-  const memory={text:answer.text.slice(0,1000),sourceIds:[],visuals:[],omittedVisuals:0};
+  if(!concepts.length && !sourceIds.length && answer.text.length<=4000)return answer.text;
+  const prefix=answer.text.slice(0,1000).replace(/[\uD800-\uDBFF]$/u,'');
+  const memory={text:prefix,textTruncated:prefix.length<answer.text.length,sourceIds:[],visuals:[],omittedVisuals:0};
+  // JSON escaping can expand a character to six bytes of history text. Bound the
+  // serialized record itself, including its explicit indication of missing prose.
+  while(JSON.stringify(memory).length>3900) {
+    memory.text=memory.text.slice(0,-1).replace(/[\uD800-\uDBFF]$/u,'');
+    memory.textTruncated=true;
+  }
   for(const id of sourceIds) {
     if(JSON.stringify({...memory,sourceIds:[...memory.sourceIds,id]}).length<=3900)memory.sourceIds.push(id);
   }
