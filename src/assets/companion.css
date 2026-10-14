@@ -185,3 +185,7 @@
 .comic-reset-actions button {flex:1;min-height:44px;border:1px solid #333;border-radius:9px 7px 10px 8px;padding:9px 12px;background:#fff;color:#191919;font:14px/1.5 var(--font-sans);cursor:pointer;}
 .comic-reset-actions .comic-reset-clear {border-color:transparent;color:#666;}
 .comic-reset-actions button:focus-visible {outline:2px dashed #333;outline-offset:3px;}
+
+/* Only appears when the reader leaves the latest output; no layout shift. */
+.comic-composer .comic-jump {position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:auto;height:44px;white-space:nowrap;padding:0 15px;border:1px solid #555;border-radius:17px 15px 18px 16px;background:#fff;font-size:12px;box-shadow:0 2px 8px #0000000a;z-index:1;}
+.comic-composer .comic-jump[hidden] {display:none;}

@@ -27,3 +27,21 @@ export function presentAgentEvent(log,turn,event) {
     log.scrollTop=Math.min(Math.max(previousTop,top),Math.max(0,log.scrollHeight-log.clientHeight));
   } else log.scrollTop=log.scrollHeight;
 }
+
+// A contextual shortcut, outside the live log so its appearance is not announced
+// as a new agent message. It never changes the reader's position by itself.
+export function bindConversationJump(log,button,{Mutation=globalThis.MutationObserver,Resize=globalThis.ResizeObserver}={}) {
+  const update=()=>{button.hidden=log.clientHeight<=0 || log.scrollHeight-log.scrollTop-log.clientHeight<100;};
+  const jump=()=>{
+    log.scrollTop=log.scrollHeight;
+    // The button disappears at the end; keep keyboard focus in the conversation.
+    log.setAttribute('tabindex','-1');log.focus({preventScroll:true});update();
+  };
+  button.addEventListener('click',jump);
+  log.addEventListener('scroll',update,{passive:true});
+  const mutation=Mutation?new Mutation(update):null;
+  mutation?.observe(log,{childList:true,subtree:true,characterData:true});
+  const resize=Resize?new Resize(update):null;resize?.observe(log);
+  update();
+  return ()=>{mutation?.disconnect();resize?.disconnect();button.removeEventListener('click',jump);log.removeEventListener('scroll',update);};
+}
