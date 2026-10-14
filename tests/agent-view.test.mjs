@@ -234,3 +234,34 @@ test('failed, stale or absent diagram revisions never claim to update an origina
   assert.ok(!turn.row.querySelectorAll('summary').some(node=>node.textContent.includes('updated in the original')));
  }
 });
+
+test('prose sources appear with the first text and survive interruption',()=>{
+ const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Explain this',language:'zh-CN'});
+ turn.event({type:'source',source:{id:'used',label:'Original section',url:'/notes/test/#section'}});
+ turn.event({type:'source',source:{id:'unused',label:'Other lookup',url:'/notes/other/'}});
+ assert.equal(log.querySelectorAll('a').length,0);
+ turn.event({type:'answer_delta',text:'A partial claim',sourceIds:['used']});
+ const disclosure=log.querySelectorAll('details')[0];
+ assert.ok(!disclosure.open);
+ assert.deepEqual(log.querySelectorAll('a').map(a=>a.href),['/notes/test/#section']);
+ disclosure.open=true;
+ turn.event({type:'answer_delta',text:' continues',sourceIds:['used']});
+ turn.interrupt();
+ assert.equal(log.querySelectorAll('details')[0],disclosure);
+ assert.equal(disclosure.open,true);
+ assert.equal(log.querySelectorAll('a').length,1);
+ assert.match(turn.row.className,/is-incomplete/);
+});
+
+test('completion preserves the open source disclosure instead of replacing it',()=>{
+ const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Explain this'});
+ turn.event({type:'source',source:{id:'s',label:'Original section',url:'/notes/test/#section'}});
+ turn.event({type:'answer_delta',text:'First part',sourceIds:['s']});
+ const disclosure=log.querySelectorAll('details')[0];disclosure.open=true;
+ turn.event({type:'answer',text:'First part and conclusion.',sourceIds:['s']});
+ turn.event({type:'done'});
+ assert.equal(log.querySelectorAll('details')[0],disclosure);
+ assert.equal(disclosure.open,true);
+ assert.equal(log.querySelectorAll('a').length,1);
+ assert.equal(log.querySelector('.comic-reply').textContent,'First part and conclusion.');
+});

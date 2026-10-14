@@ -118,6 +118,15 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     }
     container.append(make('p',biography?(zh?`依据截至 ${block.asOf} 的公开履历；时间可能重叠。`:`Public biography as of ${block.asOf}; periods may overlap.`):(zh?'这些是发布日期，不代表项目起止时间。':'Publication dates, not project start/end dates.'),'comic-visual-note'));
   }
+  let answerSources;
+  function showAnswerSources(ids = []) {
+    if(answerSources || !ids.length)return;
+    const referenced=ids.map(id=>{const source=sources.get(id);if(!source)throw new Error('invalid_response');return source;});
+    answerSources=make('details','','comic-evidence');
+    answerSources.append(make('summary',zh?'翻到原文 ↗':'See the sources ↗'));
+    for(const source of referenced){const link=make('a',source.label);link.href=source.url;answerSources.append(link);}
+    body.append(answerSources);
+  }
   function end(failed, message, code) {
     finished=true;failedTurn=failed;row.classList.toggle('is-incomplete',failed);progress.classList.remove('is-active');
     progressText.textContent=message;
@@ -164,6 +173,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
         let paragraph=body.querySelector('.comic-reply');
         if(!paragraph){showBody();paragraph=make('p','','comic-reply');body.append(paragraph);}
         paragraph.textContent+=event.text;
+        showAnswerSources(event.sourceIds);
         progressText.textContent=zh?'正在回答…':'Writing…';progress.classList.add('is-active');
       } else if(event.type==='source')sources.set(event.source.id,event.source);
       else if(event.type==='block') {
@@ -173,8 +183,11 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
       }
       else if(event.type==='answer') {
         const fresh=showBody();
-        body.replaceChildren(make('p',event.text,'comic-reply'));
-        if(event.sourceIds.length){const details=make('details','','comic-evidence');details.append(make('summary',zh?'翻到原文 ↗':'See the sources ↗'));for(const id of event.sourceIds){const source=sources.get(id);if(!source)throw new Error('invalid_response');const a=make('a',source.label);a.href=source.url;details.append(a);}body.append(details);}
+        let paragraph=body.querySelector('.comic-reply');
+        if(!paragraph){paragraph=make('p','','comic-reply');body.append(paragraph);}
+        paragraph.textContent=event.text;
+        // Keep the same disclosure node so finishing does not close it or displace focus.
+        showAnswerSources(event.sourceIds);
         if(fresh)return body;
       } else if(event.type==='done')end(false,'');
       else if(event.type==='error')end(true,agentFailureMessage(event.code,language,{partial:event.partial || body.children.length>0 || blocks.size>0,resetsAt:event.resetsAt}),event.code);
