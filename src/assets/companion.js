@@ -58,6 +58,7 @@ export function initCompanion(document) {
   function resetOpening() {
     opening=chooseOpening({article:root.dataset.article==='true'});
     root.querySelector('[data-opening-label]').textContent=openingCopy[language][opening].action;
+    root.querySelectorAll('[data-reading-action]').forEach(button=>{button.textContent=openingCopy[language].read.action+' ↗';});
     root.querySelector('.comic-die').style.display=opening==='dice'?'':'none';
     root.querySelector('[data-invitation]').textContent=opening==='read'
       ? (zh?`读到《${root.dataset.pageTitle}》了？我陪你。`:`Reading “${root.dataset.pageTitle}”? I’m here with you.`)
@@ -70,6 +71,7 @@ export function initCompanion(document) {
       ? (zh?`这条问题对应「${readingSection.title}」。`:`This question is about “${readingSection.title}”.`)
       : (zh?`读到「${readingSection.title}」了？我陪你。`:`Reading “${readingSection.title}”? I’m here with you.`);
     root.querySelector('[data-opening-label]').textContent=zh?'一起读这一节':'Read this section with me';
+    root.querySelectorAll('[data-reading-action]').forEach(button=>{button.textContent=(zh?'一起读这一节':'Read this section with me')+' ↗';});
   }
   resetOpening();
   status.textContent = idle;
@@ -259,7 +261,7 @@ export function initCompanion(document) {
     log.querySelectorAll('button').forEach(button=>button.remove());
     const context = add(log,'article','','comic-message comic-context');
     add(context,'p',zh?`现在翻到《${root.dataset.pageTitle}》了。`:`We’ve opened “${root.dataset.pageTitle}”.`,'comic-reply');
-    const next=add(context,'button',openingCopy[language].read.action+' ↗','comic-follow');next.type='button';next.addEventListener('click',readPage);
+    const next=add(context,'button',openingCopy[language].read.action+' ↗','comic-follow');next.type='button';next.dataset.readingAction='';next.addEventListener('click',readPage);
   }
   if(dialog&&launcher) {
     let returnAnchor,pointerSelection;
