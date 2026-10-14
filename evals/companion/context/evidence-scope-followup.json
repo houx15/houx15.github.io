@@ -1,0 +1,22 @@
+{
+  "turns": [
+    {
+      "question": "那这个项目已经证明改善学习效果了吗？两句话以内，给出依据。",
+      "language": "zh-CN",
+      "pageContext": {
+        "documentId": "projects/mind-imprint/zh-CN",
+        "sectionAnchor": "section-贡献与状态"
+      }
+    }
+  ],
+  "history": [
+    {
+      "role": "user",
+      "content": "{\"question\": \"这篇项目介绍的“来源”一节列了几份资料？只列名称。\", \"language\": \"zh-CN\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"text\": \"公开系统文档、官网实现与部署记录。\", \"textTruncated\": false, \"sourceIds\": [\"projects/mind-imprint/zh-CN:3\"], \"visuals\": []}"
+    }
+  ]
+}
