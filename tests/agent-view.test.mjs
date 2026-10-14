@@ -1,3 +1,4 @@
+import {recordPresentationEvent,validateSavedTurn} from '../src/assets/agent-history.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createAgentTurn } from '../src/assets/agent-view.js';
@@ -292,4 +293,27 @@ test('an interrupted response retains valid pending recommendation cards',()=>{
  assert.equal(log.contains(card),true);
  assert.match(turn.row.className,/is-incomplete/);
  assert.equal(turn.canReplace,false);
+});
+
+test('restored turns preserve the first visible prose position and later citations',()=>{
+ for(const diagramFirst of [false,true]) {
+  const timeline={type:'block',block:{id:'timeline',type:'publication_timeline',dateKind:'publication',items:[{id:'note',title:'A note',summary:'About attention',url:'/notes/attention/',date:'2026-10-12',type:'notes'}]}};
+  const source=id=>({type:'source',source:{id,label:id,url:'/notes/attention/'}});
+  const events=[source('s1')];
+  if(diagramFirst)events.push(timeline);
+  events.push({type:'answer_delta',text:'First sentence.',sourceIds:['s1']});
+  if(!diagramFirst)events.push(timeline);
+  events.push(source('s2'),{type:'answer_delta',text:' More detail.',sourceIds:['s2']},{type:'answer',text:'First sentence. More detail.',sourceIds:['s1','s2']},{type:'done'});
+  const saved=[],live=createAgentTurn(document,{log:new Element('div'),question:'Explain'});
+  for(const event of events){live.event(event);recordPresentationEvent(saved,event);}
+  const safe=validateSavedTurn({kind:'agent',question:'Explain',events:saved});assert.ok(safe);
+  const restored=createAgentTurn(document,{log:new Element('div'),question:'Explain',restored:true});
+  for(const event of safe.events)restored.event(event);
+  const order=turn=>turn.row.children.filter(n=>['comic-live-body','comic-agent-block'].includes(n.className)).map(n=>n.className);
+  assert.deepEqual(order(restored),order(live));
+  assert.equal(restored.row.querySelector('.comic-reply').textContent,'First sentence. More detail.');
+  assert.equal(restored.row.querySelectorAll('a').length,3);
+  assert.equal(safe.events.filter(e=>e.type==='answer').length,1);
+  assert.equal(safe.events.some(e=>e.type==='answer_delta'),false);
+ }
 });
