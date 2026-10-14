@@ -627,3 +627,8 @@ A fresh 390×600 capture showed the persistent greeting occupying 65px after a c
 ## Keyboard continuity at opening/reset (2026-10-13)
 
 The previous browser captures showed focus falling to the page when opening/reset controls disappeared. Fresh local keyboard verification now confirms Return on the biography opener focuses the first chapter heading; Tab reaches its next-chapter button; Return advances and focuses the next heading. Reset without a draft focuses the greeting and Tab reaches the single opening action. Reset with an unsent draft preserves the text and focuses the composer. Restored history does not opt into initial chapter focus. The browser console remained clean, and all 231 tests, build and site checks passed. These were local authored interactions with no paid model calls. Actual screen-reader announcements and public live chat remain unverified.
+
+
+## Source-force classification candidate rejected (2026-10-13)
+
+A fresh baseline/candidate evaluation showed that adding required evidence-force fields to the diagram call does not establish faithful generation. The candidate mislabeled a possible risk as documented fact and still emitted categorical consequences and added screening requirements. Both variants used two calls per preloaded turn; the report warning-vs-hard-gate control was preserved. See evals/companion/README.md for the bounded observations. Candidate code stayed outside the accepted source tree and production; model-side grounding remains an open completion gate.
