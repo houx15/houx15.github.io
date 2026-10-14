@@ -56,9 +56,9 @@
 .comic-status {flex-shrink:0;font-size:10px;line-height:1.6;color:#888;text-align:center;margin:15px 0 0;}
 .comic-conversation:empty {display:none;}
 .comic-conversation {flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:6px 6px 20px;margin-bottom:16px;}
-.has-conversation .comic-welcome {margin:0;display:flex;gap:12px;align-items:center;text-align:left;padding:0 0 18px;}
-.has-conversation .comic-character {width:53px;height:47px;margin:0;flex-shrink:0;}
-.has-conversation .comic-hello {font-size:20px;margin:0;}
+.has-conversation .comic-welcome {position:absolute;top:12px;left:50%;transform:translateX(-50%);margin:0;padding:0;display:flex;align-items:center;}
+.has-conversation .comic-character {width:50px;height:44px;margin:0;flex-shrink:0;}
+.has-conversation .comic-hello {display:none;}
 .has-conversation .comic-invitation {display:none;}
 .has-conversation .comic-play {display:none;}
 .comic-message {margin:0 0 28px;}
@@ -164,7 +164,7 @@
   .comic-room:not(.has-conversation) .comic-hello {font-size:20px;margin:0 0 4px;}
   .comic-room:not(.has-conversation) .comic-invitation {font-size:12px;}
   .comic-play {padding-bottom:12px;}
-  .has-conversation .comic-welcome {padding-bottom:8px;}
+  .has-conversation .comic-welcome {top:6px;}
   .comic-session-note {margin-bottom:8px;}
   .comic-status {margin-top:10px;}
 }
