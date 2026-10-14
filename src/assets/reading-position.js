@@ -12,8 +12,18 @@ export function restoreReadingAnchor(anchor,document,view) {
   view.scrollBy({top:rect.top+anchor.fraction*rect.height-anchor.top,behavior:'instant'});
 }
 export function readingHeadings(document,threshold=120) {
-  return [...document.querySelectorAll('main article .prose h2[id],main article .prose h3[id],main article .prose h4[id]')]
-    .filter(node=>node.getBoundingClientRect().top<=threshold).map(node=>node.id).reverse();
+  const nodes=[...document.querySelectorAll('main article .prose h2[id],main article .prose h3[id],main article .prose h4[id]')];
+  // A fragment near the page end cannot always scroll up to the reading line.
+  // Honor that visible destination only while scrolling is clamped at the end;
+  // a stale fragment must not override the reader moving elsewhere.
+  const scroll=document.scrollingElement,height=document.documentElement?.clientHeight;
+  if(scroll && scroll.scrollHeight-scroll.scrollTop-height<=2) {
+    let anchor;try {anchor=decodeURIComponent(document.location?.hash.slice(1) || '');}catch{}
+    const target=nodes.find(node=>node.id===anchor);
+    const top=target?.getBoundingClientRect().top;
+    if(top>threshold && top<height)return [target.id];
+  }
+  return nodes.filter(node=>node.getBoundingClientRect().top<=threshold).map(node=>node.id).reverse();
 }
 export function resolveReadingPosition(doc,headings) {
   if(!doc)return undefined;

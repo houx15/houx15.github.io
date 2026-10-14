@@ -37,6 +37,23 @@ test('reading position uses the last passed public heading, without falling back
  assert.equal(resolveReadingPosition(doc,readingHeadings(document)).sectionId,'b');
  assert.equal(resolveReadingPosition(doc,[]),undefined);
 });
+test('a visible fragment clamped at page end wins, but stale and invalid fragments do not',()=>{
+ const nodes=[['first',70],['second',313]].map(([id,top])=>({id,getBoundingClientRect:()=>({top})}));
+ const document={querySelectorAll:()=>nodes,documentElement:{clientHeight:720},scrollingElement:{scrollHeight:1769,scrollTop:1049.5},location:{hash:'#second'}};
+ assert.deepEqual(readingHeadings(document),['second']);
+ assert.equal(resolveReadingPosition(doc,readingHeadings(document)).sectionId,'b');
+ document.scrollingElement.scrollTop=1000;
+ assert.deepEqual(readingHeadings(document),['first']);
+ document.scrollingElement.scrollTop=1049;
+ for(const hash of ['#missing','#%E0%A4%A','']) {
+   document.location.hash=hash;assert.deepEqual(readingHeadings(document),['first']);
+ }
+ document.location.hash='#second';nodes[1].getBoundingClientRect=()=>({top:800});
+ assert.deepEqual(readingHeadings(document),['first']);
+ nodes[1].getBoundingClientRect=()=>({top:24});
+ assert.deepEqual(readingHeadings(document),['second','first']);
+});
+
 test('page context accepts only a real section belonging to its public document',()=>{
  const corpus={documents:[doc,{id:'other',sections:[{id:'private'}]}]};
  assert.deepEqual(validatePageContext({documentId:doc.id,sectionAnchor:'second'},corpus),{documentId:doc.id,sectionId:'b'});
