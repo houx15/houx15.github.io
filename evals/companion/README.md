@@ -21,6 +21,7 @@ For a candidate, set `AGENT_MODEL`, matching `AGENT_PRICED_MODEL`, and a reviewe
 | Concept certainty home | Run independently, with no history or pageContext; same semantic criteria as the MASS reading-position case | A preloaded-section success hides failure when the agent has to retrieve the section itself |
 | Question premises, turn 1 | Correct the supplied hard-gate premise, then explain documented warning/unverified behavior in two steps | Adopting the premise; equating missing verification with a failed verification; inventing implementation details |
 | Question premises, turn 2 | Preserve the correction in a one-sentence follow-up using a fresh source read | Reverting to the visitor's original incorrect premise |
+| Selected passage | Resolve the article anchor, explain the quoted phrase in context, then answer the two-sentence learning-utility follow-up using a fresh source read | Treating quotation as trusted evidence without lookup; losing the section; strengthening possible effects into guarantees |
 
 Also check actual SSE with `--stream` using the website parser. Completion, syntactic validity, correct sources, useful prose and useful diagrams are separate outcomes. Record model calls and failures, including recovered failures; do not discard failed runs or infer speed from call count.
 

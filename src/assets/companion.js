@@ -1,5 +1,6 @@
 import {createBiographyChapter} from './biography-chapter.js';
 import {createDiceCard} from './dice-card.js';
+import {captureReadingSelection,selectionQuestion} from './reading-selection.js';
 import { captureReadingAnchor,restoreReadingAnchor,readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
 import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
@@ -33,6 +34,13 @@ export function initCompanion(document) {
   const log = root.querySelector('[data-companion-log]'), status = root.querySelector('[data-companion-status]');
   followConversationResize(log);
   const form = root.querySelector('form'), input = form.querySelector('textarea');
+  function updateComposer() {
+    root.classList.toggle('has-draft',Boolean(input.value.trim()));
+    input.style.height='34px';
+    input.style.height=`${Math.min(Math.max(34,input.scrollHeight),Math.max(58,Math.min(154,window.innerHeight*.25)))}px`;
+  }
+  input.addEventListener('input',updateComposer);
+  window.addEventListener('resize',updateComposer);
   const mascot = root.querySelector('[data-poke]'), hello = root.querySelector('[data-hello]');
   const dialog = document.querySelector('#companion-dialog'), launcher = document.querySelector('[data-companion-open]');
   const storageKey = `companion-opening-v1:${language}`;
@@ -160,7 +168,7 @@ export function initCompanion(document) {
   }
   async function ask(value) {
     const question=value.trim().slice(0,400);if(!question||busy)return;
-    input.value='';
+    input.value='';updateComposer();
     if(/^(掷骰子|roll(?: a die)?)$/i.test(question)){await roll();return;}
     if(/^(带我看看她的经历|看看她的经历|show me her story)[。.!?？]?$/i.test(question)){render({kind:'story',question});return;}
     if(liveClient) { await askLive(question);return; }
@@ -204,7 +212,7 @@ export function initCompanion(document) {
     } catch(error) {
       const message=agentFailureMessage(controller.signal.aborted?'stopped':error.message,language,{partial:savedEvents.length>0,resetsAt:error.resetsAt});
       turn.interrupt(message,{code:controller.signal.aborted?'stopped':error.message});
-      if(!controller.signal.aborted) input.value=question;
+      if(!controller.signal.aborted) {input.value=question;updateComposer();}
     } finally {challenge.hidden=true;challenge.replaceChildren();activeController=null;setBusy(false);}
   }
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
@@ -243,7 +251,20 @@ export function initCompanion(document) {
     const next=add(context,'button',openingCopy[language].read.action+' ↗','comic-follow');next.type='button';next.addEventListener('click',readPage);
   }
   if(dialog&&launcher) {
-    let returnAnchor;
+    let returnAnchor,pointerSelection;
+    const launcherLabel=launcher.querySelector('span'),defaultLabel=launcherLabel.textContent,defaultAria=launcher.getAttribute('aria-label');
+    const selectedPassage=()=>root.dataset.documentId && !input.value.trim()?captureReadingSelection(document):undefined;
+    const updateSelectionInvitation=()=>{
+      if(dialog.open)return;
+      const selected=selectedPassage(),label=zh?'解释选中这段':'Explain this passage';
+      launcher.classList.toggle('has-selection',Boolean(selected));
+      launcherLabel.textContent=selected?label:defaultLabel;
+      launcher.setAttribute('aria-label',selected?label:defaultAria);
+    };
+    document.addEventListener('selectionchange',updateSelectionInvitation);
+    launcher.addEventListener('pointerdown',()=>{pointerSelection=selectedPassage();});
+    launcher.addEventListener('pointercancel',()=>{pointerSelection=undefined;});
+    launcher.addEventListener('keydown',()=>{pointerSelection=undefined;});
     log.addEventListener('click',event=>{
       if(event.defaultPrevented || event.button!==0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)return;
       const link=event.target.closest('a');if(!link)return;
@@ -255,8 +276,9 @@ export function initCompanion(document) {
       requestAnimationFrame(()=>{historyReplaceHash(destination.hash);target.scrollIntoView({block:'start'});target.setAttribute('tabindex','-1');target.focus({preventScroll:true});});
     });
     launcher.addEventListener('click',()=>{
+      const selected=!input.value.trim()?(pointerSelection || selectedPassage()):undefined;pointerSelection=undefined;
       returnAnchor=captureReadingAnchor(document);
-      const headings=readingHeadings(document),generation=++readingGeneration;
+      const headings=selected?selected.headings:readingHeadings(document),generation=++readingGeneration;
       readingSection=undefined;readingNote.hidden=true;
       resetOpening();
       readingReady=root.dataset.documentId?getTools().then(({corpus})=>{
@@ -266,16 +288,19 @@ export function initCompanion(document) {
         showReadingPosition();
       }).catch(()=>{}):Promise.resolve();
       dialog.showModal();document.body.classList.add('comic-open');log.scrollTop=log.scrollHeight;
+      if(selected){input.value=selectionQuestion(selected.text,language);input.focus({preventScroll:true});}
+      updateComposer();
     });
     document.querySelector('[data-companion-close]').addEventListener('click',()=>dialog.close());
     dialog.addEventListener('close',()=>{
       readingGeneration++;activeController?.abort();document.body.classList.remove('comic-open');
       restoreReadingAnchor(returnAnchor,document,window);returnAnchor=undefined;
       launcher.focus({preventScroll:true});
+      updateSelectionInvitation();
     });
     dialog.addEventListener('click',event=>{if(event.target===dialog){const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close();}});
   }
-  if(document.body.classList.contains('chat-page')) {log.scrollTop=log.scrollHeight;const initial=initialQuestion(location.hash,language);if(initial){input.value=initial;input.focus();}}
+  if(document.body.classList.contains('chat-page')) {log.scrollTop=log.scrollHeight;const initial=initialQuestion(location.hash,language);if(initial){input.value=initial;input.focus();updateComposer();}}
 }
 
 function historyReplaceHash(hash) {window.history.replaceState(window.history.state,'',location.pathname+location.search+hash);}

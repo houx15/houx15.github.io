@@ -42,6 +42,8 @@
 .comic-hello {font:26px/1.5 var(--font-sans);margin:0 0 15px;}
 .comic-invitation {font-size:13px;color:#555;line-height:1.8;margin:0;}
 .comic-play {display:flex;justify-content:center;margin:8px 0 auto;padding-bottom:45px;flex-shrink:0;}
+.has-draft .comic-play {display:none;}
+.has-draft:not(.has-conversation) .comic-welcome {margin:auto 0;}
 .comic-dice-action {display:flex;gap:12px;align-items:center;border:1.3px solid #333;background:#fff;border-radius:6px 9px 7px 5px;padding:10px 17px;font-size:12px!important;}
 .comic-dice-action:hover {background:#f7f7f5;}
 .comic-die {width:25px;height:25px;transform:rotate(-6deg);}
@@ -100,6 +102,7 @@
 .comic-open {overflow:hidden;}
 .companion-launcher {position:fixed;right:24px;bottom:20px;z-index:20;width:68px;height:68px;border:0;background:transparent;cursor:pointer;padding:0;}
 .companion-launcher span {display:none;}
+.companion-launcher.has-selection span {display:block;position:absolute;right:calc(100% + 8px);bottom:12px;padding:10px 14px;border:1px solid #333;border-radius:7px 5px 8px 4px;background:#fff;color:#222;font:13px/1.5 var(--font-sans);white-space:nowrap;}
 .companion-launcher .dumpling {filter:drop-shadow(0 1px 1px #fff);}
 .comic-room :focus-visible,.companion-launcher:focus-visible,.comic-close:focus-visible {outline:2px dashed currentColor;outline-offset:5px;}
 .comic-room textarea:focus-visible {outline:none;}

@@ -1,0 +1,18 @@
+[
+  {
+    "question": "请结合原文解释这段话：\n「整条照搬可能同时强化有用的补救和前面的坏习惯。」",
+    "language": "zh-CN",
+    "pageContext": {
+      "documentId": "notes/mass-multi-agent-self-supervision/zh-CN",
+      "sectionAnchor": "section-81-最终成功不代表每一步都值得模仿"
+    }
+  },
+  {
+    "question": "这里的学习效用是什么意思？用两句话解释。",
+    "language": "zh-CN",
+    "pageContext": {
+      "documentId": "notes/mass-multi-agent-self-supervision/zh-CN",
+      "sectionAnchor": "section-81-最终成功不代表每一步都值得模仿"
+    }
+  }
+]
