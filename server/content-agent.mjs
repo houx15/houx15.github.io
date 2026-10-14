@@ -1,3 +1,4 @@
+import {createConversationQuoteCheck,conversationQuoteRepairGuidance} from './agent-conversation-quote.mjs';
 import {proseSentenceEnds} from './agent-prose-boundaries.mjs';
 import {checkProseClaims,proseRepairGuidance,repairSentenceRepeated,repairContinuation} from './agent-prose-check.mjs';
 import {checkConceptUncertainty} from './agent-uncertainty.mjs';
@@ -53,6 +54,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const opening=resolveOpeningContext(openingContext,language);
   const recall=conversationRecall(earlierHistory,history);
   const quoteFragments=createQuoteFragments();
+  const checkConversationQuote=createConversationQuoteCheck(history,earlierHistory);
   const tools = {...createContentTools(corpus),...createProfileTools(),recall_conversation:args=>recall.read(args)}, evidence = new Map(), passages = new Map(), profilePassages = new Map(), blocks = [];
   const yearOnly=requestsYearOnly(question),needsRecommendation=!yearOnly && requestsRecommendation(question);
   const availableTools=contentToolDefinitions.filter(tool=>(!yearOnly || !presentationTools.has(tool.name)) && (supportsConceptRevisions || tool.name!=='revise_concept_step') && (supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || history.length || tool.name!=='recall_conversation'));
@@ -150,6 +152,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
         const ready=pending.slice(consumed,end);
         if(replayPrefix && repairSentenceRepeated(ready,replayPrefix)){consumed=end;continue;}
         if(usesBiographyEvidence(sourceIds))checkBiographySentence(ready);
+        checkConversationQuote(ready);
         checkProseClaims(ready,sourceIds,new Map([...passages,...profilePassages]));
         shown+=ready;visibleText+=ready;visibleIds=sourceIds;
         onEvent({type:'answer_delta',text:ready,sources:sourceIds.map(id=>evidence.get(id))});
@@ -160,7 +163,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
     } catch(error) {
       if(['Invalid prose claim','Invalid answer continuation'].includes(error.message) && proseRepairs<2 && step<5 && !signal?.aborted) {
         proseRepairs++;repairingProse=true;
-        messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'prose_claim',issue:error.proseIssue,alreadyShownPrefix:visibleText,sourceIds:visibleIds || streamIds,guidance:proseRepairGuidance})});
+        messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'prose_claim',issue:error.proseIssue,alreadyShownPrefix:visibleText,sourceIds:visibleIds || streamIds,guidance:error.proseIssue?.reason==='conversation_quote'?conversationQuoteRepairGuidance:proseRepairGuidance})});
         continue;
       }
       if(error.diagnosticCategory==='output_limit' && !shown && !visibleText && outputLimitRepairs===0 && step<5 && !signal?.aborted) {
@@ -352,11 +355,12 @@ export async function runContentAgent({ question, language = 'en', history = [],
     try {
       if(replayPrefix && result.text.startsWith(replayPrefix))throw new Error('Invalid answer continuation');
       if(visibleIds && JSON.stringify([...new Set(result.sourceIds)])!==JSON.stringify(visibleIds))throw new Error('Invalid answer continuation');
+      checkConversationQuote(result.text);
       checkProseClaims(result.text,result.sourceIds,new Map([...passages,...profilePassages]));
     } catch(error) {
       if(proseRepairs<2 && step<5 && !signal?.aborted) {
         proseRepairs++;repairingProse=true;
-        messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'prose_claim',issue:error.proseIssue,alreadyShownPrefix:visibleText,sourceIds:visibleIds || result.sourceIds,guidance:proseRepairGuidance})});
+        messages.push({role:'user',content:JSON.stringify({type:'answer_rejected',reason:'prose_claim',issue:error.proseIssue,alreadyShownPrefix:visibleText,sourceIds:visibleIds || result.sourceIds,guidance:error.proseIssue?.reason==='conversation_quote'?conversationQuoteRepairGuidance:proseRepairGuidance})});
         continue;
       }
       throw error;
