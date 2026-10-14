@@ -1,0 +1,17 @@
+[
+  {
+    "question": "这一节最重要的提醒是什么？用两句话说明，不画图。",
+    "language": "zh-CN",
+    "pageContext": {"documentId":"notes/mass-multi-agent-self-supervision/zh-CN","sectionId":"notes/mass-multi-agent-self-supervision/zh-CN:20"}
+  },
+  {
+    "question": "这一节最重要的提醒是什么？用两句话说明，不画图。",
+    "language": "zh-CN",
+    "pageContext": {"documentId":"notes/mass-multi-agent-self-supervision/zh-CN","sectionId":"notes/mass-multi-agent-self-supervision/zh-CN:22"}
+  },
+  {
+    "question": "回到最开始谈的那一节：为什么正确性和学习效用不是一回事？只用两句话说明，不画图。",
+    "language": "zh-CN",
+    "pageContext": {"documentId":"notes/mass-multi-agent-self-supervision/zh-CN","sectionId":"notes/mass-multi-agent-self-supervision/zh-CN:22"}
+  }
+]

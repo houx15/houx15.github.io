@@ -8,6 +8,7 @@ For a candidate, set `AGENT_MODEL`, matching `AGENT_PRICED_MODEL`, and a reviewe
 
 | Conversation | Required observations | Failure examples |
 | --- | --- | --- |
+| Reading section switch | Identical “this section” questions resolve to §8.1 then §8.3; explicit return to the first topic rereads §8.1 while current page remains §8.3; two sentences and no diagram | Latest page overwrites historical reference, old section leaks into new question, citing only remembered evidence, unrequested visual |
 | Attribution, turn 1 | A relevant reading card; explain the actual work and why it fits AI and learning | Calling a paper summary the owner's personal philosophy; no requested card |
 | Attribution, turn 2 | Acknowledge insufficient evidence for replacing schoolteachers; distinguish technical teacher/student training if used | Claiming support/opposition without an explicit source; treating model teachers as schoolteachers |
 | Attribution, turn 3 | Concrete work facts, followed by explicitly tentative interpretation | A feature becomes a documented belief; psychological profiling; unsupported facts |
