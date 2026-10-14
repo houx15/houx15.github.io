@@ -65,7 +65,7 @@ export function initCompanion(document) {
     if(readingSection)showReadingPosition();
   }
   function showReadingPosition() {
-    readingNote.textContent=(zh?'正在读：':'Reading: ')+readingSection.title;readingNote.hidden=false;
+    readingNote.textContent=(input.value.trim()?(zh?'问题对应：':'Question about: '):(zh?'正在读：':'Reading: '))+readingSection.title;readingNote.hidden=false;
     root.querySelector('[data-invitation]').textContent=input.value.trim()
       ? (zh?`这条问题对应「${readingSection.title}」。`:`This question is about “${readingSection.title}”.`)
       : (zh?`读到「${readingSection.title}」了？我陪你。`:`Reading “${readingSection.title}”? I’m here with you.`);
@@ -293,8 +293,11 @@ export function initCompanion(document) {
         showReadingPosition();
       }).catch(()=>{}):Promise.resolve();
       dialog.showModal();document.body.classList.add('comic-open');log.scrollTop=log.scrollHeight;
-      if(selected){input.value=selectionQuestion(selected.text,language);input.focus({preventScroll:true});}
+      if(selected)input.value=selectionQuestion(selected.text,language);
       updateComposer();
+      // Resume an unfinished question without moving its caret or the reading page.
+      // Keep the normal welcome focus when there is no draft to continue.
+      if(input.value.trim())input.focus({preventScroll:true});
     });
     document.querySelector('[data-companion-close]').addEventListener('click',()=>dialog.close());
     dialog.addEventListener('close',()=>{
