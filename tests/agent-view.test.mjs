@@ -329,3 +329,21 @@ test('restored turns preserve the first visible prose position and later citatio
   assert.equal(safe.events.some(e=>e.type==='answer_delta'),false);
  }
 });
+
+test('streamed answer is busy independently of progress, and identical progress does not mutate again',()=>{
+ const log=new Element('div'),turn=createAgentTurn(document,{log,question:'x'});
+ turn.event({type:'answer_delta',text:'First.'});
+ const body=turn.row.children.find(node=>node.className==='comic-live-body');
+ const progress=turn.row.children.find(node=>node.className.includes('comic-progress'));
+ assert.equal(body.attributes['aria-busy'],'true');
+ assert.equal(progress.attributes.role,'status');assert.equal(progress.attributes['aria-busy'],undefined);
+ const label=progress.children[0];let value=label.textContent,writes=0;
+ Object.defineProperty(label,'textContent',{get:()=>value,set:next=>{writes++;value=next;}});
+ turn.event({type:'answer_delta',text:' Second.'});assert.equal(writes,0);
+ turn.event({type:'answer',text:'First. Second.',sourceIds:[]});
+ assert.equal(body.attributes['aria-busy'],'true');
+ turn.event({type:'done'});assert.equal(body.attributes['aria-busy'],'false');
+ const failed=createAgentTurn(document,{log,question:'next'});
+ failed.event({type:'answer_delta',text:'Partial.'});failed.interrupt('Stopped');
+ assert.equal(failed.row.children.find(node=>node.className==='comic-live-body').attributes['aria-busy'],'false');
+});

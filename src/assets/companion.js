@@ -105,7 +105,7 @@ export function initCompanion(document) {
     const focused=document.activeElement;
     if(value) returnToComposer=Boolean(activeController) && root.contains(focused) && ['BUTTON','TEXTAREA'].includes(focused.tagName);
     const restore=returnToComposer && (focused===stopButton || focused===document.body);
-    busy = value; root.setAttribute('aria-busy',String(value));status.textContent = text;
+    busy = value; status.textContent = text;
     root.querySelectorAll('button,textarea').forEach(button => { button.disabled = (value && button!==jump) || Boolean(button.closest('.is-incomplete')); });
     stopButton.hidden=!(value && activeController);stopButton.disabled=false;sendButton.hidden=!stopButton.hidden;
     if(value && returnToComposer && !stopButton.hidden) stopButton.focus({preventScroll:true});
