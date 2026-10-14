@@ -1,0 +1,13 @@
+{
+  "turns": [
+    {
+      "question": "这个项目提供哪些工作区？只列名称。",
+      "language": "zh-CN",
+      "pageContext": {
+        "documentId": "projects/mind-imprint/zh-CN",
+        "sectionAnchor": "section-应用功能"
+      }
+    }
+  ],
+  "history": []
+}
