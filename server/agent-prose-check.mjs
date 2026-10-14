@@ -19,6 +19,12 @@ function unsupportedPersonalStance(sentence,source) {
   });
 }
 
+// Negation must bind to this occurrence, not to a different claim in the sentence.
+function deniesTerm(text,term) {
+  const occurrences=[...text.matchAll(new RegExp(term,'gu'))];
+  return occurrences.length>0 && occurrences.every(match=>/(?:不是|并非|而非|不构成|不能(?:直接)?(?:视为|说是|称为)|不代表|未必是|(?:并未|没有|并没有|未曾)(?:将|把)[^，。；！？\n但却仍]{0,20}(?:定义|视|称|认定)为)(?:(?:严格意义|逻辑)上(?:的)?)?[\s“「『]*$/u.test(text.slice(Math.max(0,match.index-60),match.index)));
+}
+
 // Narrow output checks for observed overstatements. They are not semantic proof.
 export function checkProseClaims(text,ids,passages) {
   const source=ids.map(id=>passages.get(id)).filter(Boolean).join('\n');
@@ -30,9 +36,9 @@ export function checkProseClaims(text,ids,passages) {
     let reason;
     if(findUncertaintyConflict(positive,source))reason='certainty';
     for(const term of ['必要条件','充分条件','必要前提','最终判断标准','唯一标准','最终判据','最终标准','基本条件','基础条件','逐层递进','递进的筛选关系','前提']) {
-      if(positive.includes(term) && !source.includes(term) && !new RegExp(`(?:不是|并非|不构成|不能视为|不能说是|不代表|未必是)[^，。；]{0,12}${term}`).test(positive))reason='logical_strength';
+      if(positive.includes(term) && !source.includes(term) && !deniesTerm(positive,term))reason='logical_strength';
     }
-    if(/必要(?:但不充分)?(?:的)?(?:筛选)?(?:标准|条件|前提)/u.test(positive) && !/必要/.test(source) && !/(?:并非|不是|不构成|不能视为|不代表|未必是)[^，。；]{0,12}必要/.test(positive))reason='logical_strength';
+    if(/必要(?:但不充分)?(?:的)?(?:筛选)?(?:标准|条件|前提)/u.test(positive) && !/必要/.test(source) && !deniesTerm(positive,'必要'))reason='logical_strength';
     if(positive.includes('取决于') && !source.includes('取决于') && !/(?:不|并非)取决于/.test(positive))reason='unsupported_dependency';
     if(/(?:最具体|最明确|最适合|唯一的|最重要的)/u.test(positive) && !source.includes(positive.trim()))reason='unsupported_comparison';
     if(ownerStance.test(positive) && unsupportedPersonalStance(assertion,source))reason='personal_stance';
