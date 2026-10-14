@@ -20,7 +20,8 @@ export function providerFailureCategory(error) {
   return transportReasons.get(error?.cause?.code) || transportReasons.get(error?.code) || 'provider_transport';
 }
 const finalDetails=new Set(['nonobject_result','additional_fields','invalid_text_field','invalid_sources_field','changed_stream_text']);
-export const providerFailureDetail=error=>error?.message==='Invalid final' && finalDetails.has(error?.diagnosticDetail)?error.diagnosticDetail:undefined;
+const parseDetails=new Set(['stream_frame','tool_arguments','final_answer']);
+export const providerFailureDetail=error=>(error?.message==='Invalid final' && finalDetails.has(error?.diagnosticDetail)) || (error?.name==='SyntaxError' && parseDetails.has(error?.diagnosticDetail))?error.diagnosticDetail:undefined;
 const categories=new Set([...providerReasons.values(),...transportReasons.values(),'json_parse','timeout','provider_transport']);
 const runtimeReasons=new Map([
   ['Invalid biography identity','biography_identity'],['deadline','request_deadline'],['Invalid answer evidence','answer_evidence'],['Invalid answer delta','answer_delta'],['Changed answer','changed_answer'],
@@ -32,6 +33,6 @@ export function agentFailureRecord({requestId,stage,modelCalls,partial,error}) {
   return {event:'agent_failure',requestId:/^[a-f0-9-]{36}$/.test(requestId)?requestId:'unknown',
     stage:['request','model','agent','tool','finish'].includes(stage)?stage:'unknown',
     modelCalls:Number.isInteger(modelCalls)&&modelCalls>=0&&modelCalls<=6?modelCalls:0,partial:partial===true,
-    ...(error?.diagnosticCategory==='final_shape' && finalDetails.has(error?.diagnosticDetail)?{detail:error.diagnosticDetail}:{}),
+    ...((error?.diagnosticCategory==='final_shape' && finalDetails.has(error?.diagnosticDetail)) || (error?.diagnosticCategory==='json_parse' && parseDetails.has(error?.diagnosticDetail))?{detail:error.diagnosticDetail}:{}),
     category:categories.has(error?.diagnosticCategory)?error.diagnosticCategory:runtimeReasons.get(error?.message)||(error?.name==='AbortError'?'cancelled':error?.name==='TimeoutError'?'request_deadline':null)||(publicCodes.has(error?.code)?error.code:'unexpected')};
 }

@@ -168,3 +168,24 @@ test('fetch transport diagnostics keep only allowlisted cause categories',async(
  assert.equal(providerFailureCategory(Object.assign(new Error('private'),{code:'ECONNRESET'})),'connection_closed');
  assert.equal(providerFailureCategory(Object.assign(new DOMException('private','AbortError'),{cause:{code:'ECONNRESET'}})),'timeout');
 });
+
+test('JSON parse diagnostics identify the protocol layer without retaining malformed payloads',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ const secret='PRIVATE-malformed-payload';
+ const frame=choice=>'data: '+JSON.stringify({choices:[choice]})+'\n\ndata: [DONE]\n\n';
+ const cases=[
+  ['data: {'+secret+'\n\ndata: [DONE]\n\n','stream_frame'],
+  [frame({index:0,delta:{tool_calls:[{index:0,id:'c1',type:'function',function:{name:'read_profile',arguments:'{'+secret}}]},finish_reason:'tool_calls'}),'tool_arguments'],
+  [frame({index:0,delta:{content:'{'+secret},finish_reason:'stop'}),'final_answer']
+ ];
+ for(const [body,detail] of cases) {
+  const complete=createModelAgent({apiKey:'not-a-real-key',model:'qwen3.8-max-0902',provider:'bailian',baseURL:'https://dashscope.aliyuncs.com/compatible-mode/v1',fetchImpl:async()=>new Response(body,{headers:{'Content-Type':'text/event-stream'}})});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
+   const record=agentFailureRecord({error});
+   assert.equal(record.category,'json_parse');assert.equal(record.detail,detail);
+   assert.ok(!JSON.stringify(record).includes(secret));assert.ok(!JSON.stringify(error).includes(secret));return true;
+  });
+ }
+ assert.equal(agentFailureRecord({error:{diagnosticCategory:'json_parse',diagnosticDetail:secret}}).detail,undefined);
+ assert.equal(agentFailureRecord({error:{diagnosticCategory:'timeout',diagnosticDetail:'final_answer'}}).detail,undefined);
+});
