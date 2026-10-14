@@ -230,3 +230,12 @@ The final focused relationship replay completed in three calls after two claim r
 Full verification passed 282 tests plus build/site checks; sentence-stream HTTP behavior, correction limits, citation continuity, unchanged visible prefixes, and final-only provider responses are covered. Full log /tmp/grounded-readable-final-verify.log. Production is unchanged pending release of this candidate.
 
 The prose checker now uses shared quote-aware sentence boundaries for incremental emission, final checks and repair deduplication. A regression reproduces a legitimate quoted superlative whose internal sentence punctuation previously triggered checking before the closing quote arrived. The partial quote remains private and the complete source quotation passes without a repair. This is a deterministic correctness fix, not evidence of improved model judgment. Full 283 tests/build/site checks passed (/tmp/prose-quote-boundary-verify.log).
+
+
+### Compact first answers — 2026-10-14
+
+The default response instruction now asks for a direct first sentence plus only the facts or qualifications needed for the question, ordinarily 2–4 short sentences and at most two paragraphs. Explicit requests for depth remain authoritative; source qualifications must not be sacrificed to brevity. This is generation guidance, not truncation or a guaranteed length cap.
+
+A hash-verified isolated candidate answered a simple biography question in 160 Chinese characters and a MASS explanation in 170 characters/two paragraphs, with the latter recovering one prose rejection. The explanation preserved possibility and cited §8.1, but still added adjacent evaluation criteria; the biography had a minor grammatical error. These samples do not establish a reliable relevance or grammar improvement. A subsequent repair-only instruction to suppress adjacent topics did not remove those criteria and was discarded. No model, budget, quota or production configuration changed.
+
+Local evidence: /tmp/concise-answer-verified.jsonl and /tmp/concise-answer-focused.jsonl. The earlier /tmp/concise-answer-candidate.jsonl started before source copying finished and is excluded from candidate evidence. Full checks passed 284 tests plus build/site checks.
