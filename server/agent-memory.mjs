@@ -7,7 +7,7 @@ export function rememberAgentAnswer(answer) {
   const concepts=(answer.blocks || []).filter(block=>block.type==='concept_flow');
   const revisions=(answer.blocks || []).filter(block=>block.type==='concept_revision').flatMap(block=>block.items.map(item=>({visualId:block.visualId,position:item.position,previousDescription:item.previousDescription,description:item.description,sourceId:item.source.id})));
   const sourceIds=[...new Set((answer.sources || []).map(source=>source.id))].filter(id=>typeof id==='string' && id.length<=400).slice(0,3);
-  if(!followUp && !revisions.length && !concepts.length && !sourceIds.length && answer.text.length<=4000)return answer.text;
+  if(!Array.isArray(answer.readSources) && !followUp && !revisions.length && !concepts.length && !sourceIds.length && answer.text.length<=4000)return answer.text;
   const prefix=answer.text.slice(0,1000).replace(/[\uD800-\uDBFF]$/u,'');
   const memory={text:prefix,textTruncated:prefix.length<answer.text.length,sourceIds:[],visuals:[],omittedVisuals:0};
   // Reserve the accepted edit before prose: losing it would resurrect an old claim.
@@ -42,6 +42,20 @@ export function rememberAgentAnswer(answer) {
       visual.items[index].description=item.description;
       visual.omittedDescriptions--;
       if(JSON.stringify(memory).length>3900) {delete visual.items[index].description;visual.omittedDescriptions++;}
+    }
+  }
+  // Keep an explicit, bounded record of actual reads, separate from citations.
+  // Missing legacy metadata means unknown, never an exhaustive list of reads.
+  if(Array.isArray(answer.readSources)) {
+    const reads=[...new Map(answer.readSources.filter(source=>typeof source.id==='string' && source.id.length<=400 && typeof source.label==='string').map(source=>[source.id,{id:source.id,label:source.label.slice(0,160)}])).values()];
+    const record={sources:[],omitted:reads.length};
+    if(JSON.stringify({...memory,readRecord:record}).length<=3900) {
+      memory.readRecord=record;
+      for(const source of reads) {
+        const candidate={sources:[...record.sources,source],omitted:record.omitted-1};
+        if(JSON.stringify(candidate).length>1200 || JSON.stringify({...memory,readRecord:candidate}).length>3900)break;
+        record.sources.push(source);record.omitted--;
+      }
     }
   }
   return JSON.stringify(memory);

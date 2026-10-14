@@ -149,3 +149,27 @@ test('follow-up memory stays within the existing history bound with escaped text
  assert.ok(content.length<=4000);const saved=JSON.parse(content);
  assert.ok(saved.followUp || saved.omittedFollowUp);assert.equal(saved.textTruncated,true);
 });
+
+test('actual reading records survive independently of citations without becoming new evidence',async()=>{
+ const {runContentAgent}=await import('../server/content-agent.mjs');
+ const {modelHistory}=await import('../server/agent-model-history.mjs');
+ const answer=await runContentAgent({question:'Explain the source',pageContext:{documentId:'notes/read/en',sectionId:'notes/read/en:0'},corpus:{schemaVersion:1,revision:'read',documents:[{id:'notes/read/en',title:'Read',summary:'Read',tags:[],language:'en',type:'notes',url:'/notes/read/',sections:[{id:'notes/read/en:0',heading:'First',text:'One fact',url:'/notes/read/#first'},{id:'notes/read/en:1',heading:'Second',text:'Another fact',url:'/notes/read/#second'}]}]},complete:async()=>({text:'One fact.',sourceIds:['notes/read/en:0']})});
+ const saved=rememberAgentAnswer(answer),memory=JSON.parse(saved);
+ assert.deepEqual(memory.sourceIds,['notes/read/en:0']);
+ assert.deepEqual(memory.readRecord.sources.map(s=>s.id),['notes/read/en:0','notes/read/en:1']);
+ assert.equal(memory.readRecord.omitted,0);
+ assert.deepEqual(JSON.parse(modelHistory([{role:'assistant',content:saved}])[0].content).readRecord,memory.readRecord);
+ await assert.rejects(runContentAgent({question:'Use the earlier read',corpus:{schemaVersion:1,revision:'empty',documents:[]},history:[{role:'assistant',content:saved}],complete:async()=>({text:'Another fact.',sourceIds:['notes/read/en:1']})}),/evidence/);
+});
+
+test('reading records distinguish no reads from unknown legacy reads and bound omitted entries',()=>{
+ const empty=JSON.parse(rememberAgentAnswer({text:'Hello.',readSources:[]}));
+ assert.deepEqual(empty.readRecord,{sources:[],omitted:0});
+ assert.equal(rememberAgentAnswer({text:'Legacy.'}),'Legacy.');
+ const reads=Array.from({length:30},(_,i)=>({id:`doc:${i}`,label:'A long section title '.repeat(10)}));
+ const saved=rememberAgentAnswer({text:'Short answer.',readSources:reads});
+ assert.ok(saved.length<=3900);
+ const record=JSON.parse(saved).readRecord;
+ assert.equal(record.sources.length+record.omitted,30);
+ assert.ok(record.omitted>0);
+});

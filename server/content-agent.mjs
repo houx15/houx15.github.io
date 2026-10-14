@@ -252,7 +252,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
           }
           const text=conversationReply(call.arguments.reason,language);
           const sources=[...new Set(ids)].map(id=>evidence.get(id));
-          const answer={type:'answer',text,sources,blocks,revision:`${corpus.revision}:${profileRevision}`};
+          const answer={type:'answer',text,sources,blocks,readSources:[...evidence.values()],revision:`${corpus.revision}:${profileRevision}`};
           // Uncited short replies use the final-answer event; the browser deliberately
           // accepts incremental prose only when it has validated source IDs.
           if(sources.length)onEvent({type:'answer_delta',text,sources});
@@ -349,7 +349,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
           const block = { ...output, id: `block-${blocks.length}`,...(output.type==='concept_flow'?{visualId:`concept-${randomUUID()}`}:{}) }; blocks.push(block); onEvent({type:'block',block});
         }
         if(caption) {
-          const answer={type:'answer',...caption,blocks,revision:`${corpus.revision}:${profileRevision}`};
+          const answer={type:'answer',...caption,blocks,readSources:[...evidence.values()],revision:`${corpus.revision}:${profileRevision}`};
           onEvent(answer);return answer;
         }
         messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify(call.name==='read_content'?quoteFragments.present(output):output)});
@@ -385,7 +385,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
     if(streamed && (!result.text.startsWith(streamed) || JSON.stringify([...new Set(result.sourceIds)])!==JSON.stringify(streamIds)))throw new Error('Changed answer');
     if(pending && !repairSentenceRepeated(pending,replayPrefix))onEvent({type:'answer_delta',text:pending,sources:streamIds.map(id=>evidence.get(id))});
     const text = result.sourceIds.length ? replayPrefix+(replayPrefix?repairContinuation(result.text,replayPrefix):result.text) : language === 'zh-CN' ? '我没有足够的公开资料回答这个问题。可以问我 Yuxin 的公开作品，或围绕学习笔记继续提问。' : 'I do not have enough public evidence to answer that. Ask about Yuxin’s published work or a related reading question.';
-    const answer = {type:'answer',text,sources:[...new Set(result.sourceIds)].map(id => evidence.get(id)),blocks,revision:`${corpus.revision}:${profileRevision}`};
+    const answer = {type:'answer',text,sources:[...new Set(result.sourceIds)].map(id => evidence.get(id)),blocks,readSources:[...evidence.values()],revision:`${corpus.revision}:${profileRevision}`};
     onEvent(answer); return answer;
   }
   throw new Error('Agent step budget exceeded');
