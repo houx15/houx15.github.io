@@ -85,3 +85,18 @@ test('profile facts cannot turn into personal stances in prose or terminal timel
   assert.equal(round,3);assert.equal(answer.text,'她曾创办公司并担任 CTO。');
  }
 });
+
+
+test('a first-person belief licenses only that statement, not unrelated claims or quoted speakers',()=>{
+ const evidence=new Map([[id,'我认为评估需要明确目标。这个项目包含多智能体协作。']]);
+ assert.doesNotThrow(()=>checkProseClaims('她认为评估需要明确目标。',ids,evidence));
+ assert.doesNotThrow(()=>checkProseClaims('没有证据表明她认为多智能体是唯一正确的方向。',ids,evidence));
+ for(const text of ['她认为多智能体是唯一正确的方向。','她相信所有项目都应该使用多智能体。'])assert.throws(()=>checkProseClaims(text,ids,evidence),/Invalid prose claim/);
+ const borrowed=new Map([[id,'一位读者说：“我认为多智能体是唯一正确的方向。”']]);
+ assert.throws(()=>checkProseClaims('她认为多智能体是唯一正确的方向。',ids,borrowed),/Invalid prose claim/);
+ const english=new Map([[id,'I believe evaluation needs explicit goals. This project uses multiple agents.']]);
+ assert.doesNotThrow(()=>checkProseClaims('She believes evaluation needs explicit goals.',ids,english));
+ assert.throws(()=>checkProseClaims('She believes every project needs multiple agents.',ids,english),/Invalid prose claim/);
+ const qualified=new Map([[id,'我认为这个方法可能有效。']]);
+ assert.throws(()=>checkProseClaims('她认为这个方法有效。',ids,qualified),/Invalid prose claim/);
+});
