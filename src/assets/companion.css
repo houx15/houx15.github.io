@@ -121,7 +121,7 @@
 .comic-reading-map details {flex:1;min-width:0;padding-top:4px;}
 .comic-reading-map summary {font-size:14px;line-height:1.8;cursor:pointer;}
 .comic-reading-map blockquote {margin:14px 0;padding:0;border:0;font-size:12px;line-height:1.9;color:#555;overflow-wrap:anywhere;}
-.comic-reading-map a {font-size:11px;}
+.comic-reading-map a {display:flex;align-items:center;min-height:44px;font-size:13px;}
 
 .comic-timeline-expand {border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:14px 0;margin:12px 0;}
 .comic-timeline-expand summary {cursor:pointer;font-size:14px;line-height:1.6;}

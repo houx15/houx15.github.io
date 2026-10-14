@@ -69,8 +69,8 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
         const step=make('li');step.append(make('span',String(index+1).padStart(2,'0'),'comic-map-number'));
         const details=make('details');if(index===0)details.open=true;
         details.append(make('summary',item.title || (zh?'开篇':'Opening')));
-        details.append(make('blockquote',item.excerpt));
-        const link=make('a',zh?'到原文继续读 ↗':'Continue in the source ↗');link.href=item.url;details.append(link);
+        const link=make('a',zh?'到原文继续读 ↗':'Continue in the source ↗');link.href=item.url;
+        details.append(link,make('blockquote',item.excerpt));
         step.append(details);list.append(step);
       }
       container.append(list,make('p',zh?'按原文章节排列 · 展开查看原文摘录':'Original section order · expand for source excerpts','comic-visual-note'));return;
