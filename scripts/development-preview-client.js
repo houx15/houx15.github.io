@@ -28,9 +28,12 @@ stop.addEventListener('click',()=>controller?.abort());
 form.addEventListener('submit',async event=>{
   event.preventDefault();const question=input.value.trim();if(!question || controller || !ready)return;
   controller=new AbortController();const signal=controller.signal;
+  const focused=document.activeElement;
+  const returnToComposer=focused===input || focused===send;
   let chunks=0;
   status.textContent='开发联调 · 正在连接 · 0 段文字流';
   root.classList.add('has-conversation');input.disabled=true;reset.disabled=true;send.hidden=true;stop.hidden=false;
+  if(returnToComposer)stop.focus({preventScroll:true});
   const turn=createAgentTurn(document,{log,question,language:'zh-CN',onQuestion:q=>{input.value=q;form.requestSubmit();}});turn.row.scrollIntoView({block:'start'});
   input.value='';
   try {
@@ -42,5 +45,11 @@ form.addEventListener('submit',async event=>{
       status.textContent=`开发联调 · 已收到 ${chunks} 段文字流`;
     },signal);
   } catch(error) {turn.interrupt(agentFailureMessage(signal.aborted?'stopped':error.message,'zh-CN'));}
-  finally {status.textContent=`开发联调 · ${signal.aborted?'已停止':'请求结束'} · ${chunks} 段文字流`;controller=undefined;input.disabled=false;reset.disabled=false;send.hidden=false;stop.hidden=true;input.focus();}
+  finally {
+    const restore=returnToComposer && (document.activeElement===stop || document.activeElement===document.body);
+    status.textContent=`开发联调 · ${signal.aborted?'已停止':'请求结束'} · ${chunks} 段文字流`;
+    controller=undefined;input.disabled=false;reset.disabled=false;send.hidden=false;stop.hidden=true;
+    // Match the companion: return displaced composer focus, but leave source readers alone.
+    if(restore)input.focus({preventScroll:true});
+  }
 });
