@@ -38,3 +38,16 @@ test('streamed fabricated recollection stays private and repair preserves alread
  assert.ok(!JSON.stringify(events).includes('Invented wording'));
  assert.ok(result.text.includes('Actual earlier wording'));
 });
+
+test('attribution examples are system guidance for follow-ups, not fabricated conversation records',async()=>{
+ for(const history of [[],[answer('Earlier answer')]]) {
+  let inspected=false;
+  await runContentAgent({question:'Thanks',history,corpus:{schemaVersion:1,revision:'test',documents:[]},complete:async({messages})=>{
+   inspected=true;
+   assert.equal(messages[0].content.includes('FICTIONAL CONTRAST EXAMPLES'),history.length>0);
+   assert.ok(messages.slice(1).every(message=>!message.content?.includes('缓存容量有限')));
+   return {toolCalls:[{id:'thanks',name:'reply_conversationally',arguments:{reason:'thanks'}}]};
+  }});
+  assert.equal(inspected,true);
+ }
+});
