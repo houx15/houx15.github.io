@@ -104,6 +104,8 @@ test('a first-person belief licenses only that statement, not unrelated claims o
 
 test('source-qualified denials are not mistaken for necessity claims; contrasting assertions remain rejected',()=>{
  for(const text of [
+  '原文将前四项称为“可审查的依据”，并未将其定义为逻辑上的必要条件。',
+  '原文将前四项定义为“可审查的依据”，而非逻辑上的必要条件，并指出最后一项“学习效用”才最接近训练数据的实际价值。',
   '原文将前四项定义为“可审查的依据”，而非“必要条件”；它们用于评估数据质量，但文中并未断言缺少任一项就必然不可用。',
   '原文并未将前四项定义为必要条件，而是称其为“可审查的依据”，用于评估数据质量，但文中没有断言缺少任一项就必然不可用。',
   '原文将前四项称为“可审查的依据”，而非必要条件，并未断言缺少任一项数据就必然不可用。'

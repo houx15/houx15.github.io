@@ -22,7 +22,7 @@ function unsupportedPersonalStance(sentence,source) {
 // Negation must bind to this occurrence, not to a different claim in the sentence.
 function deniesTerm(text,term) {
   const occurrences=[...text.matchAll(new RegExp(term,'gu'))];
-  return occurrences.length>0 && occurrences.every(match=>/(?:不是|并非|而非|不构成|不能(?:直接)?(?:视为|说是|称为)|不代表|未必是|(?:并未|没有|并没有|未曾)(?:将|把)[^，。；！？\n但却仍]{0,20}(?:定义|视|称|认定)为)[\s“「『]*$/u.test(text.slice(Math.max(0,match.index-60),match.index)));
+  return occurrences.length>0 && occurrences.every(match=>/(?:不是|并非|而非|不构成|不能(?:直接)?(?:视为|说是|称为)|不代表|未必是|(?:并未|没有|并没有|未曾)(?:将|把)[^，。；！？\n但却仍]{0,20}(?:定义|视|称|认定)为)(?:(?:严格意义|逻辑)上(?:的)?)?[\s“「『]*$/u.test(text.slice(Math.max(0,match.index-60),match.index)));
 }
 
 // Narrow output checks for observed overstatements. They are not semantic proof.
