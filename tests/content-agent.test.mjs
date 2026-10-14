@@ -719,7 +719,7 @@ test('a sourced timeline caption completes once without an extra model answer',a
  assert.equal(rounds,2);assert.equal(answer.text,'Study and professional work overlap.');
  assert.deepEqual(answer.sources.map(source=>source.id),['event:startup','event:pku']);
  assert.equal(answer.blocks.length,1);assert.equal(answer.blocks[0].items.length,2);
- assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['block','answer_delta','answer']);
+ assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['answer_delta','block','answer']);
  assert.equal(events.find(event=>event.type==='answer_delta').text,answer.text);
 });
 
@@ -811,7 +811,7 @@ test('a sourced concept caption finishes with the diagram and no trailing model 
  }});
  assert.equal(rounds,2);assert.equal(answer.text,'Stored values can be reused.');
  assert.deepEqual(answer.sources.map(source=>source.id),['notes/cache/en:0']);
- assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['block','answer_delta','answer']);
+ assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['answer_delta','block','answer']);
  assert.equal(answer.blocks.length,1);assert.ok(answer.blocks[0].visualId);
 });
 
