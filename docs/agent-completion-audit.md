@@ -722,3 +722,13 @@ The same private biography introduction that previously used three model calls c
 A separate two-turn control asks whether 2015 is admission or degree completion, then asks the startup departure year. It failed with provider_transport on its first model call, so live handling of this explicit additional-detail scenario remains unverified. The fixture is preserved in evals/companion/timeline-caption.json. Logs: /tmp/timeline-caption.log, /tmp/timeline-caption-errors.log, /tmp/timeline-caption-control.log, /tmp/timeline-caption-control-errors.log.
 
 Full 241 tests, build and site checks passed. Tests cover terminal event ordering, no extra completion, invalid-caption repair, source-reading requirements and HTTP/SSE delivery followed by a restored-session factual follow-up. The private stage was removed; production remains unchanged.
+
+## Explicit year-only follow-up control (2026-10-13)
+
+The live two-turn timeline-caption fixture reproduced a failure: after the admission-date timeline, “她离开公司是哪一年？只答年份。” produced another timeline and repeated the old admission/startup overview. This contradicts the earlier mocked restored-session test; that test alone did not establish model behavior.
+
+The candidate now recognizes a deliberately narrow set of explicit terminal Chinese/English year-only instructions. It removes presentation tools for that turn while retaining evidence lookup, and rejects an attempted known presentation call with recoverable feedback before any block or terminal caption can be emitted. Quoted/embedded examples, negation and a subsequent instruction do not match the supported clause patterns. This is not a general natural-language format parser and does not guarantee all concise-answer phrasings.
+
+The same real two-turn fixture then completed with two model calls for the timeline and one for the follow-up: text “2022”, zero blocks. Logs: /tmp/year-only-live.log and /tmp/year-only-live-errors.log. The first answer still overstates the admission-date evidence as “并非获得学位的年份”; unknown degree-completion dates remain a separate unresolved semantic problem. A single successful rerun does not establish general model reliability.
+
+Full 243 tests, build and site checks passed. New tests cover clause boundaries and a prior-topic follow-up whose model attempts a disabled presentation, then reads the correct source and answers without displaying a block. The private staging directory was removed. Production remains unchanged.

@@ -1,4 +1,5 @@
 import {modelHistory} from './agent-model-history.mjs';
+import {requestsYearOnly,presentationTools} from './agent-response-preferences.mjs';
 import {createQuoteFragments} from './agent-quote-fragments.mjs';
 import {conversationReasons,conversationReply} from './agent-conversation-reply.mjs';
 import { validatePageContext } from './agent-page-context.mjs';
@@ -47,8 +48,9 @@ export async function runContentAgent({ question, language = 'en', history = [],
   const recall=conversationRecall(earlierHistory);
   const quoteFragments=createQuoteFragments();
   const tools = {...createContentTools(corpus),...createProfileTools(),recall_conversation:args=>recall.read(args)}, evidence = new Map(), passages = new Map(), blocks = [];
-  const availableTools=contentToolDefinitions.filter(tool=>(supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || tool.name!=='recall_conversation'));
-  const instructions=supportsConceptFlow?contentInstructions:contentInstructions+' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.';
+  const yearOnly=requestsYearOnly(question);
+  const availableTools=contentToolDefinitions.filter(tool=>(!yearOnly || !presentationTools.has(tool.name)) && (supportsConceptFlow || tool.name!=='show_concept_flow') && (earlierHistory.length || tool.name!=='recall_conversation'));
+  const instructions=contentInstructions+(supportsConceptFlow?'':' This visitor uses a client without concept-flow support. Do not call show_concept_flow; explain concepts in concise prose instead.')+(yearOnly?' For THIS turn the visitor explicitly requests only the year. Read the relevant evidence, then answer the latest question with the supported year and sourceIds. Do not resume the previous question or display cards, suggestions or diagrams. If the year is unknown, briefly say it is unknown; never guess.':'');
   const messages = [{role:'system',content:instructions}, ...(earlierHistory.length?[{role:'user',content:JSON.stringify(recall.index)}]:[]), ...modelHistory(history), {role:'user',content:JSON.stringify({question,language,pageContext,openingContext:opening})}];
   let calls = 0, outputLimitRepairs = 0, conversationRepairs = 0, searched = false;
   if(opening?.type==='biography_event' && !pageContext) {
@@ -158,6 +160,10 @@ export async function runContentAgent({ question, language = 'en', history = [],
       messages.push({role:'assistant',toolCalls:result.toolCalls});
       for (const call of result.toolCalls) {
         signal?.throwIfAborted(); if(call.name!=='reply_conversationally')calls++;
+        if(yearOnly && presentationTools.has(call.name) && typeof call.id==='string' && /^[a-zA-Z0-9_-]{1,100}$/.test(call.id)) {
+          messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'presentation_not_requested',guidance:'Nothing was displayed. The latest question explicitly requests only the year. Read supporting evidence if needed, then answer that question in text with sourceIds; do not repeat the previous answer.'})});
+          continue;
+        }
         const definition = availableTools.find(tool => tool.name === call.name);
         if (!definition || typeof call.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(call.id)) throw new Error('Invalid tool call');
         try {

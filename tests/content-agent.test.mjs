@@ -729,3 +729,22 @@ test('a terminal timeline caption cannot skip reading its selected events',async
  }});
  assert.equal(rounds,3);assert.equal(events.filter(event=>event.type==='block').length,1);
 });
+
+test('year-only follow-ups with prior visuals retain evidence tools and reject presentation before display',async()=>{
+ const events=[];let round=0;
+ const answer=await runContentAgent({question:'她离开公司是哪一年？只答年份。',language:'zh-CN',corpus,
+ history:[{role:'user',content:'Show her timeline'},{role:'assistant',content:JSON.stringify({text:'Her education and startup experience.',sourceIds:['event:startup'],visuals:[]})}],
+ onEvent:event=>events.push(event),complete:async({tools,messages})=>{
+  assert.ok(tools.some(tool=>tool.name==='read_profile'));
+  assert.ok(!tools.some(tool=>tool.name.startsWith('show_') || tool.name==='suggest_questions'));
+  if(++round===1)return {toolCalls:[{id:'wrong',name:'show_profile_timeline',arguments:{eventIds:['startup'],caption:'Repeating the earlier timeline.'}}]};
+  if(round===2){
+   assert.ok(messages.some(message=>message.role==='tool' && JSON.parse(message.content).error==='presentation_not_requested'));
+   return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',language:'zh-CN'}}]};
+  }
+  return {text:'2022',sourceIds:['event:startup']};
+ }});
+ assert.equal(answer.text,'2022');assert.equal(answer.blocks.length,0);
+ assert.ok(!events.some(event=>event.type==='block'));
+ assert.deepEqual(answer.sources.map(source=>source.id),['event:startup']);
+});
