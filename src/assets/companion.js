@@ -11,7 +11,7 @@ import { initialQuestion } from './navigation.js';
 import { agentOrigin, turnstileSiteKey } from './assistant-config.js';
 import { createAgentClient, validateAgentBlock } from './agent-stream.js';
 import { createAgentTurn, agentFailureMessage } from './agent-view.js';
-import { presentAgentEvent,followConversationResize } from './agent-scroll.js?v=3';
+import { presentAgentEvent,followConversationResize,bindConversationJump } from './agent-scroll.js?v=3';
 import { verifyVisitor } from './visitor-check.js';
 import { validateSavedTurn,recordPresentationEvent } from './agent-history.js';
 
@@ -35,6 +35,9 @@ export function initCompanion(document) {
   const log = root.querySelector('[data-companion-log]'), status = root.querySelector('[data-companion-status]');
   followConversationResize(log);
   const form = root.querySelector('form'), input = form.querySelector('textarea');
+  const jump=document.createElement('button');jump.type='button';jump.className='comic-jump';jump.hidden=true;
+  jump.textContent=zh?'回到最新 ↓':'Back to latest ↓';log.after(jump);
+  bindConversationJump(log,jump);
   const draftContext=createReadingDraftContext(),openingDraft=createOpeningDraftContext();
   const currentOpeningContext=()=>openingContextFor(history,{article:root.dataset.article==='true'});
   function updateComposer() {
@@ -103,7 +106,7 @@ export function initCompanion(document) {
     if(value) returnToComposer=Boolean(activeController) && root.contains(focused) && ['BUTTON','TEXTAREA'].includes(focused.tagName);
     const restore=returnToComposer && (focused===stopButton || focused===document.body);
     busy = value; root.setAttribute('aria-busy',String(value));status.textContent = text;
-    root.querySelectorAll('button,textarea').forEach(button => { button.disabled = value || Boolean(button.closest('.is-incomplete')); });
+    root.querySelectorAll('button,textarea').forEach(button => { button.disabled = (value && button!==jump) || Boolean(button.closest('.is-incomplete')); });
     stopButton.hidden=!(value && activeController);stopButton.disabled=false;sendButton.hidden=!stopButton.hidden;
     if(value && returnToComposer && !stopButton.hidden) stopButton.focus({preventScroll:true});
     if(!value) {
@@ -255,7 +258,8 @@ export function initCompanion(document) {
   window.addEventListener('pagehide',()=>activeController?.abort());
   root.querySelector('[data-companion-reset]').addEventListener('click',async()=>{
     if(busy || !await confirmConversationReset(document,{language,hasDraft:Boolean(input.value.trim())}))return;
-    liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;openingDraft.edit('');updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
+    // Keep the retained draft's original card reference. updateComposer clears it only for an empty draft.
+    liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
     // The reset button just disappeared. Keep keyboard navigation in this conversation.
     if(input.value.trim())input.focus({preventScroll:true});
     else {hello.setAttribute('tabindex','-1');hello.focus({preventScroll:true});}

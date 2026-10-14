@@ -39,3 +39,26 @@ test('recall followed by a fresh read permits an evidenced answer',async()=>{
  }});
  assert.equal(result.sources[0].id,'source-1');assert.equal(calls,3);
 });
+
+test('recent recall retrieves exact speaker records independently of older turns',()=>{
+ const recent=[...exchange(18),...exchange(19),...exchange(20)];
+ const memory=conversationRecall(exchange(1),recent);
+ for(const [turn,i] of [[-1,4],[-2,2],[-3,0]]) {
+  const record=memory.read({turn});
+  assert.equal(record.question,recent[i].content);
+  assert.equal(record.answer,recent[i+1].content);
+ }
+ assert.equal(memory.read({turn:1}).answer,exchange(1)[1].content);
+ for(const turn of [0,-4,1.5])assert.equal(memory.read({turn}).error,'unknown_conversation_turn');
+ assert.equal(conversationRecall([],recent.slice(1)).read({turn:-3}).error,'unknown_conversation_turn');
+ assert.throws(()=>conversationRecall([],[{role:'system',content:'x'}]),/Invalid recent history/);
+});
+
+test('a short conversation can recall recent wording without granting source evidence',async()=>{
+ let calls=0;
+ await assert.rejects(runContentAgent({question:'Did you say this?',history:exchange(1),corpus:{schemaVersion:1,revision:'t',documents:[]},complete:async({messages,tools})=>{
+  if(++calls===1){assert.ok(tools.some(tool=>tool.name==='recall_conversation'));return {toolCalls:[{id:'recent',name:'recall_conversation',arguments:{turn:-1}}]};}
+  if(calls===2)assert.equal(JSON.parse(messages.at(-1).content).answer,exchange(1)[1].content);
+  return {text:'Unverified',sourceIds:['source-1']};
+ }}),/Invalid answer evidence/);
+});

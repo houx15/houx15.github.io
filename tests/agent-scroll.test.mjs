@@ -38,3 +38,17 @@ test('incremental prose follows the end when the reader is there',()=>{
  presentAgentEvent(log,{event(){log.scrollHeight=625;}},{type:'answer_delta'});
  assert.equal(log.scrollTop,625); // The browser clamps this to its scrollable range.
 });
+
+test('latest shortcut appears only away from the end and moves only on explicit activation',async()=>{
+ const {bindConversationJump}=await import('../src/assets/agent-scroll.js');
+ const handlers={},buttonHandlers={};let mutation,focused=false;
+ const log={clientHeight:400,scrollHeight:1000,scrollTop:600,addEventListener:(n,f)=>handlers[n]=f,removeEventListener:n=>delete handlers[n],setAttribute(){},focus(options){focused=options.preventScroll;}};
+ const button={hidden:false,addEventListener:(n,f)=>buttonHandlers[n]=f,removeEventListener:n=>delete buttonHandlers[n]};
+ const stop=bindConversationJump(log,button,{Mutation:class {constructor(fn){mutation=fn;}observe(){}disconnect(){}},Resize:null});
+ assert.equal(button.hidden,true);
+ log.scrollTop=100;handlers.scroll();assert.equal(button.hidden,false);
+ log.scrollHeight=1400;mutation();assert.equal(log.scrollTop,100);
+ buttonHandlers.click();assert.equal(log.scrollTop,1400);assert.equal(button.hidden,true);assert.equal(focused,true);
+ log.clientHeight=0;log.scrollTop=0;mutation();assert.equal(button.hidden,true);
+ stop();assert.equal(handlers.scroll,undefined);assert.equal(buttonHandlers.click,undefined);
+});
