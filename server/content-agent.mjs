@@ -1,3 +1,4 @@
+import {proseSentenceEnds} from './agent-prose-boundaries.mjs';
 import {checkProseClaims,proseRepairGuidance,repairSentenceRepeated,repairContinuation} from './agent-prose-check.mjs';
 import {checkConceptUncertainty} from './agent-uncertainty.mjs';
 import {reviseConceptStep} from './agent-concept-revision.mjs';
@@ -141,16 +142,16 @@ export async function runContentAgent({ question, language = 'en', history = [],
       pending+=streamed.slice(processed);processed=streamed.length;
       // Validate complete sentences, never a token fragment. A rejected suffix
       // stays private; repair can retain an already displayed prefix unchanged.
-      const boundaries=[...pending.matchAll(/[。！？!?\n]|\.(?=\s)/g)];
+      const boundaries=proseSentenceEnds(pending);
       let consumed=0;
       for(const end of boundaries) {
-        const ready=pending.slice(consumed,end.index+1);
-        if(replayPrefix && repairSentenceRepeated(ready,replayPrefix)){consumed=end.index+1;continue;}
+        const ready=pending.slice(consumed,end);
+        if(replayPrefix && repairSentenceRepeated(ready,replayPrefix)){consumed=end;continue;}
         if(usesBiographyEvidence(sourceIds))checkBiographySentence(ready);
         checkProseClaims(ready,sourceIds,passages);
         shown+=ready;visibleText+=ready;visibleIds=sourceIds;
         onEvent({type:'answer_delta',text:ready,sources:sourceIds.map(id=>evidence.get(id))});
-        consumed=end.index+1;
+        consumed=end;
       }
       pending=pending.slice(consumed);
     }});

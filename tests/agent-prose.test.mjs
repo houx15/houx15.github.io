@@ -52,3 +52,19 @@ test('internal continuation drops an exact repeated sentence but retains new con
  const prior='这篇笔记讨论数据质量，并指出前四项只是可审查的依据。';
  assert.equal(repairContinuation(prior+'学习效用需要实际评估。',prior),'学习效用需要实际评估。');
 });
+
+test('quoted source punctuation cannot flush a half quotation into claim checking',async()=>{
+ const quoted='这是方法最明确的一项研究。';
+ const quoteCorpus=structuredClone(corpus);quoteCorpus.documents[0].sections[0].text=quoted;
+ const output='原文写道：“'+quoted+'”这里只引用原文。';
+ let round=0;const events=[];
+ const answer=await runContentAgent({question:'引用原文',language:'zh-CN',corpus:quoteCorpus,onEvent:e=>events.push(e),complete:async({onText})=>{
+  if(++round===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/quality/zh-CN'}}]};
+  onText('原文写道：“'+quoted,ids);
+  assert.equal(events.filter(e=>e.type==='answer_delta').length,0);
+  onText('”这里只引用原文。',ids);
+  return {text:output,sourceIds:ids};
+ }});
+ assert.equal(round,2);assert.equal(answer.text,output);
+ assert.equal(events.filter(e=>e.type==='answer_delta').map(e=>e.text).join(''),output);
+});

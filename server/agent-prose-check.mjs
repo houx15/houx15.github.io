@@ -1,9 +1,10 @@
+import {proseSentences} from './agent-prose-boundaries.mjs';
 import {findUncertaintyConflict} from './agent-uncertainty.mjs';
 // Narrow output checks for observed overstatements. They are not semantic proof.
 export function checkProseClaims(text,ids,passages) {
   const source=ids.map(id=>passages.get(id)).filter(Boolean).join('\n');
   if(!source)return;
-  for(const sentence of text.split(/(?<=[。！？!?])|\n/u)) {
+  for(const sentence of proseSentences(text)) {
     if(!sentence.trim() || source.includes(sentence.trim()))continue;
     const assertion=sentence.replace(/(?:并未|没有|未曾|并不|不能|不应)(?:断言|声称|说|说明|认为|推出|证明|意味着)(?:过|是)?[：:\s]*[“「][^”」]*[”」]/gu,'');
     const positive=assertion.replace(/“[^”]*”|「[^」]*」|『[^』]*』/gu,quote=>source.includes(quote.slice(1,-1))?'':quote);
@@ -30,11 +31,5 @@ export function repairSentenceRepeated(sentence,prefix) {
   const trimmed=sentence.trim();return trimmed.length>20 && prefix.includes(trimmed);
 }
 export function repairContinuation(text,prefix) {
-  let start=0,result='';
-  for(const end of text.matchAll(/[。！？!?\n]|\.(?=\s)/g)) {
-    const sentence=text.slice(start,end.index+1);
-    if(!repairSentenceRepeated(sentence,prefix))result+=sentence;
-    start=end.index+1;
-  }
-  const tail=text.slice(start);return result+(repairSentenceRepeated(tail,prefix)?'':tail);
+  return proseSentences(text).filter(sentence=>!repairSentenceRepeated(sentence,prefix)).join('');
 }
