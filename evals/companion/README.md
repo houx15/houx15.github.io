@@ -19,6 +19,8 @@ For a candidate, set `AGENT_MODEL`, matching `AGENT_PRICED_MODEL`, and a reviewe
 | Concept certainty, turn 1 | Preserve possible/hypothetical language in the MASS diagram's labels, descriptions AND final prose | “可能” in the body but an unconditional label or “会” in the summary; filtering becomes a guarantee |
 | Concept certainty, turn 2 | Preserve documented SSDataAgent warning/unverified behavior and distinguish it from a hard gate | Inventing a hard rejection; adding uncertainty to directly documented behavior merely to pass a modal-word check |
 | Concept certainty home | Run independently, with no history or pageContext; same semantic criteria as the MASS reading-position case | A preloaded-section success hides failure when the agent has to retrieve the section itself |
+| Question premises, turn 1 | Correct the supplied hard-gate premise, then explain documented warning/unverified behavior in two steps | Adopting the premise; equating missing verification with a failed verification; inventing implementation details |
+| Question premises, turn 2 | Preserve the correction in a one-sentence follow-up using a fresh source read | Reverting to the visitor's original incorrect premise |
 
 Also check actual SSE with `--stream` using the website parser. Completion, syntactic validity, correct sources, useful prose and useful diagrams are separate outcomes. Record model calls and failures, including recovered failures; do not discard failed runs or infer speed from call count.
 

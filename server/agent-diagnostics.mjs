@@ -23,5 +23,5 @@ export function agentFailureRecord({requestId,stage,modelCalls,partial,error}) {
   return {event:'agent_failure',requestId:/^[a-f0-9-]{36}$/.test(requestId)?requestId:'unknown',
     stage:['request','model','agent','tool','finish'].includes(stage)?stage:'unknown',
     modelCalls:Number.isInteger(modelCalls)&&modelCalls>=0&&modelCalls<=6?modelCalls:0,partial:partial===true,
-    category:categories.has(error?.diagnosticCategory)?error.diagnosticCategory:runtimeReasons.get(error?.message)||(error?.name==='AbortError'?'cancelled':null)||(publicCodes.has(error?.code)?error.code:'unexpected')};
+    category:categories.has(error?.diagnosticCategory)?error.diagnosticCategory:runtimeReasons.get(error?.message)||(error?.name==='AbortError'?'cancelled':error?.name==='TimeoutError'?'request_deadline':null)||(publicCodes.has(error?.code)?error.code:'unexpected')};
 }

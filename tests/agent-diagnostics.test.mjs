@@ -1,5 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
 import {agentFailureRecord,providerFailureCategory} from '../server/agent-diagnostics.mjs';
 test('diagnostics retain failure categories, never arbitrary exception or request text',()=>{
  const privateText='SECRET-question-token-response';
@@ -11,6 +12,23 @@ test('diagnostics retain failure categories, never arbitrary exception or reques
  assert.equal(providerFailureCategory(new Error(privateText)),'provider_transport');
  assert.equal(agentFailureRecord({error:{message:'Invalid answer evidence'}}).category,'answer_evidence');
  assert.equal(agentFailureRecord({error:{diagnosticCategory:'json_parse'}}).category,'json_parse');
+});
+
+test('agent completion failures distinguish deadline, cancellation and exhausted execution budget',()=>{
+ for(const [error,category] of [[new DOMException('private timeout details','TimeoutError'),'request_deadline'],[new DOMException('private abort details','AbortError'),'cancelled'],[new Error('Agent step budget exceeded'),'step_limit'],[new Error('Tool budget exceeded'),'tool_limit']]) {
+  const record=agentFailureRecord({stage:'agent',modelCalls:6,error});
+  assert.equal(record.category,category);assert.equal(record.modelCalls,6);
+  assert.equal(JSON.stringify(record).includes('private'),false);
+ }
+});
+
+test('private runner reports a bounded failure record without exposing invalid configuration',()=>{
+ const privateValue='private-invalid-provider-value';
+ const result=spawnSync(process.execPath,['scripts/test-agent-development.mjs'],{cwd:new URL('..',import.meta.url),env:{AGENT_PROVIDER:privateValue},input:'[]',encoding:'utf8'});
+ assert.equal(result.status,1);assert.equal(result.stdout,'');
+ const records=result.stderr.trim().split('\n').map(line=>JSON.parse(line));
+ assert.deepEqual(records,[{event:'development_run_failure',requestId:'unknown',stage:'agent',modelCalls:0,partial:false,category:'unexpected',turn:0},{error:'development_test_failed'}]);
+ assert.equal(result.stderr.includes(privateValue),false);
 });
 
 test('provider JSON failures expose a fixed diagnostic category, never the invalid response',async()=>{

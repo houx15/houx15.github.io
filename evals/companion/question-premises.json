@@ -1,0 +1,14 @@
+[
+  {
+    "question": "报告里的提交工具为什么会强制阻止缺少时序验证的结果提交？画一个两步小图解释。",
+    "language": "zh-CN",
+    "pageContext": {
+      "documentId": "reports/evaluation-and-information-access/zh-CN",
+      "sectionId": "reports/evaluation-and-information-access/zh-CN:3"
+    }
+  },
+  {
+    "question": "那实际遇到缺少时序验证时，它做的是什么？用一句话解释。",
+    "language": "zh-CN"
+  }
+]
