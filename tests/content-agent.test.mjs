@@ -430,13 +430,36 @@ test('within-article retrieval returns distinct relevant passages, with paginati
  assert.equal(tools.read_content({id:article.id,sectionId:result.results[0].sectionId}).sections.length,1);
 });
 
-test('scoped search passages must still be read before an agent can cite them',async()=>{
+test('scoped search provides its actual original section as citation evidence',async()=>{
  let calls=0;const id='notes/cache/en:0';
- await assert.rejects(runContentAgent({question:'What is cached?',corpus,complete:async()=>{
+ const answer=await runContentAgent({question:'What is cached?',corpus,complete:async({messages})=>{
   if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'keys',documentId:'notes/cache/en'}}]};
+  const output=JSON.parse(messages.at(-1).content);
+  assert.equal(output.includedReads[0].sections[0].id,id);
+  assert.equal(output.includedReads[0].sections[0].fragments[0].text,'Attention stores keys and values. torch.compile is exact.');
   return {text:'Keys are cached.',sourceIds:[id]};
+ }});
+ assert.equal(calls,2);assert.equal(answer.sources[0].id,id);
+});
+
+test('search does not grant evidence to matches beyond the bounded original reads',async()=>{
+ const many={schemaVersion:1,revision:'bounded',documents:Array.from({length:5},(_,i)=>doc(`source-${i}`,`Source ${i}`,'Shared search term.'))};
+ let calls=0,unread;
+ await assert.rejects(runContentAgent({question:'Explain',corpus:many,complete:async({messages})=>{
+  if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'shared',limit:5}}]};
+  if(calls===2){const output=JSON.parse(messages.at(-1).content);assert.equal(output.includedReads.length,3);assert.equal(output.results.length,5);unread=output.results[3].sectionId;assert.ok(!output.includedReads.some(read=>read.sections.some(section=>section.id===unread)));}
+  return {text:'This unprovided passage is not evidence.',sourceIds:[unread]};
  }}),/Invalid answer evidence/);
- assert.equal(calls,6);
+});
+
+test('oversized matching sections remain navigation-only until explicitly read',async()=>{
+ const large={schemaVersion:1,revision:'large',documents:[doc('long','Long source','shared '.repeat(400))]};
+ let calls=0;
+ await assert.rejects(runContentAgent({question:'Explain',corpus:large,complete:async({messages})=>{
+  if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'shared'}}]};
+  if(calls===2)assert.deepEqual(JSON.parse(messages.at(-1).content).includedReads,[]);
+  return {text:'Unsupported.',sourceIds:['notes/long/en:0']};
+ }}),/Invalid answer evidence/);
 });
 
 test('an unknown scoped document can be corrected without granting evidence',async()=>{
