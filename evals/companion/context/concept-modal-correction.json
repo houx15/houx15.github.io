@@ -1,0 +1,18 @@
+{
+  "turns": [
+    {
+      "question": "第二步里你说“会同时强化”，原文却是“可能同时强化”。这两者一样吗？请核对并纠正，不要再画图。",
+      "language": "zh-CN"
+    }
+  ],
+  "history": [
+    {
+      "role": "user",
+      "content": "{\"question\":\"请根据 MASS 笔记的 8.1 节，画一个两到三步的小图解释：为什么成功的轨迹也不能直接拿来训练？\",\"language\":\"zh-CN\"}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"text\":\"最终成功不等于过程正确，整条照搬可能把偶然补救与前置坏习惯一并强化。\",\"textTruncated\":false,\"sourceIds\":[\"notes/mass-multi-agent-self-supervision/zh-CN:20\"],\"visuals\":[{\"type\":\"concept_flow\",\"title\":\"成功轨迹的训练风险\",\"items\":[{\"position\":1,\"title\":\"轨迹含混合信号\",\"sourceId\":\"notes/mass-multi-agent-self-supervision/zh-CN:20\",\"description\":\"例如一条成功轨迹可能包含工作者遗漏约束、再由编排者偶然补救的过程。\"},{\"position\":2,\"title\":\"整条照搬的后果\",\"sourceId\":\"notes/mass-multi-agent-self-supervision/zh-CN:20\",\"description\":\"若直接整条用于训练，模型会同时强化有用的补救行为和前面的坏习惯。\"},{\"position\":3,\"title\":\"需按数据质量筛选\",\"sourceId\":\"notes/mass-multi-agent-self-supervision/zh-CN:20\",\"description\":\"因此需按正确性、真实性、可学习性等维度审查，而非仅看最终结果。\"}],\"omittedDescriptions\":0}],\"omittedVisuals\":0}"
+    }
+  ]
+}
