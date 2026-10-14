@@ -34,7 +34,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
   log.querySelectorAll('button').forEach(button=>button.remove());
   const row=make('article','','comic-message comic-live-turn');
   row.append(make('p',question,'comic-visitor'));
-  const progress=make('div','','comic-progress');progress.setAttribute('role','status');
+  const progress=make('div','',restored?'comic-progress':'comic-progress is-active');progress.setAttribute('role','status');
   const progressText=make('span',zh?'正在连接…':'Connecting…');progress.append(progressText);row.append(progress);
   const body=make('div','','comic-live-body');body.setAttribute('aria-busy',String(!restored));log.append(row);
   const setProgress=text=>{if(progressText.textContent!==text)progressText.textContent=text;};

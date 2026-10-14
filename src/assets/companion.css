@@ -56,7 +56,7 @@
 .comic-composer svg {width:28px;height:28px;}
 .comic-status {flex-shrink:0;font-size:10px;line-height:1.6;color:#888;text-align:center;margin:15px 0 0;}
 .comic-conversation:empty {display:none;}
-.comic-conversation {flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:6px 6px 20px;margin-bottom:16px;}
+.comic-conversation {flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;width:100vw;margin-inline:calc(50% - 50vw);padding:6px max(26px,calc((100vw - 672px)/2)) 20px;margin-bottom:16px;}
 .has-conversation .comic-welcome {position:absolute;top:12px;left:50%;transform:translateX(-50%);margin:0;padding:0;display:flex;align-items:center;}
 .has-conversation .comic-character {width:50px;height:44px;margin:0;flex-shrink:0;}
 .has-conversation .comic-hello {display:none;}
@@ -82,7 +82,8 @@
 .comic-room a {color:inherit;text-decoration:underline;text-underline-offset:4px;}
 .comic-evidence a {display:flex;align-items:center;min-height:44px;padding:10px 0;box-sizing:border-box;font-size:14px;line-height:1.7;}
 .comic-progress {font-size:11px;color:#777;margin:12px 0 20px;}
-.comic-progress.is-active::before {content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:8px;}
+.comic-progress.is-active::before {content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:10px;animation:ink-wait 1.2s ease-in-out infinite;}
+@keyframes ink-wait {0%,100%{transform:translateY(1px) scale(.85);opacity:.45}50%{transform:translateY(-3px) scale(1.15);opacity:1}}
 .comic-work-record summary,.comic-more-reading summary {cursor:pointer;font-size:13px;line-height:20px;min-height:44px;padding:12px 0;box-sizing:border-box;color:#666;}
 .comic-work-record ol {padding-left:17px;line-height:1.9;margin-top:8px;}
 .comic-reading-card h3 {font:23px/1.5 var(--font-sans);margin:12px 0;}
@@ -109,7 +110,7 @@
 .comic-room textarea:focus-visible {outline:none;}
 @media(max-width:600px){.hero.comic-home {padding:95px 20px 80px;}.home-page .site-header nav {font-size:11px;}.portal-character {width:166px;height:147px;}.portal-speech {min-width:260px;font-size:20px;gap:18px;padding:14px 18px;}.companion-portal {gap:26px;}.comic-room {padding:68px 20px 18px;}.comic-back {left:22px;}.comic-room:not(.has-conversation) .comic-reset {display:none;}
 .comic-reset {right:22px;}.comic-close {left:18px;}.comic-story-card {padding:20px;}.comic-story-card h2 {font-size:22px;}.comic-play {padding-bottom:25px;}.comic-character {width:118px;height:105px;}.comic-hello {font-size:24px;}.companion-launcher {right:12px;bottom:14px;width:58px;height:58px;}}
-@media(prefers-reduced-motion:reduce){.comic-room *,.companion-launcher *,.companion-portal * {animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
+@media(prefers-reduced-motion:reduce){.comic-room *,.comic-room *::before,.comic-room *::after,.companion-launcher *,.companion-portal * {animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
 @media print {.companion-launcher,.comic-dialog {display:none!important;}}
 /* A source outline, drawn as one continuous reading path. */
 .comic-reading-map {margin:24px 0;padding:20px 0;}

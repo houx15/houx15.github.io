@@ -20,7 +20,7 @@ test('enabling reduced motion during the delay or typing reveals the full greeti
 });
 test('typing preserves complete graphemes and releases its listener on completion',()=>{
  const f=fixture('Hi 👩🏽‍💻!');
- assert.equal([...f.timers.values()][0].delay,450);
+ assert.equal([...f.timers.values()][0].delay,350);
  for(const expected of ['H','Hi','Hi ','Hi 👩🏽‍💻','Hi 👩🏽‍💻!']){f.tick();assert.equal(f.line.textContent,expected);}
  assert.equal(f.timers.size,0);assert.equal(f.listeners.size,0);
 });

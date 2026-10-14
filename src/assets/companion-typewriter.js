@@ -19,9 +19,9 @@ export function typeGreeting(line,{
     if(finished)return;
     if(!line.isConnected){stop();return;}
     line.textContent+=letters[index++];
-    if(index===letters.length)stop();else timer=schedule(type,95);
+    if(index===letters.length)stop();else timer=schedule(type,75);
   };
   line.textContent='';motion.addEventListener('change',onMotion);
-  timer=schedule(type,450);
+  timer=schedule(type,350);
   return finish;
 }
