@@ -584,7 +584,7 @@ test('a selected biography chapter is read before answering a deictic follow-up'
 
 test('unknown documents in recommendation and visual tools recover without leaking partial cards',async()=>{
  const cases=[
-  ['suggest_questions',{id:'unknown'}],['find_related_posts',{id:'unknown'}],
+  ['suggest_questions',{id:'unknown',sourceId:'unknown:0',question:'What comes next?'}],['find_related_posts',{id:'unknown'}],
   ['show_post_cards',{ids:['notes/cache/en','unknown']}],
   ['show_visualization',{kind:'publication_timeline',ids:['notes/cache/en','unknown']}],
   ['show_reading_map',{id:'unknown',sectionIds:['unknown:0']}]
@@ -719,7 +719,7 @@ test('a sourced timeline caption completes once without an extra model answer',a
  assert.equal(rounds,2);assert.equal(answer.text,'Study and professional work overlap.');
  assert.deepEqual(answer.sources.map(source=>source.id),['event:startup','event:pku']);
  assert.equal(answer.blocks.length,1);assert.equal(answer.blocks[0].items.length,2);
- assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['block','answer_delta','answer']);
+ assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['answer_delta','block','answer']);
  assert.equal(events.find(event=>event.type==='answer_delta').text,answer.text);
 });
 
@@ -811,7 +811,7 @@ test('a sourced concept caption finishes with the diagram and no trailing model 
  }});
  assert.equal(rounds,2);assert.equal(answer.text,'Stored values can be reused.');
  assert.deepEqual(answer.sources.map(source=>source.id),['notes/cache/en:0']);
- assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['block','answer_delta','answer']);
+ assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['answer_delta','block','answer']);
  assert.equal(answer.blocks.length,1);assert.ok(answer.blocks[0].visualId);
 });
 
@@ -849,4 +849,42 @@ test('a terminal visual waits for an explicitly requested recommendation card',a
  assert.equal(rounds,4);
  assert.deepEqual(answer.blocks.map(block=>block.type),['post_cards','event_timeline']);
  assert.equal(events.filter(event=>event.type==='answer').length,1);
+});
+
+test('malformed final JSON gets one bounded correction only before text is visible',async()=>{
+ for(const mode of ['recover','repeat','partial','frame','tool','aborted']) {
+  let rounds=0;const events=[],controller=new AbortController();
+  const run=runContentAgent({question:'Explain this section',corpus,signal:controller.signal,onEvent:e=>events.push(e),complete:async({messages,onText})=>{
+   rounds++;
+   if(rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(rounds===2 || mode==='repeat') {
+    if(mode==='partial')onText('Visible prose. ',['notes/cache/en:0']);
+    if(mode==='aborted')controller.abort();
+    throw Object.assign(new Error('invalid_model_response'),{diagnosticCategory:'json_parse',diagnosticDetail:mode==='frame'?'stream_frame':mode==='tool'?'tool_arguments':'final_answer'});
+   }
+   const correction=JSON.parse(messages.at(-1).content);
+   assert.equal(correction.reason,'invalid_final_json');
+   assert.ok(correction.availableSources.some(source=>source.id==='notes/cache/en:0'));
+   return {text:'A short sourced explanation.',sourceIds:['notes/cache/en:0']};
+  }});
+  if(mode==='recover'){assert.equal((await run).text,'A short sourced explanation.');assert.equal(rounds,3);}
+  else {await assert.rejects(run,/invalid_model_response/);assert.equal(rounds,mode==='repeat'?3:2);}
+  assert.equal(events.filter(e=>e.type==='answer_delta').length,mode==='partial'?1:0);
+ }
+});
+
+test('follow-up buttons carry the concrete question and require evidence from their own document',async()=>{
+ for(const mode of ['valid','unread','wrong_document','title']) {
+  let calls=0;const events=[];
+  const answer=await runContentAgent({question:'Explain and suggest a follow-up',corpus,onEvent:e=>events.push(e),complete:async({messages})=>{
+   calls++;
+   if(calls===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(calls===2)return {toolCalls:[{id:'next',name:'suggest_questions',arguments:{id:mode==='wrong_document'?'notes/other/en':'notes/cache/en',sourceId:mode==='unread'?'notes/other/en:0':'notes/cache/en:0',question:mode==='title'?'KV cache':'What does the cache retain?'}}]};
+   if(mode==='valid')assert.match(messages[0].content,/FOLLOW-UP BUTTON/);
+   if(mode!=='valid'){assert.equal(events.filter(e=>e.type==='block').length,0);assert.equal(JSON.parse(messages.at(-1).content).error,'invalid_follow_up');}
+   return {text:'The cache stores keys and values.',sourceIds:['notes/cache/en:0']};
+  }});
+  if(mode==='valid')assert.deepEqual(answer.blocks[0].items,[{documentId:'notes/cache/en',label:'What does the cache retain?',query:'What does the cache retain?'}]);
+  else assert.equal(answer.blocks.length,0);
+ }
 });

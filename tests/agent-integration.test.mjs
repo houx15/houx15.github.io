@@ -171,7 +171,40 @@ test('terminal timeline captions stream through HTTP and remain available to a l
  await first.ask({question:'Show her startup timeline',language:'en'},{onEvent:event=>events.push(event)});
  assert.equal(calls,2);assert.equal(events.at(-1).type,'done');
  assert.equal(events.find(event=>event.type==='answer').text,'Her startup experience.');
- assert.ok(events.findIndex(event=>event.type==='block')<events.findIndex(event=>event.type==='answer_delta'));
+ assert.ok(events.findIndex(event=>event.type==='source')<events.findIndex(event=>event.type==='answer_delta'));
+ assert.ok(events.findIndex(event=>event.type==='answer_delta')<events.findIndex(event=>event.type==='block'));
+ assert.equal(events.filter(event=>event.type==='answer_delta').map(event=>event.text).join(''),'Her startup experience.');
  const later=[];await client().ask({question:'When did she leave? Only the year.',language:'en'},{onEvent:event=>later.push(event)});
  assert.equal(calls,3);assert.equal(later.find(event=>event.type==='answer').text,'2022');assert.equal(later.at(-1).type,'done');
+});
+
+test('a later browser client can refer to the offered question without losing source boundaries',async t=>{
+ const origin='https://houx15.github.io',id='notes/cache/en',sourceId=id+':0';
+ const corpus={schemaVersion:1,revision:'fixture',documents:[{id,canonicalId:'notes/cache',title:'Cache',summary:'Cache',type:'notes',language:'en',date:'2026-10-01',url:'/notes/cache/',tags:[],sections:[{id:sourceId,heading:'Evidence',text:'Keys and values are cached.',url:'/notes/cache/#evidence'}]}]};
+ let calls=0;
+ const complete=async({messages})=>{
+  calls++;
+  if(calls===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id}}]};
+  if(calls===2)return {toolCalls:[{id:'next',name:'suggest_questions',arguments:{id,sourceId,question:'What is retained in the cache?'}}]};
+  if(calls===3)return {text:'The note describes caching.',sourceIds:[sourceId]};
+  if(calls===4){
+   const prior=messages.filter(m=>m.role==='user').map(m=>JSON.parse(m.content)).find(m=>m.type==='previous_display_metadata');
+   assert.deepEqual(prior.followUp,{question:'What is retained in the cache?',documentId:id});
+   assert.match(prior.guidance,/not verified facts/);
+   const reread=messages.find(m=>m.role==='tool' && m.toolCallId.startsWith('context_read_'));
+   assert.equal(JSON.parse(reread.content).sections[0].fragments.map(f=>f.text).join('\n'),'Keys and values are cached.');
+  }
+  assert.equal(calls,4);
+  return {text:'I asked because the note says keys and values are cached.',sourceIds:[sourceId]};
+ };
+ const guard=createGuard({store:new MemoryAgentStore(),secret:'a'.repeat(40),dailyTokens:1000000,enabled:()=>true});
+ const server=createAgentServer({origin,corpus,guard,complete,verifyChallenge:async()=>{},enabled:()=>true,production:false});
+ server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>{server.closeAllConnections();server.close();});
+ const saved=new Map(),sessionStore={getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v),removeItem:k=>saved.delete(k)};
+ const client=()=>createAgentClient(`http://localhost:${server.address().port}`,(url,options)=>fetch(url.replace('localhost','127.0.0.1'),{...options,headers:{...options.headers,Origin:origin}}),{sessionStore});
+ const first=client();await first.openSession('fixture');const initial=[];
+ await first.ask({question:'Explain and suggest a question',language:'en'},{onEvent:e=>initial.push(e)});
+ assert.equal(initial.find(e=>e.type==='block').block.items[0].query,'What is retained in the cache?');
+ const later=[];await client().ask({question:'Why did you ask that?',language:'en'},{onEvent:e=>later.push(e)});
+ assert.equal(later.at(-1).type,'done');assert.equal(later.find(e=>e.type==='answer').text,'I asked because the note says keys and values are cached.');
 });

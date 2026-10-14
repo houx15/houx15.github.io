@@ -2,10 +2,12 @@
 import {isVisualId} from '../src/assets/agent-visual-id.js';
 // Keep the existing 4000-character history limit and never store arbitrary blocks.
 export function rememberAgentAnswer(answer) {
+  const nextQuestion=(answer.blocks || []).find(block=>block.type==='questions')?.items?.[0];
+  const followUp=nextQuestion && typeof nextQuestion.query==='string' && nextQuestion.query.length<=400 && typeof nextQuestion.documentId==='string' && nextQuestion.documentId.length<=400?{question:nextQuestion.query,documentId:nextQuestion.documentId}:undefined;
   const concepts=(answer.blocks || []).filter(block=>block.type==='concept_flow');
   const revisions=(answer.blocks || []).filter(block=>block.type==='concept_revision').flatMap(block=>block.items.map(item=>({visualId:block.visualId,position:item.position,previousDescription:item.previousDescription,description:item.description,sourceId:item.source.id})));
   const sourceIds=[...new Set((answer.sources || []).map(source=>source.id))].filter(id=>typeof id==='string' && id.length<=400).slice(0,3);
-  if(!revisions.length && !concepts.length && !sourceIds.length && answer.text.length<=4000)return answer.text;
+  if(!followUp && !revisions.length && !concepts.length && !sourceIds.length && answer.text.length<=4000)return answer.text;
   const prefix=answer.text.slice(0,1000).replace(/[\uD800-\uDBFF]$/u,'');
   const memory={text:prefix,textTruncated:prefix.length<answer.text.length,sourceIds:[],visuals:[],omittedVisuals:0};
   // Reserve the accepted edit before prose: losing it would resurrect an old claim.
@@ -19,6 +21,10 @@ export function rememberAgentAnswer(answer) {
   }
   for(const id of sourceIds) {
     if(JSON.stringify({...memory,sourceIds:[...memory.sourceIds,id]}).length<=3900)memory.sourceIds.push(id);
+  }
+  if(followUp) {
+    if(JSON.stringify({...memory,followUp}).length<=3900)memory.followUp=followUp;
+    else memory.omittedFollowUp=true;
   }
   const retained=[];
   for(const block of concepts.slice().reverse()) {

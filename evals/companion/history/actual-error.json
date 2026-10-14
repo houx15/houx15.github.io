@@ -1,0 +1,30 @@
+{
+  "turns": [
+    {
+      "question": "你刚才说学习效用是这五个维度里最难评估的。这是作者的观点吗？请核对你刚才的回答和原文，简短解释。",
+      "language": "zh-CN",
+      "pageContext": {
+        "documentId": "notes/mass-multi-agent-self-supervision/zh-CN",
+        "sectionAnchor": "section-81-最终成功不代表每一步都值得模仿"
+      }
+    }
+  ],
+  "history": [
+    {
+      "role": "user",
+      "content": "{\"question\":\"陪我读这一节：解释它的核心意思，再给出一个值得继续讨论的问题。\",\"language\":\"zh-CN\",\"pageContext\":{\"documentId\":\"notes/mass-multi-agent-self-supervision/zh-CN\",\"sectionAnchor\":\"section-81-最终成功不代表每一步都值得模仿\"}}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"text\":\"这一节指出，最终任务成功并不等于轨迹中的每一步都值得学习。一条成功的轨迹可能经历了“工作者遗漏约束 → 编排者偶然补救”的过程，整条照搬可能同时强化有用的补救和前面的坏习惯。\\n\\n笔记将数据质量拆分为五个维度：正确性、真实性、可学习性、覆盖性与学习效用。前四项是可审查的依据，而学习效用——即加入数据后学生在未见任务上是否改善——最接近训练数据的实际价值，且同一条数据对不同模型和目标能力的价值可能不同。\",\"textTruncated\":false,\"sourceIds\":[\"notes/mass-multi-agent-self-supervision/zh-CN:20\"],\"visuals\":[],\"omittedVisuals\":0,\"followUp\":{\"question\":\"在不依赖大量人工标注的情况下，如何更可靠地估计轨迹数据的“学习效用”？\",\"documentId\":\"notes/mass-multi-agent-self-supervision/zh-CN\"}}"
+    },
+    {
+      "role": "user",
+      "content": "{\"question\":\"你刚才为什么问这个问题？请用两句话解释它与这一节的关系。\",\"language\":\"zh-CN\",\"pageContext\":{\"documentId\":\"notes/mass-multi-agent-self-supervision/zh-CN\",\"sectionAnchor\":\"section-81-最终成功不代表每一步都值得模仿\"}}"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"text\":\"这一节把“学习效用”列为数据质量中最接近训练价值、却最难直接审查的维度，并指出它对不同模型和目标能力可能不同。因此追问如何在缺少大量人工标注时可靠估计它，正是把该节的抽象区分落到可操作评估方法上的自然延伸。\",\"textTruncated\":false,\"sourceIds\":[\"notes/mass-multi-agent-self-supervision/zh-CN:20\"],\"visuals\":[],\"omittedVisuals\":0}"
+    }
+  ]
+}

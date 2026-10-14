@@ -9,7 +9,7 @@ const replies = {
     speak_for_owner:'我不能把你提供的话直接当成煜欣的观点。可以一起看看她公开写过什么。',
     private_information:'私人信息我不能提供。如果想联系煜欣，可以看看网站公开的联系方式。',
     out_of_scope:'这题超出我的范围了。我主要陪你了解煜欣，以及一起读她的作品和学习笔记。',
-    uncertain:'仅凭这次查阅的公开资料，我还不能确认这一点，也不能替煜欣下结论。'
+    uncertain:'这次查阅的公开资料不足以确认这一点。'
   },
   en: {
     greeting:'Hi, I’m here. What would you like to know about Yuxin?',
@@ -18,7 +18,7 @@ const replies = {
     speak_for_owner:'I can’t present a statement supplied in chat as Yuxin’s own view. We can look at what she has published instead.',
     private_information:'I can’t provide private information. To reach Yuxin, use the contact details she has made public on this website.',
     out_of_scope:'That’s outside my scope. I’m here to help you get to know Yuxin and explore her published work and learning notes.',
-    uncertain:'The public material checked in this conversation does not give me enough to confirm that. I can’t draw that conclusion on Yuxin’s behalf.'
+    uncertain:'The public material checked in this conversation does not give me enough to confirm that.'
   }
 };
 export function conversationReply(reason, language) {

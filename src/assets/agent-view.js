@@ -36,7 +36,8 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
   row.append(make('p',question,'comic-visitor'));
   const progress=make('div','','comic-progress');progress.setAttribute('role','status');
   const progressText=make('span',zh?'正在连接…':'Connecting…');progress.append(progressText);row.append(progress);
-  const body=make('div','','comic-live-body');log.append(row);
+  const body=make('div','','comic-live-body');body.setAttribute('aria-busy',String(!restored));log.append(row);
+  const setProgress=text=>{if(progressText.textContent!==text)progressText.textContent=text;};
   let bodyShown=false,rawProse='';
   const showBody=()=>{if(bodyShown)return false;bodyShown=true;row.append(body);return true;};
   let views=conceptViews.get(log);if(!views){views=new Map();conceptViews.set(log,views);}
@@ -52,7 +53,7 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
       // Recommendations are the next step, not a competing action while the
       // explanation is still arriving. Keep them detached until the turn ends.
       if(block.type==='post_cards')pendingCards.set(block.id,container);
-      else row.append(container);
+      else if(block.type!=='questions')row.append(container);
     }
     container.replaceChildren();
     if(block.type==='concept_revision') {
@@ -139,8 +140,10 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     const nextRead=pendingCards.values().next().value;
     for(const card of pendingCards.values())row.append(card);
     pendingCards.clear();
+    const nextQuestion=questionBlock && blocks.get(questionBlock);
+    if(nextQuestion && !failed)row.append(nextQuestion);
     finished=true;failedTurn=failed;row.classList.toggle('is-incomplete',failed);progress.classList.remove('is-active');
-    progressText.textContent=message;
+    setProgress(message);
     if(failed && ['daily_budget_exhausted','monthly_budget_exhausted','budget_exhausted'].includes(code)) {
       const link=make('a',zh?'先读学习笔记 ↗':'Explore the learning notes ↗','comic-recovery-link');
       link.href=zh?'/zh/notes/':'/notes/';progress.append(link);
@@ -164,7 +167,8 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
       }
       for(const button of row.querySelectorAll('button'))button.disabled=false;
     }
-    return nextRead;
+    body.setAttribute('aria-busy','false');
+    return nextRead || (!failed && nextQuestion) || undefined;
   }
   return {
     row,
@@ -174,19 +178,19 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
       if(finished)return;
       const labels={verification:zh?'确认访客身份，无需注册或登录。':'Checking the visitor session. No account or login needed.',connecting:zh?'正在连接…':'Connecting…'};
       if(!Object.hasOwn(labels,phase))return;
-      progressText.textContent=labels[phase];
+      setProgress(labels[phase]);
     },
     event(event) {
       if(finished)return;
       if(event.type==='status') {
         const label=event.phase==='tool_started'?(toolLabels[event.tool]||(zh?'正在查阅资料':'Checking the sources')):event.phase==='model_started'?(zh?'正在组织回答':'Preparing an answer'):null;
-        if(label){progressText.textContent=label;progress.classList.add('is-active');if(statuses.at(-1)!==label)statuses.push(label);}
+        if(label){setProgress(label);progress.classList.add('is-active');if(statuses.at(-1)!==label)statuses.push(label);}
       } else if(event.type==='answer_delta') {
         let paragraph=body.querySelector('.comic-reply');
         if(!paragraph){showBody();paragraph=make('p','','comic-reply');body.append(paragraph);}
         rawProse+=event.text;paragraph.textContent=readableProse(rawProse);
         showAnswerSources(event.sourceIds);
-        progressText.textContent=zh?'正在回答…':'Writing…';progress.classList.add('is-active');
+        setProgress(zh?'正在回答…':'Writing…');progress.classList.add('is-active');
       } else if(event.type==='source')sources.set(event.source.id,event.source);
       else if(event.type==='block') {
         const fresh=!blocks.has(event.block.id);

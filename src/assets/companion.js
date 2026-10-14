@@ -1,3 +1,4 @@
+import {typeGreeting} from './companion-typewriter.js';
 import {createBiographyChapter} from './biography-chapter.js';
 import {confirmConversationReset} from './companion-reset.js';
 import {createDiceCard} from './dice-card.js';
@@ -11,9 +12,9 @@ import { initialQuestion } from './navigation.js';
 import { agentOrigin, turnstileSiteKey } from './assistant-config.js';
 import { createAgentClient, validateAgentBlock } from './agent-stream.js';
 import { createAgentTurn, agentFailureMessage } from './agent-view.js';
-import { presentAgentEvent,followConversationResize } from './agent-scroll.js?v=3';
+import { presentAgentEvent,followConversationResize,bindConversationJump } from './agent-scroll.js?v=3';
 import { verifyVisitor } from './visitor-check.js';
-import { validateSavedTurn } from './agent-history.js';
+import { validateSavedTurn,recordPresentationEvent } from './agent-history.js';
 
 const safeSource = url => typeof url === 'string' && !/[\\\u0000-\u001f]/.test(url) && (/^\/(?!\/)[^\s]*$/.test(url) || /^https:\/\/github\.com\/houx15(?:\/|$)/.test(url));
 export function initCompanion(document) {
@@ -24,17 +25,15 @@ export function initCompanion(document) {
     portal.querySelector('[data-typewriter]').textContent = greeting;
     portal.querySelector('.sr-only').textContent = greeting;
   }
-  for (const line of document.querySelectorAll('[data-typewriter]')) {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) continue;
-    const text = line.textContent; line.textContent=''; let count=0;
-    const type = () => { if (!line.isConnected) return;line.textContent=text.slice(0,++count);if(count<text.length)setTimeout(type,95); };
-    setTimeout(type,450);
-  }
+  for (const line of document.querySelectorAll('[data-typewriter]')) typeGreeting(line);
   const root = document.querySelector('[data-companion]'); if (!root) return;
   const zh = document.documentElement.lang === 'zh-CN', language = zh ? 'zh-CN' : 'en';
   const log = root.querySelector('[data-companion-log]'), status = root.querySelector('[data-companion-status]');
   followConversationResize(log);
   const form = root.querySelector('form'), input = form.querySelector('textarea');
+  const jump=document.createElement('button');jump.type='button';jump.className='comic-jump';jump.hidden=true;
+  jump.textContent=zh?'回到最新 ↓':'Back to latest ↓';log.after(jump);
+  bindConversationJump(log,jump);
   const draftContext=createReadingDraftContext(),openingDraft=createOpeningDraftContext();
   const currentOpeningContext=()=>openingContextFor(history,{article:root.dataset.article==='true'});
   function updateComposer() {
@@ -102,8 +101,8 @@ export function initCompanion(document) {
     const focused=document.activeElement;
     if(value) returnToComposer=Boolean(activeController) && root.contains(focused) && ['BUTTON','TEXTAREA'].includes(focused.tagName);
     const restore=returnToComposer && (focused===stopButton || focused===document.body);
-    busy = value; root.setAttribute('aria-busy',String(value));status.textContent = text;
-    root.querySelectorAll('button,textarea').forEach(button => { button.disabled = value || Boolean(button.closest('.is-incomplete')); });
+    busy = value; status.textContent = text;
+    root.querySelectorAll('button,textarea').forEach(button => { button.disabled = (value && button!==jump) || Boolean(button.closest('.is-incomplete')); });
     stopButton.hidden=!(value && activeController);stopButton.disabled=false;sendButton.hidden=!stopButton.hidden;
     if(value && returnToComposer && !stopButton.hidden) stopButton.focus({preventScroll:true});
     if(!value) {
@@ -232,7 +231,7 @@ export function initCompanion(document) {
       await liveClient.ask({question,language,supportsConceptFlow:true,supportsConceptRevisions:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
         {signal:controller.signal,onEvent:event=>{
           presentAgentEvent(log,turn,event);
-          if(['source','block','answer','done'].includes(event.type))savedEvents.push(event);
+          recordPresentationEvent(savedEvents,event);
         }});
       const saved=validateSavedTurn({kind:'agent',question,events:savedEvents});
       if(saved){history.push(saved);history=history.slice(-10);save();}
@@ -255,7 +254,8 @@ export function initCompanion(document) {
   window.addEventListener('pagehide',()=>activeController?.abort());
   root.querySelector('[data-companion-reset]').addEventListener('click',async()=>{
     if(busy || !await confirmConversationReset(document,{language,hasDraft:Boolean(input.value.trim())}))return;
-    liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;openingDraft.edit('');updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
+    // Keep the retained draft's original card reference. updateComposer clears it only for an empty draft.
+    liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
     // The reset button just disappeared. Keep keyboard navigation in this conversation.
     if(input.value.trim())input.focus({preventScroll:true});
     else {hello.setAttribute('tabindex','-1');hello.focus({preventScroll:true});}

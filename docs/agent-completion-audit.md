@@ -1,5 +1,7 @@
 # Agent completion audit — 2026-10-13
 
+For the current release boundary and consolidated remaining gates, see [agent-experience-status.md](agent-experience-status.md). The dated investigations below are historical observations, not a description of every current behavior.
+
 The full requested outcome remains incomplete. This audit does not equate test success with live agent quality or publication.
 
 | Requirement | Current evidence | Remaining gate |

@@ -1,3 +1,4 @@
+import {recordPresentationEvent,validateSavedTurn} from '../src/assets/agent-history.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createAgentTurn } from '../src/assets/agent-view.js';
@@ -29,7 +30,7 @@ test('live view presents one suggested next action and only unlocks it after com
   const turn=createAgentTurn(document,{log,question:'A question',language:'zh-CN',onQuestion:q=>clicked.push(q)});
   turn.event({type:'block',block:{id:'b',type:'questions',items:[{documentId:'a',label:'First',query:'one'},{documentId:'b',label:'Second',query:'two'}]}});
   turn.event({type:'block',block:{id:'another',type:'questions',items:[{documentId:'c',label:'Third',query:'three'}]}});
-  assert.equal(log.querySelectorAll('button').length,1);assert.equal(log.querySelectorAll('button')[0].disabled,true);
+  assert.equal(log.querySelectorAll('button').length,0);
   turn.event({type:'source',source:{id:'s',label:'<script>not executable</script>',url:'/notes/test/'}});
   turn.event({type:'answer',text:'<img src=x onerror=bad>',sourceIds:['s']});
   assert.ok(log.querySelectorAll('p').some(node=>node.textContent==='<img src=x onerror=bad>'));
@@ -292,4 +293,57 @@ test('an interrupted response retains valid pending recommendation cards',()=>{
  assert.equal(log.contains(card),true);
  assert.match(turn.row.className,/is-incomplete/);
  assert.equal(turn.canReplace,false);
+});
+
+test('follow-up invitation follows the answer and is omitted on interruption',()=>{
+ for(const failed of [false,true]) {
+  const turn=createAgentTurn(document,{log:new Element('div'),question:'Explain'});
+  turn.event({type:'block',block:{id:'q',type:'questions',items:[{documentId:'note',label:'How does it work?',query:'How does it work?'}]}});
+  assert.equal(turn.row.querySelectorAll('button').length,0);
+  turn.event({type:'answer',text:'A short explanation.',sourceIds:[]});
+  if(failed)turn.interrupt();else turn.event({type:'done'});
+  assert.equal(turn.row.querySelectorAll('button').length,failed?0:1);
+  if(!failed)assert.equal(turn.row.lastElementChild.querySelectorAll('button')[0].textContent,'How does it work? ↗');
+ }
+});
+
+test('restored turns preserve the first visible prose position and later citations',()=>{
+ for(const diagramFirst of [false,true]) {
+  const timeline={type:'block',block:{id:'timeline',type:'publication_timeline',dateKind:'publication',items:[{id:'note',title:'A note',summary:'About attention',url:'/notes/attention/',date:'2026-10-12',type:'notes'}]}};
+  const source=id=>({type:'source',source:{id,label:id,url:'/notes/attention/'}});
+  const events=[source('s1')];
+  if(diagramFirst)events.push(timeline);
+  events.push({type:'answer_delta',text:'First sentence.',sourceIds:['s1']});
+  if(!diagramFirst)events.push(timeline);
+  events.push(source('s2'),{type:'answer_delta',text:' More detail.',sourceIds:['s2']},{type:'answer',text:'First sentence. More detail.',sourceIds:['s1','s2']},{type:'done'});
+  const saved=[],live=createAgentTurn(document,{log:new Element('div'),question:'Explain'});
+  for(const event of events){live.event(event);recordPresentationEvent(saved,event);}
+  const safe=validateSavedTurn({kind:'agent',question:'Explain',events:saved});assert.ok(safe);
+  const restored=createAgentTurn(document,{log:new Element('div'),question:'Explain',restored:true});
+  for(const event of safe.events)restored.event(event);
+  const order=turn=>turn.row.children.filter(n=>['comic-live-body','comic-agent-block'].includes(n.className)).map(n=>n.className);
+  assert.deepEqual(order(restored),order(live));
+  assert.equal(restored.row.querySelector('.comic-reply').textContent,'First sentence. More detail.');
+  assert.equal(restored.row.querySelectorAll('a').length,3);
+  assert.equal(safe.events.filter(e=>e.type==='answer').length,1);
+  assert.equal(safe.events.some(e=>e.type==='answer_delta'),false);
+ }
+});
+
+test('streamed answer is busy independently of progress, and identical progress does not mutate again',()=>{
+ const log=new Element('div'),turn=createAgentTurn(document,{log,question:'x'});
+ turn.event({type:'answer_delta',text:'First.'});
+ const body=turn.row.children.find(node=>node.className==='comic-live-body');
+ const progress=turn.row.children.find(node=>node.className.includes('comic-progress'));
+ assert.equal(body.attributes['aria-busy'],'true');
+ assert.equal(progress.attributes.role,'status');assert.equal(progress.attributes['aria-busy'],undefined);
+ const label=progress.children[0];let value=label.textContent,writes=0;
+ Object.defineProperty(label,'textContent',{get:()=>value,set:next=>{writes++;value=next;}});
+ turn.event({type:'answer_delta',text:' Second.'});assert.equal(writes,0);
+ turn.event({type:'answer',text:'First. Second.',sourceIds:[]});
+ assert.equal(body.attributes['aria-busy'],'true');
+ turn.event({type:'done'});assert.equal(body.attributes['aria-busy'],'false');
+ const failed=createAgentTurn(document,{log,question:'next'});
+ failed.event({type:'answer_delta',text:'Partial.'});failed.interrupt('Stopped');
+ assert.equal(failed.row.children.find(node=>node.className==='comic-live-body').attributes['aria-busy'],'false');
 });
