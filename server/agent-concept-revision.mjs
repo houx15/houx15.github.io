@@ -1,3 +1,4 @@
+import {checkConceptUncertainty} from './agent-uncertainty.mjs';
 import {rememberAgentAnswer} from './agent-memory.mjs';
 import {isVisualId} from '../src/assets/agent-visual-id.js';
 
@@ -40,6 +41,7 @@ export function reviseConceptStep(args,{history,evidence,passages,quoteFragments
     if(!normalize(quote) || normalize(quote).length>400 || !normalize(passages.get(target.sourceId)).includes(normalize(quote)))throw new Error('Invalid revision quotation');
   } else if(quote!==undefined)throw new Error('Invalid revision quotation');
   const block={type:'concept_revision',visualId:target.visualId,title:target.diagramTitle,items:[{position:target.position,title:target.title,previousDescription:target.description,description:args.description,...(quote===undefined?{}:{quote:normalize(quote)}),source:{...evidence.get(target.sourceId)}}]};
+  checkConceptUncertainty({items:block.items},passages);
   rememberAgentAnswer({text:'',blocks:[block]}); // Must fit retained history before display.
   return block;
 }

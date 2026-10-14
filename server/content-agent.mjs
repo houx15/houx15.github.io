@@ -1,3 +1,4 @@
+import {checkConceptUncertainty} from './agent-uncertainty.mjs';
 import {reviseConceptStep} from './agent-concept-revision.mjs';
 import {modelHistory} from './agent-model-history.mjs';
 import {randomUUID} from 'node:crypto';
@@ -224,6 +225,10 @@ export async function runContentAgent({ question, language = 'en', history = [],
           else output = call.name==='show_concept_flow' ? conceptFlow(call.arguments,evidence,passages,quoteFragments) : tools[call.name]({...call.arguments,...(definition.parameters.properties.language && call.arguments.language===undefined?{language}: {})});
         }
         catch(error) {
+          if(error.message==='Possible source certainty conflict') {
+            onEvent({type:'status',phase:'tool_completed',tool:call.name,callId:call.id});
+            messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'source_uncertainty_conflict',...error.conflict,guidance:'Nothing from this call was displayed or changed. A cited passage retains possibility, but this clause makes an unqualified prediction. Recheck the original source and preserve its uncertainty in each relevant title, explanation and caption. A qualifier in another clause does not qualify this one. Do not merely delete will/会 to leave the same categorical claim. Correct the claim, keep exact quotations, then resubmit within the existing tool budget. This lexical check is not proof of semantic correctness.'})});continue;
+          }
           if(call.name==='revise_concept_step') {
             onEvent({type:'status',phase:'tool_completed',tool:call.name,callId:call.id});
             messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'revision_rejected',reason:error.message,guidance:'The old diagram was not changed. Use an exact retained visualId and position with a complete original description. Re-read that step’s source this turn and provide an exact quotation for article sources. Only one revision is allowed per turn. If the target is missing, correct in prose and say the old diagram could not be updated.'})});continue;
@@ -305,7 +310,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
   throw new Error('Agent step budget exceeded');
 }
 
-function conceptFlow({title,labels,descriptions,sourceIds,quotes,quoteIds},evidence,passages,quoteFragments) {
+function conceptFlow({title,labels,descriptions,sourceIds,quotes,quoteIds,caption},evidence,passages,quoteFragments) {
   if(sourceIds.length===1)sourceIds=labels.map(()=>sourceIds[0]);
   if(!title.trim() || labels.length<2 || labels.length!==descriptions.length || labels.length!==sourceIds.length || labels.some(label=>!label.trim() || label.length>100) || descriptions.some(text=>!text.trim() || text.length>400) || sourceIds.some(id=>!evidence.has(id))) throw new Error('Invalid concept evidence');
   if(quoteIds) {
@@ -314,5 +319,7 @@ function conceptFlow({title,labels,descriptions,sourceIds,quotes,quoteIds},evide
   }
   const normalize=text=>typeof text==='string'?text.replace(/\s+/g,' ').trim():'';
   if(quotes && (quotes.length!==labels.length || quotes.some((quote,index)=>!normalize(quote) || !normalize(passages.get(sourceIds[index])).includes(normalize(quote)))))throw new Error('Invalid concept quotation');
-  return {type:'concept_flow',title,interpretation:true,items:labels.map((label,index)=>({title:label,description:descriptions[index],...(quotes?{quote:normalize(quotes[index])}:{}),source:{...evidence.get(sourceIds[index])}}))};
+  const block={type:'concept_flow',title,interpretation:true,items:labels.map((label,index)=>({title:label,description:descriptions[index],...(quotes?{quote:normalize(quotes[index])}:{}),source:{...evidence.get(sourceIds[index])}}))};
+  checkConceptUncertainty({...block,caption},passages);
+  return block;
 }

@@ -68,3 +68,10 @@ test('legacy clients are not offered a revision tool',async()=>{
   return {toolCalls:[{id:'greet',name:'reply_conversationally',arguments:{reason:'greeting'}}]};
  }});
 });
+
+test('a correction cannot strengthen the uncertainty of its newly read article quote',()=>{
+ assert.throws(()=>reviseConceptStep({...args,description:'It will always happen.'},context()),/certainty conflict/);
+ const revision=reviseConceptStep({...args,description:'It might happen.'},context());
+ assert.equal(revision.items[0].description,'It might happen.');
+ assert.equal(revision.items[0].quote,'It may happen.');
+});
