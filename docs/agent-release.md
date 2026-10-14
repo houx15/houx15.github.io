@@ -1,6 +1,6 @@
 # Companion release procedure
 
-This is a preparation and verification procedure, not authorization to deploy. Production publication requires the pending version-specific owner approval. Keep development on the draft PR until that approval arrives.
+The owner authorized direct publication of website and companion changes on 2026-10-14. After preparing and validating the exact tracked revision, merge or fast-forward main and publish directly; a pull request and repeated version-specific approval are not required. This standing authorization does not cover unrelated content drafts, credentials, access-control changes, or increases to the configured budget. Keep the checks, immutable packaging, rollback readiness and live verification below.
 
 ## Observed baseline — 2026-10-14
 
