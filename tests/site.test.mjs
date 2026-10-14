@@ -51,10 +51,9 @@ test('assistant updates invalidate the entry script and all imported modules', a
     const entry = $('script[type="module"]').attr('src');
     assert.match(entry, /^\/assets\/portfolio\.js\?v=[a-f0-9]{12}$/);
     const version = entry.split('?v=')[1];
-    for (const name of ['portfolio.js','assistant-client.js']) {
+    for (const name of (await fs.readdir(path.join(dir,'src/assets'))).filter(name=>name.endsWith('.js'))) {
       const output = await fs.readFile(path.join(dir,'_site/assets',name),'utf8');
       const imports = [...output.matchAll(/from ['"]\.\/([\w-]+\.js)([^'"]*)['"]/g)];
-      assert.ok(imports.length);
       for (const [,dependency,query] of imports) {
         assert.equal(query,`?v=${version}`);
         await fs.access(path.join(dir,'_site/assets',dependency));
@@ -63,7 +62,7 @@ test('assistant updates invalidate the entry script and all imported modules', a
     return version;
   }
   const before = await versionAfterBuild();
-  await fs.appendFile(path.join(dir,'src/assets/knowledge.js'),'\n// Updated public corpus.\n');
+  await fs.appendFile(path.join(dir,'src/assets/biography-chapter.js'),'\n// Updated chapter behavior.\n');
   assert.notEqual(await versionAfterBuild(),before);
 });
 

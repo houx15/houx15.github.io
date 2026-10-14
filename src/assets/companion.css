@@ -29,13 +29,13 @@
 .chat-page>.site-header,.chat-page>.site-footer {display:none;}
 .chat-page main {width:100%;padding:0;height:100dvh;min-height:0;flex:none;}
 .comic-page {height:100%;position:relative;}
-.comic-back {position:absolute;left:32px;top:24px;color:#777;font-size:12px;z-index:2;text-decoration:none;}
+.comic-back {position:absolute;left:32px;top:12px;min-height:44px;display:inline-flex;align-items:center;color:#777;font-size:12px;z-index:2;text-decoration:none;}
 .comic-room {height:100%;max-width:740px;margin:auto;padding:65px 28px 20px;display:flex;flex-direction:column;position:relative;background:#fff;}
 .comic-room button,.comic-room textarea {font:inherit;color:inherit;}
 .comic-room button {cursor:pointer;}
 .comic-room button:disabled {cursor:wait;opacity:.5;}
 .comic-room:not(.has-conversation) .comic-reset {display:none;}
-.comic-reset {position:absolute;right:28px;top:24px;background:none;border:0;padding:0;color:#888!important;font-size:11px!important;}
+.comic-reset {position:absolute;right:28px;top:12px;min-height:44px;display:inline-flex;align-items:center;background:none;border:0;padding:0;color:#888!important;font-size:11px!important;}
 .comic-welcome {text-align:center;margin:auto 0 0;padding:0 0 18px;flex-shrink:0;}
 .comic-character {width:136px;height:120px;margin:0 auto 20px;}
 .comic-mascot {height:100%;width:100%;}
@@ -82,7 +82,7 @@
 .comic-evidence a {display:flex;align-items:center;min-height:44px;padding:10px 0;box-sizing:border-box;font-size:14px;line-height:1.7;}
 .comic-progress {font-size:11px;color:#777;margin:12px 0 20px;}
 .comic-progress.is-active::before {content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:8px;}
-.comic-work-record summary,.comic-more-reading summary {cursor:pointer;font-size:11px;color:#777;}
+.comic-work-record summary,.comic-more-reading summary {cursor:pointer;font-size:13px;line-height:20px;min-height:44px;padding:12px 0;box-sizing:border-box;color:#666;}
 .comic-work-record ol {padding-left:17px;line-height:1.9;margin-top:8px;}
 .comic-reading-card h3 {font:23px/1.5 var(--font-sans);margin:12px 0;}
 .comic-visual-label {font:22px/1.5 var(--font-sans);margin:20px 0;}
@@ -176,3 +176,12 @@
 
 .comic-biography-chapter .comic-chapter-position {font:11px/1.6 ui-monospace,monospace;color:#666;margin:0;}
 .comic-biography-chapter .comic-follow {min-height:44px;margin-top:10px;font-size:14px!important;}
+
+.comic-reset-confirm {width:min(360px,calc(100vw - 40px));padding:26px;border:1.5px solid #333;border-radius:14px 11px 16px 12px;background:#fff;color:#191919;}
+.comic-reset-confirm::backdrop {background:rgb(0 0 0 / .12);}
+.comic-reset-confirm h2 {font:22px/1.4 var(--font-sans);margin:0 0 12px;}
+.comic-reset-confirm p {font:14px/1.8 var(--font-sans);margin:0 0 20px;}
+.comic-reset-actions {display:flex;flex-wrap:wrap;gap:10px;}
+.comic-reset-actions button {flex:1;min-height:44px;border:1px solid #333;border-radius:9px 7px 10px 8px;padding:9px 12px;background:#fff;color:#191919;font:14px/1.5 var(--font-sans);cursor:pointer;}
+.comic-reset-actions .comic-reset-clear {border-color:transparent;color:#666;}
+.comic-reset-actions button:focus-visible {outline:2px dashed #333;outline-offset:3px;}
