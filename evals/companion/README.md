@@ -162,3 +162,12 @@ Decision: do not remove discovery excerpts globally on this evidence. It fixes t
 Human acceptance criteria: quote the stored second-step description verbatim, actually read its source in this turn, distinguish interpretation from quotation, preserve the source's uncertainty, do not draw a replacement diagram, and do not expose internal IDs/metadata in prose. Automated checks of string presence are necessary but not sufficient for semantic correctness.
 
 A private run of 1f4fea1 completed in one model call with 39 answer deltas, no recovered model failures, and one final source citation to MASS section 8.1. The exact description was retained, the explanation kept “可能”, and no quoteId or memory fields appeared. Concatenated deltas equal the completed answer text. This passes this specific replay; it does not prove all recall/citation behavior, resolve the existing diagram certainty failure, or establish production stability. Logs: /tmp/citation-validation.sse and /tmp/citation-validation-errors.log. No application code changed in this validation run.
+
+
+### Timeline presentation receipt (2026-10-13; rejected)
+
+The candidate kept the full source-bound timeline event for the renderer, but returned a compact presentation receipt to the model after show_profile_timeline: selected event IDs, an explicit statement that dates/descriptions/source links were already visible, and a request for one short connective sentence rather than chronology. Source reads, public rendering and existing six-call/45-second limits were unchanged.
+
+The same real biography question (“用时间线简短介绍煜欣，突出求学和创业经历。”) completed in three calls and displayed four events, with no diagnostic failure. The final prose still enumerated schools/roles, described founding the company as occurring during undergraduate study without an explicit sourced degree interval, and added an evaluative “独特路径”. This does not fix the duplication/qualification problem and offers no demonstrated call-count gain over the prior browser run. The receipt is not adopted. The next approach should treat concise diagram captions as their own output contract rather than repeatedly appending general anti-repetition reminders.
+
+Local evidence: /tmp/timeline-receipt.log and /tmp/timeline-receipt-errors.log; isolated candidate: /tmp/portfolio-timeline-receipt-local/server/content-agent.mjs. Remote temporary files were removed. The application candidate remains 1d2e794; this entry only records a rejected experiment.
