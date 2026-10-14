@@ -186,6 +186,6 @@
 .comic-reset-actions .comic-reset-clear {border-color:transparent;color:#666;}
 .comic-reset-actions button:focus-visible {outline:2px dashed #333;outline-offset:3px;}
 
-/* Only appears when the reader leaves the latest output; no layout shift. */
-.comic-composer .comic-jump {position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:auto;height:44px;white-space:nowrap;padding:0 15px;border:1px solid #555;border-radius:17px 15px 18px 16px;background:#fff;font-size:12px;box-shadow:0 2px 8px #0000000a;z-index:1;}
-.comic-composer .comic-jump[hidden] {display:none;}
+/* Give the shortcut its own space so it never covers the text being read. */
+.comic-room .comic-jump {align-self:center;flex-shrink:0;height:44px;margin:0 0 12px;white-space:nowrap;padding:0 15px;border:1px solid #555;border-radius:17px 15px 18px 16px;background:#fff;font-size:12px;}
+.comic-room .comic-jump[hidden] {display:none;}

@@ -36,7 +36,7 @@ export function initCompanion(document) {
   followConversationResize(log);
   const form = root.querySelector('form'), input = form.querySelector('textarea');
   const jump=document.createElement('button');jump.type='button';jump.className='comic-jump';jump.hidden=true;
-  jump.textContent=zh?'回到最新 ↓':'Back to latest ↓';form.append(jump);
+  jump.textContent=zh?'回到最新 ↓':'Back to latest ↓';log.after(jump);
   bindConversationJump(log,jump);
   const draftContext=createReadingDraftContext(),openingDraft=createOpeningDraftContext();
   const currentOpeningContext=()=>openingContextFor(history,{article:root.dataset.article==='true'});
