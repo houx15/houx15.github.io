@@ -243,3 +243,9 @@ Local evidence: /tmp/concise-answer-verified.jsonl and /tmp/concise-answer-focus
 ### Personal overview plus recommendation
 
 `overview-and-recommendation.json` exercises a compound request. Inspect both the visible blocks and the source claims: a brief current biography overview, a relevant biography visual, and a concrete project recommendation must all be present. A diagram about a summarized paper does not answer a request to introduce the owner. A note topic is not evidence of her current research agenda; project names inside diagram labels do not fulfill a recommendation. Check the selected project's actual topic and recommendation rationale, as well as source/date qualifications. Completion within the existing six model calls is necessary but does not establish factual or visual quality.
+
+### Current-section reading entry
+
+`reading-section.json` reproduces the article's “一起读这一节” request at MASS §8.1. The observed public request failed before text with diagnostic `json_parse / final_answer` on its first model call. A private repetition completed in two calls; this demonstrates intermittent output-format failure, not a deterministic context failure.
+
+Evaluate the explanation against §8.1: distinguish final success from the quality of individual actions, preserve the hypothetical trajectory as an example, and avoid attributing unsupported personal beliefs to the author. Keep the explanation concise and provide one useful next question. A generic button that only repeats the article title does not satisfy that next-question requirement, even if a better question appears in prose. The initial private repetition had this remaining button-quality issue. A successful repetition alone does not prove the format repair works; deterministic failure injection covers the bounded recovery path. Final JSON repair must not retry broken frames/tool arguments, replace already visible prose, override cancellation, or expand the six-call budget.

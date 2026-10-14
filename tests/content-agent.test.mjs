@@ -850,3 +850,25 @@ test('a terminal visual waits for an explicitly requested recommendation card',a
  assert.deepEqual(answer.blocks.map(block=>block.type),['post_cards','event_timeline']);
  assert.equal(events.filter(event=>event.type==='answer').length,1);
 });
+
+test('malformed final JSON gets one bounded correction only before text is visible',async()=>{
+ for(const mode of ['recover','repeat','partial','frame','tool','aborted']) {
+  let rounds=0;const events=[],controller=new AbortController();
+  const run=runContentAgent({question:'Explain this section',corpus,signal:controller.signal,onEvent:e=>events.push(e),complete:async({messages,onText})=>{
+   rounds++;
+   if(rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(rounds===2 || mode==='repeat') {
+    if(mode==='partial')onText('Visible prose. ',['notes/cache/en:0']);
+    if(mode==='aborted')controller.abort();
+    throw Object.assign(new Error('invalid_model_response'),{diagnosticCategory:'json_parse',diagnosticDetail:mode==='frame'?'stream_frame':mode==='tool'?'tool_arguments':'final_answer'});
+   }
+   const correction=JSON.parse(messages.at(-1).content);
+   assert.equal(correction.reason,'invalid_final_json');
+   assert.ok(correction.availableSources.some(source=>source.id==='notes/cache/en:0'));
+   return {text:'A short sourced explanation.',sourceIds:['notes/cache/en:0']};
+  }});
+  if(mode==='recover'){assert.equal((await run).text,'A short sourced explanation.');assert.equal(rounds,3);}
+  else {await assert.rejects(run,/invalid_model_response/);assert.equal(rounds,mode==='repeat'?3:2);}
+  assert.equal(events.filter(e=>e.type==='answer_delta').length,mode==='partial'?1:0);
+ }
+});
