@@ -663,3 +663,25 @@ test('an uncited identity reply is repaired once without showing or citing model
  assert.equal(round,2);assert.match(answer.text,/not Yuxin herself/);
  assert.equal(events.filter(e=>e.type==='answer_delta').length,0);
 });
+
+
+test('final-shape repair explains only fixed shape problems and preserves evidence requirements',async()=>{
+ const details=['nonobject_result','additional_fields','invalid_text_field','invalid_sources_field','changed_stream_text','PRIVATE-unknown-detail'];
+ for(const detail of details)for(const readFirst of [false,true]) {
+  let rounds=0;
+  const result=await runContentAgent({question:'Explain',corpus,complete:async({messages})=>{
+   rounds++;
+   if(readFirst&&rounds===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};
+   if(rounds===(readFirst?2:1))throw Object.assign(new Error('PRIVATE-provider-payload'),{diagnosticCategory:'final_shape',diagnosticDetail:detail});
+   if(rounds===(readFirst?3:2)) {
+    const feedback=JSON.parse(messages.at(-1).content);
+    assert.ok(!JSON.stringify(feedback).includes('PRIVATE'));
+    if(detail.startsWith('PRIVATE'))assert.equal(feedback.format,undefined);
+    else {assert.equal(feedback.format.problem,detail);assert.deepEqual(feedback.format.fields,['sourceIds','text']);assert.ok(feedback.format.guidance.length>20);}
+    if(!readFirst){assert.equal(feedback.reason,'no_source_read_yet');return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}}]};}
+   }
+   return {text:'Attention stores keys and values.',sourceIds:['notes/cache/en:0']};
+  }});
+  assert.equal(result.text,'Attention stores keys and values.');assert.equal(rounds,3);
+ }
+});
