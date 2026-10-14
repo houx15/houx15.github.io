@@ -130,3 +130,22 @@ test('legacy diagrams remain readable and malformed visual references are not re
  assert.throws(()=>validateAgentBlock({...legacy,visualId:'arbitrary-reference'}),/invalid_response/);
  assert.equal(JSON.parse(rememberAgentAnswer({text:'Malformed',blocks:[{...legacy,visualId:'arbitrary-reference'}]})).visuals[0].visualId,undefined);
 });
+
+test('button-only follow-ups remain conversational context without becoming evidence',async()=>{
+ const {modelHistory}=await import('../server/agent-model-history.mjs');
+ const content=rememberAgentAnswer({text:'Success can include mistakes.',sources:[{id:'doc:1'}],blocks:[{type:'questions',items:[{documentId:'notes/a',query:'How could we evaluate each step?'}]},{type:'questions',items:[{documentId:'notes/b',query:'This second button is not displayed.'}]}]});
+ const saved=JSON.parse(content);
+ assert.deepEqual(saved.followUp,{question:'How could we evaluate each step?',documentId:'notes/a'});
+ const messages=modelHistory([{role:'assistant',content}]);
+ const context=JSON.parse(messages[0].content);
+ assert.deepEqual(context.followUp,saved.followUp);assert.match(context.guidance,/not verified facts/);
+ assert.equal(JSON.parse(messages[1].content).text,'Success can include mistakes.');
+ const {runContentAgent}=await import('../server/content-agent.mjs');
+ await assert.rejects(runContentAgent({question:'Why that question?',history:[{role:'assistant',content}],corpus:{schemaVersion:1,revision:'empty',documents:[]},complete:async()=>({text:'Invented justification.',sourceIds:['doc:1']})}),/evidence/);
+});
+
+test('follow-up memory stays within the existing history bound with escaped text',()=>{
+ const content=rememberAgentAnswer({text:'"'.repeat(10000),sources:[{id:'s'.repeat(400)}],blocks:[{type:'questions',items:[{documentId:'"'.repeat(400),query:'"'.repeat(400)}]},flow]});
+ assert.ok(content.length<=4000);const saved=JSON.parse(content);
+ assert.ok(saved.followUp || saved.omittedFollowUp);assert.equal(saved.textTruncated,true);
+});
