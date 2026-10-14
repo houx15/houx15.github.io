@@ -150,3 +150,28 @@ test('authored social replies survive the public HTTP stream and actual browser 
  assert.deepEqual(events.find(e=>e.type==='answer').sourceIds,[]);
  assert.equal(events.at(-1).type,'done');
 });
+
+test('terminal timeline captions stream through HTTP and remain available to a later session client',async t=>{
+ const origin='https://houx15.github.io',store=new MemoryAgentStore();let calls=0;
+ const guard=createGuard({store,secret:'a'.repeat(40),dailyTokens:1000000,enabled:()=>true});
+ const complete=async({messages})=>{
+  calls++;
+  if(calls===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',language:'en'}}]};
+  if(calls===2)return {toolCalls:[{id:'draw',name:'show_profile_timeline',arguments:{eventIds:['startup'],caption:'Her startup experience.',language:'en'}}]};
+  const prior=messages.filter(message=>message.role==='assistant' && message.content).map(message=>JSON.parse(message.content));
+  assert.ok(prior.some(answer=>answer.text==='Her startup experience.' && answer.sourceIds.includes('event:startup')));
+  assert.ok(messages.some(message=>message.role==='tool' && JSON.parse(message.content).source?.id==='event:startup'));
+  return {text:'2022',sourceIds:['event:startup']};
+ };
+ const server=createAgentServer({origin,corpus:{schemaVersion:1,revision:'fixture',documents:[]},guard,complete,verifyChallenge:async()=>{},enabled:()=>true,production:false});
+ server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>{server.closeAllConnections();server.close();});
+ const saved=new Map(),sessionStore={getItem:key=>saved.get(key),setItem:(key,value)=>saved.set(key,value),removeItem:key=>saved.delete(key)};
+ const client=()=>createAgentClient(`http://localhost:${server.address().port}`,(url,options)=>fetch(url.replace('localhost','127.0.0.1'),{...options,headers:{...options.headers,Origin:origin}}),{sessionStore});
+ const first=client();await first.openSession('fixture');const events=[];
+ await first.ask({question:'Show her startup timeline',language:'en'},{onEvent:event=>events.push(event)});
+ assert.equal(calls,2);assert.equal(events.at(-1).type,'done');
+ assert.equal(events.find(event=>event.type==='answer').text,'Her startup experience.');
+ assert.ok(events.findIndex(event=>event.type==='block')<events.findIndex(event=>event.type==='answer_delta'));
+ const later=[];await client().ask({question:'When did she leave? Only the year.',language:'en'},{onEvent:event=>later.push(event)});
+ assert.equal(calls,3);assert.equal(later.find(event=>event.type==='answer').text,'2022');assert.equal(later.at(-1).type,'done');
+});

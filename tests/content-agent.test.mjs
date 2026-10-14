@@ -685,3 +685,47 @@ test('final-shape repair explains only fixed shape problems and preserves eviden
   assert.equal(result.text,'Attention stores keys and values.');assert.equal(rounds,3);
  }
 });
+
+test('a sourced timeline caption completes once without an extra model answer',async()=>{
+ let rounds=0;const events=[];
+ const answer=await runContentAgent({question:'A brief timeline',corpus,onEvent:event=>events.push(event),complete:async()=>{
+  if(++rounds===1)return {toolCalls:[{id:'read',name:'query_profile_events',arguments:{language:'en'}}]};
+  if(rounds===2)return {toolCalls:[{id:'show',name:'show_profile_timeline',arguments:{eventIds:['startup','pku'],caption:'Study and professional work overlap.',language:'en'}}]};
+  assert.fail('A terminal caption must not request another model completion');
+ }});
+ assert.equal(rounds,2);assert.equal(answer.text,'Study and professional work overlap.');
+ assert.deepEqual(answer.sources.map(source=>source.id),['event:startup','event:pku']);
+ assert.equal(answer.blocks.length,1);assert.equal(answer.blocks[0].items.length,2);
+ assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['block','answer_delta','answer']);
+ assert.equal(events.find(event=>event.type==='answer_delta').text,answer.text);
+});
+
+test('invalid terminal captions are corrected before a timeline or text reaches the visitor',async()=>{
+ for(const kind of ['empty','oversized','identity','batch']) {
+  let rounds=0;const events=[];
+  const answer=await runContentAgent({question:'Show her timeline',corpus,onEvent:event=>events.push(event),complete:async()=>{
+   rounds++;
+   if(rounds===1)return {toolCalls:[{id:'read',name:'query_profile_events',arguments:{language:'en'}}]};
+   if(rounds===2) {
+    const caption=kind==='empty'?' ':kind==='oversized'?'x'.repeat(161):kind==='identity'?'She was a Visiting Scholar at Princeton.':'A short introduction.';
+    return {toolCalls:[{id:'bad',name:'show_profile_timeline',arguments:{eventIds:['princeton'],caption}},...(kind==='batch'?[{id:'extra',name:'read_profile',arguments:{eventId:'princeton'}}]:[])]};
+   }
+   assert.equal(events.filter(event=>['block','answer_delta','answer'].includes(event.type)).length,0);
+   return {toolCalls:[{id:'fixed',name:'show_profile_timeline',arguments:{eventIds:['princeton'],caption:'She is a Visiting Student Research Collaborator (VSRC).',language:'en'}}]};
+  }});
+  assert.equal(rounds,3);assert.equal(answer.blocks.length,1);
+  assert.equal(answer.text,'She is a Visiting Student Research Collaborator (VSRC).');
+ }
+});
+
+test('a terminal timeline caption cannot skip reading its selected events',async()=>{
+ let rounds=0;const events=[];
+ const show={id:'show',name:'show_profile_timeline',arguments:{eventIds:['startup'],caption:'Her startup experience.',language:'en'}};
+ await runContentAgent({question:'Show startup timeline',corpus,onEvent:event=>events.push(event),complete:async()=>{
+  rounds++;
+  if(rounds===1)return {toolCalls:[show]};
+  if(rounds===2){assert.equal(events.filter(event=>event.type==='block').length,0);return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',language:'en'}}]};}
+  return {toolCalls:[{...show,id:'fixed'}]};
+ }});
+ assert.equal(rounds,3);assert.equal(events.filter(event=>event.type==='block').length,1);
+});

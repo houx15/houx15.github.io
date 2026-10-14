@@ -13,7 +13,7 @@ export const contentToolDefinitions = [
   ['recall_conversation', 'Retrieve one earlier successful exchange by turn number from the earlier-conversation index. Its answer and diagram references are conversational context only; read their public sources again before making factual claims.', {turn:{type:'integer'}}, ['turn']],
   ['read_profile', 'Read owner-approved biography facts. Use eventId to read one exact chronology entry without displaying a timeline; otherwise use id. Current statements have an asOf date.', {eventId:{enum:profileEventIds},id:{enum:['profile','startup','nonprofits','unicef','consulting','interests','contact','research','projects']},language:{enum:['en','zh-CN']}}, []],
   ['query_profile_events', 'Read approved biography chronology without displaying anything. Use this to look up or compare dates. Preserves overlapping and uncertain ranges.', {language:{enum:['en','zh-CN']}}, []],
-  ['show_profile_timeline', 'Display selected biography events after reading them in this turn. Use when the visitor asks for a timeline or when chronology materially helps an overview. Do not use for a short date answer. Choose only relevant eventIds; original order, names and date qualifications are preserved.', {eventIds:{type:'array',items:{type:'string',enum:profileEventIds},maxItems:8},language:{enum:['en','zh-CN']}}, ['eventIds']],
+  ['show_profile_timeline', 'Display selected biography events after reading them in this turn. Use when the visitor asks for a timeline or when chronology materially helps an overview. Do not use for a short date answer. Choose only relevant eventIds; original order, names and date qualifications are preserved. For a brief timeline introduction, provide caption to display one short connecting sentence and finish the turn immediately, without a second prose answer. With caption, call this tool ALONE after reading evidence. The caption must be at most 160 characters; avoid repeating dates and institutions already visible in the timeline or inventing an interpretation. If the visitor asks a specific additional detail, answer it in the caption when brief; otherwise omit caption and continue normally.', {eventIds:{type:'array',items:{type:'string',enum:profileEventIds},maxItems:8},language:{enum:['en','zh-CN']},caption:{type:'string',maxLength:160}}, ['eventIds']],
   ['search_content', 'Search published documents; query is required. For a specific article or follow-up, pass documentId to search its individual sections (multiple passages may be returned). Search excerpts are navigation aids: read the exact returned sectionId before citing a claim.', { query: {type:'string',maxLength:400}, documentId:{type:'string'}, type:{enum:['notes','reports','projects']}, from:{type:'string'}, to:{type:'string'}, language:{enum:['en','zh-CN']}, offset:{type:'integer'}, limit:{type:'integer'} }, ['query']],
   ['read_content', 'Read source text before making claims. When search_content returns a relevant sectionId, read that section directly, including on the first read. Only use exact sectionIds returned by a tool; never guess them. Omit sectionId only to discover sections or read the article opening, which returns the first three sections rather than the entire article. Continue with nextOffset when needed. Article sections are returned as ordered original-text fragments; fragments of up to 400 characters have quoteIds for exact reuse in diagrams.', {id:{type:'string'},sectionId:{type:'string'},offset:{type:'integer'}}, ['id']],
   ['find_related_posts', 'Find related reading; pass id or query.', {id:{type:'string'},query:{type:'string'},language:{enum:['en','zh-CN']}}, []],
@@ -170,6 +170,16 @@ export async function runContentAgent({ question, language = 'en', history = [],
           if (schema.type === 'integer' && (!Number.isInteger(value) || value < 0)) throw new Error('Invalid tool argument');
           if (schema.type === 'array' && (!Array.isArray(value) || value.length > schema.maxItems || value.some(item => typeof item !== 'string' || item.length > (schema.items?.maxLength || 400)))) throw new Error('Invalid tool argument');
         }
+        if(call.name==='show_profile_timeline' && call.arguments.caption!==undefined) {
+          if(!call.arguments.caption.trim() || result.toolCalls.length!==1) {
+            messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'invalid_timeline_caption',guidance:'A timeline with caption ends the turn. Supply a nonempty caption and call show_profile_timeline ALONE, after its source events have already been read. Omit caption to continue using other tools.'})});
+            continue;
+          }
+          try {checkBiographySentence(call.arguments.caption);}catch(error) {
+            if(error.message!=='Invalid biography identity')throw error;
+            messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'invalid_biography_caption',guidance:biographyRepairGuidance})});continue;
+          }
+        }
         } catch(error) {
           if(!['Invalid tool argument','Missing tool argument'].includes(error.message))throw error;
           messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify({error:'invalid_tool_arguments',guidance:'This call was rejected before execution and supplies no evidence. Correct the arguments using the tool schema. Keep strings and arrays within the stated limits; strings default to at most 400 characters and array string items to at most 400 characters. Do not repeat the unchanged call.',schema:definition.parameters})});
@@ -241,6 +251,11 @@ export async function runContentAgent({ question, language = 'en', history = [],
         if (call.name === 'query_profile_events') for (const item of output.items) evidence.set(item.source.id,item.source);
         if (['show_post_cards','show_visualization','show_reading_map','show_concept_flow','suggest_questions','show_profile_timeline'].includes(call.name)) {
           const block = { ...output, id: `block-${blocks.length}` }; blocks.push(block); onEvent({type:'block',block});
+        }
+        if(call.name==='show_profile_timeline' && call.arguments.caption!==undefined) {
+          const text=call.arguments.caption.trim(),sources=output.items.map(item=>item.source);
+          const answer={type:'answer',text,sources,blocks,revision:`${corpus.revision}:${profileRevision}`};
+          onEvent({type:'answer_delta',text,sources});onEvent(answer);return answer;
         }
         messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify(call.name==='read_content'?quoteFragments.present(output):output)});
       }
