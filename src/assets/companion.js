@@ -1,3 +1,4 @@
+import {typeGreeting} from './companion-typewriter.js';
 import {createBiographyChapter} from './biography-chapter.js';
 import {confirmConversationReset} from './companion-reset.js';
 import {createDiceCard} from './dice-card.js';
@@ -24,12 +25,7 @@ export function initCompanion(document) {
     portal.querySelector('[data-typewriter]').textContent = greeting;
     portal.querySelector('.sr-only').textContent = greeting;
   }
-  for (const line of document.querySelectorAll('[data-typewriter]')) {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) continue;
-    const text = line.textContent; line.textContent=''; let count=0;
-    const type = () => { if (!line.isConnected) return;line.textContent=text.slice(0,++count);if(count<text.length)setTimeout(type,95); };
-    setTimeout(type,450);
-  }
+  for (const line of document.querySelectorAll('[data-typewriter]')) typeGreeting(line);
   const root = document.querySelector('[data-companion]'); if (!root) return;
   const zh = document.documentElement.lang === 'zh-CN', language = zh ? 'zh-CN' : 'en';
   const log = root.querySelector('[data-companion-log]'), status = root.querySelector('[data-companion-status]');
