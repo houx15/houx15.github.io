@@ -100,6 +100,7 @@ export function initCompanion(document) {
     for(const source of items.slice(0,5)) if(safeSource(source.url)) {const link = add(details,'a',source.label);link.href = source.url;}
   }
   function render(item, remember = true) {
+    const focusChapter=remember && item.kind==='story' && root.contains(document.activeElement) && document.activeElement.tagName==='BUTTON';
     if(item.kind==='story' && !milestones.some(event=>event.id===item.eventId))item.eventId=milestones[0].id;
     if (remember) { history.push(item);history = history.slice(-10);save(); }
     root.classList.add('has-conversation');
@@ -137,6 +138,7 @@ export function initCompanion(document) {
     while(log.children.length > 10) log.firstElementChild.remove();
     if(remember && item.kind==='dice')row.querySelector('.comic-dice-card').scrollIntoView({block:'start',behavior:'instant'});
     else if(remember) row.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    if(focusChapter && (!dialog || dialog.open))row.querySelector('.comic-biography-chapter h2').focus({preventScroll:true});
     return row;
   }
   async function roll() {
@@ -228,7 +230,11 @@ export function initCompanion(document) {
   });
   stopButton.addEventListener('click',()=>activeController?.abort());
   window.addEventListener('pagehide',()=>activeController?.abort());
-  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();});
+  root.querySelector('[data-companion-reset]').addEventListener('click',()=>{liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
+    // The reset button just disappeared. Keep keyboard navigation in this conversation.
+    if(input.value.trim())input.focus({preventScroll:true});
+    else {hello.setAttribute('tabindex','-1');hello.focus({preventScroll:true});}
+  });
   try {
     const stored=JSON.parse(sessionStorage.getItem(storageKey)||'[]');
     if(Array.isArray(stored)) for(const item of stored.slice(-10)) {
