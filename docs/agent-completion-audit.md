@@ -812,3 +812,11 @@ With bounded original-section search enabled, a fresh private browser request pr
 A direct follow-up completed in one call with 21 deltas and no new visual, correctly recalling the second-step wording and correcting it to “可能同时强化”. The old diagram remains unchanged; this is prose correction only, leaving a coherence gap when revisiting the visual. This is an actual model/renderer/memory success for the specific follow-up, not proof that diagrams are always accurate or revised in place.
 
 Screenshots and numbered findings: .verification/concept-journey/report.md. Context replay: evals/companion/context/concept-modal-correction.json. Logs: /tmp/concept-browser-{1,2}.{sse,log}. Application code unchanged; no test suite rerun for the retained fixture/documentation. The private preview, tab and isolated stage were removed. Production unchanged.
+
+## Stable diagram references for future correction (2026-10-13)
+
+Generated concept flows now receive a server-generated concept UUID in visualId, separate from the request-prefixed SSE block ID. The bounded assistant memory retains that reference when present; stream validation accepts only the expected format and only on concept flows. Legacy diagrams without a stable reference continue to render and remain in memory without an invented identity. The model cannot provide this property through show_concept_flow arguments.
+
+A regression test generates two same-titled diagrams, passes them through real development SSE serialization/parsing and saved-turn validation, and checks their distinct identities survive into server/model history even though the transport block ID changes. Another test verifies legacy compatibility and malformed-reference rejection. Full 254 tests, build and site checks passed.
+
+This is foundational identity work, not an implemented visual edit action. The prior inconsistency (textual correction leaving an old visual unchanged) remains open. No diagram layout or public deployment was changed, and no new paid model test was needed for the deterministic identity path.

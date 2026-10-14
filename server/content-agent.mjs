@@ -1,4 +1,5 @@
 import {modelHistory} from './agent-model-history.mjs';
+import {randomUUID} from 'node:crypto';
 import {requestsYearOnly,presentationTools} from './agent-response-preferences.mjs';
 import {createQuoteFragments} from './agent-quote-fragments.mjs';
 import {conversationReasons,conversationReply} from './agent-conversation-reply.mjs';
@@ -264,7 +265,7 @@ export async function runContentAgent({ question, language = 'en', history = [],
         if (call.name === 'read_profile') evidence.set(output.source.id, output.source);
         if (call.name === 'query_profile_events') for (const item of output.items) evidence.set(item.source.id,item.source);
         if (['show_post_cards','show_visualization','show_reading_map','show_concept_flow','suggest_questions','show_profile_timeline'].includes(call.name)) {
-          const block = { ...output, id: `block-${blocks.length}` }; blocks.push(block); onEvent({type:'block',block});
+          const block = { ...output, id: `block-${blocks.length}`,...(output.type==='concept_flow'?{visualId:`concept-${randomUUID()}`}:{}) }; blocks.push(block); onEvent({type:'block',block});
         }
         if(call.name==='show_profile_timeline' && call.arguments.caption!==undefined) {
           const text=call.arguments.caption.trim(),sources=output.items.map(item=>item.source);

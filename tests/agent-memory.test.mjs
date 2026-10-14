@@ -94,3 +94,39 @@ test('model history preserves legacy prose and unrecognized records as untrusted
   const history=[{role:'assistant',content}];assert.deepEqual(modelHistory(history),history);
  }
 });
+
+test('same-titled generated diagrams retain distinct stable identities through stream and saved history',async()=>{
+ const {runContentAgent}=await import('../server/content-agent.mjs');
+ const {createDevelopmentStream}=await import('../server/development-stream.mjs');
+ const {consumeAgentStream}=await import('../src/assets/agent-stream.js');
+ const {validateSavedTurn}=await import('../src/assets/agent-history.js');
+ const {modelHistory}=await import('../server/agent-model-history.mjs');
+ const ids=[];
+ for(let iteration=0;iteration<2;iteration++) {
+  let round=0,wire='';const stream=createDevelopmentStream(text=>{wire+=text;});
+  const answer=await runContentAgent({question:'Draw a profile diagram',corpus:{schemaVersion:1,revision:'test',documents:[]},onEvent:e=>stream.event(e),complete:async()=>{
+   if(++round===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup'}}]};
+   if(round===2)return {toolCalls:[{id:'draw',name:'show_concept_flow',arguments:{title:'Same title',labels:['One','Two'],descriptions:['First explanation.','Second explanation.'],sourceIds:['event:startup']}}]};
+   return {text:'A diagram.',sourceIds:['event:startup']};
+  }});
+  stream.complete(answer);
+  const events=[];await consumeAgentStream(new Response(wire).body,e=>{if(['source','block','answer','done'].includes(e.type))events.push(e);});
+  const saved=validateSavedTurn({kind:'agent',question:'Draw a profile diagram',events});assert.ok(saved);
+  const block=saved.events.find(e=>e.type==='block').block;
+  const memory=rememberAgentAnswer(answer),visual=JSON.parse(memory).visuals[0];
+  assert.match(visual.visualId,/^concept-/);assert.equal(block.visualId,visual.visualId);
+  assert.notEqual(block.id,answer.blocks[0].id); // SSE namespace changes, stable identity does not.
+  assert.equal(JSON.parse(modelHistory([{role:'assistant',content:memory}])[0].content).visuals[0].visualId,visual.visualId);
+  ids.push(visual.visualId);
+ }
+ assert.notEqual(ids[0],ids[1]);
+});
+
+test('legacy diagrams remain readable and malformed visual references are not retained',async()=>{
+ const {validateAgentBlock}=await import('../src/assets/agent-stream.js');
+ const legacy={...flow,id:'old-block',interpretation:true,items:flow.items.map(item=>({...item,source:{...item.source,label:'Source'}}))};
+ assert.equal(validateAgentBlock(legacy),legacy);
+ assert.equal(JSON.parse(rememberAgentAnswer({text:'Legacy',blocks:[legacy]})).visuals[0].visualId,undefined);
+ assert.throws(()=>validateAgentBlock({...legacy,visualId:'arbitrary-reference'}),/invalid_response/);
+ assert.equal(JSON.parse(rememberAgentAnswer({text:'Malformed',blocks:[{...legacy,visualId:'arbitrary-reference'}]})).visuals[0].visualId,undefined);
+});
