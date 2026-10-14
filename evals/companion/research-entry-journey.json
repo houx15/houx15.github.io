@@ -1,0 +1,5 @@
+[
+  {"question":"她现在在研究什么？","language":"zh-CN","openingContext":{"storyId":"event:princeton"}},
+  {"question":"想先看一项具体的研究，给我一张能打开的卡片，用一句话解释为什么从这里开始。","language":"zh-CN"},
+  {"question":"这篇里我应该先看哪一节？给我能点开的入口，不推荐其他文章。","language":"zh-CN"}
+]
