@@ -7,7 +7,7 @@ export function agentFailureMessage(code, language = 'en', {partial = false, res
   if(code === 'rate_limited') message=zh?'请求较频繁，或本次会话已达到聊天上限。请稍后再试；文章仍可直接阅读。':'Requests are too frequent, or this session has reached its chat limit. Try later; the articles remain available.';
   else if(['daily_budget_exhausted','monthly_budget_exhausted'].includes(code)) {
     const daily=code==='daily_budget_exhausted';
-    message=zh?(daily?'今日的 AI 额度暂时不足。':'本月的 AI 预算暂时不足。'):(daily?'Today’s AI allowance is temporarily insufficient.':'This month’s AI budget is temporarily insufficient.');
+    message=zh?(daily?'本站今日的访客聊天额度暂时不足。':'本月的 AI 预算暂时不足。'):(daily?'The site’s shared visitor chat allowance is temporarily insufficient today.':'This month’s AI budget is temporarily insufficient.');
     if(Number.isSafeInteger(resetsAt) && resetsAt>=0 && resetsAt<=8640000000000000) {
       const time=new Intl.DateTimeFormat(zh?'zh-CN':'en',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}).format(new Date(resetsAt));
       message+=zh?` 下次重置：${time}。`:` Next reset: ${time}.`;
