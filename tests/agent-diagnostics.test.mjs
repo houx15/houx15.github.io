@@ -129,3 +129,26 @@ test('native Qwen tools keep provider roles while constraining final prose to JS
   else {assert.equal(result.text,text);assert.equal(streamed,text);}
  }
 });
+
+
+test('provider final-shape details survive diagnostics without payloads and keep the repair category',async()=>{
+ const {createModelAgent}=await import('../server/agent-provider.mjs');
+ const secret='PRIVATE-payload-and-field';
+ const cases=[
+  [[secret],'nonobject_result'],
+  [{text:secret,sourceIds:[],[secret]:secret},'additional_fields'],
+  [{text:{private:secret},sourceIds:[]},'invalid_text_field'],
+  [{text:secret,sourceIds:secret},'invalid_sources_field']
+ ].map(([value,detail])=>[JSON.stringify(value),detail]);
+ cases.push(['{"sourceIds":[],"text":"original","text":"changed"}','changed_stream_text']);
+ for(const [content,detail] of cases) {
+  const body='data: '+JSON.stringify({choices:[{index:0,delta:{content},finish_reason:'stop'}]})+'\n\ndata: [DONE]\n\n';
+  const complete=createModelAgent({apiKey:'not-a-real-key',model:'qwen3.8-max-0902',provider:'bailian',baseURL:'https://dashscope.aliyuncs.com/compatible-mode/v1',fetchImpl:async()=>new Response(body,{headers:{'Content-Type':'text/event-stream'}})});
+  await assert.rejects(complete({messages:[{role:'system',content:'test'}],tools:[],signal:new AbortController().signal,language:'en'}),error=>{
+   const record=agentFailureRecord({error});
+   assert.equal(record.category,'final_shape');assert.equal(record.detail,detail);assert.ok(!JSON.stringify(record).includes(secret));return true;
+  });
+ }
+ assert.equal(agentFailureRecord({error:{diagnosticCategory:'final_shape',diagnosticDetail:secret}}).detail,undefined);
+ assert.equal(agentFailureRecord({error:{diagnosticCategory:'timeout',diagnosticDetail:'additional_fields'}}).detail,undefined);
+});

@@ -1,7 +1,7 @@
 import { MODEL_OUTPUT_TOKENS, MODEL_CALL_TIMEOUT_MS } from './agent-limits.mjs';
 import { AgentError } from './agent-state.mjs';
 import { readProviderStream } from './agent-provider-stream.mjs';
-import { providerFailureCategory } from './agent-diagnostics.mjs';
+import { providerFailureCategory,providerFailureDetail } from './agent-diagnostics.mjs';
 import { modelEndpoint } from './agent-endpoint.mjs';
 async function limitedJSON(response,max=100000) {
   if(!response.ok) {await response.body?.cancel();throw new AgentError(502,'provider_unavailable');}
@@ -43,7 +43,7 @@ export function createModelAgent({apiKey,model,provider='deepseek',baseURL,fetch
       const response=await fetchImpl(endpoint,{method:'POST',redirect:'error',signal:AbortSignal.any([signal,AbortSignal.timeout(MODEL_CALL_TIMEOUT_MS)]),headers:{'Content-Type':'application/json',Authorization:`Bearer ${apiKey}`},body:JSON.stringify(body)});
       if(!response.ok){await response.body?.cancel();throw new AgentError(502,'provider_unavailable');}
       return await readProviderStream(response,{signal,allowJsonTools:jsonActions && tools.length>0,requireJsonObject:jsonActions,onText:onText?((...args)=>{try {return onText(...args);}catch(error){callbackError=error;throw error;}}):undefined});
-    } catch(error) {if(callbackError && error===callbackError)throw error;if(signal.aborted) throw signal.reason;const failure=new AgentError(502,error instanceof AgentError?error.code:'invalid_model_response');if(!(error instanceof AgentError))failure.diagnosticCategory=providerFailureCategory(error);throw failure;}
+    } catch(error) {if(callbackError && error===callbackError)throw error;if(signal.aborted) throw signal.reason;const failure=new AgentError(502,error instanceof AgentError?error.code:'invalid_model_response');if(!(error instanceof AgentError)){failure.diagnosticCategory=providerFailureCategory(error);const detail=providerFailureDetail(error);if(detail)failure.diagnosticDetail=detail;}throw failure;}
   };
 }
 

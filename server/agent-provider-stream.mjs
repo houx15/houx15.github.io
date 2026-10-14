@@ -68,7 +68,12 @@ export async function readProviderStream(response,{signal,allowJsonTools=false,r
       if(sent || Object.keys(result).length!==1 || !Array.isArray(result.toolCalls) || result.toolCalls.length<1 || result.toolCalls.length>8 || result.toolCalls.some(call=>!call || typeof call!=='object' || Object.keys(call).some(key=>!['id','name','arguments'].includes(key)) || typeof call.id!=='string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(call.id) || typeof call.name!=='string' || call.name.length>100 || !call.arguments || typeof call.arguments!=='object' || Array.isArray(call.arguments)) || new Set(result.toolCalls.map(call=>call.id)).size!==result.toolCalls.length)throw new Error('Invalid tool delta');
       return {toolCalls:result.toolCalls,usage};
     }
-    if(!result || Object.keys(result).some(key=>!['text','sourceIds'].includes(key)) || typeof result.text!=='string' || !Array.isArray(result.sourceIds) || !result.text.startsWith(sent))throw new Error('Invalid final');
+    const detail=!result || typeof result!=='object' || Array.isArray(result)?'nonobject_result'
+      :Object.keys(result).some(key=>!['text','sourceIds'].includes(key))?'additional_fields'
+      :typeof result.text!=='string'?'invalid_text_field'
+      :!Array.isArray(result.sourceIds)?'invalid_sources_field'
+      :!result.text.startsWith(sent)?'changed_stream_text':undefined;
+    if(detail)throw Object.assign(new Error('Invalid final'),{diagnosticDetail:detail});
     return {...result,usage};
   } finally {await reader.cancel().catch(()=>{});reader.releaseLock();}
 }
