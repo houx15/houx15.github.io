@@ -158,6 +158,30 @@ test('concept steps resolve their sources from evidence read in this turn',async
   assert.equal(answer.blocks[0].items[0].source.url,'/notes/cache/#section-evidence');
 });
 
+test('concept quotations must match the cited read section and recover before anything is displayed',async()=>{
+ for(const badQuotes of [...['Attention always guarantees correctness.','A loosely related attention note.',''].map(text=>[text,'torch.compile is exact.']),[],['torch.compile is exact.']]) {
+  let round=0;const events=[];
+  const args={title:'Cache',labels:['Store','Reuse'],descriptions:['Keep values.','Reuse values.'],sourceIds:['notes/cache/en:0'],quotes:badQuotes};
+  const answer=await runContentAgent({question:'Explain cache',corpus,onEvent:event=>events.push(event),complete:async({messages})=>{
+   if(++round===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en'}},{id:'other',name:'read_content',arguments:{id:'notes/other/en'}}]};
+   if(round===2)return {toolCalls:[{id:'bad',name:'show_concept_flow',arguments:args}]};
+   if(round===3) {
+    assert.equal(events.filter(event=>event.type==='block').length,0);
+    assert.equal(JSON.parse(messages.at(-1).content).error,'invalid_concept_quotation');
+    return {toolCalls:[{id:'fixed',name:'show_concept_flow',arguments:{...args,quotes:['Attention stores\nkeys and values.','torch.compile is exact.']}}]};
+   }
+   return {text:'Cache stores and reuses values.',sourceIds:['notes/cache/en:0']};
+  }});
+  assert.equal(answer.blocks.length,1);assert.equal(answer.blocks[0].items[0].quote,'Attention stores keys and values.');
+ }
+});
+
+test('preloaded section text can support a quotation without an extra read',async()=>{
+ let round=0;
+ const answer=await runContentAgent({question:'Explain this passage',corpus,pageContext:{documentId:'notes/cache/en',sectionId:'notes/cache/en:0'},complete:async()=>++round===1?{toolCalls:[{id:'flow',name:'show_concept_flow',arguments:{title:'Cache',labels:['Store','Reuse'],descriptions:['Keep values.','Use values.'],sourceIds:['notes/cache/en:0'],quotes:['Attention stores keys and values.','torch.compile is exact.']}}]}:{text:'Storage and reuse.',sourceIds:['notes/cache/en:0']}});
+ assert.equal(answer.blocks[0].items[1].quote,'torch.compile is exact.');
+});
+
 test('concept flows reject unread sources and mismatched steps without emitting a diagram',async()=>{
   for(const bad of [{sourceIds:['invented','invented']},{descriptions:['Only one step']}]) {
     const events=[];

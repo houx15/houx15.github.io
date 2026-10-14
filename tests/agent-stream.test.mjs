@@ -71,6 +71,8 @@ test('expired, malformed, revoked and inaccessible stored sessions fail safely',
 test('concept flow validation rejects executable links and missing interpretation disclosure',()=>{
  const block={id:'b',type:'concept_flow',title:'Mechanism',interpretation:true,items:[{title:'A',description:'Step',source:{id:'s',label:'Source',url:'/notes/test/'}},{title:'B',description:'Step',source:{id:'s',label:'Source',url:'/notes/test/'}}]};
  assert.equal(validateAgentBlock(block),block);
+ for(const quote of ['',false,{},'x'.repeat(401)])assert.throws(()=>validateAgentBlock({...block,items:block.items.map(item=>({...item,quote}))}),/invalid_response/);
+ assert.ok(validateAgentBlock({...block,items:block.items.map(item=>({...item,quote:'Exact source words.'}))}));
  assert.throws(()=>validateAgentBlock({...block,interpretation:false}),/invalid_response/);
  block.items[1].source.url='javascript:alert(1)';
  assert.throws(()=>validateAgentBlock(block),/invalid_response/);

@@ -33,6 +33,12 @@ An expanded generation instruction with explicit Chinese and English counterexam
 
 Use both certainty files when assessing the next candidate. The second case is a control against replacing every factual statement with vague hedging. These are human-reviewed semantic checks, not regex pass/fail tests. No additional model calls, latency, budget limits or review gates were added to the live agent by these experiments.
 
+## Source excerpts and bounded-thinking probe, 2026-10-13
+
+A private pinned-Max probe enabled thinking with a 512-token thinking budget and a 2032-token total completion cap, preserving the existing 2048-token paid output reservation and allowing for the provider's documented small overrun. It completed the independent certainty question in four calls but still replaced possibility with certainty in a step and its takeaway. This probe was not activated. [The provider's API reference](https://help.aliyun.com/en/model-studio/qwen-api-via-openai-chat-completions) distinguishes max_completion_tokens (thinking plus answer) from max_tokens (answer only); do not enable thinking with an unaccounted output budget.
+
+The source-excerpt candidate instead retains non-thinking generation and supports optional per-step quotations. Quotations must match a passage actually read from that step's cited section, normalizing whitespace only. This checks quotation fidelity, not whether the chosen quote supports the interpretation. Keep evaluating those two dimensions separately, including when a quotation is correct but the label/body overstates it. The existing reading-position pair completed in two calls each, and the independent certainty-home case in five calls. All displayed quotations matched their sections, but MASS interpretations still overstated certainty and the report included an unsupported log implementation detail. These are not semantic-quality passes. Legacy diagrams without quotes remain valid. Private logs: /tmp/concept-quotes-reading.log and /tmp/concept-quotes-home.log.
+
 ## Price review, 2026-10-13
 
 Official Beijing list prices: Qwen3.7-Plus-2026-05-26 input ¥2/output ¥8 per million tokens for up to 256K input; Qwen3.8-Max-0902 input ¥12/output ¥36 per million tokens. Process test rates were respectively 8 and 36, conservatively charging all tokens at the higher price. The agent bounds serialized input to 48,000 bytes plus a bounded wire allowance and disables thinking; the tested Plus request stays below the first tier. No discount or free quota is assumed. The combined monthly cap stays ¥500.

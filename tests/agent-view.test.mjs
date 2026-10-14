@@ -76,7 +76,7 @@ test('unknown server error codes never appear in visitor-facing messages',async(
 test('concept diagrams show an interpretation label, one expanded step, and canonical source links',()=>{
   const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Explain',language:'zh-CN'});
   turn.event({type:'block',block:{id:'concept',type:'concept_flow',title:'A mechanism',interpretation:true,items:[
-    {title:'First',description:'<script>plain text</script>',source:{id:'s',label:'Evidence',url:'/notes/test/#evidence'}},
+    {title:'First',description:'<script>plain text</script>',quote:'<img src=x> stays literal in a quotation.',source:{id:'s',label:'Evidence',url:'/notes/test/#evidence'}},
     {title:'Second',description:'Next explanation',source:{id:'s',label:'Evidence',url:'/notes/test/#evidence'}}
   ]}});
   const details=log.querySelectorAll('details');
@@ -85,6 +85,8 @@ test('concept diagrams show an interpretation label, one expanded step, and cano
   assert.equal(log.querySelectorAll('a')[0].href,'/notes/test/#evidence');
   assert.ok(log.querySelectorAll('p').some(p=>p.textContent.includes('非作者原图')));
   assert.ok(log.querySelectorAll('p').some(p=>p.textContent==='<script>plain text</script>'));
+  assert.equal(log.querySelectorAll('blockquote').length,1);
+  assert.ok(log.querySelectorAll('p').some(p=>p.textContent==='<img src=x> stays literal in a quotation.'));
 });
 
 

@@ -52,6 +52,11 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
         const step=make('li'),details=make('details');details.setAttribute('name',`concept-${block.id}`);if(index===0)details.open=true;
         const summary=make('summary');summary.append(make('span',String(index+1).padStart(2,'0'),'comic-concept-number'),make('span',item.title));
         details.append(summary,make('p',item.description));
+        if(item.quote) {
+          const evidence=make('blockquote','','comic-concept-quote');
+          evidence.append(make('span',zh?'原文摘录':'SOURCE EXCERPT','comic-card-number'),make('p',item.quote));
+          details.append(evidence);
+        }
         const source=make('a',zh?'核对这一步的原文 ↗':'Check this step in the source ↗');source.href=item.source.url;details.append(source);step.append(details);list.append(step);
       }
       container.append(list);return;
