@@ -13,7 +13,7 @@ import { createAgentClient, validateAgentBlock } from './agent-stream.js';
 import { createAgentTurn, agentFailureMessage } from './agent-view.js';
 import { presentAgentEvent,followConversationResize } from './agent-scroll.js?v=3';
 import { verifyVisitor } from './visitor-check.js';
-import { validateSavedTurn } from './agent-history.js';
+import { validateSavedTurn,recordPresentationEvent } from './agent-history.js';
 
 const safeSource = url => typeof url === 'string' && !/[\\\u0000-\u001f]/.test(url) && (/^\/(?!\/)[^\s]*$/.test(url) || /^https:\/\/github\.com\/houx15(?:\/|$)/.test(url));
 export function initCompanion(document) {
@@ -232,7 +232,7 @@ export function initCompanion(document) {
       await liveClient.ask({question,language,supportsConceptFlow:true,supportsConceptRevisions:true,...(openingContext?{openingContext}:{}),...(pageContext?{pageContext}:{})},
         {signal:controller.signal,onEvent:event=>{
           presentAgentEvent(log,turn,event);
-          if(['source','block','answer','done'].includes(event.type))savedEvents.push(event);
+          recordPresentationEvent(savedEvents,event);
         }});
       const saved=validateSavedTurn({kind:'agent',question,events:savedEvents});
       if(saved){history.push(saved);history=history.slice(-10);save();}

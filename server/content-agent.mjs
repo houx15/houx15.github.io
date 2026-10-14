@@ -323,13 +323,18 @@ export async function runContentAgent({ question, language = 'en', history = [],
             continue;
           }
         }
+        const captioned=['show_profile_timeline','show_concept_flow'].includes(call.name) && call.arguments.caption!==undefined;
+        // Both the visual and its takeaway have passed validation. Introduce the
+        // answer before drawing it, so readers need not scroll to find the point.
+        // Ordinary streaming answers retain their original arrival order.
+        const caption=captioned?{text:call.arguments.caption.trim(),sources:[...new Map(output.items.map(item=>[item.source.id,item.source])).values()]}:null;
+        if(caption)onEvent({type:'answer_delta',...caption});
         if (['show_post_cards','show_visualization','show_reading_map','show_concept_flow','revise_concept_step','suggest_questions','show_profile_timeline'].includes(call.name)) {
           const block = { ...output, id: `block-${blocks.length}`,...(output.type==='concept_flow'?{visualId:`concept-${randomUUID()}`}:{}) }; blocks.push(block); onEvent({type:'block',block});
         }
-        if(['show_profile_timeline','show_concept_flow'].includes(call.name) && call.arguments.caption!==undefined) {
-          const text=call.arguments.caption.trim(),sources=[...new Map(output.items.map(item=>[item.source.id,item.source])).values()];
-          const answer={type:'answer',text,sources,blocks,revision:`${corpus.revision}:${profileRevision}`};
-          onEvent({type:'answer_delta',text,sources});onEvent(answer);return answer;
+        if(caption) {
+          const answer={type:'answer',...caption,blocks,revision:`${corpus.revision}:${profileRevision}`};
+          onEvent(answer);return answer;
         }
         messages.push({role:'tool',toolCallId:call.id,content:JSON.stringify(call.name==='read_content'?quoteFragments.present(output):output)});
       }

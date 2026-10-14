@@ -171,7 +171,9 @@ test('terminal timeline captions stream through HTTP and remain available to a l
  await first.ask({question:'Show her startup timeline',language:'en'},{onEvent:event=>events.push(event)});
  assert.equal(calls,2);assert.equal(events.at(-1).type,'done');
  assert.equal(events.find(event=>event.type==='answer').text,'Her startup experience.');
- assert.ok(events.findIndex(event=>event.type==='block')<events.findIndex(event=>event.type==='answer_delta'));
+ assert.ok(events.findIndex(event=>event.type==='source')<events.findIndex(event=>event.type==='answer_delta'));
+ assert.ok(events.findIndex(event=>event.type==='answer_delta')<events.findIndex(event=>event.type==='block'));
+ assert.equal(events.filter(event=>event.type==='answer_delta').map(event=>event.text).join(''),'Her startup experience.');
  const later=[];await client().ask({question:'When did she leave? Only the year.',language:'en'},{onEvent:event=>later.push(event)});
  assert.equal(calls,3);assert.equal(later.find(event=>event.type==='answer').text,'2022');assert.equal(later.at(-1).type,'done');
 });

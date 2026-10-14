@@ -24,3 +24,16 @@ export function validateSavedTurn(value) {
     return done?{kind:'agent',question:value.question,events}:null;
   } catch {return null;}
 }
+
+// Record prose at its first visible position, without storing every token delta.
+// Sources are nonvisual and precede all content so final citations can reference
+// evidence discovered after the first sentence. Validate before persistence.
+export function recordPresentationEvent(events,event) {
+  if(event.type==='source')events.unshift(event);
+  else if(event.type==='answer_delta') {
+    if(!events.some(item=>item.type==='answer'))events.push({type:'answer',text:'',sourceIds:[]});
+  } else if(event.type==='answer') {
+    const index=events.findIndex(item=>item.type==='answer');
+    if(index<0)events.push(event);else events[index]=event;
+  } else if(event.type==='block' || event.type==='done')events.push(event);
+}
