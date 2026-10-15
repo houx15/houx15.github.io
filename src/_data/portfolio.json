@@ -87,20 +87,6 @@
   "education": "My path began in mechanical engineering and education at Tsinghua, before I joined Peking University’s Center for Social Research in September 2024.",
   "research": [
     {
-      "name": "SSDataAgent",
-      "slug": "ssdata-agent",
-      "url": "https://github.com/houx15/SSDataAgent",
-      "tag": "Survey simulation",
-      "summary": "An LLM agent fits and evaluates generators of synthetic survey data.",
-      "note": "Research code and experiment reports; includes empirical-copula transfer and checks for record copying.",
-      "links": [],
-      "zh": {
-        "tag": "调查模拟",
-        "summary": "使用 LLM 智能体拟合和评估社会调查数据生成器。",
-        "note": "公开研究代码与实验报告，包含经验 copula 迁移和记录复制检查。"
-      }
-    },
-    {
       "name": "Opinion correlation",
       "slug": "opinion-correlation",
       "url": "https://github.com/houx15/opinion-structure-across-societies",

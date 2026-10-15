@@ -4,7 +4,7 @@ summary: >-
   A repository reading note on statistical fidelity, record copying, and
   feasible versus oracle conditions in SSDataAgent.
 date: '2026-10-10'
-draft: false
+draft: true
 category: notes
 lang: en
 updated: '2026-10-10'
