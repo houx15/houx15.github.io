@@ -13,7 +13,8 @@ eleventyComputed:
 ---
 {% set ui = locale %}
 {% if ui.prefix %}
-<header class="page-heading"><h1>侯煜欣</h1></header><div class="prose"><p class="profile-identity">{{ ui.identity }}</p><p>{{ ui.heroText }}</p><p>{{ ui.aboutMore }}</p><p>{{ ui.approach }}</p>{% include 'timeline.njk' %}{% include 'sports.njk' %}<h2>联系</h2><p><a href="mailto:{{ site.email }}">{{ site.email }}</a> · <a href="{{ site.github }}">GitHub / houx15</a></p></div>
+<header class="page-heading"><h1>侯煜欣</h1></header><div class="prose"><p class="profile-identity">{{ ui.identity }}</p><p>{{ ui.heroText }}</p><p>{{ ui.aboutMore }}</p><p>{{ ui.approach }}</p><div class="resume-links">{% include 'resume-links.njk' %}</div>
+{% include 'timeline.njk' %}{% include 'sports.njk' %}<h2>联系</h2><p><a href="mailto:{{ site.email }}">{{ site.email }}</a> · <a href="{{ site.github }}">GitHub / houx15</a></p></div>
 {% else %}
 
 <header class="page-heading">
@@ -26,6 +27,7 @@ eleventyComputed:
 <p>{{ ui.heroText }}</p>
 <p>{{ ui.aboutMore }}</p>
 <p>{{ ui.approach }}</p>
+<div class="resume-links">{% include 'resume-links.njk' %}</div>
 {% include 'timeline.njk' %}{% include 'sports.njk' %}
 <h2>Contact</h2>
 <dl class="contact-list">

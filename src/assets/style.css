@@ -324,3 +324,6 @@ body:not(.home-page) .selected-projects {grid-template-columns:1fr}.selected-pro
 
 .biography-copy .biography-links {margin-top:8px;font-size:12px;line-height:1.8;}
 .biography-links a {display:inline-block;padding:3px 0;text-underline-offset:3px;}
+
+.resume-links {display:flex;flex-wrap:wrap;gap:12px 24px;margin:20px 0 32px;font-size:14px;}
+.resume-links small,.home-intro-links small {font-size:10px;color:var(--muted,#666);}
