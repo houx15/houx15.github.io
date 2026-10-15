@@ -29,6 +29,7 @@ try {
     const prefix = entryLanguages.get(route)==='zh-CN' || route.startsWith('/zh/') ? '/zh' : '';
     const navigation = $('.site-header nav a').toArray().map(link => $(link).attr('href'));
     const expectedNavigation = ['research','projects','writing','about'].map(section => `${prefix}/${section}/`);
+    expectedNavigation.push(`/assets/resumes/${prefix ? 'Hou_Yuxin_Resume_CN.pdf' : 'Yuxin_Hou_Resume_EN.pdf'}`);
     if (JSON.stringify(navigation) !== JSON.stringify(expectedNavigation) || !stylesheet) throw new Error(`${route}: expected site layout missing.`);
     if ($('html').attr('lang') !== (entryLanguages.get(route) || (route.startsWith('/zh/') ? 'zh-CN' : 'en')) || !$('#language-switch').attr('href')) throw new Error(`${route}: missing locale or language switch.`);
     const script = $('script[type="module"][src^="/assets/portfolio.js"]').attr('src');

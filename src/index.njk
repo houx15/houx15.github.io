@@ -20,7 +20,7 @@ eleventyComputed:
 <p>{{ ui.heroText }}</p>
 <p>{{ ui.aboutMore }}</p>
 <p>{{ ui.approach }}</p>
-<div class="home-intro-links">{% include 'resume-links.njk' %}<a href="{{ ui.prefix }}/about/">{{ '更多关于我' if ui.prefix else 'More about me' }} ↗</a><a href="{{ ui.prefix }}/chat/">{{ '和我的 AI 分身聊聊' if ui.prefix else 'Talk with my AI companion' }} ↗</a></div></div>
+<div class="home-intro-links"><a href="{{ ui.prefix }}/about/">{{ '更多关于我' if ui.prefix else 'More about me' }} ↗</a><a href="{{ ui.prefix }}/chat/">{{ '和我的 AI 分身聊聊' if ui.prefix else 'Talk with my AI companion' }} ↗</a></div></div>
 <aside class="home-identity" aria-label="{{ '头像、关键词与链接' if ui.prefix else 'Avatar, interests and links' }}">
 <img class="home-portrait" src="/assets/portrait.jpg" alt="{{ '侯煜欣的 GitHub 头像' if ui.prefix else 'Yuxin Hou’s GitHub avatar' }}" width="180" height="180">
 <ul class="home-keywords"><li>{{ '创业' if ui.prefix else 'Entrepreneurship' }}</li><li>{{ '独立开发者' if ui.prefix else 'Independent developer' }}</li><li>{{ '技术与管理咨询' if ui.prefix else 'Technology & management consulting' }}</li><li>Computational Social Science</li></ul>

@@ -26,6 +26,7 @@
       <a href="{{ ui.prefix }}/projects/"{% if section == 'projects' %} aria-current="page"{% endif %}>{{ ui.projects }}</a>
       <a href="{{ ui.prefix }}/writing/"{% if section == 'writing' or section == 'reports' or section == 'blog' or section == 'notes' %} aria-current="page"{% endif %}>{{ ui.writing }}</a>
       <a href="{{ ui.prefix }}/about/"{% if section == 'about' %} aria-current="page"{% endif %}>{{ ui.about }}</a>
+      <a class="nav-resume" href="/assets/resumes/{{ 'Hou_Yuxin_Resume_CN.pdf' if ui.prefix else 'Yuxin_Hou_Resume_EN.pdf' }}">{{ '简历' if ui.prefix else 'Résumé' }}</a>
     </nav>
     <a class="language-switch" id="language-switch" href="{{ page.url | switchLanguage(entries, ui.lang) }}" hreflang="{{ 'en' if ui.prefix else 'zh-CN' }}" lang="{{ 'en' if ui.prefix else 'zh-CN' }}" aria-label="{{ ui.languageLabel }}">{{ ui.language }}</a>
   </header>
