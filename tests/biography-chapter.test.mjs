@@ -19,7 +19,8 @@ test('whole biography shows all three parallel groups without stepping through c
  const questions=[],card=createBiographyChapter(document,{language:'zh-CN',onQuestion:q=>questions.push(q)});
  const walk=node=>[node,...node.children.flatMap(walk)];const nodes=walk(card);
  assert.deepEqual(nodes.filter(n=>n.tag==='h3').map(n=>n.textContent),['教育与访问','工作','公益探索']);
- for(const event of milestones)assert.ok(nodes.some(n=>n.tag==='h4' && n.textContent===event['zh-CN'].title));
+ for(const event of milestones.filter(event=>event.group!=='work' || event.id==='startup'))assert.ok(nodes.some(n=>n.tag==='h4' && n.textContent===event['zh-CN'].title));
+ assert.ok(nodes.some(n=>n.tag==='h4' && n.textContent==='AI 技术顾问 · 制造业与教育行业'));
  assert.equal(nodes.filter(n=>n.tag==='button').length,1);
  nodes.find(n=>n.tag==='button').handlers.click();assert.deepEqual(questions,['她最近在做什么？']);
 });

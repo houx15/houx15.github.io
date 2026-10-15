@@ -45,7 +45,7 @@
   <script type="module" src="/assets/privacy-dialog.js?v={{ assistantVersion }}"></script>
   {% if pageClass != 'chat-page' %}
   <button class="companion-launcher" type="button" data-companion-open aria-haspopup="dialog" aria-controls="companion-dialog" aria-label="{{ '打开团子的纸页，一起读' if ui.prefix or lang == 'zh-CN' else 'Open the guide’s page and read together' }}">{% include 'dumpling.njk' %}<span>{{ '一起读？' if ui.prefix or lang == 'zh-CN' else 'Read together?' }}</span></button>
-  <dialog id="companion-dialog" class="comic-dialog" aria-label="{{ '团子的纸页' if ui.prefix or lang == 'zh-CN' else 'The guide’s page' }}"><button type="button" class="comic-close" data-companion-close aria-label="{{ '关闭，回到阅读' if ui.prefix or lang == 'zh-CN' else 'Close and return to reading' }}">× <span>{{ '回到阅读' if ui.prefix or lang == 'zh-CN' else 'Back to reading' }}</span></button>{% include 'companion.njk' %}</dialog>
+  <dialog id="companion-dialog" class="comic-dialog" aria-label="{{ '团子的纸页' if ui.prefix or lang == 'zh-CN' else 'The guide’s page' }}"><div class="comic-panel-bar"><button type="button" class="comic-panel-handle" data-panel-drag aria-label="{{ '移动聊天窗口，可拖动或使用方向键' if ui.prefix or lang == 'zh-CN' else 'Move chat window: drag or use arrow keys' }}"><span aria-hidden="true">⠿</span> {{ '一起读' if ui.prefix or lang == 'zh-CN' else 'Read together' }}</button><button type="button" class="comic-close" data-companion-close aria-label="{{ '收起聊天' if ui.prefix or lang == 'zh-CN' else 'Close chat' }}">×</button></div>{% include 'companion.njk' %}</dialog>
   {% endif %}
   <script type="module" src="/assets/portfolio.js?v={{ assistantVersion }}"></script>
 </body>

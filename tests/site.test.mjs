@@ -238,7 +238,7 @@ test('work and education timeline retains every overlapping period in both langu
   const {milestones}=await import('../src/assets/biography.js');
   const en=load(await fs.readFile(path.join(dir,'_site/about/index.html'),'utf8'));
   const zh=load(await fs.readFile(path.join(dir,'_site/zh/about/index.html'),'utf8'));
-  for(const entry of milestones) {
+  for(const entry of milestones.filter(entry=>entry.group!=='work' || entry.id==='startup')) {
     for(const [$,language] of [[en,'en'],[zh,'zh-CN']]) {
       const row=$(`[data-milestone="${entry.id}"]`);assert.equal(row.length,1);
       assert.ok(row.text().includes(entry[language].period));
@@ -249,7 +249,9 @@ test('work and education timeline retains every overlapping period in both langu
   }
   assert.match(en('[data-milestone="startup"]').text(),/2016–2022/);
   assert.match(en('[data-milestone="shiguang"]').text(),/2022–2024/);
-  assert.match(en('[data-milestone="consulting"]').text(),/2025/);
+  assert.match(en('[data-milestone="consulting"]').text(),/2025–2026/);
+  assert.equal(zh('[data-milestone="consulting"] strong').text(),'AI 技术顾问');
+  assert.equal(zh('[data-milestone="manufacturing-advisor"]').length,0);
   assert.equal(en('.timeline-figure figcaption').length,0);
   for(const $ of [en,zh]) {
     assert.equal($('.biography-group').length,3);

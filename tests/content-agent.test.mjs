@@ -116,7 +116,7 @@ test('profile evidence and event timeline preserve uncertain dates and separate 
   const answer=await runContentAgent({question:'Tell me about her experience',corpus,complete:async()=>++round===1?{toolCalls:[{id:'p',name:'read_profile',arguments:{id:'profile'}},{id:'events',name:'query_profile_events',arguments:{language:'en'}},{id:'show',name:'show_profile_timeline',arguments:{eventIds:['peer','princeton'],language:'en'}}]}:{text:'The owner-provided periods overlap.',sourceIds:['profile:profile','event:peer']}});
   assert.equal(answer.sources.length,2);
   const block=answer.blocks[0];assert.equal(block.dateKind,'biography');assert.equal(block.asOf,'2026-10-15');
-  assert.match(block.items.find(i=>i.id==='event:peer').description,/2021 and 2023/);
+  assert.equal(block.items.find(i=>i.id==='event:peer').period,'2020; 2021; 2023');
   assert.equal(block.items.find(i=>i.id==='event:princeton').period,'2026–2027');
 });
 
@@ -569,7 +569,7 @@ test('omitted tool language inherits the conversation while an explicit language
    if(++round===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',...(requested?{language:requested}:{})}},{id:'events',name:'query_profile_events',arguments:{...(requested?{language:requested}:{})}}]};
    const results=messages.filter(m=>m.role==='tool').map(m=>JSON.parse(m.content));
    assert.equal(results[0].source.url,requested?'/about/':'/zh/about/');
-   assert.equal(results[0].source.label,requested?'Higgz Technology · CTO':'悉之教育 Higgz Technology · CTO');
+   assert.equal(results[0].source.label,requested?'Higgz Technology · Co-founder & CTO':'悉之教育 Higgz Technology · 联合创始人、CTO');
    assert.equal(results[1].items[0].source.url,requested?'/about/':'/zh/about/');
    return {text:'2016–2022 年。',sourceIds:['event:startup']};
   }});

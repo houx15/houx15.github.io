@@ -4,7 +4,7 @@ import { milestones } from '../src/assets/biography.js';
 export const profileEventIds=milestones.map(event=>event.id);
 const approvedIds=new Set(['profile','startup','nonprofits','unicef','consulting','interests','sports','contact','research','projects']);
 const facts=knowledge.filter(f=>approvedIds.has(f.id));
-const nonprofitDates={events:['是光诗歌','PEER 毅恒挚友'],periods:{shiguang:'2022–2024',peer:'2021; 2023',unicef:'2023'},qualification:'These are distinct experiences. PEER involvement occurred in 2021 and 2023, not continuously throughout 2021–2023.'};
+const nonprofitDates={events:['是光诗歌','PEER 毅恒挚友'],periods:{shiguang:'2022–2024',peer:'2020; 2021; 2023',unicef:'2023'},qualification:'These are distinct experiences. PEER involvement occurred in separate periods in 2020, 2021 and 2023, not continuously throughout 2020–2023.'};
 const educationDates={institution:'Tsinghua University',admissionYear:2015,bachelorCompletionYear:2021,masterCompletionYear:2024,pkuExpectedCompletionYear:2028,princetonVisit:'2026–2027',qualification:'Mechanical engineering: 2015–2021; Institute of Education: 2021–2024. PKU 2024–2028 has an expected, not completed, end year. Princeton 2026–2027 overlaps the PhD.'};
 export const profileRevision=createHash('sha256').update(JSON.stringify({facts:facts.map(f=>({id:f.id,text:f.text,sources:f.sources,zh:localizeAnswer(f,'zh-CN').text})),milestones,nonprofitDates,educationDates})).digest('hex').slice(0,16);
 export function createProfileTools(corpus) {

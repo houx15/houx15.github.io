@@ -1,6 +1,10 @@
 // Client context identifies public material only; it cannot supply source text or evidence.
 export function validatePageContext(value,corpus) {
   if(value===undefined)return undefined;
+  if(value && typeof value==='object' && !Array.isArray(value) && Object.keys(value).length===1 && typeof value.pagePath==='string') {
+    if(!/^\/(?:zh\/)?(?:(?:about|research|projects|writing|blog|notes|reports)\/)?$/.test(value.pagePath))throw new Error('Invalid page context');
+    return {pagePath:value.pagePath};
+  }
   if(!value || typeof value!=='object' || Array.isArray(value) || Object.keys(value).some(key=>!['documentId','sectionId','sectionAnchor'].includes(key)))throw new Error('Invalid page context');
   const doc=corpus.documents.find(doc=>doc.id===value.documentId);
   if(!doc || (value.sectionId!==undefined && !doc.sections.some(section=>section.id===value.sectionId)))throw new Error('Invalid page context');

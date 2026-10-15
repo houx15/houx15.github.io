@@ -8,7 +8,7 @@ test('biography routes preserve separate nonprofit dates and non-continuous PEER
   const results=[tools.read_profile({id:'profile',language}),tools.read_profile({id:'nonprofits',language}),tools.read_profile({eventId:'shiguang',language}),tools.read_profile({eventId:'peer',language}),tools.query_profile_events({language})];
   for(const result of results) {
    assert.equal(result.dateQualifications.periods.shiguang,'2022–2024');
-   assert.equal(result.dateQualifications.periods.peer,'2021; 2023');
+   assert.equal(result.dateQualifications.periods.peer,'2020; 2021; 2023');
    assert.deepEqual(result.dateQualifications.events,['是光诗歌','PEER 毅恒挚友']);
   }
   assert.equal(tools.read_profile({eventId:'startup',language}).dateQualifications,undefined);

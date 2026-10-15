@@ -1,9 +1,10 @@
+import {bindCompanionPanel} from './companion-panel.js';
 import {typeGreeting} from './companion-typewriter.js';
 import {createBiographyChapter} from './biography-chapter.js';
 import {confirmConversationReset} from './companion-reset.js';
 import {createDiceCard} from './dice-card.js';
 import {captureReadingSelection,selectionQuestion,createReadingDraftContext} from './reading-selection.js';
-import { captureReadingAnchor,restoreReadingAnchor,readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
+import { readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
 import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor, createOpeningDraftContext } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
 import { milestones } from './biography.js';
@@ -93,6 +94,17 @@ export function initCompanion(document) {
     root.querySelectorAll('[data-reading-action]').forEach(button=>{button.textContent=(zh?'一起读这一节':'Read this section with me')+' ↗';});
   }
   resetOpening();
+  if(dialog && root.dataset.documentId) {
+    const actions=document.createElement('div');actions.className='comic-reading-actions';
+    for(const [label,question] of (zh?[
+      ['这篇讲了什么','请概括当前这篇文章的主要内容，先查阅全文各节，简明回答。'],
+      ['相关内容','请根据当前文章的主题，查找本站相关内容，推荐最多三篇并说明关联。']
+    ]:[['Summarize this article','Read the sections of this article and briefly summarize its main points.'],['Related reading','Find up to three related pieces on this site and explain their connection to this article.']])) {
+      const button=document.createElement('button');button.type='button';button.textContent=label;
+      button.addEventListener('click',()=>{if(busy || input.value.trim())return;input.value=question;updateComposer();input.focus({preventScroll:true});});actions.append(button);
+    }
+    form.before(actions);
+  }
   status.textContent = idle;
   const local = url => zh && url.startsWith('/') && !url.startsWith('/zh/') ? `/zh${url}` : url;
   const el = (tag, text, className = '') => {const node = document.createElement(tag);node.textContent = text;node.className = className;return node;};
@@ -138,7 +150,7 @@ export function initCompanion(document) {
       turn.event({type:'answer',text:zh?'这是根据原文整理的阅读导览，还不是 AI 解读。先看开篇，再沿着章节读下去。':'This is an outline from the source, not an AI interpretation. Start with the opening, then explore its sections.',sourceIds:[]});
       turn.event({type:'block',block:item.block});turn.event({type:'done'});
       while(log.children.length>10)log.firstElementChild.remove();
-      if(remember)turn.row.scrollIntoView({block:'start',behavior:'instant'});
+      if(remember){if(dialog)log.scrollTop=log.scrollHeight;else turn.row.scrollIntoView({block:'start',behavior:'instant'});}
       return;
     }
     const row = add(log,'article','','comic-message');
@@ -158,7 +170,8 @@ export function initCompanion(document) {
       }
     }
     while(log.children.length > 10) log.firstElementChild.remove();
-    if(remember && item.kind==='dice')row.querySelector('.comic-dice-card').scrollIntoView({block:'start',behavior:'instant'});
+    if(remember && dialog)log.scrollTop=log.scrollHeight;
+    else if(remember && item.kind==='dice')row.querySelector('.comic-dice-card').scrollIntoView({block:'start',behavior:'instant'});
     else if(remember) row.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
     if(focusChapter && (!dialog || dialog.open))row.querySelector('.comic-biography-chapter h2').focus({preventScroll:true});
     return row;
@@ -217,13 +230,14 @@ export function initCompanion(document) {
     log.querySelectorAll('button').forEach(button=>button.remove());
     const turn=createAgentTurn(document,{log,question,language,onQuestion:ask,retry:lastLiveTurn});
     lastLiveTurn=turn;
-    turn.row.scrollIntoView({block:'start',behavior:'instant'});
+    if(dialog)log.scrollTop=log.scrollHeight;
+    else turn.row.scrollIntoView({block:'start',behavior:'instant'});
     const challenge=root.querySelector('[data-visitor-check]');
     const savedEvents=[];
     const positionReady=readingSnapshot.ready;
     try {
       const questionSection=await waitForReadingContext(positionReady,controller.signal);controller.signal.throwIfAborted();
-      const pageContext=root.dataset.documentId?{documentId:root.dataset.documentId,...(questionSection?{sectionAnchor:questionSection.anchor}:{})}:undefined;
+      const pageContext=root.dataset.documentId?{documentId:root.dataset.documentId,...(questionSection?{sectionAnchor:questionSection.anchor}:{})}:(/^\/(?:zh\/)?(?:(?:about|research|projects|writing|blog|notes|reports)\/)?$/.test(root.dataset.pageUrl)?{pagePath:root.dataset.pageUrl}:undefined);
       if(!liveClient.hasSession()) {
         if(restorationNotice)restorationNotice.textContent=restorationCopy(false);
         turn.connectionPhase('verification');
@@ -291,11 +305,11 @@ export function initCompanion(document) {
     const next=add(context,'button',openingCopy[language].read.action+' ↗','comic-follow');next.type='button';next.dataset.readingAction='';next.addEventListener('click',readPage);
   }
   if(dialog&&launcher) {
-    let returnAnchor,pointerSelection;
+    let pointerSelection;
+    bindCompanionPanel(dialog,document.querySelector('[data-panel-drag]'));
     const launcherLabel=launcher.querySelector('span'),defaultLabel=launcherLabel.textContent,defaultAria=launcher.getAttribute('aria-label');
     const selectedPassage=()=>root.dataset.documentId && !input.value.trim()?captureReadingSelection(document):undefined;
     const updateSelectionInvitation=()=>{
-      if(dialog.open)return;
       const selected=selectedPassage(),label=zh?'解释选中这段':'Explain this passage';
       launcher.classList.toggle('has-selection',Boolean(selected));
       launcherLabel.textContent=selected?label:defaultLabel;
@@ -312,25 +326,36 @@ export function initCompanion(document) {
       if(destination.origin!==location.origin || destination.pathname!==location.pathname)return;
       let target;try {target=destination.hash?document.getElementById(decodeURIComponent(destination.hash.slice(1))):document.querySelector('main article');}catch{return;}
       if(!target || dialog.contains(target))return;
-      event.preventDefault();returnAnchor=undefined;dialog.close();
+      event.preventDefault();dialog.close();
       requestAnimationFrame(()=>{historyReplaceHash(destination.hash);target.scrollIntoView({block:'start'});target.setAttribute('tabindex','-1');target.focus({preventScroll:true});});
     });
     launcher.addEventListener('click',()=>{
       const selected=!input.value.trim()?(pointerSelection || selectedPassage()):undefined;pointerSelection=undefined;
-      returnAnchor=captureReadingAnchor(document);
+
       const headings=draftContext.open(selected?selected.headings:readingHeadings(document));
       loadReadingPosition(headings);
-      dialog.showModal();document.body.classList.add('comic-open');log.scrollTop=log.scrollHeight;
+      if(!dialog.open)dialog.show();launcher.setAttribute('aria-expanded','true');log.scrollTop=log.scrollHeight;
       if(selected)input.value=selectionQuestion(selected.text,language);
       updateComposer();
       // Resume an unfinished question without moving its caret or the reading page.
       // Keep the normal welcome focus when there is no draft to continue.
       if(input.value.trim())input.focus({preventScroll:true});
     });
+    let readingScrollTimer;
+    const refreshReadingPosition=()=>{
+      clearTimeout(readingScrollTimer);
+      readingScrollTimer=setTimeout(()=>{
+        if(!dialog.open || busy || input.value.trim())return;
+        const headings=draftContext.open(readingHeadings(document));
+        if(JSON.stringify(headings)!==JSON.stringify(readingLookup))loadReadingPosition(headings);
+      },160);
+    };
+    window.addEventListener('scroll',refreshReadingPosition,{passive:true});
+    window.addEventListener('resize',refreshReadingPosition);
+    dialog.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();dialog.close();}});
     document.querySelector('[data-companion-close]').addEventListener('click',()=>dialog.close());
     dialog.addEventListener('close',()=>{
-      readingGeneration++;activeController?.abort();document.body.classList.remove('comic-open');
-      restoreReadingAnchor(returnAnchor,document,window);returnAnchor=undefined;
+      readingGeneration++;activeController?.abort();launcher.setAttribute('aria-expanded','false');
       launcher.focus({preventScroll:true});
       updateSelectionInvitation();
     });

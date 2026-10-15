@@ -2,8 +2,9 @@
 {% for group in biographyGroups %}
 <section class="biography-group"><h3>{{ group[ui.lang] }}</h3>
 <ol class="biography-rows">
-{% for event in biography %}{% if event.group == group.id %}
-<li class="biography-row" data-milestone="{{ event.id }}"><span class="biography-period">{{ event[ui.lang].period }}</span><div class="biography-copy">{% if event[ui.lang].role %}<p class="biography-role-line"><strong>{{ event[ui.lang].role }}</strong><span> · {{ event[ui.lang].title }}</span></p>{% else %}<h4>{{ event[ui.lang].title }}</h4><p>{{ event[ui.lang].description }}</p>{% endif %}</div></li>
+{% for event in biography %}{% if event.group == group.id and (event.group != "work" or event.id == "startup" or event.id == "consulting") %}
+{% set copy = consultingSummary[ui.lang] if event.id == "consulting" else event[ui.lang] %}
+<li class="biography-row" data-milestone="{{ event.id }}"><span class="biography-period">{{ copy.period }}</span><div class="biography-copy">{% if copy.role %}<p class="biography-role-line"><strong>{{ copy.role }}</strong><span> · {{ copy.title }}</span></p>{% else %}<h4>{{ copy.title }}</h4><p>{{ copy.description }}</p>{% endif %}{% if event.id == 'consulting' %}<p>{{ copy.description }}</p>{% endif %}{% if event.links %}<p class="biography-links">{% for link in event.links %}<a href="{{ link.url }}">{{ link[ui.lang] }}</a>{% if not loop.last %}<span aria-hidden="true"> · </span>{% endif %}{% endfor %}</p>{% endif %}</div></li>
 {% endif %}{% endfor %}
 </ol></section>
 {% endfor %}

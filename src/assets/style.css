@@ -321,3 +321,6 @@ body:not(.home-page) .selected-projects {grid-template-columns:1fr}.selected-pro
 .about-page .biography-row {display:grid;grid-template-columns:155px minmax(0,1fr);gap:18px;padding:12px 0;}
 .about-page .biography-period {margin:0;font-size:12px;}
 @media(max-width:600px){.about-page .biography-row {grid-template-columns:1fr;gap:4px;}}
+
+.biography-copy .biography-links {margin-top:8px;font-size:12px;line-height:1.8;}
+.biography-links a {display:inline-block;padding:3px 0;text-underline-offset:3px;}

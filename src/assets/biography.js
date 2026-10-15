@@ -26,6 +26,30 @@ export const milestones = [
     }
   },
   {
+    "id": "oxford-summer",
+    "group": "education",
+    "start": 2016,
+    "end": 2016,
+    "spans": [
+      [
+        2016,
+        2016
+      ]
+    ],
+    "en": {
+      "period": "2016.07",
+      "kind": "Short-term exchange",
+      "title": "University of Oxford · Summer exchange",
+      "description": "Summer exchange participant; coursework in English communication and writing."
+    },
+    "zh-CN": {
+      "period": "2016.07",
+      "kind": "短期交流",
+      "title": "牛津大学 · 暑期交流",
+      "description": "参加暑期交流项目，学习英语交流与写作课程。"
+    }
+  },
+  {
     "id": "tsinghua-education",
     "group": "education",
     "start": 2021,
@@ -111,15 +135,32 @@ export const milestones = [
     "en": {
       "period": "2016–2022",
       "kind": "Work",
-      "title": "Higgz Technology · CTO",
-      "description": "Product design, research and development, teaching-algorithm discussions, and educational research."
+      "title": "Higgz Technology · Co-founder & CTO",
+      "description": "Built AI education products for schools and education providers, overseeing product design and development with a team of more than 20 product managers, designers, engineers and testers. Participated in the design and development of the first two product generations across student and teacher applications. Established an education research team connecting learning-data analysis and education theory with product development, teaching-algorithm discussions, teaching experiments and policy research."
     },
     "zh-CN": {
       "period": "2016–2022",
       "kind": "工作",
-      "title": "悉之教育 Higgz Technology · CTO",
-      "description": "负责产品设计、研发、教学算法讨论与教育研究。"
-    }
+      "title": "悉之教育 Higgz Technology · 联合创始人、CTO",
+      "description": "面向学校与教育机构开发 AI 教育产品，负责产品设计与研发全流程，带领由产品经理、设计师、前后端工程师和测试人员组成的 20 余人团队，参与前两代产品及学生端、教师端等多条产品线的设计与开发。组建教育研究部门，推动学习数据分析、教育理论与产品实践的结合，参与教学算法讨论、教学实验与政策研究。"
+    },
+    "links": [
+      {
+        "url": "https://mp.weixin.qq.com/s/4h6IgHVu0bW_uNVSPDTWog",
+        "zh-CN": "个人访谈",
+        "en": "Interview (Chinese)"
+      },
+      {
+        "url": "https://mp.weixin.qq.com/s/hQ-NehliQlilkPsW4ZR8Wg",
+        "zh-CN": "DevRun 2019 分享",
+        "en": "DevRun 2019 talk (Chinese)"
+      },
+      {
+        "url": "https://www.sohu.com/a/380883131_99925426",
+        "zh-CN": "华为云开发者访谈 · 2020",
+        "en": "Huawei Cloud developer profile · 2020"
+      }
+    ]
   },
   {
     "id": "consulting",
@@ -228,9 +269,13 @@ export const milestones = [
   {
     "id": "peer",
     "group": "community",
-    "start": 2021,
+    "start": 2020,
     "end": 2023,
     "spans": [
+      [
+        2020,
+        2020
+      ],
       [
         2021,
         2021
@@ -241,17 +286,29 @@ export const milestones = [
       ]
     ],
     "en": {
-      "period": "2021; 2023",
+      "period": "2020; 2021; 2023",
       "kind": "Community",
       "title": "PEER",
-      "description": "Two periods of participation, in 2021 and 2023."
+      "description": "Worked on educational program design, research and technical support. Co-initiated the Youth E program and led its detailed design and follow-through; contributed to training for school-based volunteers and research on students’ learning during the pandemic. Led the website migration and upgrade, initiated a wiki-based teaching knowledge base, and supported SCRM development and testing."
     },
     "zh-CN": {
-      "period": "2021、2023",
+      "period": "2020、2021、2023",
       "kind": "公益探索",
       "title": "PEER 毅恒挚友",
-      "description": "分别于 2021 年、2023 年参与。"
-    }
+      "description": "参与教育项目设计、调研与机构技术支持。作为“少年 E 计划”发起人之一，负责项目细化设计与后续推进；参与驻校志愿者培训及疫情期间学生学习状况调研。主持官网迁移与升级，推动基于 wiki 的教学知识库建设，并参与 SCRM 系统开发与测试的跟进。"
+    },
+    "links": [
+      {
+        "url": "https://mp.weixin.qq.com/s/3NDbCFyAEtt5-aqweDNVjw",
+        "zh-CN": "少年 E 计划 · 项目介绍",
+        "en": "Youth E program (Chinese)"
+      },
+      {
+        "url": "https://mp.weixin.qq.com/s/jITw2RPkLaJTq4FWpAn-_Q",
+        "zh-CN": "线上学习，听听学生怎么说",
+        "en": "Student perspectives on online learning (Chinese)"
+      }
+    ]
   },
   {
     "id": "shiguang",
@@ -268,13 +325,13 @@ export const milestones = [
       "period": "2022–2024",
       "kind": "Community",
       "title": "Shiguang Poetry",
-      "description": "Participation in a poetry-education nonprofit."
+      "description": "Contributed as a volunteer product manager to a nonprofit focused on poetry education."
     },
     "zh-CN": {
       "period": "2022–2024",
       "kind": "公益探索",
       "title": "是光诗歌",
-      "description": "公益探索。"
+      "description": "以志愿产品经理的身份参与诗歌教育公益项目，为机构提供产品设计支持。"
     }
   },
   {
@@ -292,15 +349,44 @@ export const milestones = [
       "period": "2023",
       "kind": "Community",
       "title": "UNICEF",
-      "description": "Internship; work on an SEL video-resource project."
+      "description": "Project intern at the Education Office of UNICEF China, contributing to a social-emotional learning (SEL) video-resource project."
     },
     "zh-CN": {
       "period": "2023",
       "kind": "公益探索",
       "title": "联合国儿童基金会（UNICEF）",
-      "description": "实习，参与 SEL 视频资源项目。"
+      "description": "在联合国儿童基金会中国办公室教育处实习，参与社会情感学习（SEL）视频资源项目。"
+    }
+  },
+  {
+    "id": "summer-teaching",
+    "group": "community",
+    "start": 2016,
+    "end": 2017,
+    "spans": [
+      [
+        2016,
+        2016
+      ],
+      [
+        2017,
+        2017
+      ]
+    ],
+    "zh-CN": {
+      "period": "2016、2017",
+      "kind": "公益探索",
+      "title": "清华大学书脊支教团 · 贵州暑期项目",
+      "description": "两次赴贵州遵义参与为期 21 天的乡村夏令营，分别担任课程组组长与支队长，负责课程设计及团队组织。"
+    },
+    "en": {
+      "period": "2016; 2017",
+      "kind": "Community",
+      "title": "Tsinghua University volunteer teaching · Guizhou summer programs",
+      "description": "Joined two 21-day rural summer camps in Zunyi, Guizhou, serving as curriculum lead and then team lead, with responsibility for course design and team coordination."
     }
   }
+
 ];
 export const biographyText = (id, language="en") => {
  const item=milestones.find(item=>item.id===id)?.[language];
@@ -308,3 +394,18 @@ export const biographyText = (id, language="en") => {
 };
 export const biographyOverviewText = (language="en") => milestones.map(item=>biographyText(item.id,language)).join("\n");
 export const consultingText = (language="en") => milestones.filter(item=>item.group==="work" && item.id!=="startup").map(item=>biographyText(item.id,language)).join("\n");
+
+export const consultingSummary = {
+  "en": {
+    "period": "2025–2026",
+    "role": "AI technology advisor",
+    "title": "Manufacturing & education",
+    "description": "AI technology consulting for a listed manufacturing company, an education company and an AI–manufacturing company; AI transformation implementation for a manufacturing startup."
+  },
+  "zh-CN": {
+    "period": "2025–2026",
+    "role": "AI 技术顾问",
+    "title": "制造业与教育行业",
+    "description": "为制造业上市公司、教育公司及 AI＋制造企业提供 AI 技术咨询，并参与制造业创业公司的 AI 转型实施。"
+  }
+};
