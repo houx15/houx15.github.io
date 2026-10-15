@@ -122,6 +122,10 @@ export function initCompanion(document) {
     stopButton.hidden=!(value && activeController);stopButton.disabled=false;sendButton.hidden=!stopButton.hidden;
     if(value && returnToComposer && !stopButton.hidden) stopButton.focus({preventScroll:true});
     if(!value) {
+      if(dialog?.open && !input.value.trim()) {
+        const headings=draftContext.open(readingHeadings(document));
+        if(JSON.stringify(headings)!==JSON.stringify(readingLookup))loadReadingPosition(headings);
+      }
       // Restore only focus we displaced; never interrupt reading or reopen a closed dialog.
       if(restore && (!dialog || dialog.open)) input.focus({preventScroll:true});
       returnToComposer=false;
