@@ -115,9 +115,9 @@ test('profile evidence and event timeline preserve uncertain dates and separate 
   let round=0;
   const answer=await runContentAgent({question:'Tell me about her experience',corpus,complete:async()=>++round===1?{toolCalls:[{id:'p',name:'read_profile',arguments:{id:'profile'}},{id:'events',name:'query_profile_events',arguments:{language:'en'}},{id:'show',name:'show_profile_timeline',arguments:{eventIds:['peer','princeton'],language:'en'}}]}:{text:'The owner-provided periods overlap.',sourceIds:['profile:profile','event:peer']}});
   assert.equal(answer.sources.length,2);
-  const block=answer.blocks[0];assert.equal(block.dateKind,'biography');assert.equal(block.asOf,'2026-10-10');
-  assert.match(block.items.find(i=>i.id==='event:peer').description,/individual dates were not supplied/);
-  assert.equal(block.items.find(i=>i.id==='event:princeton').period,'Current · alongside the PhD');
+  const block=answer.blocks[0];assert.equal(block.dateKind,'biography');assert.equal(block.asOf,'2026-10-15');
+  assert.match(block.items.find(i=>i.id==='event:peer').description,/2021 and 2023/);
+  assert.equal(block.items.find(i=>i.id==='event:princeton').period,'2026–2027');
 });
 
 test('no-evidence prose is replaced, and retrieved instructions cannot grant an executable tool', async()=>{
@@ -554,9 +554,9 @@ test('selected timeline preserves authored order and dates, and cannot display u
   return {text:'两段实习的分别起止日期未公开。',sourceIds:['event:peer','event:shiguang']};
  }});
  assert.equal(answer.blocks.length,1);
- assert.deepEqual(answer.blocks[0].items.map(i=>i.id),['event:shiguang','event:peer']);
- assert.equal(answer.blocks[0].items[0].title,'是光诗歌');
- assert.equal(answer.blocks[0].dateQualifications.individualStartEnd,null);
+ assert.deepEqual(answer.blocks[0].items.map(i=>i.id),['event:peer','event:shiguang']);
+ assert.equal(answer.blocks[0].items[0].title,'PEER 毅恒挚友');
+ assert.equal(answer.blocks[0].dateQualifications.periods.shiguang,'2022–2024');
 });
 
 
@@ -567,7 +567,7 @@ test('omitted tool language inherits the conversation while an explicit language
    if(++round===1)return {toolCalls:[{id:'read',name:'read_profile',arguments:{eventId:'startup',...(requested?{language:requested}:{})}},{id:'events',name:'query_profile_events',arguments:{...(requested?{language:requested}:{})}}]};
    const results=messages.filter(m=>m.role==='tool').map(m=>JSON.parse(m.content));
    assert.equal(results[0].source.url,requested?'/about/#sources':'/zh/about/#sources');
-   assert.equal(results[0].source.label,requested?'Startup CTO':'创业与 CTO 工作');
+   assert.equal(results[0].source.label,requested?'Higgz Technology · CTO':'悉之教育 Higgz Technology · CTO');
    assert.equal(results[1].items[0].source.url,requested?'/about/#sources':'/zh/about/#sources');
    return {text:'2016–2022 年。',sourceIds:['event:startup']};
   }});
@@ -739,7 +739,7 @@ test('a sourced timeline caption completes once without an extra model answer',a
   assert.fail('A terminal caption must not request another model completion');
  }});
  assert.equal(rounds,2);assert.equal(answer.text,'Study and professional work overlap.');
- assert.deepEqual(answer.sources.map(source=>source.id),['event:startup','event:pku']);
+ assert.deepEqual(answer.sources.map(source=>source.id),['event:pku','event:startup']);
  assert.equal(answer.blocks.length,1);assert.equal(answer.blocks[0].items.length,2);
  assert.deepEqual(events.filter(event=>event.type!=='status').map(event=>event.type),['answer_delta','block','answer']);
  assert.equal(events.find(event=>event.type==='answer_delta').text,answer.text);

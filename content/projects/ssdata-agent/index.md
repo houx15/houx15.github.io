@@ -2,7 +2,7 @@
 title: SSDataAgent
 summary: Agent-based generation and evaluation of synthetic social-survey data.
 date: '2026-10-10'
-draft: false
+draft: true
 lang: en
 links:
   - label: Source code

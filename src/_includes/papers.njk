@@ -1,0 +1,25 @@
+{% macro paperList(items,ui,working,reviewAbstracts,preview,compact=false) %}
+<ol class="publication-list{% if compact %} publication-list--compact{% endif %}">
+{% for paper in items %}
+<li{% if not compact %} id="{{ paper.id }}"{% endif %}>
+<div class="paper-citation">
+<span class="paper-authors">{% for author in paper.authors[ui.lang] %}{% if author == 'Yuxin Hou' or author == '侯煜欣' %}<strong>{{ author }}</strong>{% else %}{{ author }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}.</span>
+{% if paper.year %}<span class="paper-year">{{ paper.year }}.</span>{% endif %}
+<span class="paper-title">{% if compact and paper.doi %}<a href="https://doi.org/{{ paper.doi }}">{{ paper.title[ui.lang] }}</a>{% else %}{{ paper.title[ui.lang] }}{% endif %}.</span>
+{% if working %}<span class="paper-venue">Working paper.</span>{% else %}<span class="paper-venue"><em>{{ paper.journal[ui.lang] }}</em>, {{ paper.volume }}.</span>{% endif %}
+{% if paper.language == 'zh-CN' and not ui.prefix or working and paper.translated and not ui.prefix %}<span class="paper-note">(in Chinese)</span>{% endif %}
+{% if paper.alphabetical %}<span class="paper-note">({{ '作者按字母顺序排列' if ui.prefix else 'alphabetical order' }})</span>{% endif %}
+{% if not compact %}
+{% if paper.onlineYear %}<span class="paper-note">({{ '在线发表：' if ui.prefix else 'online: ' }}{{ paper.onlineYear }})</span>{% endif %}
+{% if paper.translated and not ui.prefix %}<span class="paper-note">(English title translated for this website.)</span>{% endif %}
+{% if paper.doi %}<a class="paper-action" href="https://doi.org/{{ paper.doi }}">DOI ↗</a>{% endif %}
+{% if paper.abstractURL %}<a class="paper-action" href="{{ paper.abstractURL }}">{{ '摘要 ↗' if ui.prefix else 'Abstract ↗' }}</a>{% endif %}
+{% set abstract = reviewAbstracts[paper.id][ui.lang] if working and preview and reviewAbstracts[paper.id] else paper.abstract[ui.lang] %}
+{% if abstract %}<details class="paper-abstract"><summary>{{ '摘要' if ui.prefix else 'Abstract' }}{% if working %} · {{ '仅本地预览' if ui.prefix else 'local preview only' }}{% endif %}</summary><div class="paper-abstract-body">
+{% if paper.language == 'zh-CN' and not ui.prefix or paper.id == 'gender-participation' and not ui.prefix %}<p class="paper-note">English translation for this website.</p>{% endif %}<p>{{ abstract }}</p></div></details>{% endif %}
+{% endif %}
+</div>
+</li>
+{% endfor %}
+</ol>
+{% endmacro %}

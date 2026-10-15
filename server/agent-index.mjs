@@ -1,4 +1,7 @@
 import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import {createTranslationCache} from './agent-translation.mjs';
 import { RedisAgentStore,createGuard } from './agent-state.mjs';
 import { createModelAgent,createTurnstile } from './agent-provider.mjs';
 import { createAgentServer } from './agent-http.mjs';
@@ -16,7 +19,8 @@ try {
   const guard=createGuard({store,secret:env.AGENT_SIGNING_SECRET,dailyTokens:config.dailyTokens,monthlyCny:config.monthlyCny,rate:config.rate,enabled});
   const corpus=JSON.parse(await fs.readFile(config.corpusFile,'utf8'));
   if(!env.AGENT_TURNSTILE_SECRET) throw new Error('Missing challenge configuration');
-  const server=createAgentServer({origin,corpus,guard,enabled,trustLoopbackProxy:config.trustLoopbackProxy,onDiagnostic:record=>process.stderr.write(JSON.stringify(record)+'\n'),complete:createModelAgent({apiKey:env.AGENT_MODEL_KEY,model:env.AGENT_MODEL,provider:config.provider,baseURL:config.baseURL}),verifyChallenge:createTurnstile({secret:env.AGENT_TURNSTILE_SECRET,hostname:new URL(origin).hostname})});
+  const translationCache=createTranslationCache({directory:path.join(config.storeKind==='sqlite'?path.dirname(env.AGENT_SQLITE_PATH):path.join(os.homedir(),'.local/state/portfolio-agent'),'translation-cache'),namespace:JSON.stringify([config.provider,config.baseURL,env.AGENT_MODEL])});
+  const server=createAgentServer({origin,corpus,guard,translationCache,enabled,trustLoopbackProxy:config.trustLoopbackProxy,onDiagnostic:record=>process.stderr.write(JSON.stringify(record)+'\n'),complete:createModelAgent({apiKey:env.AGENT_MODEL_KEY,model:env.AGENT_MODEL,provider:config.provider,baseURL:config.baseURL}),verifyChallenge:createTurnstile({secret:env.AGENT_TURNSTILE_SECRET,hostname:new URL(origin).hostname})});
   server.on('error',()=>{process.stderr.write('Agent unavailable: listener failed.\n');process.exitCode=1;});
   server.listen(config.port,config.bind);
   process.once('SIGTERM',()=>{env.AGENT_ENABLED='0';server.close();server.closeAllConnections();});

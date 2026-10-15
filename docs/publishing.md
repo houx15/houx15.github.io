@@ -25,6 +25,8 @@ bun run content list
 bun run preview
 ```
 
+`blog` creates an original-language essay under `content/blog/`; it appears in the unified Writing archive at `/writing/` and `/zh/writing/`, together with reports and learning notes, with `tags` for filtering. The previous archive URLs remain available. Article bodies retain the author’s original language regardless of navigation language. Explicit machine translation is a separate reader action and is not an authored source.
+
 `article` and `product` are accepted aliases for `report` and `project`. The slug becomes the permanent URL. Keep it stable after publication. Titles can be changed independently.
 
 Preview runs at `http://localhost:8081/` and includes drafts. `bun run dev` at `http://localhost:8080/` contains published entries only. Draft preview writes `_preview/`; production writes `_site/`. Draft pages and their attachments are excluded from production, its listings, and sitemap. **This repository is public: committed drafts are still visible on GitHub.** Keep confidential material outside the repository.
@@ -121,8 +123,12 @@ bun run content ready note attention-notes
 
 `--file` imports the body of a Markdown file (without frontmatter). Omit it to write directly in `content/notes/<slug>/index.md`. Notes default to Chinese; pass `--lang en` for English. Put referenced images in that same folder. `ready` remains a local preparation step; follow the Publish steps above to deploy.
 
-Notes are listed at `/notes/` and `/zh/notes/`, grouped by year and sorted newest first. Both list all notes in their original language; a Chinese translation is used on the Chinese archive when available. Search covers title, summary, and full text, supports Chinese and English, and checks all notes even when only 30 are shown. Use Show more for additional entries. Search terms can be shared through `?q=...`. Drafts are searchable only in the local draft preview; the live site does not contain draft text. Without JavaScript, the complete dated archive remains readable.
+Notes are listed at `/notes/` and `/zh/notes/`, grouped by year and sorted newest first. Both show the unified Writing archive in the original authored languages; navigation language does not change article text. Search covers title, summary, and full text, supports Chinese and English, and checks all notes even when only 30 are shown. Use Show more for additional entries. Search terms can be shared through `?q=...`. Drafts are searchable only in the local draft preview; the live site does not contain draft text. Without JavaScript, the complete dated archive remains readable.
 
 ## Other devices and Codex Cloud
 
 The canonical skill lives in this repository and is exposed through `.agents/skills/publish-personal-site`. `AGENTS.md` also points directly to it, so a cloud task can use the workflow without a global installation or a machine-specific path. See [cloud-publishing.md](cloud-publishing.md) for environment setup, account access requirements, and the fresh-task verification checklist. Repository setup is distinct from creating and publishing an account-side cloud environment.
+
+## Writing categories
+
+Writing uses `category: ideas`, `category: notes`, or `category: findings` for 想法、笔记、发现. These editorial categories are independent of storage folders and topic tags. Use ideas for proposals and open questions, notes for learning and technical explanation, findings for observations and reflections from practice. Projects remain a separate portfolio; link related articles to the corresponding project when useful. Existing article URLs remain stable.

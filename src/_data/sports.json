@@ -1,0 +1,110 @@
+[
+  {
+    "date": "2026-05",
+    "name": {
+      "zh-CN": "四姑娘山云间花径越野跑 · 寻花环湖",
+      "en": "Siguniang Mountain Yun Jian Hua Jing Trail Run"
+    },
+    "distance": {
+      "zh-CN": "29 km",
+      "en": "29 km"
+    },
+    "url": "https://www.sgns.cn/info/news/6535-2026-05-31-01-42-53"
+  },
+  {
+    "date": "2026-04",
+    "name": {
+      "zh-CN": "环敕木山越野赛",
+      "en": "Chimu Mountain Trail Race"
+    },
+    "distance": {
+      "zh-CN": "42 km",
+      "en": "42 km"
+    },
+    "url": null
+  },
+  {
+    "date": "2025-11",
+    "name": {
+      "zh-CN": "环四姑娘山超级越野跑 · 快乐牛仔 KLNZ35",
+      "en": "Ultra Tour Mt. Siguniang · KLNZ35"
+    },
+    "distance": {
+      "zh-CN": "35 km",
+      "en": "35 km"
+    },
+    "url": "https://www.sgns.cn/info/5a/20-news/6406-2025-11-01-09-22-10"
+  },
+  {
+    "date": "2025-09",
+    "name": {
+      "zh-CN": "UTSS 神农架森林越野跑",
+      "en": "UTSS Shennongjia Forest Trail Run"
+    },
+    "distance": {
+      "zh-CN": "70 km",
+      "en": "70 km"
+    },
+    "url": "https://itra.run/Races/RaceResults/UTSS.Shennongjia.Forest.Trail.Run.70km/2025/109225"
+  },
+  {
+    "date": "2025-08",
+    "name": {
+      "zh-CN": "东北100松花湖跑山赛",
+      "en": "Northeast 100 Songhua Lake Trail Race"
+    },
+    "distance": {
+      "zh-CN": "50 km · DNF",
+      "en": "50 km · DNF"
+    },
+    "url": null
+  },
+  {
+    "date": "2025-07",
+    "name": {
+      "zh-CN": "曹妃甸铁人三项公开赛",
+      "en": "Caofeidian International Triathlon Open"
+    },
+    "distance": {
+      "zh-CN": "标准距离",
+      "en": "Standard distance"
+    },
+    "url": "https://sport.hebei.gov.cn/jingjitiyu/sshd/2025/0721/29575.html"
+  },
+  {
+    "date": "2025-05",
+    "name": {
+      "zh-CN": "大连100越野赛",
+      "en": "Dalian 100 Ultra Trail"
+    },
+    "distance": {
+      "zh-CN": "50 km",
+      "en": "50 km"
+    },
+    "url": "https://race.leiut.cn/m/article?id=67852&mid=45349"
+  },
+  {
+    "date": "2025-04",
+    "name": {
+      "zh-CN": "云丘山越野赛 by UTMB®",
+      "en": "Mount Yun by UTMB®"
+    },
+    "distance": {
+      "zh-CN": "50 km",
+      "en": "50 km"
+    },
+    "url": "https://live.utmb.world/mountyun/2025/TMY"
+  },
+  {
+    "date": "2025-03",
+    "name": {
+      "zh-CN": "温岭黄金海岸跑山赛",
+      "en": "Wenling Golden Coast Trail Race"
+    },
+    "distance": {
+      "zh-CN": "25 km",
+      "en": "25 km"
+    },
+    "url": "https://www.haimont.cn/news/haimont-wenling-trail-running-race.html"
+  }
+]

@@ -1,0 +1,78 @@
+{
+  "mind-imprint": {
+    "url": "/assets/project-covers/mind-imprint.svg",
+    "screen": false
+  },
+  "supernono": {
+    "url": "/projects/supernono/assets/supernono.JPG",
+    "screen": true
+  },
+  "lit-flow": {
+    "url": "/projects/lit-flow/reading.jpg",
+    "screen": true
+  },
+  "zrobot": {
+    "url": "/assets/project-covers/zrobot.svg",
+    "screen": false
+  },
+  "knoweia": {
+    "url": "/assets/project-covers/knoweia.svg",
+    "screen": false
+  },
+  "cybersiliconvalley": {
+    "url": "/assets/project-covers/cybersiliconvalley.svg",
+    "screen": false
+  },
+  "podcast-cutter-skills": {
+    "url": "/assets/project-covers/podcast-cutter-skills.svg",
+    "screen": false
+  },
+  "orgclaw": {
+    "url": "/assets/project-covers/orgclaw.svg",
+    "screen": false
+  },
+  "rust-agent-sdk": {
+    "url": "/assets/project-covers/rust-agent-sdk.svg",
+    "screen": false
+  },
+  "agora": {
+    "url": "/assets/project-covers/agora.svg",
+    "screen": false
+  },
+  "tddesign": {
+    "url": "/assets/project-covers/tddesign.svg",
+    "screen": false
+  },
+  "claude-coach": {
+    "url": "/assets/project-covers/claude-coach.svg",
+    "screen": false
+  },
+  "agenterm": {
+    "url": "/assets/project-covers/agenterm.svg",
+    "screen": false
+  },
+  "superpaper": {
+    "url": "/assets/project-covers/superpaper.svg",
+    "screen": false
+  },
+  "evohive": {
+    "url": "/assets/project-covers/evohive.svg",
+    "screen": false
+  },
+  "career-pal": {
+    "url": "/assets/project-covers/career-pal.svg",
+    "screen": false
+  },
+  "edadreams": {
+    "url": "/assets/project-covers/edadreams.svg",
+    "screen": false
+  },
+  "epub-reader-tauri": {
+    "url": "/assets/project-covers/epub-reader-tauri.svg",
+    "screen": false
+  },
+  "writeright": {
+    "url": "/assets/project-covers/writeright.svg",
+    "screen": false
+  }
+}

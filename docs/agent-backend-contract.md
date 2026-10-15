@@ -89,3 +89,22 @@ Successful revision events are preserved in client saved turns and replayed in o
 Before emitting a concept diagram or applying a concept revision, a lexical check compares explicit possibility markers in its cited quote (or read passage when no quote is supplied) with unqualified prediction markers in that step's title and explanation. Diagram-wide titles and terminal captions are checked against the selected read passages. Clauses are separated so a “可能” in one clause cannot qualify an unrelated “会” in the next. Negative certainty can also conflict with uncertain evidence. Common non-modal Chinese words such as 社会/学会 are excluded from the 会 prediction pattern.
 
 A conflict returns bounded tool feedback before display; the model may repair within the existing call/tool budget. There is no extra review model, automatic rewriting, network retry or budget increase. This is deliberately not semantic entailment: marker-free categorical claims, mixed certainty within one source, paraphrases, scope, negation and cross-language semantics are not fully resolved. The check may be conservative for a passage containing both uncertain and definite claims. Passing it never establishes factual accuracy, and the final prose path is not a general semantic filter.
+
+## Full-article translation
+
+`POST /v2/translate` accepts only `{documentId, targetLanguage}` (`en` or `zh-CN`) for an original published document in the deployed corpus. It uses the same Origin checks, bearer session issued after Turnstile, admission limits, concurrency limits and paid-completion ledger as chat. The translation client uses a separate session; translation does not read or write conversational history. No arbitrary text or prompt is accepted. The existing ¥500 ceiling is unchanged.
+
+The SSE envelope remains version 2. Events are:
+
+- `translation_start`: `{documentId, targetLanguage, revision, nodes:[{id,text}]}`.
+- `translation_node`: `{nodeId,text,cached}`; exactly one completed result per source node. Cached nodes may arrive before other nodes.
+- `done`: `{outcome:"complete"}` only after every source node has a result.
+- `error`: existing sanitized `{code,partial,resetsAt?}` shape. `translation_invalid` means a provider output failed translation-shape validation. It is not a completed translation.
+
+Nodes contain the title, summary and original HTML text nodes, excluding code, preformatted text, KaTeX, scripts, styles and SVG. The browser verifies the source node map before changing text nodes; model output is never interpreted as HTML. Figures, URLs, code and mathematics remain original. The original content ID remains the reading source for chat; machine translations are not new author sources.
+
+Translation batches contain at most 600 source characters and 12 fragments, reserving and reconciling every model call through the existing ledger. Long nodes are split without dropping source text. Successful fragments persist across cancellation or quota failure. A translation has a 15-minute deadline and a 20-second SSE keepalive. Its existing admission lease can renew while valid; renewal does not add requests, raise limits, reset counters or resurrect an expired lease.
+
+Production caches live in `translation-cache/` beside the SQLite state file (or under `~/.local/state/portfolio-agent/` for non-SQLite configurations). Keys include the translation prompt version, provider/base URL/model namespace, corpus revision, document ID, target language and original nodes. Cache files contain public-text translations only, with private filesystem permissions; session tokens, visitor text and credentials never enter the cache. Changing source or provider invalidates the cache. Cache writes do not modify the accounting database.
+
+A failed or cancelled request may be retried with the same document and language; completed fragments are reused. Visitor rate limits and daily/global monetary limits still apply, so a long first translation may stop before completion. The UI must not label a partial result as the full translated article, and must never silently truncate the source to fit a call.

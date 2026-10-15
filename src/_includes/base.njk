@@ -14,6 +14,7 @@
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
   <link rel="stylesheet" href="/assets/style.css?v={{ stylesheetVersion }}">
   <link rel="stylesheet" href="/assets/companion.css?v={{ stylesheetVersion }}">
+  <link rel="stylesheet" href="/assets/blog.css?v={{ stylesheetVersion }}">
   {% if article %}<link rel="stylesheet" href="/assets/katex/katex.min.css">{% endif %}
 </head>
 <body class="{{ pageClass }}">
@@ -23,8 +24,7 @@
     <nav aria-label="{{ '主导航' if ui.prefix else 'Main navigation' }}">
       <a href="{{ ui.prefix }}/research/"{% if section == 'research' %} aria-current="page"{% endif %}>{{ ui.research }}</a>
       <a href="{{ ui.prefix }}/projects/"{% if section == 'projects' %} aria-current="page"{% endif %}>{{ ui.projects }}</a>
-      <a href="{{ ui.prefix }}/reports/"{% if section == 'reports' %} aria-current="page"{% endif %}>{{ ui.notes }}</a>
-      <a href="{{ ui.prefix }}/notes/"{% if section == 'notes' %} aria-current="page"{% endif %}>{{ ui.learningNotes }}</a>
+      <a href="{{ ui.prefix }}/writing/"{% if section == 'writing' or section == 'reports' or section == 'blog' or section == 'notes' %} aria-current="page"{% endif %}>{{ ui.writing }}</a>
       <a href="{{ ui.prefix }}/about/"{% if section == 'about' %} aria-current="page"{% endif %}>{{ ui.about }}</a>
     </nav>
     <a class="language-switch" id="language-switch" href="{{ page.url | switchLanguage(entries, ui.lang) }}" hreflang="{{ 'en' if ui.prefix else 'zh-CN' }}" lang="{{ 'en' if ui.prefix else 'zh-CN' }}" aria-label="{{ ui.languageLabel }}">{{ ui.language }}</a>
@@ -40,7 +40,7 @@
       <a href="{{ site.github }}">{% include 'icons/github.njk' %}<span>GitHub</span></a>
     </div>
   </footer>
-  {% if pageClass != 'home-page' and pageClass != 'chat-page' %}
+  {% if pageClass != 'chat-page' %}
   <button class="companion-launcher" type="button" data-companion-open aria-haspopup="dialog" aria-controls="companion-dialog" aria-label="{{ '打开团子的纸页，一起读' if ui.prefix or lang == 'zh-CN' else 'Open the guide’s page and read together' }}">{% include 'dumpling.njk' %}<span>{{ '一起读？' if ui.prefix or lang == 'zh-CN' else 'Read together?' }}</span></button>
   <dialog id="companion-dialog" class="comic-dialog" aria-label="{{ '团子的纸页' if ui.prefix or lang == 'zh-CN' else 'The guide’s page' }}"><button type="button" class="comic-close" data-companion-close aria-label="{{ '关闭，回到阅读' if ui.prefix or lang == 'zh-CN' else 'Close and return to reading' }}">× <span>{{ '回到阅读' if ui.prefix or lang == 'zh-CN' else 'Back to reading' }}</span></button>{% include 'companion.njk' %}</dialog>
   {% endif %}

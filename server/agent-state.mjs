@@ -80,6 +80,10 @@ export function createGuard({store,secret,dailyTokens=0,monthlyCny,rate,enabled=
       if(session.turns>=20) fail(429,'rate_limited'); session.turns++;
       s.leases[requestId]={sessionId:id,expiresAt:t+60000}; return {sessionId:id,history:session.history,earlierHistory:session.earlierHistory || []};
     });},
+    async renew(requestId) {return tx((s,t)=>{
+      const lease=s.leases[requestId];if(!lease)fail(503,'unavailable');
+      lease.expiresAt=t+60000;
+    });},
     async finish(requestId,exchange) {return tx(s=>{
       const lease=s.leases[requestId];
       if(exchange && lease && s.sessions[lease.sessionId]) {

@@ -11,6 +11,14 @@ eleventyComputed:
   title: "{{ locale.projects }}"
 ---
 {% set ui = locale %}
-{% from 'entries.njk' import entryList %}
-<header class="page-heading"><p class="eyebrow">{{ ui.name }}</p><h1>{{ ui.projects }}</h1></header>
-{% set cards = portfolio.projects %}{% set showDiagrams = true %}{% include 'project-cards.njk' %}{% set allProjects = entries | localized(ui) | section('projects') | products %}{% set items = allProjects | otherProjects(portfolio.projects) %}{% if items.length %}{{ entryList(items,'h2',ui) }}{% elif not allProjects.length %}<p class="empty-state">{{ ui.noProjects }}</p>{% endif %}
+{% from 'product-gallery.njk' import productCard %}
+<link rel="stylesheet" href="/assets/project-gallery.css?v={{ stylesheetVersion }}">
+<header class="page-heading"><h1>{{ ui.projects }}</h1></header>
+{% set items = entries | localized(ui) | section('projects') | projectOrder %}
+<div data-tag-browser>
+<nav class="topic-filter" aria-label="{{ '按主题筛选' if ui.prefix else 'Filter by topic' }}"><a href="{{ ui.prefix }}/projects/" data-tag="" aria-current="true">{{ '全部' if ui.prefix else 'All' }}</a>{% for tag in ['AI协作','Agent','学习教育','研究写作','开发工具','音视频','产品思考'] %}<a href="?tag={{ tag | urlencode }}" data-tag="{{ tag }}">{{ tag }}</a>{% endfor %}</nav>
+<p class="filter-status" data-filter-status aria-live="polite" data-count-label="{{ '个项目' if ui.prefix else 'projects' }}">{{ items.length }} {{ '个项目' if ui.prefix else 'projects' }}</p>
+<ul class="product-grid">{% for item in items %}{{ productCard(item,projectCovers[item.slug],ui) }}{% endfor %}</ul>
+<p data-filter-empty hidden>{{ '这个标签下暂时没有项目。' if ui.prefix else 'No projects with this topic yet.' }}</p>
+</div>
+<script type="module" src="/assets/blog-filter.js?v={{ assistantVersion }}"></script>

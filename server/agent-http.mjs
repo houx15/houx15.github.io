@@ -1,3 +1,4 @@
+import {createTranslationCache,translationDocument,runTranslation} from './agent-translation.mjs';
 import { validatePageContext } from './agent-page-context.mjs';
 import { visitorAddress } from './agent-address.mjs';
 import { rememberAgentAnswer } from './agent-memory.mjs';
@@ -16,11 +17,11 @@ async function body(req) {
   for await(const chunk of req){size+=chunk.length;if(size>8192) invalid();parts.push(chunk);}
   try{return JSON.parse(Buffer.concat(parts));}catch{invalid();}
 }
-export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,enabled=()=>false,production=true,deadlineMs=45000,trustLoopbackProxy=false,onDiagnostic=()=>{}}) {
+export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,enabled=()=>false,production=true,deadlineMs=45000,trustLoopbackProxy=false,onDiagnostic=()=>{},translationCache=createTranslationCache(),translationDeadlineMs=900000}) {
   const available=()=>enabled() && (!production || guard.store.shared) && typeof complete==='function' && typeof verifyChallenge==='function';
   const server=createServer(async(req,res)=>{
-    const controller=new AbortController(), timer=setTimeout(()=>controller.abort(new Error('deadline')),deadlineMs);
-    const signal=controller.signal, requestId=randomUUID(); let admitted=false,sequence=0,partial=false,step=0,stage='request';
+    const controller=new AbortController(), timer=setTimeout(()=>controller.abort(new Error('deadline')),req.url==='/v2/translate'?translationDeadlineMs:deadlineMs);
+    const signal=controller.signal, requestId=randomUUID(); let admitted=false,sequence=0,partial=false,step=0,stage='request',heartbeat;
     res.on('close',()=>controller.abort()); req.on('aborted',()=>controller.abort());
     res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
     const json=(status,data)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data));};
@@ -35,13 +36,25 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Vary','Origin');
       if(req.method==='OPTIONS') {res.writeHead(204,{'Access-Control-Allow-Methods':'POST','Access-Control-Allow-Headers':'Content-Type, Authorization'});res.end();return;}
       if(!available()) throw new AgentError(503,'unavailable');
-      if(req.method!=='POST' || !['/v2/sessions','/v2/agent'].includes(req.url)) throw new AgentError(404,'not_found');
+      if(req.method!=='POST' || !['/v2/sessions','/v2/agent','/v2/translate'].includes(req.url)) throw new AgentError(404,'not_found');
       const input=await body(req);signal.throwIfAborted(); const address=visitorAddress(req,trustLoopbackProxy);
       if(req.url==='/v2/sessions') {
         if(!object(input,['challengeToken']) || typeof input.challengeToken!=='string' || !input.challengeToken || input.challengeToken.length>2048) invalid();
         await guard.challengeAttempt(address,input.challengeToken);signal.throwIfAborted();
         await verifyChallenge(input.challengeToken,signal);signal.throwIfAborted();
         json(201,await guard.issue());return;
+      }
+      if(req.url==='/v2/translate') {
+        const doc=translationDocument(corpus,input);
+        const token=req.headers.authorization?.match(/^Bearer ([^ ]+)$/)?.[1];
+        await guard.begin(token,address,requestId);admitted=true;signal.throwIfAborted();
+        res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','X-Accel-Buffering':'no'});res.flushHeaders();
+        heartbeat=setInterval(()=>{if(!res.destroyed && !signal.aborted)res.write(': keepalive\n\n');},20000);
+        const paid=createPaidCompletion({guard,requestId,complete,signal,beforeCall:()=>{if(!available())throw new AgentError(503,'unavailable');step++;stage='translation';}});
+        await runTranslation({corpus,doc,targetLanguage:input.targetLanguage,cache:translationCache,signal,
+          complete:async args=>{await guard.renew(requestId);return paid(args);},
+          emit:(type,data)=>{if(type==='translation_node')partial=true;emit(type,data);}});
+        await guard.finish(requestId);admitted=false;emit('done',{outcome:'complete'});res.end();return;
       }
       if(!object(input,['question','language','pageContext','openingContext','supportsConceptFlow','supportsConceptRevisions']) || typeof input.question!=='string' || !input.question.trim() || input.question.length>400 || !['en','zh-CN'].includes(input.language)) invalid();
       let openingContext;try {openingContext=resolveOpeningContext(input.openingContext,input.language);}catch {invalid();}
@@ -80,7 +93,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
         if(res.headersSent) {if(!signal.aborted) emit('error',{code,partial,...reset});res.end();}
         else json(error instanceof AgentError?error.status:503,{error:{code,...reset}});
       }
-    } finally {clearTimeout(timer);if(admitted) {try{await guard.finish(requestId);}catch{/* lease expires; no further paid calls */}}}
+    } finally {clearTimeout(timer);clearInterval(heartbeat);if(admitted) {try{await guard.finish(requestId);}catch{/* lease expires; no further paid calls */}}}
   });
   server.requestTimeout=10000;server.headersTimeout=10000;
   return server;

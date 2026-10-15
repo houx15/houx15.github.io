@@ -24,9 +24,9 @@ export default function (config) {
   config.addGlobalData('assistantVersion', assistantVersion);
   config.addGlobalData('agentCorpusVersion', async () => (await buildCorpus()).revision);
   config.addGlobalData('year', () => new Date().getUTCFullYear());
-  config.addGlobalData('stylesheetVersion', async () => createHash('sha256').update((await Promise.all(['style.css','companion.css'].map(name => fs.readFile(`src/assets/${name}`,'utf8')))).join('\0')).digest('hex').slice(0, 12));
+  config.addGlobalData('stylesheetVersion', async () => createHash('sha256').update((await Promise.all(['style.css','companion.css','blog.css','project-gallery.css','home-profile.css'].map(name => fs.readFile(`src/assets/${name}`,'utf8')))).join('\0')).digest('hex').slice(0, 12));
   config.addFilter('isChinese', url => url.startsWith('/zh/'));
-  config.addFilter('localized', (entries, locale) => locale.prefix ? entries.filter(item=>item.zh).map(item=>item.zh) : entries);
+  config.addFilter('localized', (entries, locale) => entries);
   config.addFilter('switchLanguage', (url, entries, language) => {
     if (url.startsWith('/zh/')) return url.slice(3);
     const entry = entries.find(item=>item.url===url);
@@ -37,10 +37,13 @@ export default function (config) {
   config.addFilter('noteText', html => load(html).text());
   config.addFilter('noteYears', entries => [...new Set(entries.map(entry => entry.date.slice(0, 4)))]);
   config.addFilter('inYear', (entries, year) => entries.filter(entry => entry.date.startsWith(year)));
-  config.addFilter('learningEntries', (entries, locale) => entries.filter(entry => entry.type === 'notes').map(entry => locale.prefix && entry.zh ? entry.zh : entry));
+  config.addFilter('writingEntries', entries => entries.filter(item => ['reports','blog','notes'].includes(item.type)).map(item=>({...item,writingCategory:item.category || (item.type==='blog'?'ideas':'notes')})));
+  config.addFilter('writingTags', entries => [...new Set(entries.flatMap(item=>item.tags || []))]);
+  config.addFilter('learningEntries', (entries, locale) => entries.filter(entry => entry.type === 'notes'));
   config.addFilter('products', entries => entries.filter(item => item.category !== 'research' && item.category !== 'research-software'));
   config.addFilter('researchSoftware', entries => entries.filter(item => item.category === 'research-software'));
   config.addFilter('section', (entries, type) => entries.filter(item => item.type === type));
+  config.addFilter('projectOrder', items => { const order=['mind-imprint','knoweia','supernono','zrobot','lit-flow','cybersiliconvalley']; return [...items].sort((a,b)=>(order.includes(a.slug)?order.indexOf(a.slug):99)-(order.includes(b.slug)?order.indexOf(b.slug):99)); });
   config.addFilter('projectBySlug', (entries, slug) => entries.find(item => item.type === 'projects' && item.slug === slug));
   config.addFilter('otherProjects', (entries, projects) => entries.filter(item => !projects.some(project => project.slug === item.slug)));
   config.addFilter('selected', entries => {
@@ -68,7 +71,7 @@ export default function (config) {
           else await fs.unlink(target);
         }
       }
-      for (const section of ['projects', 'reports', 'zh/projects', 'zh/reports', 'notes', 'zh/notes']) await clearFiles(path.join(dir.output, section));
+      for (const section of ['projects', 'reports', 'zh/projects', 'zh/reports', 'notes', 'zh/notes', 'blog', 'zh/blog']) await clearFiles(path.join(dir.output, section));
     }
     await fs.mkdir(dir.output, { recursive: true });
     await copyPublishedAssets(await loadContent(), dir.output);

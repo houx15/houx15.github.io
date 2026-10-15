@@ -18,6 +18,8 @@ import { validateSavedTurn,recordPresentationEvent } from './agent-history.js';
 
 const safeSource = url => typeof url === 'string' && !/[\\\u0000-\u001f]/.test(url) && (/^\/(?!\/)[^\s]*$/.test(url) || /^https:\/\/github\.com\/houx15(?:\/|$)/.test(url));
 export function initCompanion(document) {
+  const scene=document.querySelector('[data-home-scene]');
+  if(scene){scene.dataset.homeScene=Math.random()<.5?'desk':'park';scene.dataset.arrival=Math.random()<.5?'roll':'drop';scene.classList.add('scene-arriving');}
   const portal = document.querySelector('.portal-speech');
   if (portal) {
     const greeting = chooseGreeting(document.documentElement.lang);
@@ -25,7 +27,7 @@ export function initCompanion(document) {
     portal.querySelector('[data-typewriter]').textContent = greeting;
     portal.querySelector('.sr-only').textContent = greeting;
   }
-  for (const line of document.querySelectorAll('[data-typewriter]')) typeGreeting(line);
+  for (const line of document.querySelectorAll('[data-typewriter]')) typeGreeting(line,{startDelay:scene?1400:350});
   const root = document.querySelector('[data-companion]'); if (!root) return;
   const zh = document.documentElement.lang === 'zh-CN', language = zh ? 'zh-CN' : 'en';
   const log = root.querySelector('[data-companion-log]'), status = root.querySelector('[data-companion-status]');
@@ -145,7 +147,7 @@ export function initCompanion(document) {
       const story = storyCards.find(card => card.id === item.id); if(!story){row.remove();return;}
       row.append(createDiceCard(document,{storyId:story.id,seen,language,onRoll:roll,onQuestion:ask}));
     } else if(item.kind === 'story') {
-      add(row,'p',zh?'我们一段一段看。想问哪一段，随时打断我。':'One chapter at a time. Ask about any of them as we go.','comic-reply');
+      add(row,'p',zh?'这是她的经历总览。求学、工作和公益探索有不少重叠。':'Here is her experience at a glance. Education, work and community involvement overlap.','comic-reply');
       row.append(createBiographyChapter(document,{eventId:item.eventId,language,onChange:eventId=>{item.eventId=eventId;save();},onQuestion:ask}));
       sources(row,[{label:zh?'完整经历与资料来源':'Full biography and sources',url:local('/about/#sources')}]);
     } else {
@@ -199,7 +201,7 @@ export function initCompanion(document) {
     const readingSnapshot={ready:readingReady,headings:draftContext.snapshot()};
     input.value='';updateComposer();
     if(/^(掷骰子|roll(?: a die)?)$/i.test(question)){await roll();return;}
-    if(/^(带我看看她的经历|看看她的经历|show me her story)[。.!?？]?$/i.test(question)){render({kind:'story',question});return;}
+    if(/^(带我看看她的经历|看看她的经历|看看她的经历总览|show me her story|see her experience at a glance)[。.!?？]?$/i.test(question)){render({kind:'story',question});return;}
     if(liveClient) { await askLive(question,openingContext,readingSnapshot);return; }
     const answer=answerQuestion(question,language);
     if(answer.id !== 'empty') {

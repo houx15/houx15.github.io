@@ -19,7 +19,7 @@ Aliases: article → report; product → project.
 New entries are drafts. ready validates and builds locally; it does not commit or push.
 For an existing published entry, ready preserves its publication date and sets updated.
 `;
-const kinds = { report: 'reports', article: 'reports', project: 'projects', product: 'projects', note: 'notes' };
+const kinds = { report: 'reports', article: 'reports', project: 'projects', product: 'projects', note: 'notes', blog: 'blog' };
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const root = process.cwd();
 function build() {

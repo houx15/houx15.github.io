@@ -1,0 +1,14 @@
+---
+layout: base.njk
+pagination:
+  data: locales
+  size: 1
+  alias: locale
+permalink: "{{ locale.prefix }}/blog/"
+section: writing
+eleventyComputed:
+  lang: "{{ locale.lang }}"
+  title: "{{ locale.writing }}"
+---
+{% set ui = locale %}
+{% include 'writing-list.njk' %}

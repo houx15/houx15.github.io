@@ -14,12 +14,14 @@ export function renderContentBlock(document, block, { language = 'en', onQuestio
     return root;
   }
   if (!['post_cards', 'publication_timeline'].includes(block.type)) throw new Error('Unsupported block');
-  if (block.type === 'publication_timeline') add(root, 'p', zh ? '内容发布日期 · 不代表项目起止时间' : 'Publication dates · not project start or end dates');
+  if (block.type === 'publication_timeline') add(root, 'p', block.dateKind === 'content' ? (zh ? '内容时间 · 项目起点、写作或发表日期，不代表持续时间' : 'Content dates · project origins, writing or publication, not duration') : (zh ? '内容发布日期 · 不代表项目起止时间' : 'Publication dates · not project start or end dates'));
   const list = add(root, 'ol', '');
   for (const item of block.items) {
-    if (!/^\/(?:zh\/)?(?:projects|reports|notes)\/[a-z0-9-]+\/$/.test(item.url)) throw new Error('Invalid card URL');
+    if (!/^\/(?:zh\/)?(?:projects|reports|notes|blog)\/[a-z0-9-]+\/$/.test(item.url)) throw new Error('Invalid card URL');
     const row = add(list, 'li', '');
     const time = add(row, 'time', item.date); time.dateTime = item.date;
+    const kind = item.dateKind === 'project-origin' ? (zh ? '项目起点' : 'Project origin') : item.dateKind === 'authored' ? (zh ? '写作日期' : 'Written') : '';
+    if (kind || item.status) add(row, 'small', [kind, item.status === '想法' ? (zh ? '想法' : 'Concept') : item.status === '已完成' ? (zh ? '已完成' : 'Completed') : ''].filter(Boolean).join(' · '));
     const link = add(row, 'a', item.title); link.href = item.url;
     if (block.type === 'post_cards') add(row, 'p', item.summary);
   }

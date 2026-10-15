@@ -182,8 +182,8 @@ test('long timelines reveal an ordered preview and keep remaining entries in one
   turn.event({type:'block',block:{id:'timeline',type:biography?'event_timeline':'publication_timeline',dateKind:biography?'biography':'publication',asOf:'2026-10-10',items}});
   const block=turn.row.children.find(node=>node.className.includes('comic-agent-block'));
   const preview=block.children.find(node=>node.tag==='ol'),more=block.children.find(node=>node.tag==='details');
-  assert.equal(preview.children.length,count>3?2:count);
-  assert.equal(Boolean(more),count>3);
+  assert.equal(preview.children.length,!biography && count>3?2:count);
+  assert.equal(Boolean(more),!biography && count>3);
   assert.deepEqual(block.querySelectorAll('h3').map(node=>node.textContent),items.map(item=>item.title));
   assert.equal(block.querySelectorAll('a').length,count);
   if(more){assert.equal(more.open,undefined);assert.equal(more.querySelectorAll('li').length,count-2);assert.equal(more.querySelectorAll('ol')[0].attributes.start,'3');}

@@ -26,7 +26,7 @@ function relevantExcerpt(text, terms) {
   return text.slice(start,start+320);
 }
 const bounded = (value, fallback, max) => Number.isInteger(value) ? Math.max(0, Math.min(max, value)) : fallback;
-const safeURL = url => typeof url === 'string' && /^\/(?:zh\/)?(?:projects|reports|notes)\/[a-z0-9-]+\/(?:#[^\s]*)?$/.test(url);
+const safeURL = url => typeof url === 'string' && /^\/(?:zh\/)?(?:projects|reports|notes|blog)\/[a-z0-9-]+\/(?:#[^\s]*)?$/.test(url);
 
 export function createContentTools(corpus) {
   if (corpus.schemaVersion !== 1 || !Array.isArray(corpus.documents)) throw new Error('Invalid corpus');
@@ -51,7 +51,8 @@ export function createContentTools(corpus) {
     }
   }
   const averageLength = totalLength / (sections.size || 1);
-  const card = doc => ({ id: doc.id, title: doc.title, summary: doc.summary, url: doc.url, date: doc.date, type: doc.type });
+  const card = doc => ({ id: doc.id, title: doc.title, summary: doc.summary, url: doc.url, date: doc.date, type: doc.type,
+    ...(doc.dateKind ? {dateKind:doc.dateKind} : {}), ...(doc.status ? {status:doc.status} : {}), ...(doc.updated ? {updated:doc.updated} : {}) });
   const requireDoc = id => { const doc = docs.get(id); if (!doc) throw new Error('Unknown document'); return doc; };
   function search_content({ query, documentId, type, from, to, language, offset = 0, limit = 5 } = {}) {
     if (typeof query !== 'string' || query.length > 400) throw new Error('Invalid query');
@@ -108,7 +109,7 @@ export function createContentTools(corpus) {
     const sorted = [...docs.values()].sort((a, b) => b.date.localeCompare(a.date) || Number(b.language === language) - Number(a.language === language));
     const items = sorted.filter(doc => (!from || doc.date >= from) && (!to || doc.date <= to))
       .filter(doc => !seen.has(doc.canonicalId) && seen.add(doc.canonicalId));
-    return { type: 'publication_timeline', dateKind: 'publication', total: items.length, items: items.slice(0, 12).map(card) };
+    return { type: 'publication_timeline', dateKind: sorted.some(doc=>doc.dateKind && doc.dateKind!=='publication')?'content':'publication', total: items.length, items: items.slice(0, 12).map(card) };
   }
   function find_related_posts({ id, query, language, excludeIds = [] } = {}) {
     const doc = id ? requireDoc(id) : null;
@@ -130,7 +131,7 @@ export function createContentTools(corpus) {
   function show_visualization({ kind, ids } = {}) {
     if (kind !== 'publication_timeline' || !Array.isArray(ids) || ids.length > 12) throw new Error('Unsupported visualization');
     const seen = new Set();
-    return { type: kind, dateKind: 'publication', items: ids.map(requireDoc).filter(doc => !seen.has(doc.canonicalId) && seen.add(doc.canonicalId))
+    return { type: kind, dateKind: ids.some(id=>requireDoc(id).dateKind && requireDoc(id).dateKind!=='publication')?'content':'publication', items: ids.map(requireDoc).filter(doc => !seen.has(doc.canonicalId) && seen.add(doc.canonicalId))
       .sort((a, b) => a.date.localeCompare(b.date)).map(card) };
   }
   function show_reading_map({ id, sectionIds } = {}) {

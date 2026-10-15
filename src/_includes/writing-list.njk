@@ -1,0 +1,24 @@
+{% set chinese = ui.prefix %}
+{% set items = entries | writingEntries %}
+<header class="page-heading"><h1>{{ ui.writing }}</h1></header>
+<section data-notes data-locale="{{ ui.lang }}" aria-label="{{ ui.writing }}">
+  <nav class="topic-filter" aria-label="{{ '文章类型' if chinese else 'Article type' }}">
+    <a href="{{ ui.prefix }}/writing/" data-writing-type="" aria-current="true">{{ '全部' if chinese else 'All' }}</a>
+    <a href="?type=ideas" data-writing-type="ideas">{{ '想法' if chinese else 'Ideas' }}</a><a href="?type=notes" data-writing-type="notes">{{ '笔记' if chinese else 'Notes' }}</a><a href="?type=findings" data-writing-type="findings">{{ '发现' if chinese else 'Findings' }}</a>
+  </nav>
+  {% if items.length %}<nav class="topic-filter writing-topics" aria-label="{{ '文章主题' if chinese else 'Article topic' }}"><a href="{{ ui.prefix }}/writing/" data-writing-tag="" aria-current="true">{{ '所有主题' if chinese else 'All topics' }}</a>{% for tag in items | writingTags %}<a href="?tag={{ tag | urlencode }}" data-writing-tag="{{ tag }}">{{ tag }}</a>{% endfor %}</nav>{% endif %}
+  <div class="notes-tools" hidden>
+    <label for="note-search">{{ '搜索文章' if chinese else 'Search articles' }}</label>
+    <div class="notes-search"><input id="note-search" type="search" placeholder="{{ '搜索标题、摘要和正文' if chinese else 'Search titles, summaries, and full text' }}" autocomplete="off"><button type="button" data-clear>{{ '清除' if chinese else 'Clear' }}</button></div>
+    <p class="notes-count" role="status" aria-live="polite" data-count></p>
+  </div>
+  {% if items.length %}<div class="notes-timeline">
+  {% for year in items | noteYears %}<section class="notes-year" data-year aria-labelledby="year-{{ year }}"><h2 id="year-{{ year }}">{{ year }}</h2><ol>
+    {% for note in items | inYear(year) %}<li class="note-item" data-note data-writing-entry-type="{{ note.writingCategory }}" data-entry-tags="{{ note.tags | default([]) | join('|') }}" data-search="{{ note.title }} {{ note.summary }} {{ note.html | noteText }}" lang="{{ note.lang }}">
+    <time datetime="{{ note.date }}">{{ note.date.slice(5) }}</time><div><h3><a href="{{ note.url }}">{{ note.title }}</a></h3><p>{{ note.summary }}</p><ul class="article-tags"><li><a href="?type={{ note.writingCategory }}" data-writing-type="{{ note.writingCategory }}">{% if note.writingCategory == 'ideas' %}{{ '想法' if chinese else 'Ideas' }}{% elif note.writingCategory == 'findings' %}{{ '发现' if chinese else 'Findings' }}{% else %}{{ '笔记' if chinese else 'Notes' }}{% endif %}</a></li>{% for tag in note.tags %}<li><a href="?tag={{ tag | urlencode }}" data-writing-tag="{{ tag }}">{{ tag }}</a></li>{% endfor %}</ul>{% if note.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}</div>
+    </li>{% endfor %}
+  </ol></section>{% endfor %}</div>
+  <p data-no-results hidden>{{ '没有匹配的文章。试试其他关键词或标签。' if chinese else 'No matching articles. Try another keyword or tag.' }}</p>
+  <button class="notes-more" type="button" data-more hidden>{{ '显示更多' if chinese else 'Show more' }}</button>
+  {% else %}<p class="empty-state">{{ '暂无文章。' if chinese else 'No articles published yet.' }}</p>{% endif %}
+</section>

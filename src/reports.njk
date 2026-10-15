@@ -5,12 +5,10 @@ pagination:
   size: 1
   alias: locale
 permalink: "{{ locale.prefix }}/reports/"
-section: reports
+section: writing
 eleventyComputed:
   lang: "{{ locale.lang }}"
-  title: "{{ locale.notes }}"
+  title: "{{ locale.writing }}"
 ---
 {% set ui = locale %}
-{% from 'entries.njk' import entryList %}
-<header class="page-heading"><p class="eyebrow">{{ ui.name }}</p><h1>{{ ui.notes }}</h1></header>
-{% set items = entries | localized(ui) | section('reports') %}{% if items.length %}{{ entryList(items,'h2',ui) }}{% else %}<p class="empty-state">{{ ui.noNotes }}</p>{% endif %}
+{% include 'writing-list.njk' %}

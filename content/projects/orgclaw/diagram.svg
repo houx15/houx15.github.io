@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="690" viewBox="0 0 1020 690" role="img" aria-label="OrgClaw · 权限、执行与持久资料的边界">
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#333" stroke-width="1.3"/></marker></defs>
+<rect width="1020" height="690" fill="white"/>
+<style>text{font-family:Arial,"PingFang SC",sans-serif;fill:#242424}.sm{font-size:16px;fill:#555}.label{font-size:20px}.title{font-size:25px;font-weight:600}.group{fill:#fafafa;stroke:#aaa;stroke-dasharray:5 5}.box{fill:white;stroke:#333;stroke-width:1.5}.line{fill:none;stroke:#333;stroke-width:1.5;marker-end:url(#a)}</style>
+<text x="25" y="38" class="title">OrgClaw · 权限、执行与持久资料的边界</text>
+<rect x="25" y="76" width="235" height="76" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="142.5" y="107" text-anchor="middle" class="label">组织协作入口</text>
+<text x="142.5" y="133" text-anchor="middle" class="sm">成员身份／群聊／目标 Agent</text>
+<rect x="305" y="76" width="385" height="76" rx="7" fill="#f7e4a1" stroke="#333" stroke-width="1.5"/>
+<text x="497.5" y="107" text-anchor="middle" class="label">控制层</text>
+<text x="497.5" y="133" text-anchor="middle" class="sm">检查权限 · 路由消息 · 管理生命周期</text>
+<path d="M260 114H305" class="line"/>
+<rect x="288" y="188" width="420" height="179" rx="9" class="group"/>
+<text x="307" y="216" class="sm">执行环境：每个 Agent 独立容器</text>
+<rect x="310" y="241" width="177" height="93" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="398.5" y="272" text-anchor="middle" class="label">Agent A</text>
+<text x="398.5" y="298" text-anchor="middle" class="sm">角色／工具／循环</text>
+<rect x="510" y="241" width="177" height="93" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="598.5" y="272" text-anchor="middle" class="label">Agent B</text>
+<text x="598.5" y="298" text-anchor="middle" class="sm">角色／工具／循环</text>
+<path d="M407 152V241" class="line"/>
+<path d="M596 152V241" class="line"/>
+<rect x="768" y="235" width="224" height="90" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="880.0" y="266" text-anchor="middle" class="label">LLM Proxy</text>
+<text x="880.0" y="292" text-anchor="middle" class="sm">密钥 · 路由 · 使用量</text>
+<rect x="768" y="376" width="224" height="77" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="880.0" y="407" text-anchor="middle" class="label">外部模型服务</text>
+<text x="880.0" y="433" text-anchor="middle" class="sm">提供商 API</text>
+<path d="M708 282H768" class="line"/>
+<path d="M880 325V376" class="line"/>
+<text x="739" y="193" class="sm">模型凭证留在代理侧</text>
+<rect x="25" y="407" width="683" height="231" rx="9" class="group"/>
+<text x="44" y="437" class="sm">持久数据边界：通过服务访问，不随容器重建消失</text>
+<rect x="45" y="458" width="193" height="76" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="141.5" y="489" text-anchor="middle" class="label">记忆服务</text>
+<text x="141.5" y="515" text-anchor="middle" class="sm">对话／摘要检查点</text>
+<rect x="258" y="458" width="193" height="76" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="354.5" y="489" text-anchor="middle" class="label">业务资产服务</text>
+<text x="354.5" y="515" text-anchor="middle" class="sm">客户／项目／素材</text>
+<rect x="471" y="458" width="216" height="76" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="579.0" y="489" text-anchor="middle" class="label">运行状态服务</text>
+<text x="579.0" y="515" text-anchor="middle" class="sm">权限／配置／审计</text>
+<path d="M498 367V387H142V458" class="line"/>
+<path d="M498 387H355V458" class="line"/>
+<path d="M498 387H580V458" class="line"/>
+<rect x="145" y="565" width="440" height="53" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="365.0" y="596" text-anchor="middle" class="label">PostgreSQL · 逻辑分域</text>
+<path d="M142 534V547H250V565" class="line"/>
+<path d="M355 534V565" class="line"/>
+<path d="M580 534V547H480V565" class="line"/>
+<text x="25" y="674" class="sm">架构方案；组织版未完成。早期单 Agent 原型尚未具备图中全部隔离边界。</text>
+</svg>

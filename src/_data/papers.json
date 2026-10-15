@@ -1,0 +1,276 @@
+{
+  "published": [
+    {
+      "id": "trust-imputation",
+      "year": 2025,
+      "title": {
+        "en": "Imputing International Trust Survey Data Using Large Language Models",
+        "zh-CN": "基于大语言模型的国际信任民调数据插补"
+      },
+      "authors": {
+        "en": [
+          "Feng Yang",
+          "Yuxin Hou",
+          "Xun Pang"
+        ],
+        "zh-CN": [
+          "杨锋",
+          "侯煜欣",
+          "庞珣"
+        ]
+      },
+      "journal": {
+        "en": "Quarterly Journal of International Politics",
+        "zh-CN": "国际政治科学"
+      },
+      "volume": "10(4), 1–31",
+      "doi": "10.16513/j.cnki.qjip.20260108.001",
+      "abstract": {
+        "zh-CN": "近年来,预训练大语言模型的快速发展催生了区别于传统数据处理路径的“生成性建模”(generative modeling)方法,在社会科学研究中展现出广泛的创新潜力。为探索大语言模型赋能国际关系实证研究和评估其能力和可信度,本文以大语言模型进行民意调查中缺失值插补为切入点,聚焦于其中国际信任度这一高度依赖上下文的主观潜在变量,在这一具有挑战性的缺失数据处理任务上,将大模型的表现与常用且强大的现有方法进行系统性比较。本文借助“中国家庭追踪调查”(China Family Panel Studies,简称CFPS)这一纵贯性调查数据包含的丰富上下文信息,以及该调查中对国内外不同对象信任度问题所提供的比较契机,考察和对比在不同缺失机制下不同方法的能力表现,以及本土和国际大模型预测能力的优劣,以评估模型训练语料与人类反馈训练中隐含的社会语境对国内外态度预测的影响。实验结果发现,尽管生成性方法在主观民意数据插补中仍面临挑战,但在应对非随机缺失方面表现优异,其性能不逊于现有机器学习方法,且在数据保真方面能力突出。同时,本土模型在理解和模拟本地政治社会语境方面展现的能力胜过国际大模型。鉴于非随机缺失数据在国际关系研究中的常见性和挑战性,本文的发现有助于研究者应用大语言模型来应对这一重要数据问题,并展示了提升大语言模型在国际关系研究中的可信度与规范性的路径。",
+        "en": "The rapid development of pretrained large language models has introduced generative modeling as an alternative approach to data processing in social science. This study examines missing-value imputation for international trust, a context-dependent latent subjective variable, using the longitudinal China Family Panel Studies (CFPS). It systematically compares large language models with established methods under different missing-data mechanisms and contrasts domestic and international models to assess the role of social context in training data and human feedback. Although generative approaches remain challenged by subjective survey-data imputation, they perform well under missing-not-at-random conditions, matching existing machine-learning methods and showing strong data fidelity. Domestic models outperform international models in understanding and simulating local political and social contexts. The findings identify opportunities for using large language models to address missing data in international-relations research and for improving the credibility and rigor of their use."
+      },
+      "language": "zh-CN",
+      "translated": true,
+      "onlineYear": 2026
+    },
+    {
+      "id": "nlp-review",
+      "year": 2025,
+      "title": {
+        "en": "Natural language processing for social science research: A comprehensive review",
+        "zh-CN": "Natural language processing for social science research: A comprehensive review"
+      },
+      "authors": {
+        "en": [
+          "Yuxin Hou",
+          "Junming Huang"
+        ],
+        "zh-CN": [
+          "Yuxin Hou",
+          "Junming Huang"
+        ]
+      },
+      "journal": {
+        "en": "Chinese Journal of Sociology",
+        "zh-CN": "Chinese Journal of Sociology"
+      },
+      "volume": "11(1), 121–157",
+      "doi": "10.1177/2057150X241306780",
+      "abstract": null,
+      "language": "en",
+      "abstractURL": "https://journals.sagepub.com/doi/10.1177/2057150X241306780"
+    },
+    {
+      "id": "talent-policy",
+      "year": 2023,
+      "title": {
+        "en": "Policy Diffusion of the Strategy of Reinvigorating China through Talent Development: Quantitative Research Based on Policy Literature from 2002 to 2021",
+        "zh-CN": "人才强国战略的政策扩散与发展——基于2002—2021年政策文献的量化研究"
+      },
+      "authors": {
+        "en": [
+          "Kun Yan",
+          "Yuxin Hou"
+        ],
+        "zh-CN": [
+          "阎琨",
+          "侯煜欣"
+        ]
+      },
+      "journal": {
+        "en": "Journal of National Academy of Education Administration",
+        "zh-CN": "国家教育行政学院学报"
+      },
+      "volume": "7, 45–57, 77",
+      "doi": null,
+      "abstract": {
+        "zh-CN": "人才强国战略是我国的核心战略之一，而人才政策则是该战略落地的重要载体。从政策扩散视角出发，基于政策文献计量分析方法对我国2002—2021年中央和地方政府颁布的有关“人才强国战略”的2163件政策文本进行分析，构建政策参照网络，结合关键词时序分析方法对人才强国相关政策的扩散强度、广度、速度和方向四个特征进行量化研究。研究发现我国政策颁布机构参照网络呈现出明显的三级结构。规划类政策具有较高的政策扩散强度和广度，且其扩散强度增长可以跨越政策文件的全部有效期，与意见/决定类文件形成对比，后者扩散强度增长仅能持续4—7年。通过关键词时序图谱对人才强国政策扩散中自上而下、自下而上、同级扩散、跟随扩散模式进行了重点分析。针对我国人才强国政策扩散过程进行研究，探索人才强国政策扩散与发展的特点，并为相关政策理论体系及后续实践提供参考意见。",
+        "en": "Talent policy is a central instrument of China’s strategy of reinvigorating the country through talent development. Using bibliometric analysis of 2,163 policy documents issued by central and local governments from 2002 to 2021, this study constructs a policy-reference network and combines it with temporal keyword analysis to examine the intensity, breadth, speed and direction of policy diffusion. The issuing-agency reference network exhibits a three-level structure. Planning documents show greater diffusion intensity and breadth, with diffusion intensity continuing to grow throughout their validity periods; for opinions and decisions, growth lasts only four to seven years. Temporal keyword mapping identifies top-down, bottom-up, horizontal and follow-up diffusion patterns. The study characterizes the diffusion and development of talent policy and offers evidence for subsequent theoretical and practical work."
+      },
+      "language": "zh-CN"
+    },
+    {
+      "id": "education-policy",
+      "year": 2022,
+      "title": {
+        "en": "The Construction of a Powerful Nation of Education in China: Policy Diffusion Process and Features",
+        "zh-CN": "我国教育强国战略的政策扩散研究"
+      },
+      "authors": {
+        "en": [
+          "Kun Yan",
+          "Yuxin Hou"
+        ],
+        "zh-CN": [
+          "阎琨",
+          "侯煜欣"
+        ]
+      },
+      "journal": {
+        "en": "Tsinghua Journal of Education",
+        "zh-CN": "清华大学教育研究"
+      },
+      "volume": "43(5), 79–92",
+      "doi": null,
+      "abstract": {
+        "zh-CN": "本研究采用政策文献计量分析方法，对我国自2010年正式提出教育强国政策至2021年中央及地方政府各部门颁布的教育强国相关12356件政策文献的政策扩散特征进行研究。通过对政策文献的定量分析，绘制了政策文献参照网络与政策颁布主体参照网络，分析了政策颁布主体的府际关系，并从政策扩散强度、广度、速度、方向四个维度对于教育强国政策扩散行为进行测算与分析。本研究对教育强国战略的政策扩散的规律和特征的总结，旨在对于我国今后的政策理论和实践提供参考。",
+        "en": "This study uses bibliometric analysis to examine the diffusion of 12,356 policy documents on building China into a leading country in education, issued by central and local government departments between 2010 and 2021. It constructs policy-document and issuing-agency reference networks, analyzes intergovernmental relationships among policy issuers, and measures policy diffusion along four dimensions: intensity, breadth, speed and direction. By identifying patterns and characteristics of policy diffusion, the study provides a reference for future policy theory and practice."
+      },
+      "language": "zh-CN"
+    },
+    {
+      "id": "dual-governance",
+      "year": 2022,
+      "title": {
+        "en": "Promoting the Discipline-Major Dual Governance System Reform: Rational Analysis and Realization Path",
+        "zh-CN": "推进学科-专业二元治理体系改革:理性辨析和实现路径"
+      },
+      "authors": {
+        "en": [
+          "Kun Yan",
+          "Yuhui Jiang",
+          "Han Wu",
+          "Yuqi Zhang",
+          "Yuxin Hou"
+        ],
+        "zh-CN": [
+          "阎琨",
+          "江宇辉",
+          "吴菡",
+          "张雨颀",
+          "侯煜欣"
+        ]
+      },
+      "journal": {
+        "en": "Higher Education Review",
+        "zh-CN": "高等教育评论"
+      },
+      "volume": "10(2), 242–256",
+      "doi": null,
+      "abstract": {
+        "zh-CN": "学科与专业并存于大学,学科建设和专业建设是大学内涵式发展的抓手,共同作用于科学研究、社会服务和人才培养。本文在辨析学科与专业的内涵,以及阐释二者辩证统一的关系基础上,从学科和专业内在逻辑视阈出发,探讨高校在培养层次和培养方式上的现存问题,进而对推进学科-专业双元治理体系改革提出对策建议。",
+        "en": "Disciplines and degree programs coexist within universities. Their development supports research, social service and talent cultivation and is central to the qualitative development of higher education. This article distinguishes the meanings of disciplines and degree programs and explains their dialectical relationship. Drawing on their respective internal logics, it examines existing issues in the levels and modes of university education and proposes measures for reforming the dual governance system of disciplines and degree programs."
+      },
+      "language": "zh-CN"
+    }
+  ],
+  "working": [
+    {
+      "id": "opinion-structures",
+      "title": {
+        "en": "Comparing Opinion Structures Across Societies: Different in Surveys, Similar on Social Media",
+        "zh-CN": "Comparing Opinion Structures Across Societies: Different in Surveys, Similar on Social Media"
+      },
+      "authors": {
+        "en": [
+          "Yuxin Hou",
+          "Yuchen He",
+          "Chaojun Ni",
+          "Jia Yu",
+          "Junming Huang",
+          "Wenjun Mei"
+        ],
+        "zh-CN": [
+          "Yuxin Hou",
+          "Yuchen He",
+          "Chaojun Ni",
+          "Jia Yu",
+          "Junming Huang",
+          "Wenjun Mei"
+        ]
+      }
+    },
+    {
+      "id": "gender-norms",
+      "title": {
+        "en": "Embedding Gender Norms",
+        "zh-CN": "Embedding Gender Norms"
+      },
+      "authors": {
+        "en": [
+          "Jia Yu",
+          "Rachel Ngai",
+          "Ting Chen",
+          "Yuxin Hou"
+        ],
+        "zh-CN": [
+          "Jia Yu",
+          "Rachel Ngai",
+          "Ting Chen",
+          "Yuxin Hou"
+        ]
+      },
+      "alphabetical": true
+    },
+    {
+      "id": "gender-participation",
+      "title": {
+        "en": "Gendered Participation in Information Domains: Weibo Accounts’ Circulation and Expression of Public Affairs and Celebrity Culture",
+        "zh-CN": "性别化的信息领域参与：微博账号的公共事务与明星文化传播和表达"
+      },
+      "authors": {
+        "en": [
+          "Yuxin Hou",
+          "Airan Liu"
+        ],
+        "zh-CN": [
+          "Yuxin Hou",
+          "Airan Liu"
+        ]
+      },
+      "translated": true
+    },
+    {
+      "id": "friends-polarization",
+      "title": {
+        "en": "Your friends are more polarized than you: scale-free network biases opinion perception and boosts online opinion polarization",
+        "zh-CN": "Your friends are more polarized than you: scale-free network biases opinion perception and boosts online opinion polarization"
+      },
+      "authors": {
+        "en": [
+          "Junming Huang",
+          "Yu Xie",
+          "Yuxin Hou"
+        ],
+        "zh-CN": [
+          "Junming Huang",
+          "Yu Xie",
+          "Yuxin Hou"
+        ]
+      }
+    },
+    {
+      "id": "ai-superpowers",
+      "title": {
+        "en": "The Race between AI Superpowers: Social Factors Favoring China over the United States",
+        "zh-CN": "The Race between AI Superpowers: Social Factors Favoring China over the United States"
+      },
+      "authors": {
+        "en": [
+          "Yu Xie",
+          "Lemeng Liang",
+          "Yining Milly Yang",
+          "Junming Huang",
+          "Yueqi Xie",
+          "Yuxin Hou",
+          "Zheqing Ma",
+          "Weidong Wang",
+          "Yan Sun",
+          "Chunni Zhang"
+        ],
+        "zh-CN": [
+          "Yu Xie",
+          "Lemeng Liang",
+          "Yining Milly Yang",
+          "Junming Huang",
+          "Yueqi Xie",
+          "Yuxin Hou",
+          "Zheqing Ma",
+          "Weidong Wang",
+          "Yan Sun",
+          "Chunni Zhang"
+        ]
+      }
+    }
+  ]
+}

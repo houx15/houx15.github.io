@@ -4,7 +4,7 @@ summary: >-
   A comparison of policy-opinion structure in surveys and social media across
   the US, Europe, and China.
 date: '2026-10-10'
-draft: false
+draft: true
 lang: en
 links:
   - label: Source code

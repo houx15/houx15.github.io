@@ -49,46 +49,28 @@
       }
     },
     {
-      "name": "OrgClaw",
-      "slug": "orgclaw",
-      "url": "https://github.com/houx15/OrgClaw",
-      "tag": "Prototype",
-      "summary": "An agent runtime with model-provider adapters, tool execution, session memory, and a chat API.",
-      "note": "Public prototype code. Organizational messaging integrations are architecture plans, not verified deployed features.",
-      "links": [],
-      "zh": {
-        "tag": "原型",
-        "summary": "智能体运行时，包含模型服务适配、工具执行、会话记忆与聊天 API。",
-        "note": "原型代码已公开。组织通讯集成属于架构规划，尚未核实为已部署功能。"
-      }
+      "name": "SuperNono",
+      "slug": "supernono",
+      "url": null,
+      "links": []
     },
     {
-      "name": "AgenTerm",
-      "slug": null,
+      "name": "Zrobot",
+      "slug": "zrobot",
       "url": null,
-      "tag": "Project",
-      "summary": "AgenTerm.",
-      "note": "Project description and release status are not public on this page.",
-      "links": [],
-      "zh": {
-        "tag": "项目",
-        "summary": "AgenTerm。",
-        "note": "本页未公开项目说明与发布状态。"
-      }
+      "links": []
     },
     {
-      "name": "LivePad",
-      "slug": null,
+      "name": "LitFlow",
+      "slug": "lit-flow",
       "url": null,
-      "tag": "Project",
-      "summary": "LivePad.",
-      "note": "Project description and release status are not public on this page.",
-      "links": [],
-      "zh": {
-        "tag": "项目",
-        "summary": "LivePad。",
-        "note": "本页未公开项目说明与发布状态。"
-      }
+      "links": []
+    },
+    {
+      "name": "Cyber Silicon Valley",
+      "slug": "cybersiliconvalley",
+      "url": null,
+      "links": []
     }
   ],
   "domains": [

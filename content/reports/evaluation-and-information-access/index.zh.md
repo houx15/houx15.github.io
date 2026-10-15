@@ -17,4 +17,4 @@ summary: "一篇基于 SSDataAgent 公开资料的阅读笔记：统计保真度
 
 [当前提交工具](https://github.com/houx15/SSDataAgent/blob/f84416d0d119585d5189c6fd8b691acfe23e26f2/src/ssdataagent/agent/tools/commit.py) 在缺少时序验证时记录警告和未验证标记。这是提示性行为，与部分旧文档描述的硬性门槛不同。
 
-系统说明与实现来源见 [SSDataAgent](/zh/projects/ssdata-agent/)。
+系统说明与实现来源见 [SSDataAgent](https://github.com/houx15/SSDataAgent)。

@@ -5,7 +5,7 @@ summary: >-
   Weibo/Twitter processing with explicit label validity, provider provenance,
   and resumable intermediate results.
 date: '2026-10-10'
-draft: false
+draft: true
 lang: en
 featured: true
 assistantTopic: attitudes

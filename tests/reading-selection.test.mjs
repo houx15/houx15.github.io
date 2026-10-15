@@ -6,7 +6,7 @@ function fixture({text='A possible risk.',start=2,end=2,outside=false,collapsed=
  const startNode={order:start},endNode={order:end};
  const headings=[1,3].map(order=>({id:`section-${order}`,order,contains:node=>node.order===order,compareDocumentPosition:node=>node.order>order?4:2}));
  const prose={contains:node=>!outside && [startNode,endNode].includes(node),querySelectorAll:()=>headings};
- return {querySelector:()=>prose,getSelection:()=>({isCollapsed:collapsed,rangeCount:count,toString:()=>text,getRangeAt:()=>({startContainer:startNode,endContainer:endNode})})};
+ return {querySelector:selector=>selector.includes('data-translated')?null:prose,getSelection:()=>({isCollapsed:collapsed,rangeCount:count,toString:()=>text,getRangeAt:()=>({startContainer:startNode,endContainer:endNode})})};
 }
 test('selected passage uses its source section, including a heading selection and the article opening',()=>{
  assert.deepEqual(captureReadingSelection(fixture()),{text:'A possible risk.',headings:['section-1']});
@@ -56,4 +56,11 @@ test('submitted position is immutable and failure restoration does not replace t
  context.restore(submitted);submitted[0]='mutated';assert.deepEqual(context.edit('Why?'),['section-81']);
  assert.deepEqual(context.edit(''),['section-82']);
  context.open([]);context.edit('Article opening');context.open(['section-1']);assert.deepEqual(context.edit(''),['section-1']);
+});
+
+
+test('machine-translated selections are not submitted as original quotations; section context remains',()=>{
+ const doc=fixture();const originalQuery=doc.querySelector;doc.querySelector=selector=>selector.includes('data-translated')?{}:originalQuery(selector);
+ assert.equal(captureReadingSelection(doc),undefined);
+ const context=createReadingDraftContext();context.open(['section-3']);assert.deepEqual(context.snapshot(),['section-3']);
 });

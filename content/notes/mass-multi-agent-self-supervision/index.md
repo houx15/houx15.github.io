@@ -3,6 +3,7 @@ title: MASS：多智能体经验如何转化为模型能力
 summary: 拆解 MASS 的工作流搜索、轨迹筛选与监督微调，核对两轮迭代的收益与局限，并延伸讨论多智能体训练、数据价值、关键决策与泛化。
 date: '2026-10-12'
 draft: false
+category: notes
 lang: zh-CN
 ---
 

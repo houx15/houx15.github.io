@@ -14,3 +14,10 @@ _preview/
 # Private durable agent accounting and conversation state
 *.sqlite
 *.sqlite-*
+
+# Private product source materials and demo access details
+/docs/products/
+
+# Private author source and review notes
+/docs/abstracts.rtf
+/docs/profile-review.md

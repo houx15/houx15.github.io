@@ -42,7 +42,7 @@ test('a typed story question preserves its original card even if current history
  assert.deepEqual(draft.snapshot(),original);
  history.push({kind:'story',eventId:'startup'});
  draft.edit('');draft.edit('另一段经历',openingContextFor(history));
- assert.deepEqual(draft.snapshot(),{storyId:'event:startup'});
+ assert.deepEqual(draft.snapshot(),{storyId:'timeline'});
 });
 
 test('a draft started without an opening does not acquire later context; retry restores its original context',async()=>{

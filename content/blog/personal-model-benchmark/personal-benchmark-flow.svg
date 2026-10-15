@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="410" viewBox="0 0 1100 410" role="img" aria-labelledby="title desc">
+<title id="title">个性化模型 benchmark 技术结构</title>
+<desc id="desc">从使用历史和访谈生成个人 kit，题目和上下文进入 runner，模型输出进入评分与报告。参考答案和评分规则沿独立路径送入评分模块，不经过被测模型。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 9 5 1 9" fill="none" stroke="#85897d" stroke-width="1.6"/></marker></defs>
+<rect width="1100" height="410" rx="12" fill="#f2f1ec"/>
+<g font-family="-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif" text-anchor="middle" fill="#30342f">
+<g font-size="23" fill="#686d62"><text x="136" y="58">需求来源</text><text x="412" y="58">可移植配置</text><text x="688" y="58">模型运行</text><text x="964" y="58">决策依据</text></g>
+<g fill="#fffefa" stroke="#d4d0c6" stroke-width="1.5"><rect x="24" y="100" width="224" height="164" rx="9"/><rect x="300" y="100" width="224" height="164" rx="9"/><rect x="576" y="100" width="224" height="164" rx="9"/></g>
+<rect x="852" y="100" width="224" height="164" rx="9" fill="#e6ece3" stroke="#bbc7b4" stroke-width="1.5"/>
+<g font-size="28" font-weight="600"><text x="136" y="141">使用历史 / 访谈</text><text x="412" y="141">个人 kit</text><text x="688" y="141">Runner</text><text x="964" y="141">评分与报告</text></g>
+<g font-size="25" fill="#555c50"><text x="136" y="192">任务类型与频率</text><text x="136" y="231">用户确认标准</text><text x="412" y="192">任务 · 权重 · 版本</text><text x="412" y="231">参考答案 · recipes</text><text x="688" y="192">任务 × 模型 × 重复</text><text x="688" y="231">API / 应用交接</text><text x="964" y="192">自动检查 + judge</text><text x="964" y="231">人工校准 · 分工</text></g>
+<g fill="none" stroke="#85897d" stroke-width="2" marker-end="url(#arrow)"><path d="M248 182H289"/><path d="M524 182H565"/><path d="M800 182H841"/><path d="M412 264V340H964V276" stroke-dasharray="7 5"/></g>
+<rect x="510" y="318" width="354" height="43" rx="5" fill="#f2f1ec"/>
+<text x="687" y="347" font-size="25" fill="#626a57">参考答案与规则，仅用于评分</text>
+<text x="688" y="84" font-size="21" fill="#686d62">输入：题目、材料、可选背景</text>
+</g>
+</svg>

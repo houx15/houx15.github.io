@@ -1,0 +1,17 @@
+{% macro productCard(item, cover, ui, heading='h2') %}
+<li class="product-tile" data-entry-tags="{{ (item.tags or []) | join('|') }}">
+  <article>
+    <a class="product-main-link" href="{{ item.url }}">
+      <div class="product-cover{% if cover.screen %} product-cover-screen{% endif %}">
+        {% if cover %}<img src="{{ cover.url }}" alt="{{ item.title }} · {{ '产品界面' if cover.screen else '概念封面' }}" loading="lazy" width="600" height="375">{% else %}<span class="product-cover-type">{{ item.title }}</span>{% endif %}
+      </div>
+      <div class="product-copy">
+        <p class="product-meta">{% if item.status %}<span>{{ item.status if ui.prefix else ('Concept' if item.status == '想法' else 'Completed') }}</span> · {% endif %}<time datetime="{{ item.date }}">{{ item.date }}</time></p>
+        <{{ heading }}>{{ item.title }}</{{ heading }}>
+        <p>{{ item.pitch or item.summary }}</p>
+      </div>
+    </a>
+    {% if item.tags.length %}<ul class="article-tags product-tags" aria-label="{{ '主题' if ui.prefix else 'Topics' }}">{% for tag in item.tags %}<li><a href="{{ ui.prefix }}/projects/?tag={{ tag | urlencode }}" data-tag="{{ tag }}">{{ tag }}</a></li>{% endfor %}</ul>{% endif %}
+  </article>
+</li>
+{% endmacro %}

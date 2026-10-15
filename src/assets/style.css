@@ -262,3 +262,52 @@ body:not(.home-page) .selected-projects {grid-template-columns:1fr}.selected-pro
 .content-publication_timeline li {position:relative;padding-left:1.5rem;}
 .content-publication_timeline li::before {content:"";position:absolute;left:-4px;top:1.6rem;width:7px;height:7px;border-radius:50%;background:#8c4936;}
 .content-explorer :focus-visible {outline:2px solid #8c4936;outline-offset:3px;}
+
+/* Parallel biography strands: all dates remain visible, without a linear path. */
+.biography-overview {margin:24px 0;}
+.biography-group {margin:24px 0 30px;}
+.biography-group>h3 {font:600 13px/1.5 var(--font-sans);letter-spacing:.06em;border-bottom:2px solid currentColor;padding-bottom:10px;margin:0;}
+.biography-rows {list-style:none!important;padding:0!important;margin:0!important;}
+.biography-row {display:grid;grid-template-columns:155px minmax(0,1fr);gap:18px;padding:15px 0;border-bottom:1px solid #e6e6e3;}
+.biography-period {font:12px/1.7 var(--font-sans);color:#666;}
+.biography-copy h4 {font:550 15px/1.5 var(--font-sans);margin:0 0 4px;}
+.biography-copy p,.biography-caption {font:13px/1.75 var(--font-sans);color:#666;margin:0;}
+.comic-biography-overview>h2 {font:600 24px/1.5 var(--font-sans);margin:0 0 10px;}
+/* Compact bibliographic citations; abstract controls remain in the citation flow. */
+.publication-list {list-style:none;padding:0;margin:12px 0 28px;}
+.publication-list>li {padding:10px 0;}
+.paper-citation {font-size:14px;line-height:1.75;overflow-wrap:anywhere;}
+.paper-authors strong {font-weight:650;color:var(--ink);}
+.paper-title {font-weight:500;}
+.paper-action {display:inline-block;margin-left:6px;font-size:12px;text-underline-offset:3px;}
+.paper-abstract {display:inline;font-size:14px;line-height:1.8;}
+.paper-abstract summary {display:inline-block;cursor:pointer;margin-left:8px;padding:2px 0;font-size:12px;text-decoration:underline;text-underline-offset:3px;}
+.paper-abstract summary::after {content:" +";text-decoration:none;}
+.paper-abstract[open] summary::after {content:" −";}
+.paper-abstract-body {display:block;border-left:2px solid var(--rule);padding:2px 0 2px 16px;margin:12px 0 6px;}
+.paper-abstract-body p {max-width:78ch;white-space:pre-line;margin:6px 0 10px;}
+.paper-note {font-size:12px;color:var(--muted);line-height:1.8;}
+.research-heading {display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+.research-heading h1 {margin-bottom:0;}
+.research-heading>a {font-size:13px;}
+.research-section {margin-top:30px;}
+.research-section>h2 {font-size:18px;margin-bottom:6px;}
+.publication-list--compact {margin:8px 0 0;}
+.publication-list--compact>li {padding:7px 0;}
+.publication-list--compact .paper-citation {font-size:13px;line-height:1.75;}
+
+.sports-records {list-style:none!important;padding:0!important;}
+.sports-records li {display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule);font-size:13px;line-height:1.8;}
+.sports-records time {color:var(--muted);font-size:12px;}
+.race-distance {white-space:nowrap;font-size:12px;}
+.sports-records small {display:block;color:var(--muted);}
+@media(max-width:600px){.biography-row {grid-template-columns:1fr;gap:5px;padding:14px 0;}.biography-copy h4 {font-size:15px;}.sports-records li {grid-template-columns:55px minmax(0,1fr);gap:8px;}.race-distance {grid-column:2;}.research-section {margin-top:36px;}}
+@media(min-width:760px){
+ .biography-overview {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start;}
+ .biography-overview>h2,.biography-overview>p,.biography-overview>button {grid-column:1/-1;}
+ .biography-group {margin:0;}
+ .biography-row {display:block;padding:14px 0;}
+ .biography-period {display:block;margin-bottom:5px;font-size:11px;}
+ .biography-copy h4 {font-size:14px;}
+ .biography-copy p {font-size:12px;}
+}

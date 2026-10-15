@@ -1,6 +1,9 @@
 // Only offer a short selection from one section of the published reading surface.
 // This text is a visitor question, never a substitute for server-side source reads.
 export function captureReadingSelection(document) {
+  // A machine translation is not an exact quotation from the author. Keep the
+  // ordinary reading-section context, but do not prefill translated quotations.
+  if(document.querySelector('[data-article-translation][data-translated="true"]'))return;
   const prose=document.querySelector('main article .prose'),selection=document.getSelection();
   if(!prose || !selection || selection.isCollapsed || selection.rangeCount!==1)return;
   const range=selection.getRangeAt(0);

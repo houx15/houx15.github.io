@@ -1,10 +1,11 @@
 import { validOrigin } from './assistant-client.js';
+import { consumeTranslationStream } from './article-translation-stream.js';
 import {isVisualId} from './agent-visual-id.js';
 
 const string = (value, max) => typeof value === 'string' && value.length > 0 && value.length <= max;
 const sourceURL = value => string(value, 1500) && /^\/(?!\/)[^\s\\]*$/.test(value) && !/[\u0000-\u001f]/.test(value);
 const fail = () => { throw new Error('invalid_response'); };
-const card = item => item && string(item.id,400) && string(item.title,500) && typeof item.summary === 'string' && item.summary.length <= 4000 && sourceURL(item.url) && /^\d{4}-\d{2}-\d{2}$/.test(item.date) && ['notes','reports','projects'].includes(item.type);
+const card = item => item && string(item.id,400) && string(item.title,500) && typeof item.summary === 'string' && item.summary.length <= 4000 && sourceURL(item.url) && /^\d{4}-\d{2}-\d{2}$/.test(item.date) && ['notes','reports','projects','blog'].includes(item.type);
 
 export function validateAgentBlock(block) {
   if (!block || !string(block.id,200) || !Array.isArray(block.items)) return fail();
@@ -13,7 +14,7 @@ export function validateAgentBlock(block) {
   if (block.type === 'concept_flow' && block.interpretation===true && string(block.title,120) && block.items.length>=2 && block.items.length<=5 && block.items.every(item=>item && string(item.title,100) && string(item.description,400) && (item.quote===undefined || string(item.quote,400)) && item.source && string(item.source.id,400) && string(item.source.label,1000) && sourceURL(item.source.url))) return block;
   if (block.type==='concept_revision' && isVisualId(block.visualId) && string(block.title,120) && block.items.length===1 && block.items.every(item=>item && Number.isInteger(item.position) && item.position>=1 && item.position<=5 && string(item.title,100) && string(item.previousDescription,400) && string(item.description,128) && (item.quote===undefined || string(item.quote,400)) && item.source && string(item.source.id,400) && string(item.source.label,1000) && sourceURL(item.source.url)))return block;
   if (block.type === 'reading_map' && string(block.title,500) && string(block.documentId,400) && sourceURL(block.url) && block.items.length>0 && block.items.length<=6 && block.items.every(item=>item && string(item.id,400) && typeof item.title==='string' && item.title.length<=500 && typeof item.excerpt==='string' && item.excerpt.length<=240 && sourceURL(item.url))) return block;
-  if (block.type === 'publication_timeline' && block.dateKind === 'publication' && block.items.length <= 12 && block.items.every(card)) return block;
+  if (block.type === 'publication_timeline' && ['publication','content'].includes(block.dateKind) && block.items.length <= 12 && block.items.every(card)) return block;
   if (block.type === 'questions' && block.items.length <= 3 && block.items.every(item => item && string(item.documentId,400) && string(item.label,500) && string(item.query,400))) return block;
   if (block.type === 'event_timeline' && block.dateKind === 'biography' && string(block.asOf,20) && block.items.length <= 20 && block.items.every(item => item && string(item.id,400) && string(item.title,500) && string(item.period,200) && string(item.description,3000) && item.source && string(item.source.id,400) && string(item.source.label,1000) && sourceURL(item.source.url))) return block;
   return fail();
@@ -119,6 +120,16 @@ export function createAgentClient(origin, fetchImpl = fetch, {sessionStore} = {}
         if(!string(result.sessionToken,4096)||!Number.isFinite(expiry)||expiry<=Date.now()) return fail();
         token=result.sessionToken;expiresAt=expiry;
         try {sessionStore?.setItem(storageKey,JSON.stringify({version:1,token,expiresAt}));} catch { /* Memory-only session still works. */ }
+      } finally {clearTimeout(timer);}
+    },
+    async translate(input,{onEvent,signal} = {}) {
+      if(!token||expiresAt<=Date.now()) {clearSession();throw new Error('invalid_session');}
+      const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),900000);
+      const combined=signal?AbortSignal.any([signal,controller.signal]):controller.signal;
+      try {
+        const response=await request('/v2/translate',input,combined,true);await check(response);
+        if(!response.headers.get('content-type')?.startsWith('text/event-stream')) return fail();
+        return await consumeTranslationStream(response.body,onEvent||(()=>{}),combined);
       } finally {clearTimeout(timer);}
     },
     async ask(input,{onEvent,signal} = {}) {

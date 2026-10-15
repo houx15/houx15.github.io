@@ -12,7 +12,7 @@ eleventyComputed:
 ---
 {% set ui = locale %}
 {% if ui.prefix %}
-<header class="page-heading"><p class="eyebrow">关于</p><h1>侯煜欣 / Evie Hou</h1></header><div class="prose"><p>{{ ui.heroText }}</p><p>{{ ui.aboutMore }}</p><p>{{ ui.approach }}</p>{% include 'timeline.njk' %}<h2>联系</h2><p><a href="mailto:{{ site.email }}">{{ site.email }}</a> · <a href="{{ site.github }}">GitHub / houx15</a></p><h2 id="sources">来源与说明</h2><p>工作、实习、咨询经历、2015 年进入清华的时间、博士年级与普林斯顿访问经历，均依据本人于 2026 年 10 月 10 日提供并确认的简历信息。职业经历不是从 GitHub 推断而来；日期以本次说明为准。<a href="https://github.com/houx15/houx15.github.io/blob/40acdb33c13f878907e88f86319442715c398b3d/about/index.html">此前的公开个人主页</a> 记载了清华大学的两个学位，以及 2024 年 9 月进入北京大学社会研究中心的时间。</p><p><a href="/zh/research/">研究</a> 与 <a href="/zh/projects/">项目</a> 分别列出。条目的实现与状态说明依据公开代码、文档和可访问页面；固定版本链接列在各条目中。具体贡献仅在提交记录支持时说明，不由仓库归属推断。</p><p>Knoweia 的名称由公开桌面软件包与界面确认。Mind Imprint 的英文官网使用 The Mark of Thinking。AgenTerm、LivePad 与意见动态仅按已确认的公开范围介绍。</p><p>雷达图依据本人自述的九项能力，使用「优势」与「经验较少」两个定性层级，不是客观测量或精确评分。时间线展示经历节点，不以间距代表时长，不推断情绪或生活状态。</p><h2 id="assistant-privacy">关于 AI 助手与对话数据</h2>
+<header class="page-heading"><h1>侯煜欣 / Evie Hou</h1></header><div class="prose"><p>{{ ui.heroText }}</p><p>{{ ui.aboutMore }}</p><p>{{ ui.approach }}</p>{% include 'timeline.njk' %}{% include 'sports.njk' %}<h2>联系</h2><p><a href="mailto:{{ site.email }}">{{ site.email }}</a> · <a href="{{ site.github }}">GitHub / houx15</a></p><h2 id="sources">来源与说明</h2><p>教育、工作、公益探索与参赛经历依据本人于 2026 年 10 月 15 日提供的资料整理。各段经历可以重叠；北京大学博士阶段的 2028 年为预计完成年份。未公开的公司名称不作推断。</p><p><a href="/zh/research/">论文</a> 与 <a href="/zh/projects/">项目</a> 分别列出。条目的设计与状态说明依据本人提供的材料、项目文档、代码和可访问页面。公开仓库在条目中附有链接；项目构想与已完成作品分别标注。</p><p>Knoweia 条目介绍我开发的第一版，不将当前官网的所有后续内容归为这一版。思维印记、agenTerm 等产品的介绍保留各自的设计背景与版本范围。</p><p>雷达图依据本人自述的九项能力，使用「优势」与「经验较少」两个定性层级，不是客观测量或精确评分。经历按教育、工作与公益探索分组，日期可重叠。</p><h2 id="assistant-privacy">关于 AI 助手与对话数据</h2>
 <p>团子是 AI 角色，不是本人。掷骰子等开场互动使用预先整理的公开资料，不调用模型。实时对话是否可用，以聊天框中的状态说明为准。</p>
 <p>启用实时对话后，发送问题会将问题、当前文章的标识，以及服务器保存的近期对话与早期对话目录发送到本站后端；后端会将这些内容和检索到的公开资料发送给阿里云百炼生成回答。首次建立会话时使用 Cloudflare Turnstile 验证访客，无需注册。不要输入密钥或私人信息。模型与验证服务的数据处理适用各服务商的政策。</p>
 <p>浏览器使用当前标签页的会话存储保存最近十条互动，便于在文章和对话间返回；清空对话会清除这些本地记录。服务器会话有效期为一小时，最多保存二十轮已完成对话；最近三轮直接作为上下文，较早记录按需读取。过期记录在后续请求时清理。“重新开始”会放弃当前会话，但不会立即删除服务器上的记录。在同一标签页的 HTTPS 页面间切换时，一小时会话凭证保存在该标签页的会话存储中，供后端恢复近期上下文和早期对话目录；它不是模型服务的 API 密钥。凭证过期或存储不可用时，需要重新验证，之前显示的记录不会自动进入新会话。</p>
@@ -20,7 +20,7 @@ eleventyComputed:
 {% else %}
 
 <header class="page-heading">
-<p class="eyebrow">ABOUT</p>
+
 <h1>Evie / Yuxin Hou <span lang="zh-CN">侯煜欣</span>
 </h1>
 </header>
@@ -29,7 +29,7 @@ eleventyComputed:
 <p>{{ ui.role }}</p>
 <p>{{ ui.aboutMore }}</p>
 <p>{{ ui.approach }}</p>
-{% include 'timeline.njk' %}
+{% include 'timeline.njk' %}{% include 'sports.njk' %}
 <h2>Contact</h2>
 <dl class="contact-list">
 <dt>Email</dt>
@@ -42,10 +42,10 @@ eleventyComputed:
 </dd>
 </dl>
 <h2 id="sources">Sources and notes</h2>
-<p>The professional chronology, 2015 entry to Tsinghua, current PhD year, and Princeton visit use biography details I supplied and confirmed on 10 October 2026. Work experience is self-reported, not inferred from GitHub; this account takes precedence over older dates. My <a href="https://github.com/houx15/houx15.github.io/blob/40acdb33c13f878907e88f86319442715c398b3d/about/index.html">earlier public profile</a> records the Tsinghua degrees and September 2024 entry to Peking University’s Center for Social Research.</p>
-<p><a href="/research/">Research</a> and <a href="/projects/">Projects</a> are listed separately. Descriptions of implementation and status use public code, documentation, and accessible pages. Individual contributions are stated only where supported by commit records, with fixed source revisions linked in the entries.</p>
-<p>Knoweia’s name is confirmed by its public desktop package and interface. Mind Imprint’s English website uses The Mark of Thinking. AgenTerm, LivePad, and opinion dynamics are described only to the extent approved for this public page.</p>
-<p>The radar reflects my qualitative self-assessment across nine abilities, grouped as strengths or less experienced; it is not an objective measurement or precise rating. The timeline shows academic milestones without assigning life-status values or using spacing as a measure of duration.</p>
+<p>Education, work, community involvement and race participation are based on my account supplied on 15 October 2026. Periods may overlap; 2028 is the expected completion year for the PhD at Peking University. Unnamed companies remain anonymous.</p>
+<p><a href="/research/">Papers</a> and <a href="/projects/">Projects</a> are listed separately. Descriptions draw on my supplied materials, project documentation, code and accessible pages. Public repositories are linked in their entries; concepts and completed work are labelled separately.</p>
+<p>The Knoweia article describes the first version I developed, without attributing all later material on its current website to that version. Articles on Mind Imprint, agenTerm and other products retain their design context and version boundaries.</p>
+<p>The radar reflects my qualitative self-assessment across nine abilities, grouped as strengths or less experienced; it is not an objective measurement or precise rating. The biography groups education, work and community involvement, preserving overlapping dates.</p>
 <h2 id="assistant-privacy">AI assistant and conversation data</h2>
 <p>The guide is an AI character, not me. Opening interactions such as the die use authored public material without calling a model. The chat status indicates whether live conversation is available.</p>
 <p>When live conversation is enabled, sending a question submits it and the current article identifier to this site's backend. The backend sends recent conversation, an index of earlier exchanges, any recalled records and retrieved public material to Alibaba Cloud Bailian to generate a response. Cloudflare Turnstile verifies visitors when a session is created; no account is required. Do not submit secrets or private information. The model and verification providers' data-processing policies apply.</p>

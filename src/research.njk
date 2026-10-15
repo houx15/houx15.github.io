@@ -11,7 +11,9 @@ eleventyComputed:
   title: "{{ locale.research }}"
 ---
 {% set ui = locale %}
-{% from 'entries.njk' import entryList %}
-<header class="page-heading"><p class="eyebrow">{{ ui.name }}</p><h1>{{ ui.research }}</h1><p>{{ ui.researchIntro }}</p></header>
-{% set cards = portfolio.research %}{% include 'project-cards.njk' %}
-<section class="notes-block"><h2>{{ '研究软件' if ui.prefix else 'Research software' }}</h2>{% set items = entries | localized(ui) | researchSoftware %}{{ entryList(items,'h3',ui) }}</section>
+{% from 'papers.njk' import paperList %}
+<header class="page-heading research-heading"><h1>{{ ui.research }}</h1><a href="https://scholar.google.com/citations?user=NX7qkNAAAAAJ&amp;hl=en">Google Scholar ↗</a></header>
+<section class="research-section"><h2>{{ '已发表论文' if ui.prefix else 'Publications' }}</h2>
+{{ paperList(papers.published,ui,false,reviewAbstracts,preview) }}</section>
+<section class="research-section"><h2>Working papers</h2>
+{{ paperList(papers.working,ui,true,reviewAbstracts,preview) }}</section>

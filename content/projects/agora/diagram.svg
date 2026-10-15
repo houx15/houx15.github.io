@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="560" viewBox="0 0 1060 560" role="img" aria-label="Agora · 两台机器之间传递消息">
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#333" stroke-width="1.3"/></marker></defs>
+<rect width="1060" height="560" fill="white"/>
+<style>text{font-family:Arial,"PingFang SC",sans-serif;fill:#242424}.sm{font-size:16px;fill:#555}.label{font-size:20px}.title{font-size:25px;font-weight:600}.group{fill:#fafafa;stroke:#aaa;stroke-dasharray:5 5}.box{fill:white;stroke:#333;stroke-width:1.5}.line{fill:none;stroke:#333;stroke-width:1.5;marker-end:url(#a)}</style>
+<text x="25" y="38" class="title">Agora · 两台机器之间传递消息</text>
+<rect x="25" y="79" width="300" height="375" rx="12" class="group"/>
+<text x="45" y="111" class="label">机器 A</text>
+<rect x="55" y="134" width="240" height="65" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="175.0" y="165" text-anchor="middle" class="label">SDK Agent</text>
+<rect x="55" y="241" width="240" height="74" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="175.0" y="272" text-anchor="middle" class="label">Agora CLI</text>
+<text x="175.0" y="298" text-anchor="middle" class="sm">connect / send / inbox</text>
+<rect x="55" y="361" width="240" height="65" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="175.0" y="392" text-anchor="middle" class="label">本地收件箱</text>
+<text x="175.0" y="418" text-anchor="middle" class="sm">inbox.jsonl</text>
+<path d="M175 199V241" class="line"/>
+<path d="M175 315V361" class="line"/>
+<rect x="735" y="79" width="300" height="375" rx="12" class="group"/>
+<text x="755" y="111" class="label">机器 B</text>
+<rect x="765" y="134" width="240" height="65" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="885.0" y="165" text-anchor="middle" class="label">后端 Agent</text>
+<rect x="765" y="241" width="240" height="74" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="885.0" y="272" text-anchor="middle" class="label">Agora CLI</text>
+<text x="885.0" y="298" text-anchor="middle" class="sm">connect / send / inbox</text>
+<rect x="765" y="361" width="240" height="65" rx="7" fill="white" stroke="#333" stroke-width="1.5"/>
+<text x="885.0" y="392" text-anchor="middle" class="label">本地收件箱</text>
+<text x="885.0" y="418" text-anchor="middle" class="sm">inbox.jsonl</text>
+<path d="M885 199V241" class="line"/>
+<path d="M885 315V361" class="line"/>
+<rect x="400" y="222" width="260" height="113" rx="7" fill="#f7e4a1" stroke="#333" stroke-width="1.5"/>
+<text x="530.0" y="253" text-anchor="middle" class="label">中心消息服务</text>
+<text x="530.0" y="279" text-anchor="middle" class="sm">在线注册 · 转发 · 离线暂存</text>
+<text x="422" y="309" class="sm">不调用模型，不执行任务</text>
+<path d="M295 257H400" class="line"/>
+<text x="333" y="240" class="sm">发送</text>
+<path d="M660 277H765" class="line"/>
+<text x="686" y="261" class="sm">推送</text>
+<path d="M400 300H295" class="line"/>
+<text x="334" y="324" class="sm">推送</text>
+<path d="M765 312H660" class="line"/>
+<text x="688" y="339" class="sm">发送</text>
+<path d="M1005 394H1022V166H1005" class="line"/>
+<text x="750" y="484" class="sm">接收方主动读取，再决定是否行动</text>
+<text x="25" y="529" class="sm">HTTP：发送／查询　·　WebSocket：持续接收　·　中心离线暂存为内存，重启即丢失</text>
+</svg>

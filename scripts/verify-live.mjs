@@ -14,12 +14,12 @@ try {
   const info = await (await request('/build-info.json')).json();
   if (!values.revision || !/^[a-f0-9]{40}$/.test(values.revision)) throw new Error('Provide --revision with the exact deployed commit SHA.');
   if (info.revision !== values.revision) throw new Error(`Live revision is ${info.revision}; expected ${values.revision}. The CDN may still be updating.`);
-  const routes = new Set(['/', '/research/', '/projects/', '/reports/', '/notes/', '/about/', '/chat/', '/zh/', '/zh/research/', '/zh/projects/', '/zh/reports/', '/zh/notes/', '/zh/about/', '/zh/chat/']);
+  const routes = new Set(['/', '/research/', '/projects/', '/reports/', '/blog/', '/writing/', '/notes/', '/about/', '/chat/', '/zh/', '/zh/research/', '/zh/projects/', '/zh/reports/', '/zh/blog/', '/zh/writing/', '/zh/notes/', '/zh/about/', '/zh/chat/']);
   const publishedEntries = await loadContent();
-  const entryLanguages = new Map(publishedEntries.flatMap(entry => [[entry.url, entry.lang], ...(entry.zh ? [[entry.zh.url, entry.zh.lang]] : [])]));
+  const entryLanguages = new Map(publishedEntries.flatMap(entry => [[entry.url, entry.lang], ...(entry.zh ? [[entry.zh.url, entry.lang]] : [])]));
   for(const entry of publishedEntries) { routes.add(entry.url); if(entry.zh) routes.add(entry.zh.url); }
   if (values.path) {
-    if (!/^\/(?:zh\/)?(projects|reports|notes)\/[a-z0-9-]+\/$/.test(values.path)) throw new Error('--path must be a project or report URL path.');
+    if (!/^\/(?:zh\/)?(projects|reports|notes|blog)\/[a-z0-9-]+\/$/.test(values.path)) throw new Error('--path must be a project or report URL path.');
     routes.add(values.path);
   }
   for (const route of routes) {
@@ -28,10 +28,10 @@ try {
     const stylesheet = $('link[rel="stylesheet"]').toArray().map(link => $(link).attr('href')).find(href => /^\/assets\/style\.css\?v=[a-f0-9]{12}$/.test(href));
     const prefix = entryLanguages.get(route)==='zh-CN' || route.startsWith('/zh/') ? '/zh' : '';
     const navigation = $('.site-header nav a').toArray().map(link => $(link).attr('href'));
-    const expectedNavigation = ['research','projects','reports','notes','about'].map(section => `${prefix}/${section}/`);
+    const expectedNavigation = ['research','projects','writing','about'].map(section => `${prefix}/${section}/`);
     if (JSON.stringify(navigation) !== JSON.stringify(expectedNavigation) || !stylesheet) throw new Error(`${route}: expected site layout missing.`);
     if ($('html').attr('lang') !== (entryLanguages.get(route) || (route.startsWith('/zh/') ? 'zh-CN' : 'en')) || !$('#language-switch').attr('href')) throw new Error(`${route}: missing locale or language switch.`);
-    const script = $('script[type="module"]').attr('src');
+    const script = $('script[type="module"][src^="/assets/portfolio.js"]').attr('src');
     if (!/^\/assets\/portfolio\.js\?v=[a-f0-9]{12}$/.test(script || '')) throw new Error(`${route}: unversioned assistant script.`);
     await request(stylesheet);
     for (const image of $('img[src]').toArray()) {

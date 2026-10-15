@@ -8,26 +8,35 @@ permalink: "{{ entry.url }}"
 eleventyComputed:
   title: "{{ entry.title }}"
   description: "{{ entry.summary }}"
-  section: "{{ 'research' if entry.category == 'research' or entry.category == 'research-software' else entry.type }}"
+  section: "{{ entry.type }}"
   lang: "{{ entry.lang }}"
 article: true
 ---
-{% set ui = locales[1] if entry.lang == 'zh-CN' else locales[0] %}
-{% set listing = "research" if entry.category == "research" or entry.category == "research-software" else entry.type %}
+{% set ui = locales[1] if (page.url | isChinese) or entry.lang == 'zh-CN' else locales[0] %}
+{% set listing = 'writing' if entry.type != 'projects' else 'projects' %}
+{% set writingCategory = entry.category or ('ideas' if entry.type == 'blog' else 'notes') %}
 <article>
   <header class="article-heading">
-    <a class="back-link" href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'research' %}{{ ui.research }}{% elif entry.type == 'notes' %}{{ ui.learningNotes }}{% elif entry.type == 'projects' %}{{ ui.projects }}{% else %}{{ ui.notes }}{% endif %}</a>
+    <a class="back-link" href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'writing' %}{{ ui.writing }}{% elif listing == 'research' %}{{ ui.research }}{% elif entry.type == 'blog' %}{{ ui.blog }}{% elif entry.type == 'notes' %}{{ ui.learningNotes }}{% elif entry.type == 'projects' %}{{ ui.projects }}{% else %}{{ ui.notes }}{% endif %}</a>
     <h1>{{ entry.title }}</h1>
     <p class="article-summary">{{ entry.summary }}</p>
-    <div class="article-meta"><span>{{ ui.name }}</span><time datetime="{{ entry.date }}">{{ entry.date | dateLabel(ui.lang) }}</time><span>{{ entry.readingTime }} {{ ui.minRead }}</span>{% if entry.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}</div>
+    <div class="article-meta"><span>{{ ui.name }}</span>{% if entry.dateKind == 'authored' %}<span>{{ '写于' if ui.prefix else 'Written' }}</span>{% elif entry.dateKind == 'project-origin' %}<span>{{ '项目始于' if ui.prefix else 'Project started' }}</span>{% endif %}<time datetime="{{ entry.date }}">{{ entry.date | dateLabel(ui.lang) }}</time><span>{{ entry.readingTime }} {{ ui.minRead }}</span>{% if entry.status %}<span class="project-status">{% if ui.prefix %}{{ entry.status }}{% elif entry.status == '已完成' %}Completed{% else %}Concept{% endif %}</span>{% endif %}{% if entry.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}</div>
+    {% if listing == 'writing' or entry.tags.length %}<ul class="article-tags" aria-label="{{ '主题' if ui.prefix else 'Topics' }}">{% if listing == 'writing' %}<li><a href="{{ ui.prefix }}/writing/?type={{ writingCategory }}">{% if writingCategory == 'ideas' %}{{ '想法' if ui.prefix else 'Ideas' }}{% elif writingCategory == 'findings' %}{{ '发现' if ui.prefix else 'Findings' }}{% else %}{{ '笔记' if ui.prefix else 'Notes' }}{% endif %}</a></li>{% endif %}{% for tag in entry.tags %}<li><a href="{{ ui.prefix }}/{{ listing }}/?tag={{ tag | urlencode }}">{{ tag }}</a></li>{% endfor %}</ul>{% endif %}
     {% if entry.updated %}<p class="updated">{{ ui.updated }} <time datetime="{{ entry.updated }}">{{ entry.updated | dateLabel(ui.lang) }}</time></p>{% endif %}
     {% if entry.links.length %}<ul class="project-links">{% for link in entry.links %}<li><a href="{{ link.url }}">{{ link.label }}</a></li>{% endfor %}</ul>{% endif %}
   </header>
+  <section class="article-translation" data-article-translation data-document-id="{{ entry.type }}/{{ entry.slug }}/{{ entry.lang }}" data-source-language="{{ entry.lang }}" data-ui-language="{{ ui.lang }}" aria-label="{{ '文章翻译' if ui.prefix else 'Article translation' }}" hidden>
+    <div class="translation-actions"><button type="button" data-translate>{{ '全文翻译 · English' if entry.lang == 'zh-CN' else 'Translate full article · 中文' }}</button><button type="button" data-original hidden>{{ '返回原文' if ui.prefix else 'Read original' }}</button><button type="button" data-translation-cancel hidden>{{ '取消翻译' if ui.prefix else 'Cancel translation' }}</button></div>
+    <p data-translation-notice hidden>{{ '机器翻译，未经作者审校。代码、公式与图片保留原样；可随时返回原文并与 AI 讨论。' if ui.prefix else 'Machine translation, not reviewed by the author. Code, equations and images remain unchanged. You can return to the original and continue chatting with the AI.' }}</p>
+    <p data-translation-status role="status" aria-live="polite"></p><div data-translation-challenge hidden></div>
+  </section>
   {% if entry.headings.length > 1 %}
   <details class="toc" open><summary>{{ ui.contents }}</summary><nav aria-label="{{ ui.contents }}"><ul>{% for heading in entry.headings %}<li class="toc-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ul></nav></details>
   {% endif %}
   <div class="prose" lang="{{ entry.lang }}">{{ entry.html | safe }}</div>
   {% if entry.relatedReport %}<p class="related-reading"><a href="{{ ui.prefix }}{{ entry.relatedReport }}">{{ ui.relatedNote }}</a></p>{% endif %}
   {% if entry.assistantTopic %}<p class="related-reading"><a href="{{ ui.prefix }}/chat/#topic={{ entry.assistantTopic }}">{{ ui.askProject }}</a></p>{% endif %}
-  <div class="article-end"><a href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'research' %}{{ ui.research }}{% elif entry.type == 'notes' %}{{ ui.learningNotes }}{% elif entry.type == 'projects' %}{{ ui.backProjects }}{% else %}{{ ui.backReports }}{% endif %}</a></div>
+  <div class="article-end"><a href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'writing' %}{{ ui.writing }}{% elif listing == 'research' %}{{ ui.research }}{% elif entry.type == 'notes' %}{{ ui.learningNotes }}{% elif entry.type == 'projects' %}{{ ui.backProjects }}{% elif entry.type == 'blog' %}{{ ui.backBlog }}{% else %}{{ ui.backReports }}{% endif %}</a></div>
 </article>
+
+<script type="module" src="/assets/article-translation.js?v={{ assistantVersion }}"></script>

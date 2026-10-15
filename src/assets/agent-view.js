@@ -1,3 +1,4 @@
+import {milestones,biographyGroups} from './biography.js';
 import {readableProse} from './agent-prose.js';
 import { validateAgentBlock } from './agent-stream.js';
 
@@ -116,6 +117,20 @@ export function createAgentTurn(document, { log, question, language = 'en', onQu
     function appendTimeline(parent,items,start=1) {
       const list=make('ol','','comic-life-line');list.setAttribute('start',String(start));
       for(const item of items){const li=make('li');li.append(make('span',biography?item.period:item.date),make('h3',item.title));if(biography)li.append(make('p',item.description));const a=make('a',zh?'原文 ↗':'Source ↗');a.href=biography?item.source.url:item.url;li.append(a);list.append(li);}parent.append(list);
+    }
+    if(biography) {
+      container.classList.add('biography-overview');
+      for(const group of biographyGroups) {
+        const items=block.items.filter(item=>milestones.find(event=>`event:${event.id}`===item.id)?.group===group.id);
+        if(!items.length)continue;
+        const section=make('section','','biography-group');section.append(make('h3',group[language]));
+        const list=make('ol','','biography-rows');
+        for(const item of items){const li=make('li','','biography-row'),copy=make('div','','biography-copy');li.append(make('span',item.period,'biography-period'));copy.append(make('h4',item.title),make('p',item.description));const link=make('a',zh?'原文 ↗':'Source ↗');link.href=item.source.url;copy.append(link);li.append(copy);list.append(li);}
+        section.append(list);container.append(section);
+      }
+      const legacy=block.items.filter(item=>!milestones.some(event=>`event:${event.id}`===item.id));
+      if(legacy.length)appendTimeline(container,legacy);
+      container.append(make('p',zh?`依据截至 ${block.asOf} 的公开履历；各段经历可以重叠。`:`Biography as of ${block.asOf}; periods may overlap.`,'comic-visual-note'));return;
     }
     const previewCount=block.items.length>3?2:block.items.length;
     appendTimeline(container,block.items.slice(0,previewCount));

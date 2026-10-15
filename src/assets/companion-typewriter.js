@@ -2,7 +2,7 @@
 // only changes the decorative visual text and never delays entering the chat.
 export function typeGreeting(line,{
   motion=window.matchMedia('(prefers-reduced-motion: reduce)'),
-  schedule=setTimeout,cancel=clearTimeout
+  schedule=setTimeout,cancel=clearTimeout,startDelay=350
 }={}) {
   const text=line.textContent;
   if(motion.matches || !text || !line.isConnected)return ()=>{};
@@ -22,6 +22,6 @@ export function typeGreeting(line,{
     if(index===letters.length)stop();else timer=schedule(type,75);
   };
   line.textContent='';motion.addEventListener('change',onMotion);
-  timer=schedule(type,350);
+  timer=schedule(type,startDelay);
   return finish;
 }

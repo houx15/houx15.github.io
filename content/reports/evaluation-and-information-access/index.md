@@ -5,6 +5,7 @@ summary: >-
   feasible versus oracle conditions in SSDataAgent.
 date: '2026-10-10'
 draft: false
+category: notes
 lang: en
 updated: '2026-10-10'
 ---
@@ -23,4 +24,4 @@ The [empirical-copula report](https://github.com/houx15/SSDataAgent/blob/f84416d
 
 The [current commit tool](https://github.com/houx15/SSDataAgent/blob/f84416d0d119585d5189c6fd8b691acfe23e26f2/src/ssdataagent/agent/tools/commit.py) records a warning and unverified flag when chronology verification is missing. This is advisory behavior, unlike the hard gate described in some older documentation.
 
-See [SSDataAgent](/projects/ssdata-agent/) for the system description and implementation sources.
+See [SSDataAgent](https://github.com/houx15/SSDataAgent) for the system description and implementation sources.
