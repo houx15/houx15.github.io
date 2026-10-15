@@ -939,3 +939,16 @@ test('section context does not automatically expand long or section-heavy docume
   }});
  }
 });
+
+
+test('named Higgz and PEER requests preload their own records without substituting Shiguang',async()=>{
+ let seen=[];
+ const answer=await runContentAgent({question:'她在悉之教育和 PEER 做过哪些具体工作？',language:'zh-CN',corpus,pageContext:{pagePath:'/zh/about/'},complete:async({messages})=>{
+   seen=messages.filter(m=>m.role==='tool').map(m=>JSON.parse(m.content));
+   return {text:'在悉之教育，她参与产品研发；在 PEER，她参与项目设计与技术支持。',sourceIds:['event:startup','event:peer']};
+ }});
+ assert.deepEqual(seen.map(r=>r.id),['event:startup','event:peer']);
+ assert.match(seen[0].text,/联合创始人、CTO/);
+ assert.match(seen[1].text,/少年 E 计划/);
+ assert.equal(answer.sources.length,2);
+});

@@ -74,6 +74,22 @@ export async function runContentAgent({ question, language = 'en', history = [],
     messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(output)});
     onEvent({type:'status',phase:'tool_completed',tool:'read_profile',callId});
   }
+  // Resolve explicitly named organizations before generation so similar Chinese
+  // names never depend on a broad “nonprofits” lookup.
+  const namedOrganizations=[['startup',/悉之|希子|\bhiggz\b/i],['shiguang',/是光|\bshiguang\b|enlighter seasons poetry/i],['peer',/毅恒|\bpeer\b/i],['unicef',/儿童基金会|\bunicef\b/i]]
+    .filter(([,pattern])=>pattern.test(question)).map(([id])=>id);
+  if(namedOrganizations.length) {
+    messages[0].content+=' The visitor explicitly named organizations whose exact event records are provided below. Answer each requested organization using its own record; never substitute another organization. 悉之教育 (Higgz Technology) and 是光诗歌 (Shiguang Poetry) are different organizations. Do not describe internal approval or evidence administration in the answer.';
+    for(const eventId of namedOrganizations) {
+      if(evidence.has(`event:${eventId}`))continue;
+      const args={eventId,language},callId=`named_profile_${++calls}`;
+      messages.push({role:'assistant',toolCalls:[{id:callId,name:'read_profile',arguments:args}]});
+      onEvent({type:'status',phase:'tool_started',tool:'read_profile',callId});
+      const output=tools.read_profile(args);evidence.set(output.source.id,output.source);profilePassages.set(output.source.id,output.text);
+      messages.push({role:'tool',toolCallId:callId,content:JSON.stringify(output)});
+      onEvent({type:'status',phase:'tool_completed',tool:'read_profile',callId});
+    }
+  }
   if(pageContext?.sectionId) {
     const reads=[{id:pageContext.documentId,sectionId:pageContext.sectionId}];
     for(const args of reads) {
