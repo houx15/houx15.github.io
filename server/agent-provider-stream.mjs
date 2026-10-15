@@ -17,7 +17,7 @@ function visiblePrefix(content) {
   }
   return {sourceIds,text:''};
 }
-export async function readProviderStream(response,{signal,allowJsonTools=false,requireJsonObject=false,onText=()=>{}}={}) {
+export async function readProviderStream(response,{signal,allowJsonTools=false,allowTranslationArray=false,requireJsonObject=false,onText=()=>{}}={}) {
   if(!response.ok || !response.headers.get('content-type')?.startsWith('text/event-stream'))throw new Error('Invalid stream');
   const reader=response.body.getReader(),decoder=new TextDecoder('utf-8',{fatal:true});
   let buffer='',content='',sent='',size=0,frames=0,done=false,finish,usage;const calls=new Map();
@@ -72,6 +72,7 @@ export async function readProviderStream(response,{signal,allowJsonTools=false,r
       if(sent || Object.keys(result).length!==1 || !Array.isArray(result.toolCalls) || result.toolCalls.length<1 || result.toolCalls.length>8 || result.toolCalls.some(call=>!call || typeof call!=='object' || Object.keys(call).some(key=>!['id','name','arguments'].includes(key)) || typeof call.id!=='string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(call.id) || typeof call.name!=='string' || call.name.length>100 || !call.arguments || typeof call.arguments!=='object' || Array.isArray(call.arguments)) || new Set(result.toolCalls.map(call=>call.id)).size!==result.toolCalls.length)throw new Error('Invalid tool delta');
       return {toolCalls:result.toolCalls,usage};
     }
+    if(allowTranslationArray && result && Array.isArray(result.text) && !sent && Array.isArray(result.sourceIds) && result.sourceIds.every(id=>typeof id==='string' && result.text.some(item=>item?.id===id)) && result.text.length<=12 && result.text.every(item=>item && typeof item==='object' && Object.keys(item).length===2 && typeof item.id==='string' && typeof item.text==='string')){result.text=JSON.stringify(result.text);result.sourceIds=[];}
     const detail=!result || typeof result!=='object' || Array.isArray(result)?'nonobject_result'
       :Object.keys(result).some(key=>!['text','sourceIds'].includes(key))?'additional_fields'
       :typeof result.text!=='string'?'invalid_text_field'

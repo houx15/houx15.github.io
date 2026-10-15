@@ -306,36 +306,37 @@ test('concept source choices reflect actual reads and a rejected source can be c
  assert.equal(result.blocks.length,1);assert.equal(result.blocks[0].items[1].source.id,'notes/cache/en:0');
 });
 
-test('diagram follow-up refreshes real source text before the first model answer',async()=>{
+test('diagram follow-up explicitly reads its source instead of preloading previous passages',async()=>{
  const memory={text:'See the diagram.',visuals:[{type:'concept_flow',title:'Cache',items:[{position:1,title:'Store',sourceId:'notes/cache/en:0'},{position:2,title:'Reuse',sourceId:'notes/cache/en:0'},{position:3,title:'Missing',sourceId:'invented'}]}]};
  const events=[];let calls=0;
  const result=await runContentAgent({question:'Explain step two',corpus,history:[{role:'assistant',content:JSON.stringify(memory)}],onEvent:event=>events.push(event),complete:async({messages,onText})=>{
-   calls++;const read=JSON.parse(messages.at(-1).content);
+   calls++;if(calls===1){assert.equal(events.length,0);return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en',sectionId:'notes/cache/en:0'}}]};}
+   const read=JSON.parse(messages.at(-1).content);
    assert.equal(read.sections[0].fragments.map(fragment=>fragment.text).join('\n'),corpus.documents[0].sections[0].text);
    assert.equal(events.filter(event=>event.phase==='tool_completed').length,1);
    onText('Reuse stored keys and values.',['notes/cache/en:0']);
    return {text:'Reuse stored keys and values.',sourceIds:['notes/cache/en:0']};
  }});
- assert.equal(calls,1);assert.equal(result.sources[0].id,'notes/cache/en:0');
+ assert.equal(calls,2);assert.equal(result.sources[0].id,'notes/cache/en:0');
  assert.equal(events.filter(event=>event.type==='answer_delta').length,1);
 });
 
-test('automatic visual-source refresh is capped and consumes the same tool budget',async()=>{
- const many=doc('many','Many sections','One');many.sections=Array.from({length:5},(_,i)=>({id:`${many.id}:${i}`,heading:`Section ${i}`,text:`Current text ${i}`,url:`${many.url}#s${i}`}));
- const memory={visuals:[{type:'concept_flow',items:many.sections.map(section=>({sourceId:section.id}))}]};
+test('previous visual sources are not automatically loaded or credited as new evidence',async()=>{
+ const many=doc('many','Many sections','One');
+ const memory={visuals:[{type:'concept_flow',items:[{sourceId:many.sections[0].id}]}]};
  const events=[];
  await assert.rejects(runContentAgent({question:'Continue',corpus:{schemaVersion:1,revision:'t',documents:[many]},history:[{role:'assistant',content:JSON.stringify(memory)}],onEvent:event=>events.push(event),complete:async()=>{
-   assert.equal(events.filter(event=>event.phase==='tool_completed').length,3);
-   return {toolCalls:Array.from({length:6},(_,i)=>({id:`r${i}`,name:'read_content',arguments:{id:many.id}}))};
- }}),/Tool budget exceeded/);
+   assert.equal(events.filter(event=>event.phase==='tool_completed').length,0);
+   return {text:'Unsupported without a new read.',sourceIds:[many.sections[0].id]};
+ }}),/Invalid answer evidence/);
 });
 
-
-test('prose follow-up refreshes exact biography identities without repeating a timeline',async()=>{
+test('prose follow-up requests exact biography identities without repeating a timeline',async()=>{
  const {rememberAgentAnswer}=await import('../server/agent-memory.mjs');
  const memory=rememberAgentAnswer({text:'Previous introduction',sources:[{id:'profile:profile'},{id:'event:pku'},{id:'event:princeton'}]});
- const events=[];
+ const events=[];let round=0;
  const result=await runContentAgent({question:'Which institution and appointment?',language:'zh-CN',corpus,history:[{role:'assistant',content:memory}],onEvent:event=>events.push(event),complete:async({messages,onText})=>{
+   if(++round===1)return {toolCalls:[{id:'p',name:'read_profile',arguments:{id:'profile',language:'zh-CN'}},{id:'k',name:'read_profile',arguments:{eventId:'pku',language:'zh-CN'}},{id:'v',name:'read_profile',arguments:{eventId:'princeton',language:'zh-CN'}}]};
    const reads=messages.filter(m=>m.role==='tool').map(m=>JSON.parse(m.content));
    assert.equal(reads.length,3);
    assert.match(reads[0].text,/社会研究中心/);
@@ -452,24 +453,25 @@ test('within-article retrieval returns distinct relevant passages, with paginati
  assert.equal(tools.read_content({id:article.id,sectionId:result.results[0].sectionId}).sections.length,1);
 });
 
-test('scoped search provides its actual original section as citation evidence',async()=>{
+test('scoped search provides navigation and an explicit section read provides evidence',async()=>{
  let calls=0;const id='notes/cache/en:0';
  const answer=await runContentAgent({question:'What is cached?',corpus,complete:async({messages})=>{
   if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'keys',documentId:'notes/cache/en'}}]};
   const output=JSON.parse(messages.at(-1).content);
-  assert.equal(output.includedReads[0].sections[0].id,id);
-  assert.equal(output.includedReads[0].sections[0].fragments[0].text,'Attention stores keys and values. torch.compile is exact.');
+  if(calls===2){assert.equal(output.includedReads,undefined);assert.equal(output.results[0].sectionId,id);return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/cache/en',sectionId:id}}]};}
+  assert.equal(output.sections[0].id,id);
+  assert.equal(output.sections[0].fragments[0].text,'Attention stores keys and values. torch.compile is exact.');
   return {text:'Keys are cached.',sourceIds:[id]};
  }});
- assert.equal(calls,2);assert.equal(answer.sources[0].id,id);
+ assert.equal(calls,3);assert.equal(answer.sources[0].id,id);
 });
 
-test('search does not grant evidence to matches beyond the bounded original reads',async()=>{
+test('search grants no evidence to any result without an explicit read',async()=>{
  const many={schemaVersion:1,revision:'bounded',documents:Array.from({length:5},(_,i)=>doc(`source-${i}`,`Source ${i}`,'Shared search term.'))};
  let calls=0,unread;
  await assert.rejects(runContentAgent({question:'Explain',corpus:many,complete:async({messages})=>{
   if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'shared',limit:5}}]};
-  if(calls===2){const output=JSON.parse(messages.at(-1).content);assert.equal(output.includedReads.length,3);assert.equal(output.results.length,5);unread=output.results[3].sectionId;assert.ok(!output.includedReads.some(read=>read.sections.some(section=>section.id===unread)));}
+  if(calls===2){const output=JSON.parse(messages.at(-1).content);assert.equal(output.includedReads,undefined);assert.equal(output.results.length,5);unread=output.results[0].sectionId;}
   return {text:'This unprovided passage is not evidence.',sourceIds:[unread]};
  }}),/Invalid answer evidence/);
 });
@@ -479,7 +481,7 @@ test('oversized matching sections remain navigation-only until explicitly read',
  let calls=0;
  await assert.rejects(runContentAgent({question:'Explain',corpus:large,complete:async({messages})=>{
   if(++calls===1)return {toolCalls:[{id:'search',name:'search_content',arguments:{query:'shared'}}]};
-  if(calls===2)assert.deepEqual(JSON.parse(messages.at(-1).content).includedReads,[]);
+  if(calls===2)assert.equal(JSON.parse(messages.at(-1).content).includedReads,undefined);
   return {text:'Unsupported.',sourceIds:['notes/long/en:0']};
  }}),/Invalid answer evidence/);
 });
@@ -911,14 +913,14 @@ test('follow-up buttons carry the concrete question and require evidence from th
  }
 });
 
-test('compact-page context reads supporting body while preserving the requested reading position',async()=>{
+test('compact-page context loads only the reading position; supporting body requires a tool read',async()=>{
  const project=doc('project','Project','unused');
  project.sections=Array.from({length:4},(_,index)=>({id:`${project.id}:${index}`,heading:index===3?'Sources':`Part ${index}`,text:index===2?'Learning outcomes were not evaluated.':`Public section ${index}.`,url:`${project.url}#part-${index}`}));
  const context={documentId:project.id,sectionId:project.sections[3].id};
- const answer=await runContentAgent({question:'Were outcomes verified?',corpus:{...corpus,documents:[project]},pageContext:context,complete:async({messages})=>{
+ let round=0;const answer=await runContentAgent({question:'Were outcomes verified?',corpus:{...corpus,documents:[project]},pageContext:context,complete:async({messages})=>{
   const reads=messages.filter(message=>message.role==='tool').map(message=>JSON.parse(message.content));
-  assert.deepEqual(reads.flatMap(read=>read.sections.map(section=>section.id)),project.sections.map(section=>section.id));
-  assert.equal(reads.length,2);
+  if(++round===1){assert.deepEqual(reads.flatMap(read=>read.sections.map(section=>section.id)),[project.sections[3].id]);return {toolCalls:[{id:'body',name:'read_content',arguments:{id:project.id,sectionId:project.sections[2].id}}]};}
+  assert.deepEqual(reads.flatMap(read=>read.sections.map(section=>section.id)),[project.sections[3].id,project.sections[2].id]);
   assert.deepEqual(JSON.parse(messages.find(message=>message.role==='user').content).pageContext,context);
   return {text:'Learning outcomes were not evaluated.',sourceIds:[project.sections[2].id]};
  }});

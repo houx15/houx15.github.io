@@ -86,3 +86,14 @@ test('JSON object mode tolerates leading whitespace and fragmented valid objects
  const result=await readProviderStream(new Response(body,{headers:{'Content-Type':'text/event-stream'}}),{requireJsonObject:true,onText:text=>deltas.push(text)});
  assert.equal(result.text,'Valid');assert.equal(deltas.join(''),'Valid');
 });
+
+test('translation fragments accept a bounded array only in the translation adapter',async()=>{
+  const make=(text,sourceIds=[])=>new Response([chunk(JSON.stringify({sourceIds,text})),chunk('','stop'),'[DONE]'].map(x=>new TextDecoder().decode(frame(x))).join(''),{headers:{'Content-Type':'text/event-stream'}});
+  const fragments=[{id:'title:0',text:'A translated title'}];
+  await assert.rejects(readProviderStream(make(fragments)));
+  const result=await readProviderStream(make(fragments),{allowTranslationArray:true});
+  assert.deepEqual(JSON.parse(result.text),fragments);
+  const echoed=await readProviderStream(make(fragments,['title:0']),{allowTranslationArray:true});assert.deepEqual(echoed.sourceIds,[]);
+  await assert.rejects(readProviderStream(make(fragments,['unrecognized']),{allowTranslationArray:true}));
+  await assert.rejects(readProviderStream(make([{id:'x',text:'x',extra:'invalid'}]),{allowTranslationArray:true}));
+});

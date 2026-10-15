@@ -160,6 +160,7 @@ test('terminal timeline captions stream through HTTP and remain available to a l
   if(calls===2)return {toolCalls:[{id:'draw',name:'show_profile_timeline',arguments:{eventIds:['startup'],caption:'Her startup experience.',language:'en'}}]};
   const prior=messages.filter(message=>message.role==='assistant' && message.content).map(message=>JSON.parse(message.content));
   assert.ok(prior.some(answer=>answer.text==='Her startup experience.' && answer.sourceIds.includes('event:startup')));
+  if(calls===3)return {toolCalls:[{id:'reread',name:'read_profile',arguments:{eventId:'startup',language:'en'}}]};
   assert.ok(messages.some(message=>message.role==='tool' && JSON.parse(message.content).source?.id==='event:startup'));
   return {text:'2022',sourceIds:['event:startup']};
  };
@@ -175,7 +176,7 @@ test('terminal timeline captions stream through HTTP and remain available to a l
  assert.ok(events.findIndex(event=>event.type==='answer_delta')<events.findIndex(event=>event.type==='block'));
  assert.equal(events.filter(event=>event.type==='answer_delta').map(event=>event.text).join(''),'Her startup experience.');
  const later=[];await client().ask({question:'When did she leave? Only the year.',language:'en'},{onEvent:event=>later.push(event)});
- assert.equal(calls,3);assert.equal(later.find(event=>event.type==='answer').text,'2022');assert.equal(later.at(-1).type,'done');
+ assert.equal(calls,4);assert.equal(later.find(event=>event.type==='answer').text,'2022');assert.equal(later.at(-1).type,'done');
 });
 
 test('a later browser client can refer to the offered question without losing source boundaries',async t=>{
@@ -191,10 +192,12 @@ test('a later browser client can refer to the offered question without losing so
    const prior=messages.filter(m=>m.role==='user').map(m=>JSON.parse(m.content)).find(m=>m.type==='previous_display_metadata');
    assert.deepEqual(prior.followUp,{question:'What is retained in the cache?',documentId:id});
    assert.match(prior.guidance,/not verified facts/);
-   const reread=messages.find(m=>m.role==='tool' && m.toolCallId.startsWith('context_read_'));
-   assert.equal(JSON.parse(reread.content).sections[0].fragments.map(f=>f.text).join('\n'),'Keys and values are cached.');
+   assert.equal(messages.some(m=>m.role==='tool'),false);
+   return {toolCalls:[{id:'reread',name:'read_content',arguments:{id,sectionId:sourceId}}]};
   }
-  assert.equal(calls,4);
+  const reread=messages.find(m=>m.role==='tool' && m.toolCallId==='reread');
+  assert.equal(JSON.parse(reread.content).sections[0].fragments.map(f=>f.text).join('\n'),'Keys and values are cached.');
+  assert.equal(calls,5);
   return {text:'I asked because the note says keys and values are cached.',sourceIds:[sourceId]};
  };
  const guard=createGuard({store:new MemoryAgentStore(),secret:'a'.repeat(40),dailyTokens:1000000,enabled:()=>true});

@@ -153,7 +153,7 @@ test('follow-up memory stays within the existing history bound with escaped text
 test('actual reading records survive independently of citations without becoming new evidence',async()=>{
  const {runContentAgent}=await import('../server/content-agent.mjs');
  const {modelHistory}=await import('../server/agent-model-history.mjs');
- const answer=await runContentAgent({question:'Explain the source',pageContext:{documentId:'notes/read/en',sectionId:'notes/read/en:0'},corpus:{schemaVersion:1,revision:'read',documents:[{id:'notes/read/en',title:'Read',summary:'Read',tags:[],language:'en',type:'notes',url:'/notes/read/',sections:[{id:'notes/read/en:0',heading:'First',text:'One fact',url:'/notes/read/#first'},{id:'notes/read/en:1',heading:'Second',text:'Another fact',url:'/notes/read/#second'}]}]},complete:async()=>({text:'One fact.',sourceIds:['notes/read/en:0']})});
+ let round=0;const answer=await runContentAgent({question:'Explain the source',pageContext:{documentId:'notes/read/en',sectionId:'notes/read/en:0'},corpus:{schemaVersion:1,revision:'read',documents:[{id:'notes/read/en',title:'Read',summary:'Read',tags:[],language:'en',type:'notes',url:'/notes/read/',sections:[{id:'notes/read/en:0',heading:'First',text:'One fact',url:'/notes/read/#first'},{id:'notes/read/en:1',heading:'Second',text:'Another fact',url:'/notes/read/#second'}]}]},complete:async()=>++round===1?{toolCalls:[{id:'extra',name:'read_content',arguments:{id:'notes/read/en',sectionId:'notes/read/en:1'}}]}:{text:'One fact.',sourceIds:['notes/read/en:0']}});
  const saved=rememberAgentAnswer(answer),memory=JSON.parse(saved);
  assert.deepEqual(memory.sourceIds,['notes/read/en:0']);
  assert.deepEqual(memory.readRecord.sources.map(s=>s.id),['notes/read/en:0','notes/read/en:1']);

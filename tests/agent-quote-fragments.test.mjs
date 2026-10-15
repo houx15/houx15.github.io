@@ -23,8 +23,8 @@ for(const mode of ['explicit','page','history'])test(`quote references resolve a
  let calls=0;const events=[];
  const answer=await runContentAgent({question:'Explain',corpus,...(mode==='page'?{pageContext:{documentId:'notes/test/en',sectionId:id}}:{}),...(mode==='history'?{history:[{role:'assistant',content:JSON.stringify({text:'Earlier',sourceIds:[id]})}]}:{}),onEvent:event=>events.push(event),complete:async({messages})=>{
   calls++;
-  if(mode==='explicit'&&calls===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/test/en',sectionId:id}}]};
-  if(calls===(mode==='explicit'?2:1)){
+  if(mode!=='page'&&calls===1)return {toolCalls:[{id:'read',name:'read_content',arguments:{id:'notes/test/en',sectionId:id}}]};
+  if(calls===(mode!=='page'?2:1)){
    const read=JSON.parse(messages.at(-1).content),ids=read.sections[0].fragments.map(f=>f.quoteId);
    assert.equal(read.sections[0].text,undefined);
    return {toolCalls:[{id:'draw',name:'show_concept_flow',arguments:flow(ids)}]};

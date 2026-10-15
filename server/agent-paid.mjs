@@ -1,12 +1,12 @@
 import { AgentError } from './agent-state.mjs';
-import { MODEL_OUTPUT_TOKENS, MODEL_WIRE_ALLOWANCE } from './agent-limits.mjs';
+import { MODEL_OUTPUT_TOKENS, MODEL_WIRE_ALLOWANCE, MODEL_CONTEXT_INPUT_TOKENS, estimateContextTokens } from './agent-limits.mjs';
 
 // Both HTTP and SSH tests reserve against the same monetary ledger before every call.
 export function createPaidCompletion({guard,requestId,complete,signal,beforeCall=()=>{},afterCall=()=>{}}) {
   return async args=>{
     signal.throwIfAborted();
     const bytes=Buffer.byteLength(JSON.stringify({messages:args.messages,tools:args.tools}));
-    if(bytes>48000) throw new AgentError(400,'context_limit');
+    if(estimateContextTokens(args.messages,args.tools)>MODEL_CONTEXT_INPUT_TOKENS) throw new AgentError(400,'context_limit');
     const reservation=await guard.reserve(requestId,bytes+MODEL_WIRE_ALLOWANCE+MODEL_OUTPUT_TOKENS);
     signal.throwIfAborted();beforeCall();
     const result=await complete(args);signal.throwIfAborted();
