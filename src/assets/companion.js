@@ -1,4 +1,4 @@
-import {bindCompanionPanel} from './companion-panel.js';
+import {bindCompanionPanel,bindCompanionLauncher} from './companion-panel.js';
 import {typeGreeting} from './companion-typewriter.js';
 import {createBiographyChapter} from './biography-chapter.js';
 import {confirmConversationReset} from './companion-reset.js';
@@ -310,6 +310,7 @@ export function initCompanion(document) {
   }
   if(dialog&&launcher) {
     let pointerSelection;
+    bindCompanionLauncher(launcher);
     bindCompanionPanel(dialog,document.querySelector('[data-panel-drag]'));
     const launcherLabel=launcher.querySelector('span'),defaultLabel=launcherLabel.textContent,defaultAria=launcher.getAttribute('aria-label');
     const selectedPassage=()=>root.dataset.documentId && !input.value.trim()?captureReadingSelection(document):undefined;
