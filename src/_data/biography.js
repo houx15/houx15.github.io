@@ -1,1 +1,2 @@
-export { milestones as default } from '../assets/biography.js';
+import {milestones} from '../assets/biography.js';
+export default [...milestones].sort((a,b)=>b.start-a.start || b.end-a.end);

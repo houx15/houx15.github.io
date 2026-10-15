@@ -9,7 +9,7 @@ export function createBiographyChapter(document,{language='en',onQuestion=()=>{}
   for(const group of biographyGroups) {
     const section=add(card,'section','','biography-group');add(section,'h3',group[language]);
     const list=add(section,'ol','','biography-rows');
-    for(const event of milestones.filter(item=>item.group===group.id && (item.group!=='work' || ['startup','consulting'].includes(item.id)))) {
+    for(const event of milestones.filter(item=>item.group===group.id && (item.group!=='work' || ['startup','consulting'].includes(item.id))).sort((a,b)=>b.start-a.start || b.end-a.end)) {
       const copy=event.id==='consulting'?consultingSummary[language]:event[language],row=add(list,'li','','biography-row');
       add(row,'span',copy.period,'biography-period');
       const body=add(row,'div','','biography-copy');add(body,'h4',copy.role?`${copy.role} · ${copy.title}`:copy.title);add(body,'p',copy.description);
