@@ -30,7 +30,7 @@ async function writeEntry(dir, type, slug, { draft = false, title = 'A technical
 
 test('empty site has all routes and no fabricated entries', async t => {
   const dir = await workspace(t); build(dir);
-  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 20);
+  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 22);
   const $ = load(await fs.readFile(path.join(dir, '_site/index.html'), 'utf8'));
   assert.equal($('.home-ai-stage').length,1);
   assert.equal($('.home-introduction').length,1);
@@ -47,7 +47,7 @@ test('assistant updates invalidate the entry script and all imported modules', a
   async function versionAfterBuild() {
     build(dir);
     const $ = load(await fs.readFile(path.join(dir, '_site/index.html'), 'utf8'));
-    const entry = $('script[type="module"]').attr('src');
+    const entry = $('script[type="module"][src^="/assets/portfolio.js"]').attr('src');
     assert.match(entry, /^\/assets\/portfolio\.js\?v=[a-f0-9]{12}$/);
     const version = entry.split('?v=')[1];
     for (const name of (await fs.readdir(path.join(dir,'src/assets'))).filter(name=>name.endsWith('.js'))) {
@@ -76,7 +76,7 @@ test('reports and products render and are discoverable; drafts and their files s
   const draft = await writeEntry(dir, 'reports', 'unpublished-report', { draft: true });
   await fs.writeFile(path.join(draft, 'attachment.pdf'), 'draft-only attachment');
   build(dir);
-  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 22);
+  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 24);
   const $ = load(await fs.readFile(path.join(dir, '_site/reports/test-report/index.html'), 'utf8'));
   assert.equal($('h1').text(), 'Methods & Results <2026>');
   assert.equal($('html').attr('lang'), 'zh-CN');
@@ -96,7 +96,7 @@ test('reports and products render and are discoverable; drafts and their files s
   assert.equal(projects('.product-tile').length,1);
   assert.equal(load(await fs.readFile(path.join(dir, '_site/projects/test-product/index.html'), 'utf8'))('.project-links a').attr('href'), 'https://github.com/houx15');
   build(dir, true);
-  assert.equal((await checkSite(path.join(dir, '_preview'), { preview: true })).pages, 23);
+  assert.equal((await checkSite(path.join(dir, '_preview'), { preview: true })).pages, 25);
   await fs.access(path.join(dir, '_preview/reports/unpublished-report/attachment.pdf'));
   const preview = load(await fs.readFile(path.join(dir, '_preview/reports/unpublished-report/index.html'), 'utf8'));
   assert.equal(preview('meta[name="robots"]').attr('content'), 'noindex, nofollow');
@@ -203,7 +203,7 @@ test('locale routes preserve original article language without duplicating listi
   assert.equal(home('section.screen').length,0);
   const projectListing=load(await fs.readFile(path.join(dir,'_site/zh/projects/index.html'),'utf8'));
   assert.match(projectListing('.product-copy h2').text(),/English project/);
-  assert.equal((await checkSite(path.join(dir,'_site'))).pages, 22);
+  assert.equal((await checkSite(path.join(dir,'_site'))).pages, 24);
   const chat=load(await fs.readFile(path.join(dir,'_site/zh/chat/index.html'),'utf8'));
   assert.equal(chat('[data-companion-form]').length,1);
   assert.equal(chat('[data-opening]').length,1);
@@ -260,7 +260,8 @@ test('work and education timeline retains every overlapping period in both langu
   const chat=load(await fs.readFile(path.join(dir,'_site/chat/index.html'),'utf8'));
   assert.equal(chat('[data-companion-log]').length,1);
   const about=load(await fs.readFile(path.join(dir,'_site/about/index.html'),'utf8'));
-  assert.match(about('.prose').text(),/supplied on 15 October 2026/);
+  assert.equal(about('main #sources,main #assistant-privacy').length,0);
+  assert.doesNotMatch(about('main').text(),/Sources and notes|AI assistant and conversation data/);
 });
 
 test('learning notes are dated, searchable across languages, and exclude draft text', async t => {
@@ -374,5 +375,22 @@ test('homepage keeps Mind Imprint and CyberSiliconValley plus only two latest no
   assert.equal($('.home-update-grid>li').length,4);
   assert.deepEqual($('.home-update-link').toArray().map(el=>$(el).attr('href')),['/projects/mind-imprint/','/projects/cybersiliconvalley/','/notes/newest/','/blog/second/']);
   assert.equal($('.home-ai-stage').length,1);assert.equal($('[data-companion-open]').length,1);
+ }
+});
+
+
+test('AI privacy disclosure is available from every footer and without JavaScript',async t=>{
+ const dir=await workspace(t);build(dir);
+ for(const prefix of ['','zh/']){
+  const about=load(await fs.readFile(path.join(dir,'_site',prefix,'about/index.html'),'utf8'));
+  const privacy=load(await fs.readFile(path.join(dir,'_site',prefix,'privacy/index.html'),'utf8'));
+  assert.equal(about('.site-footer [data-privacy-open]').attr('href'),'/'+prefix+'privacy/');
+  assert.equal(about('#privacy-dialog').attr('aria-labelledby'),'privacy-dialog-title');
+  assert.equal(about('#privacy-dialog [data-privacy-close]').length,1);
+  assert.equal(about('#privacy-dialog .prose').text().trim(),privacy('main .prose').text().trim());
+  const chat=load(await fs.readFile(path.join(dir,'_site',prefix,'chat/index.html'),'utf8'));
+  assert.equal(chat('main .chat-privacy-link[data-privacy-open]').attr('href'),'/'+prefix+'privacy/');
+  assert.match(privacy('main').text(),/Turnstile/);assert.match(privacy('main').text(),prefix?/一小时/:/one hour/);
+  assert.match(privacy('main').text(),prefix?/二十轮/:/twenty/);assert.match(privacy('main').text(),prefix?/阿里云百炼/:/Alibaba Cloud Bailian/);
  }
 });

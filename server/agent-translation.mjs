@@ -7,15 +7,21 @@ const invalid=()=>{throw new AgentError(400,'invalid_request');};
 
 // Only public corpus text and model translations enter this cache, never visitor text or sessions.
 export function createTranslationCache({directory,namespace='default'}={}) {
- const memory=new Map();
- const keyFor=(revision,doc,language)=>hash(JSON.stringify(['translation-v2-batched',namespace,revision,doc.id,language,doc.translationNodes]));
+ const memory=new Map(),legacyKeys=new Map();
+ const keyFor=(revision,doc,language)=>{
+  const key=hash(JSON.stringify(['translation-content-v1',doc.id,doc.language,language,doc.sections,doc.translationNodes]));
+  legacyKeys.set(key,hash(JSON.stringify(['translation-v2-batched',namespace,revision,doc.id,language,doc.translationNodes])));
+  return key;
+ };
  return {keyFor,
   async get(key,nodeKey){
    const id=`${key}-${nodeKey}`;
    if(memory.has(id))return memory.get(id);
    if(!directory)return null;
-   try {const value=JSON.parse(await fs.readFile(path.join(directory,`${id}.json`),'utf8'));if(typeof value.text==='string' && value.text.length<=200000){memory.set(id,value.text);return value.text;}}
-   catch(error){if(error.code!=='ENOENT' && !(error instanceof SyntaxError))throw error;}
+   for(const candidate of [id,...(legacyKeys.has(key)?[`${legacyKeys.get(key)}-${nodeKey}`]:[])]){
+    try {const value=JSON.parse(await fs.readFile(path.join(directory,`${candidate}.json`),'utf8'));if(typeof value.text==='string' && value.text.length<=200000){if(candidate!==id)await this.set(key,nodeKey,value.text);else memory.set(id,value.text);return value.text;}}
+    catch(error){if(error.code!=='ENOENT' && !(error instanceof SyntaxError))throw error;}
+   }
    return null;
   },
   async set(key,nodeKey,text){

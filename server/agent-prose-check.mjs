@@ -3,7 +3,7 @@ import {findUncertaintyConflict} from './agent-uncertainty.mjs';
 // A first-person statement elsewhere in the sources cannot authorize a new
 // personal belief. Accept an explicit attribution only when its statement matches
 // a direct first-person sentence; other paraphrases can be presented as note text.
-const ownerStance = /(?:她|煜欣|侯煜欣)\s*(?:认为|主张|坚信|相信|倡导|强调)|\b(?:she|Yuxin|Evie)\s+(?:believes|advocates|insists|argues|maintains)\b/iu;
+const ownerStance = /(?:她|煜欣|侯煜欣)\s*(?:认为|主张|坚信|相信|倡导|强调)|\b(?:she|Yuxin|Yuxin)\s+(?:believes|advocates|insists|argues|maintains)\b/iu;
 const firstPersonStance = /^(?:我(?:认为|主张|相信|倡导|坚信|强调)|I\s+(?:believe|think|advocate|argue|maintain|insist)\b)/iu;
 const stanceWords = text => text.trim().replace(/^[，,:：\s]+|[。.!！?？\s]+$/gu,'').replace(/\s+/gu,' ').toLowerCase();
 function unsupportedPersonalStance(sentence,source) {

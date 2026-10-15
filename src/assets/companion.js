@@ -149,7 +149,7 @@ export function initCompanion(document) {
     } else if(item.kind === 'story') {
       add(row,'p',zh?'这是她的经历总览。求学、工作和公益探索有不少重叠。':'Here is her experience at a glance. Education, work and community involvement overlap.','comic-reply');
       row.append(createBiographyChapter(document,{eventId:item.eventId,language,onChange:eventId=>{item.eventId=eventId;save();},onQuestion:ask}));
-      sources(row,[{label:zh?'完整经历与资料来源':'Full biography and sources',url:local('/about/#sources')}]);
+      sources(row,[{label:zh?'完整经历与资料来源':'Full biography and sources',url:local('/about/')}]);
     } else {
       add(row,'p',item.text,'comic-reply');sources(row,item.sources);
       if(root.dataset.article!=='true' && item.sources?.length) {

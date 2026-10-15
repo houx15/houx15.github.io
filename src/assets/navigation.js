@@ -1,6 +1,6 @@
 export const topicQuestions = {
- en:{ssdata:'Tell me about SSDataAgent',mind:'Tell me about Mind Imprint',attitudes:'Tell me about the AI attitudes pipeline',methods:'What research methods do you use?',profile:'Tell me about Evie',interests:'Show me the radar'},
- 'zh-CN':{ssdata:'介绍一下 SSDataAgent',mind:'介绍一下 Mind Imprint',attitudes:'介绍一下 AI attitudes',methods:'你使用哪些研究方法？',profile:'介绍一下 Evie 的经历',interests:'看看雷达图'}
+ en:{ssdata:'Tell me about SSDataAgent',mind:'Tell me about Mind Imprint',attitudes:'Tell me about the AI attitudes pipeline',methods:'What research methods do you use?',profile:'Tell me about Yuxin',interests:'Show me the radar'},
+ 'zh-CN':{ssdata:'介绍一下 SSDataAgent',mind:'介绍一下 Mind Imprint',attitudes:'介绍一下 AI attitudes',methods:'你使用哪些研究方法？',profile:'介绍一下煜欣的经历',interests:'看看雷达图'}
 };
 export function initialQuestion(hash,language='en') {
   const params=new URLSearchParams(hash.replace(/^#/,''));

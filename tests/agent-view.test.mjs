@@ -177,7 +177,7 @@ test('quota failures offer one localized reading exit, including admission error
 
 test('long timelines reveal an ordered preview and keep remaining entries in one disclosure',()=>{
  for(const language of ['zh-CN','en'])for(const count of [1,3,4,8])for(const biography of [true,false]) {
-  const items=Array.from({length:count},(_,i)=>biography?{id:`event:${i}`,title:`Chapter ${i}`,period:'2020',description:`Description ${i}`,source:{id:`event:${i}`,label:`Chapter ${i}`,url:'/about/#sources'}}:{id:`post:${i}`,title:`Post ${i}`,summary:'Summary',type:'notes',date:'2020-01-01',url:'/notes/test/'});
+  const items=Array.from({length:count},(_,i)=>biography?{id:`event:${i}`,title:`Chapter ${i}`,period:'2020',description:`Description ${i}`,source:{id:`event:${i}`,label:`Chapter ${i}`,url:'/about/'}}:{id:`post:${i}`,title:`Post ${i}`,summary:'Summary',type:'notes',date:'2020-01-01',url:'/notes/test/'});
   const log=new Element('div'),turn=createAgentTurn(document,{log,question:'Show a timeline',language});
   turn.event({type:'block',block:{id:'timeline',type:biography?'event_timeline':'publication_timeline',dateKind:biography?'biography':'publication',asOf:'2026-10-10',items}});
   const block=turn.row.children.find(node=>node.className.includes('comic-agent-block'));

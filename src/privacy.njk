@@ -1,0 +1,14 @@
+---
+layout: base.njk
+pagination:
+  data: locales
+  size: 1
+  alias: locale
+permalink: "{{ locale.prefix }}/privacy/"
+eleventyComputed:
+  lang: "{{ locale.lang }}"
+  title: "{{ 'AI 助手与对话数据' if locale.prefix else 'AI assistant and conversation data' }}"
+---
+{% set ui = locale %}
+<header class="page-heading"><h1>{{ 'AI 助手与对话数据' if ui.prefix else 'AI assistant and conversation data' }}</h1></header>
+<div class="prose">{% include 'assistant-privacy.njk' %}</div>

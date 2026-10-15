@@ -20,14 +20,14 @@ export function createProfileTools(corpus) {
     if(eventId) {
       const event=milestones.find(item=>item.id===eventId);if(!event)throw new Error('Unknown profile fact');
       const item=event[language];
-      return {id:`event:${event.id}`,text:`${item.period}: ${item.title}. ${item.description}`,source:{id:`event:${event.id}`,label:item.title,url:language==='zh-CN'?'/zh/about/#sources':'/about/#sources'},asOf:'2026-10-15',qualification:'Owner-approved biography. Preserve the exact institution, role and overlapping period.',...(['shiguang','peer'].includes(eventId)?{dateQualifications:nonprofitDates}:{}),...(eventId==='tsinghua'?{educationDates}:{})};
+      return {id:`event:${event.id}`,text:`${item.period}: ${item.title}. ${item.description}`,source:{id:`event:${event.id}`,label:item.title,url:language==='zh-CN'?'/zh/about/':'/about/'},asOf:'2026-10-15',qualification:'Owner-approved biography. Preserve the exact institution, role and overlapping period.',...(['shiguang','peer'].includes(eventId)?{dateQualifications:nonprofitDates}:{}),...(eventId==='tsinghua'?{educationDates}:{})};
     }
     const fact=facts.find(f=>f.id===id);if(!fact) throw new Error('Unknown profile fact');
     const localized=localizeAnswer(fact,language),source=localized.sources[0];
     return {id:`profile:${id}`,text:localized.text,source:{id:`profile:${id}`,label:source.label,url:source.url},asOf:'2026-10-15',qualification:'Owner-approved public facts; present/current statements are relative to the asOf date.',...(['profile','nonprofits'].includes(id)?{dateQualifications:nonprofitDates}:{}),...(id==='profile'?{educationDates}:{})};
   }
   function query_profile_events({language='en'}={}) {
-    return {type:'event_timeline',dateKind:'biography',asOf:'2026-10-15',items:milestones.map(event=>({id:`event:${event.id}`,...event[language],source:{id:`event:${event.id}`,label:language==='zh-CN'?'作者提供的履历':'Owner-provided biography',url:language==='zh-CN'?'/zh/about/#sources':'/about/#sources'}})),dateQualifications:nonprofitDates,educationDates,qualification:'Periods may overlap. Preserve the supplied period text; do not infer exact dates or use article publication dates.'};
+    return {type:'event_timeline',dateKind:'biography',asOf:'2026-10-15',items:milestones.map(event=>({id:`event:${event.id}`,...event[language],source:{id:`event:${event.id}`,label:language==='zh-CN'?'作者提供的履历':'Owner-provided biography',url:language==='zh-CN'?'/zh/about/':'/about/'}})),dateQualifications:nonprofitDates,educationDates,qualification:'Periods may overlap. Preserve the supplied period text; do not infer exact dates or use article publication dates.'};
   }
   return {read_profile,query_profile_events};
 }

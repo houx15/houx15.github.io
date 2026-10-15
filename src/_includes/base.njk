@@ -36,10 +36,13 @@
   <footer class="site-footer">
     <span>© {{ year }} {{ ui.name }}</span>
     <div>
+      <a class="privacy-link" href="{{ ui.prefix }}/privacy/" data-privacy-open>{{ 'AI 与隐私' if ui.prefix else 'AI & privacy' }}</a>
       <a href="mailto:{{ site.email }}">{% include 'icons/mail.njk' %}<span>{{ ui.email }}</span></a>
       <a href="{{ site.github }}">{% include 'icons/github.njk' %}<span>GitHub</span></a>
     </div>
   </footer>
+  <dialog class="privacy-dialog" id="privacy-dialog" aria-labelledby="privacy-dialog-title"><div class="privacy-dialog-header"><h2 id="privacy-dialog-title">{{ 'AI 助手与对话数据' if ui.prefix else 'AI assistant and conversation data' }}</h2><button type="button" data-privacy-close aria-label="{{ '关闭说明' if ui.prefix else 'Close notice' }}">×</button></div><div class="prose privacy-dialog-content">{% include 'assistant-privacy.njk' %}</div></dialog>
+  <script type="module" src="/assets/privacy-dialog.js?v={{ assistantVersion }}"></script>
   {% if pageClass != 'chat-page' %}
   <button class="companion-launcher" type="button" data-companion-open aria-haspopup="dialog" aria-controls="companion-dialog" aria-label="{{ '打开团子的纸页，一起读' if ui.prefix or lang == 'zh-CN' else 'Open the guide’s page and read together' }}">{% include 'dumpling.njk' %}<span>{{ '一起读？' if ui.prefix or lang == 'zh-CN' else 'Read together?' }}</span></button>
   <dialog id="companion-dialog" class="comic-dialog" aria-label="{{ '团子的纸页' if ui.prefix or lang == 'zh-CN' else 'The guide’s page' }}"><button type="button" class="comic-close" data-companion-close aria-label="{{ '关闭，回到阅读' if ui.prefix or lang == 'zh-CN' else 'Close and return to reading' }}">× <span>{{ '回到阅读' if ui.prefix or lang == 'zh-CN' else 'Back to reading' }}</span></button>{% include 'companion.njk' %}</dialog>

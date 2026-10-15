@@ -14,7 +14,7 @@ try {
   const info = await (await request('/build-info.json')).json();
   if (!values.revision || !/^[a-f0-9]{40}$/.test(values.revision)) throw new Error('Provide --revision with the exact deployed commit SHA.');
   if (info.revision !== values.revision) throw new Error(`Live revision is ${info.revision}; expected ${values.revision}. The CDN may still be updating.`);
-  const routes = new Set(['/', '/research/', '/projects/', '/reports/', '/blog/', '/writing/', '/notes/', '/about/', '/chat/', '/zh/', '/zh/research/', '/zh/projects/', '/zh/reports/', '/zh/blog/', '/zh/writing/', '/zh/notes/', '/zh/about/', '/zh/chat/']);
+  const routes = new Set(['/', '/research/', '/projects/', '/reports/', '/blog/', '/writing/', '/notes/', '/about/', '/privacy/', '/chat/', '/zh/', '/zh/research/', '/zh/projects/', '/zh/reports/', '/zh/blog/', '/zh/writing/', '/zh/notes/', '/zh/about/', '/zh/privacy/', '/zh/chat/']);
   const publishedEntries = await loadContent();
   const entryLanguages = new Map(publishedEntries.flatMap(entry => [[entry.url, entry.lang], ...(entry.zh ? [[entry.zh.url, entry.lang]] : [])]));
   for(const entry of publishedEntries) { routes.add(entry.url); if(entry.zh) routes.add(entry.zh.url); }

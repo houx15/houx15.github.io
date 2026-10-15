@@ -219,7 +219,7 @@ test('opening follow-ups resolve authored IDs and preserve them without trusting
   const first=JSON.parse(seen[0].messages.at(-1).content);
   assert.equal(first.question,'What did she build there?');
   assert.equal(first.openingContext.title,'Learning by building');
-  assert.equal(first.openingContext.url,'/about/#sources');
+  assert.equal(first.openingContext.url,'/about/');
   assert.ok(!seen[0].messages.some(m=>m.role==='tool')); // Context itself grants no evidence.
   await (await post('/v2/agent',{question:'And when?',language:'en'},token)).text();
   const userTurns=seen[2].messages.filter(m=>m.role==='user').map(m=>JSON.parse(m.content));

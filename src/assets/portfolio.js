@@ -29,7 +29,7 @@ function setupChat() {
   const hour=new Date().getHours();
   const daypart=hour<12?'morning':hour<18?'afternoon':'evening';
   const greeting=language==='zh-CN'?{morning:'早上好',afternoon:'下午好',evening:'晚上好'}[daypart]:{morning:'Good morning',afternoon:'Good afternoon',evening:'Good evening'}[daypart];
-  const introductions=language==='zh-CN'?['我是 AI 作品集助手。可以一起看看项目和背后的资料。','我是 AI 作品集助手。你对哪一段经历或工作感兴趣？']:['I’m the AI portfolio assistant. Let’s explore the work and its sources.','I’m the AI portfolio assistant. Which project or part of Evie’s path interests you?'];
+  const introductions=language==='zh-CN'?['我是 AI 作品集助手。可以一起看看项目和背后的资料。','我是 AI 作品集助手。你对哪一段经历或工作感兴趣？']:['I’m the AI portfolio assistant. Let’s explore the work and its sources.','I’m the AI portfolio assistant. Which project or part of Yuxin’s path interests you?'];
   document.querySelector('#greeting').textContent=`${greeting}${language==='zh-CN'?'。':'. '} ${introductions[Math.floor(Math.random()*introductions.length)]}`;
   const question=document.querySelector('#question');
   const conversation=document.querySelector('#conversation');
@@ -72,7 +72,7 @@ function setupChat() {
       status.textContent=mode==='live'?ui.liveAnswered:ui.answered;
     } catch(error) {
       const reason=error.message==='rate_limit'?ui.limit:error.message==='timeout'?ui.timeout:ui.unavailable;
-      message(ui.service,reason,[{label:ui.sourceTitle,url:`${ui.prefix}/about/#sources`}]);
+      message(ui.service,reason,[{label:ui.sourceTitle,url:`${ui.prefix}/about/`}]);
       modeLabel.textContent=ui.liveUnavailable;status.textContent=reason;
     } finally {setBusy(false);if(focus) question.focus();}
   }

@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {once} from 'node:events';
+import {createHash} from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -24,7 +25,7 @@ test('translation corpus contains only original visible text; code, formulas and
  }finally{await fs.rm(root,{recursive:true,force:true});}
 });
 
-test('persistent translation cache resumes completed fragments and invalidates by source and provider/model namespace',async()=>{
+test('persistent translation cache resumes completed fragments and survives site and model changes but invalidates changed article text',async()=>{
  const directory=await fs.mkdtemp(path.join(os.tmpdir(),'translation-cache-'));const controller=new AbortController();
  try {
   const cache=createTranslationCache({directory,namespace:'provider/model'});let calls=0;
@@ -33,8 +34,10 @@ test('persistent translation cache resumes completed fragments and invalidates b
   assert.ok(events.filter(e=>e.type==='translation_node').length>=1);
   let resumed=0;const output=[];await runTranslation({corpus,doc:longDoc,targetLanguage:'en',cache:createTranslationCache({directory,namespace:'provider/model'}),signal:controller.signal,emit:(type,data)=>output.push({type,...data}),complete:async args=>{resumed++;return fake(args);}});
   assert.ok(resumed>0);assert.equal(output.filter(e=>e.type==='translation_node').length,3);assert.ok(output[2].text.startsWith('  '));
-  assert.notEqual(cache.keyFor(corpus.revision,doc,'en'),cache.keyFor('source-v2',doc,'en'));
-  assert.notEqual(cache.keyFor(corpus.revision,doc,'en'),createTranslationCache({namespace:'other/model'}).keyFor(corpus.revision,doc,'en'));
+  assert.equal(cache.keyFor(corpus.revision,doc,'en'),cache.keyFor('source-v2',doc,'en'));
+  assert.equal(cache.keyFor(corpus.revision,doc,'en'),createTranslationCache({namespace:'other/model'}).keyFor(corpus.revision,doc,'en'));
+  assert.notEqual(cache.keyFor(corpus.revision,doc,'en'),cache.keyFor(corpus.revision,{...doc,translationNodes:[...doc.translationNodes,{id:'t2',text:'Updated content'}]},'en'));
+  await runTranslation({corpus:{...corpus,revision:'other-article-updated'},doc:longDoc,targetLanguage:'en',cache:createTranslationCache({directory,namespace:'new-model'}),signal:controller.signal,emit:()=>{},complete:()=>assert.fail('Unchanged article must use persistent cache')});
   const long='中'.repeat(900)+'😀'+'文'.repeat(900);assert.equal(translationParts(long).join(''),long);assert.ok(translationParts(long).every(p=>p.length<=600));
   assert.throws(()=>translationDocument(corpus,{documentId:doc.id,targetLanguage:'en',text:'arbitrary'}),/invalid_request/);
   assert.throws(()=>translationDocument(corpus,{documentId:'draft',targetLanguage:'en'}),/invalid_request/);
@@ -71,4 +74,19 @@ test('cancelled translation stops paid work and keeps no visitor history',async 
  const server=createAgentServer({origin,corpus,guard,complete:async({signal})=>{calls++;started();await new Promise((resolve,reject)=>signal.addEventListener('abort',()=>{aborted=true;reject(signal.reason);},{once:true}));},verifyChallenge:async()=>{},enabled:()=>true,production:false});server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>{server.closeAllConnections();server.close();});
  const {sessionToken}=await guard.issue(),controller=new AbortController();const response=await fetch(`http://127.0.0.1:${server.address().port}/v2/translate`,{method:'POST',signal:controller.signal,headers:{Origin:origin,'Content-Type':'application/json',Authorization:`Bearer ${sessionToken}`},body:JSON.stringify({documentId:doc.id,targetLanguage:'en'})});await ready;controller.abort();await assert.rejects(response.text());await new Promise(resolve=>setTimeout(resolve,30));
  assert.equal(calls,1);assert.equal(aborted,true);assert.equal(Object.keys(store.state.leases).length,0);assert.ok(store.state.spent>0);assert.deepEqual(Object.values(store.state.sessions)[0].history,[]);
+});
+
+
+test('legacy disk translations migrate without another model call',async()=>{
+ const directory=await fs.mkdtemp(path.join(os.tmpdir(),'translation-migrate-'));
+ try {
+  const hash=value=>createHash('sha256').update(value).digest('hex');
+  const old=hash(JSON.stringify(['translation-v2-batched','provider/model',corpus.revision,doc.id,'en',doc.translationNodes]));
+  for(const node of doc.translationNodes)await fs.writeFile(path.join(directory,`${old}-${hash(node.id+node.text)}.json`),JSON.stringify({text:'Saved '+node.text}));
+  for(const [revision,namespace] of [[corpus.revision,'provider/model'],['new-site-revision','different-model']]){
+   let nodes=0;
+   await runTranslation({corpus:{...corpus,revision},doc,targetLanguage:'en',cache:createTranslationCache({directory,namespace}),signal:new AbortController().signal,complete:()=>assert.fail('Cached translation must not call model'),emit:(type,data)=>{if(type==='translation_node'){nodes++;assert.equal(data.cached,true);assert.match(data.text,/^Saved /);}}});
+   assert.equal(nodes,doc.translationNodes.length);
+  }
+ } finally {await fs.rm(directory,{recursive:true,force:true});}
 });
