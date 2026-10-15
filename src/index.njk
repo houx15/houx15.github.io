@@ -16,9 +16,10 @@ eleventyComputed:
 <div class="home-profile">
 <section class="home-introduction" aria-labelledby="intro-title">
 <div class="home-intro-copy"><h1 id="intro-title">{{ '侯煜欣' if ui.prefix else 'Yuxin Hou' }} <span>{{ 'monkey' if ui.prefix else 'monkey / 侯煜欣' }}</span></h1>
-<p class="home-intro-lead">{{ '我做 AI 产品，也研究技术与社会。' if ui.prefix else 'I build AI products and study technology and society.' }}</p>
-<p>{{ '目前在北京大学攻读社会学博士，并在 Princeton 访问。我的研究涉及社会观点、调查数据与计算方法；产品工作围绕学习、知识与人机协作展开。' if ui.prefix else 'I am a Sociology PhD student at Peking University and a visiting student research collaborator at Princeton. My research concerns social opinions, survey data and computational methods; my product work explores learning, knowledge and human–AI collaboration.' }}</p>
-<p>{{ '我曾担任创业公司 CTO，现在也参与企业的 AI 技术与转型咨询。工作之外，喜欢骑车、跑步、越野和 CrossFit。' if ui.prefix else 'Previously a startup CTO, I also work on AI technology and transformation consulting. Away from work, I enjoy cycling, running, trail running and CrossFit.' }}</p>
+<p class="home-intro-lead">{{ ui.identity }}</p>
+<p>{{ ui.heroText }}</p>
+<p>{{ ui.aboutMore }}</p>
+<p>{{ ui.approach }}</p>
 <div class="home-intro-links"><a href="{{ ui.prefix }}/about/">{{ '更多关于我' if ui.prefix else 'More about me' }} ↗</a><a href="{{ ui.prefix }}/chat/">{{ '和我的 AI 分身聊聊' if ui.prefix else 'Talk with my AI companion' }} ↗</a></div></div>
 <aside class="home-identity" aria-label="{{ '头像、关键词与链接' if ui.prefix else 'Avatar, interests and links' }}">
 <img class="home-portrait" src="/assets/portrait.jpg" alt="{{ '侯煜欣的 GitHub 头像' if ui.prefix else 'Yuxin Hou’s GitHub avatar' }}" width="180" height="180">

@@ -136,12 +136,14 @@ export const milestones = [
       "period": "2025",
       "kind": "Work",
       "title": "Listed manufacturing company",
+      "role": "AI technology advisor",
       "description": "AI technology advisor."
     },
     "zh-CN": {
       "period": "2025",
       "kind": "工作",
       "title": "某制造业上市公司",
+      "role": "AI 技术顾问",
       "description": "AI 技术顾问。"
     }
   },
@@ -160,12 +162,14 @@ export const milestones = [
       "period": "2026",
       "kind": "Work",
       "title": "Manufacturing startup",
+      "role": "AI transformation implementation",
       "description": "AI transformation implementation."
     },
     "zh-CN": {
       "period": "2026",
       "kind": "工作",
       "title": "某制造业创业公司",
+      "role": "AI 转型实施",
       "description": "AI 转型实施。"
     }
   },
@@ -184,13 +188,15 @@ export const milestones = [
       "period": "2026",
       "kind": "Work",
       "title": "Education company",
-      "description": "AI advisor."
+      "role": "AI technology advisor",
+      "description": "AI technology advisor."
     },
     "zh-CN": {
       "period": "2026",
       "kind": "工作",
       "title": "某教育公司",
-      "description": "AI 顾问。"
+      "role": "AI 技术顾问",
+      "description": "AI 技术顾问。"
     }
   },
   {
@@ -208,13 +214,15 @@ export const milestones = [
       "period": "2026",
       "kind": "Work",
       "title": "AI and manufacturing company",
-      "description": "AI advisor."
+      "role": "AI technology advisor",
+      "description": "AI technology advisor."
     },
     "zh-CN": {
       "period": "2026",
       "kind": "工作",
       "title": "某 AI＋制造公司",
-      "description": "AI 顾问。"
+      "role": "AI 技术顾问",
+      "description": "AI 技术顾问。"
     }
   },
   {

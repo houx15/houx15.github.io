@@ -3,7 +3,7 @@
 <section class="biography-group"><h3>{{ group[ui.lang] }}</h3>
 <ol class="biography-rows">
 {% for event in biography %}{% if event.group == group.id %}
-<li class="biography-row" data-milestone="{{ event.id }}"><span class="biography-period">{{ event[ui.lang].period }}</span><div class="biography-copy"><h4>{{ event[ui.lang].title }}</h4><p>{{ event[ui.lang].description }}</p></div></li>
+<li class="biography-row" data-milestone="{{ event.id }}"><span class="biography-period">{{ event[ui.lang].period }}</span><div class="biography-copy">{% if event[ui.lang].role %}<p class="biography-role-line"><strong>{{ event[ui.lang].role }}</strong><span> · {{ event[ui.lang].title }}</span></p>{% else %}<h4>{{ event[ui.lang].title }}</h4><p>{{ event[ui.lang].description }}</p>{% endif %}</div></li>
 {% endif %}{% endfor %}
 </ol></section>
 {% endfor %}

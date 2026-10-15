@@ -241,13 +241,16 @@ test('work and education timeline retains every overlapping period in both langu
   for(const entry of milestones) {
     for(const [$,language] of [[en,'en'],[zh,'zh-CN']]) {
       const row=$(`[data-milestone="${entry.id}"]`);assert.equal(row.length,1);
-      assert.ok(row.text().includes(entry[language].period));assert.ok(row.text().includes(entry[language].description));
+      assert.ok(row.text().includes(entry[language].period));
+      assert.ok(row.text().includes(entry[language].title));
+      if(entry[language].role) assert.equal(row.find("strong").text(),entry[language].role);
+      else assert.ok(row.text().includes(entry[language].description));
     }
   }
   assert.match(en('[data-milestone="startup"]').text(),/2016–2022/);
   assert.match(en('[data-milestone="shiguang"]').text(),/2022–2024/);
   assert.match(en('[data-milestone="consulting"]').text(),/2025/);
-  assert.match(en('.timeline-figure figcaption').text(),/parallel/);
+  assert.equal(en('.timeline-figure figcaption').length,0);
   for(const $ of [en,zh]) {
     assert.equal($('.biography-group').length,3);
     assert.ok($('[data-milestone=peer]').text().includes('2021') && $('[data-milestone=peer]').text().includes('2023'));

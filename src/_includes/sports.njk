@@ -2,5 +2,4 @@
 <p>{{ '我喜欢骑车、跑步、越野跑和 CrossFit。' if ui.prefix else 'I enjoy cycling, running, trail running and CrossFit.' }}</p>
 <h3>{{ '近期参赛' if ui.prefix else 'Recent races' }}</h3>
 <ul class="sports-records">{% for race in sports %}<li><time datetime="{{ race.date }}">{{ race.date }}</time><span>{% if race.url %}<a href="{{ race.url }}">{{ race.name[ui.lang] }}</a>{% else %}{{ race.name[ui.lang] }}{% endif %}</span><span class="race-distance">{{ race.distance[ui.lang] }}</span></li>{% endfor %}</ul>
-<p class="paper-note">{{ '参赛记录由本人提供。DNF 表示未完赛；赛事链接用于说明赛事名称和组别，不是个人成绩证明。' if ui.prefix else 'Participation is self-reported. DNF means did not finish; event links identify the races and categories, not individual results.' }}</p>
 </section>

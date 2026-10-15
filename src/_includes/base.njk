@@ -36,7 +36,7 @@
   <footer class="site-footer">
     <span>© {{ year }} {{ ui.name }}</span>
     <div>
-      <a class="privacy-link" href="{{ ui.prefix }}/privacy/" data-privacy-open>{{ 'AI 与隐私' if ui.prefix else 'AI & privacy' }}</a>
+      <a class="privacy-link" href="{{ ui.prefix }}/privacy/" data-privacy-open>{{ '隐私条款' if ui.prefix else 'Privacy policy' }}</a>
       <a href="mailto:{{ site.email }}">{% include 'icons/mail.njk' %}<span>{{ ui.email }}</span></a>
       <a href="{{ site.github }}">{% include 'icons/github.njk' %}<span>GitHub</span></a>
     </div>

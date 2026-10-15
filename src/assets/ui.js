@@ -17,9 +17,9 @@ export const locales = [
     "home": "Back to the homepage",
     "language": "中文",
     "languageLabel": "切换到中文",
-    "heroLabel": "EVIE / YUXIN HOU · 侯煜欣",
+    "heroLabel": "YUXIN HOU · 侯煜欣",
     "heroTitle": "Sociology & AI.",
-    "heroText": "I’m Yuxin Hou, a Sociology PhD student and former startup CTO. I study social opinions and survey simulation, and develop AI learning tools.",
+    "heroText": "I am a Sociology PhD student at Peking University, currently visiting Princeton. My research focuses on large language models in social science—including model bias and their use as research methods—opinion dynamics on social media, and long-term changes in gender norms.",
     "role": "Sociology PhD, Peking University · Visiting Student Research Collaborator, Princeton",
     "explore": "Research and projects",
     "meet": "Background",
@@ -47,8 +47,8 @@ export const locales = [
     ],
     "aboutTitle": "Background.",
     "aboutText": "My experience includes startup R&D, education nonprofits, a UNICEF internship, and product and AI consulting, alongside my academic training.",
-    "aboutMore": "I studied mechanical engineering at Tsinghua from 2015 to 2021 and education at its Institute of Education from 2021 to 2024. My Sociology PhD at Peking University spans 2024–2028 (expected), with a Princeton VSRC visit in 2026–2027.",
-    "approach": "I taught myself programming, developed platforms and algorithms, and led an R&D team of more than 20 people as a startup CTO from 2016 to 2022.",
+    "aboutMore": "My product interests range widely; AI makes it easier to turn that curiosity into things I can build. I am especially interested in making AI accessible to more people (AI for all) and exploring how it can support learning and education (AI for education).",
+    "approach": "I previously served as CTO at an education technology startup and now also advise companies on AI technology and implementation. Outside work, I enjoy cycling, running, trail running and CrossFit.",
     "path": "Experience",
     "milestones": "2015–2028 · expected PhD completion",
     "journeyHint": "Follow the stops · hover, focus or tap to explore.",
@@ -61,7 +61,6 @@ export const locales = [
     "concurrent": "Current · alongside the PhD",
     "princeton": "Princeton University",
     "visit": "One-year Visiting Student Research Collaborator",
-    "timelineNote": "Education, work and community involvement are parallel strands. Dates are supplied separately for each experience.",
     "radar": "Ability profile",
     "illustrative": "Self-assessment",
     "radarNote": "Two qualitative bands supplied by Yuxin: strengths and areas with less experience.",
@@ -127,7 +126,8 @@ export const locales = [
     "research": "Research",
     "researchIntro": "Publications and working papers.",
     "bandStrength": "Strength",
-    "bandLess": "Less experienced"
+    "bandLess": "Less experienced",
+    "identity": "Entrepreneur · AI Product Developer · Computational Social Science Researcher"
   },
   {
     "lang": "zh-CN",
@@ -147,9 +147,9 @@ export const locales = [
     "home": "返回首页",
     "language": "EN",
     "languageLabel": "Switch to English",
-    "heroLabel": "侯煜欣 / EVIE · YUXIN HOU",
+    "heroLabel": "YUXIN HOU · 侯煜欣",
     "heroTitle": "社会学与 AI。",
-    "heroText": "我是侯煜欣，社会学博士生，曾任创业公司 CTO。我研究社会意见与调查模拟，也开发 AI 学习工具。",
+    "heroText": "我目前在北京大学攻读社会学博士，研究方向为计算社会科学，正在普林斯顿大学访问。我的研究关注大语言模型的偏差及其作为社会科学研究方法的可能性，也关注社交媒体中的观点动态与性别观念的长期演化。",
     "role": "北京大学社会学博士生 · 普林斯顿大学访问学生研究合作者",
     "explore": "研究与项目",
     "meet": "个人背景",
@@ -177,8 +177,8 @@ export const locales = [
     ],
     "aboutTitle": "个人背景。",
     "aboutText": "在求学的同时，我从事过创业公司研发、教育公益机构实习、联合国儿童基金会实习，以及产品与 AI 咨询。",
-    "aboutMore": "2015–2021 年在清华大学学习机械工程，2021–2024 年在清华大学教育研究院学习。2024 年起在北京大学攻读社会学博士，预计于 2028 年完成；2026–2027 年在普林斯顿大学访问。",
-    "approach": "2016–2022 年担任创业公司 CTO 期间，我自学编程，开发平台、设计算法，并带领 20 余人的研发团队。",
+    "aboutMore": "我的产品兴趣很广，AI 让我更容易把不同的想法做出来。其中，我尤其关心如何让更多人用上 AI（AI for all），以及 AI 能怎样支持学习与教育（AI for education）。",
+    "approach": "我曾任教育科技创业公司 CTO，现在也参与企业的 AI 技术咨询与转型落地。工作之外，喜欢骑车、跑步、越野和 CrossFit。",
     "path": "经历总览",
     "milestones": "2015–2028 · 博士预计完成",
     "journeyHint": "沿着节点探索 · 悬停、键盘聚焦或轻触查看。",
@@ -191,7 +191,6 @@ export const locales = [
     "concurrent": "目前 · 博士阶段的同期访问",
     "princeton": "普林斯顿大学",
     "visit": "为期一年的访问学生研究合作者（VSRC）",
-    "timelineNote": "教育、工作与公益探索并行展开，各段经历分别保留日期。",
     "radar": "能力全貌",
     "illustrative": "本人自评",
     "radarNote": "依据本人描述，分为「优势」与「经验较少」两个定性层级。",
@@ -257,7 +256,8 @@ export const locales = [
     "research": "研究",
     "researchIntro": "已发表论文与工作论文。",
     "bandStrength": "优势",
-    "bandLess": "经验较少"
+    "bandLess": "经验较少",
+    "identity": "创业者 · AI 独立开发者 · 计算社会科学研究者"
   }
 ];
 export const getUI = language => locales[language === "zh-CN" ? 1 : 0];

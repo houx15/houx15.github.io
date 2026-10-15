@@ -1,3 +1,4 @@
+import {getUI} from './ui.js';
 import {profileInterests} from './profile-interests.js';
 import { biographyText, biographyOverviewText, consultingText } from './biography.js';
 // Translations of the reviewed public facts.
@@ -10,7 +11,7 @@ export const chineseFacts = {
   "mind": "思维印记把兴趣探索、研究写作与真实项目连起来。Pro 支持系统研究，Lite 从兴趣发展问题；思维工具卡和过程记录让学生回看自己的判断。项目文章介绍兴趣模型、过程评价设计和 Agent 架构，这些设计本身不代表已经验证的学习成效。",
   "knowia": "Knoweia 的第一版由煜欣开发。这里介绍的 AI 编程学习桌面应用，由桌面端、本地 Python sidecar 与后端连接代码实践、学习证据、教学引导和持续记忆。当前官网包含后续内容，不能全部归为这一版。",
   "interests": "煜欣自述优势包括产品思维、AI 技术（尤其 NLP）、统计学、大数据分析与管理；在设计、市场营销、销售与融资方面经验较少。雷达图展示这两个定性自评层级，不是测量分数。时间线列出工作、实习、教育和访问经历，保留重叠日期，不赋予生活状态评分。",
-  "profile": biographyOverviewText("zh-CN"),
+  "profile": [getUI("zh-CN").identity,getUI("zh-CN").heroText,getUI("zh-CN").aboutMore,getUI("zh-CN").approach,biographyOverviewText("zh-CN")].join("\n"),
   "projects": "项目包括思维印记、Knoweia、SuperNono、Zrobot、LitFlow 和 Cyber Silicon Valley，以及 TDDesign、Claude Coach、Rust Agent SDK、Agora、SuperPaper、播客自动剪辑 skills 等工具。OrgClaw、EvoHive、CareerPal 与 EdaDreams 标为想法，练手项目按各自范围介绍。Research 单列已发表论文和工作论文，技术报告、随笔和学习笔记统一在 Writing 中呈现。",
   "contact": "可以通过个人网站上已公开的邮箱 houyx15@gmail.com 联系煜欣，也可以浏览她的公开 GitHub 账号。",
   "notes": "评估笔记概述 SSDataAgent 公开报告中的分布保真度、记录复制、仅使用源数据的迁移与获得目标边际分布的 oracle 比较。它是基于资料的笔记，不是新增实验或学术发表。",

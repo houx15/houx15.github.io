@@ -311,3 +311,13 @@ body:not(.home-page) .selected-projects {grid-template-columns:1fr}.selected-pro
  .biography-copy h4 {font-size:14px;}
  .biography-copy p {font-size:12px;}
 }
+
+.biography-copy .biography-role-line {font:14px/1.65 var(--font-sans);color:var(--ink);margin:0;}
+.biography-role-line strong {font-weight:650;}
+.profile-identity {font-weight:550;}
+
+.about-page .biography-overview {display:block;}
+.about-page .biography-group {margin:24px 0;}
+.about-page .biography-row {display:grid;grid-template-columns:155px minmax(0,1fr);gap:18px;padding:12px 0;}
+.about-page .biography-period {margin:0;font-size:12px;}
+@media(max-width:600px){.about-page .biography-row {grid-template-columns:1fr;gap:4px;}}
