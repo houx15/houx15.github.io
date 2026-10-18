@@ -37,13 +37,19 @@ tags:
 
 技能分析按招聘帖 ID 固定抽样：美国约取 1/50，中国约取 1/20，提取样本共约 221 万条。标题用于识别技术方向；职位描述用于识别语言、框架和 LLM 术语。描述标签的分母只包括描述长度超过 150 字符的帖子，标题标签的分母则是全部抽样帖子。[^skills]
 
-| 美国计算机职业招聘中的提及比例 | 2021 | 2023 | 2024 | 2025 | 2026 年 1–8 月 |
-|---|---:|---:|---:|---:|---:|
-| 描述含 LLM / 生成式 AI 术语 | 0.03% | 0.56% | 3.15% | 4.68% | 7.27% |
-| 标题含 ML / AI 方向词 | 0.53% | 0.71% | 2.51% | 3.07% | 4.91% |
-| 标题含全栈 | 3.21% | 2.64% | 3.86% | 2.44% | 2.74% |
-| 标题含前端 | 2.14% | 1.26% | 1.30% | 1.41% | 1.11% |
-| 标题含移动端 | 2.31% | 1.46% | 1.37% | 1.22% | 1.43% |
+<div class="table-scroll" tabindex="0" role="region" aria-label="美国计算机职业招聘中的提及比例，可横向滚动">
+<table style="min-width: 42rem; table-layout: fixed">
+<colgroup><col style="width: 14rem"><col><col><col><col><col style="width: 8rem"></colgroup>
+<thead><tr><th scope="col">美国计算机职业招聘中的提及比例</th><th scope="col">2021</th><th scope="col">2023</th><th scope="col">2024</th><th scope="col">2025</th><th scope="col">2026 年 1–8 月</th></tr></thead>
+<tbody>
+<tr><th scope="row">描述含 LLM / 生成式 AI 术语</th><td>0.03%</td><td>0.56%</td><td>3.15%</td><td>4.68%</td><td>7.27%</td></tr>
+<tr><th scope="row">标题含 ML / AI 方向词</th><td>0.53%</td><td>0.71%</td><td>2.51%</td><td>3.07%</td><td>4.91%</td></tr>
+<tr><th scope="row">标题含全栈</th><td>3.21%</td><td>2.64%</td><td>3.86%</td><td>2.44%</td><td>2.74%</td></tr>
+<tr><th scope="row">标题含前端</th><td>2.14%</td><td>1.26%</td><td>1.30%</td><td>1.41%</td><td>1.11%</td></tr>
+<tr><th scope="row">标题含移动端</th><td>2.31%</td><td>1.46%</td><td>1.37%</td><td>1.22%</td><td>1.43%</td></tr>
+</tbody>
+</table>
+</div>
 
 表中 2026 年不是全年。技能汇总脚本剔除了不完整的 9 月，图 1 的最后一个季度也只有 7–8 月。LLM 标签包括 large language model、ChatGPT、GPT、RAG、大模型等词，反映的是文本提及，不证明雇主实际使用了工具，也不能全部理解为硬性技能门槛。
 
