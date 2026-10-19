@@ -1,15 +1,17 @@
 {% set ui = locales[1] if lang == 'zh-CN' or (page.url | isChinese) else locales[0] %}
+{% set pageName = entry.author if article and entry.author else ui.name %}
 <!doctype html>
 <html lang="{{ lang or ui.lang }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% if title %}{{ title }} · {% endif %}{{ ui.name }}</title>
+  <title>{% if title %}{{ title }} · {% endif %}{{ pageName }}</title>
+  {% if article and entry.author %}<meta name="author" content="{{ entry.author }}">{% endif %}
   <meta name="description" content="{{ description or ui.heroText }}">
   {% if preview or noindex %}<meta name="robots" content="noindex, nofollow">{% endif %}
   <link rel="canonical" href="{{ site.url }}{{ page.url }}">
   <meta property="og:type" content="{% if article %}article{% else %}website{% endif %}">
-  <meta property="og:title" content="{{ title or ui.name }}">
+  <meta property="og:title" content="{{ title or pageName }}">
   <meta property="og:description" content="{{ description or ui.heroText }}">
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
   <link rel="stylesheet" href="/assets/style.css?v={{ stylesheetVersion }}">
@@ -20,7 +22,7 @@
 <body class="{{ pageClass }}">
   <a class="skip-link" href="#main">{{ ui.skip }}</a>
   <header class="site-header">
-    <a class="site-name" href="{{ ui.prefix }}/"{% if page.url == '/' %} aria-current="page"{% endif %}>{{ ui.name }}</a>
+    <a class="site-name" href="{{ ui.prefix }}/"{% if page.url == '/' %} aria-current="page"{% endif %}>{{ pageName }}</a>
     <nav aria-label="{{ '主导航' if ui.prefix else 'Main navigation' }}">
       <a href="{{ ui.prefix }}/research/"{% if section == 'research' %} aria-current="page"{% endif %}>{{ ui.research }}</a>
       <a href="{{ ui.prefix }}/projects/"{% if section == 'projects' %} aria-current="page"{% endif %}>{{ ui.projects }}</a>
@@ -35,7 +37,7 @@
     {{ content | safe }}
   </main>
   <footer class="site-footer">
-    <span>© {{ year }} {{ ui.name }}</span>
+    <span>© {{ year }} {{ pageName }}</span>
     <div>
       <a class="privacy-link" href="{{ ui.prefix }}/privacy/" data-privacy-open>{{ '隐私条款' if ui.prefix else 'Privacy policy' }}</a>
       <a href="mailto:{{ site.email }}">{% include 'icons/mail.njk' %}<span>{{ ui.email }}</span></a>

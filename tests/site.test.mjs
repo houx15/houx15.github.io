@@ -399,3 +399,24 @@ test('AI privacy disclosure is available from every footer and without JavaScrip
   assert.match(privacy('main').text(),prefix?/二十轮/:/twenty/);assert.match(privacy('main').text(),prefix?/阿里云百炼/:/Alibaba Cloud Bailian/);
  }
 });
+
+test('entry author overrides rendered article identity without changing site identity', async t => {
+  const dir = await workspace(t);
+  await writeEntry(dir, 'blog', 'author-alias', { extra: 'lang: zh-CN\nauthor: Yuxin\n' });
+  await writeEntry(dir, 'blog', 'ordinary', { extra: 'lang: zh-CN\n' });
+  build(dir);
+  const read = async route => load(await fs.readFile(path.join(dir, '_site', route, 'index.html'), 'utf8'));
+  const article = await read('blog/author-alias');
+  const home = await read('zh');
+  const ordinary = await read('blog/ordinary');
+  assert.equal(article('.article-meta > span').first().text(), 'Yuxin');
+  assert.equal(article('meta[name="author"]').attr('content'), 'Yuxin');
+  assert.equal(article('title').text(), 'A technical test · Yuxin');
+  assert.equal(article('.site-name').text(), 'Yuxin');
+  assert.match(article('.site-footer > span').text(), /Yuxin$/);
+  assert.equal(ordinary('.site-name').text(), home('.site-name').text());
+  assert.equal(ordinary('.article-meta > span').first().text(), home('.site-name').text());
+  assert.notEqual(home('.site-name').text(), 'Yuxin');
+  const listing = await read('zh/writing');
+  assert.equal(listing('a[href="/blog/author-alias/"]').length, 1);
+});
