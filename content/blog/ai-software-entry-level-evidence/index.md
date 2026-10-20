@@ -357,11 +357,11 @@ xf 的 SD 参数依次为 0、0.01892、0.03784、0.07569；xg 为 0、0.01376�
 
 以下题录来自源报告，列出本文实际使用的指标和敏感性方法来源；本文不声称对这些方法作出新的理论贡献。
 
-- Eloundou, T., Manning, S., Mishkin, P., & Rock, D. (2023). *GPTs are GPTs: An early look at the labor market impact potential of large language models*, arXiv:2303.10130v5. https://doi.org/10.48550/arXiv.2303.10130 。本文评分定义依据这一版本。
-- Eloundou, T., Manning, S., Mishkin, P., & Rock, D. (2024). GPTs are GPTs: Labor market impact potential of LLMs. *Science*, 384(6702), 1306–1308. https://doi.org/10.1126/science.adj0998 。相关同行评审发表版。
-- Felten, E., Raj, M., & Seamans, R. (2021). Occupational, industry, and geographic exposure to artificial intelligence: A novel dataset and its potential uses. *Strategic Management Journal*, 42(12), 2195–2217. https://doi.org/10.1002/smj.3286 。较早AI暴露指标。
-- Felten, E., Raj, M., & Seamans, R. (2023). *How will language modelers like ChatGPT affect occupations and industries?*, arXiv:2303.01157v2. https://doi.org/10.48550/arXiv.2303.01157 。语言模型暴露指标的预印本来源。
-- Rambachan, A., & Roth, J. (2023). A more credible approach to parallel trends. *Review of Economic Studies*, 90(5), 2555–2591. https://doi.org/10.1093/restud/rdad018 。反事实趋势敏感性方法。
+- Eloundou, T., Manning, S., Mishkin, P., & Rock, D. (2023). *GPTs are GPTs: An early look at the labor market impact potential of large language models*, arXiv:2303.10130v5. <https://doi.org/10.48550/arXiv.2303.10130> 。本文评分定义依据这一版本。
+- Eloundou, T., Manning, S., Mishkin, P., & Rock, D. (2024). GPTs are GPTs: Labor market impact potential of LLMs. *Science*, 384(6702), 1306–1308. <https://doi.org/10.1126/science.adj0998> 。相关同行评审发表版。
+- Felten, E., Raj, M., & Seamans, R. (2021). Occupational, industry, and geographic exposure to artificial intelligence: A novel dataset and its potential uses. *Strategic Management Journal*, 42(12), 2195–2217. <https://doi.org/10.1002/smj.3286> 。较早AI暴露指标。
+- Felten, E., Raj, M., & Seamans, R. (2023). *How will language modelers like ChatGPT affect occupations and industries?*, arXiv:2303.01157v2. <https://doi.org/10.48550/arXiv.2303.01157> 。语言模型暴露指标的预印本来源。
+- Rambachan, A., & Roth, J. (2023). A more credible approach to parallel trends. *Review of Economic Studies*, 90(5), 2555–2591. <https://doi.org/10.1093/restud/rdad018> 。反事实趋势敏感性方法。
 
 [^source]: 本文基于 `software-job-postings/docs/REPORT.md`，2026-10-19 第 2.1 版，实际读取的源码提交为 `70522e4ad245264caba5212cec5277e2ec70827a`。`d41dda0` 为较早版本；本次更新以已核实的第 2.1 版为依据。本文采用当前报告及本地既有汇总输出，没有重新运行研究。部分输出未纳入 Git，已另存文件哈希供草稿核对；不能仅凭源码提交复现全部数据结果。
 [^exposure]: 报告的方法部分：β 为 E1 + 0.5E2；任务节时门槛为保持质量下至少 50%。八位职业编码聚合至六位时采用简单平均，之后在有评分的职业集合内标准化，不按就业人数加权。本文仅使用报告提供的既有暴露和估计。
