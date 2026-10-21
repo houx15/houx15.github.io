@@ -1,3 +1,4 @@
+import {discoveryDocuments} from './companion-discovery.js';
 import {bindCompanionPanel,bindCompanionLauncher} from './companion-panel.js';
 import {typeGreeting} from './companion-typewriter.js';
 import {createBiographyChapter} from './biography-chapter.js';
@@ -5,7 +6,7 @@ import {confirmConversationReset} from './companion-reset.js';
 import {createDiceCard} from './dice-card.js';
 import {captureReadingSelection,selectionQuestion,createReadingDraftContext} from './reading-selection.js';
 import { readingHeadings,resolveReadingPosition,waitForReadingContext } from './reading-position.js?v=2';
-import { storyCards, nextStory, chooseOpening, openingCopy, chooseGreeting, openingContextFor, createOpeningDraftContext } from './companion-stories.js';
+import { storyCards, nextStory, openingCopy, chooseGreeting, openingContextFor, createOpeningDraftContext } from './companion-stories.js';
 import { answerQuestion } from './knowledge.js';
 import { milestones } from './biography.js';
 import { createContentTools } from './agent-tools.js';
@@ -65,13 +66,14 @@ export function initCompanion(document) {
   const readingNote=document.createElement('p');readingNote.className='comic-reading-position';readingNote.hidden=true;form.before(readingNote);
   let opening, returnToComposer = false;
   function resetOpening() {
-    opening=chooseOpening({article:root.dataset.article==='true'});
-    root.querySelector('[data-opening-label]').textContent=openingCopy[language][opening].action;
+    opening=root.dataset.article==='true'?'read':'latest';
+    root.querySelector('[data-opening-label]').textContent=opening==='latest'?(zh?'最新文章':'Latest article'):openingCopy[language][opening].action;
     root.querySelectorAll('[data-reading-action]').forEach(button=>{button.textContent=openingCopy[language].read.action+' ↗';});
     root.querySelector('.comic-die').style.display=opening==='dice'?'':'none';
     root.querySelector('[data-invitation]').textContent=opening==='read'
-      ? (zh?`读到《${root.dataset.pageTitle}》了？我陪你。`:`Reading “${root.dataset.pageTitle}”? I’m here with you.`)
-      : chooseGreeting(language);
+      ? (zh?`《${root.dataset.pageTitle}》`:`“${root.dataset.pageTitle}”`)
+      : '';
+    root.querySelector('[data-invitation]').hidden=opening!=='read';
     if(readingSection)showReadingPosition();
   }
   function loadReadingPosition(headings) {
@@ -89,7 +91,7 @@ export function initCompanion(document) {
     readingNote.textContent=(input.value.trim()?(zh?'问题对应：':'Question about: '):(zh?'正在读：':'Reading: '))+readingSection.title;readingNote.hidden=false;
     root.querySelector('[data-invitation]').textContent=input.value.trim()
       ? (zh?`这条问题对应「${readingSection.title}」。`:`This question is about “${readingSection.title}”.`)
-      : (zh?`读到「${readingSection.title}」了？我陪你。`:`Reading “${readingSection.title}”? I’m here with you.`);
+      : (zh?`正在读：${readingSection.title}`:`Reading: ${readingSection.title}`);
     root.querySelector('[data-opening-label]').textContent=zh?'一起读这一节':'Read this section with me';
     root.querySelectorAll('[data-reading-action]').forEach(button=>{button.textContent=(zh?'一起读这一节':'Read this section with me')+' ↗';});
   }
@@ -105,6 +107,16 @@ export function initCompanion(document) {
     }
     form.before(actions);
   }
+  const choices=document.createElement('div');choices.className='comic-choices';
+  const options=zh?[
+    ['recent','最近她在关心什么？'],['projects','项目'],['surprise','随机一篇'],['story','关于她'],['dice','掷骰子']
+  ]:[['recent','What has she been exploring?'],['projects','Projects'],['surprise','Random article'],['story','About her'],['dice','Roll a die']];
+  // Keep useful entry points stable; vary the order of the playful alternatives.
+  if(Math.random()<.5)[options[2],options[3]]=[options[3],options[2]];
+  for(const [kind,label] of options){const button=document.createElement('button');button.type='button';button.textContent=label;button.addEventListener('click',()=>{
+    if(busy)return;if(kind==='dice')roll();else if(kind==='story')render({kind:'story',question:label});else discover(kind,label);
+  });choices.append(button);}
+  root.querySelector('[data-play]').append(choices);
   status.textContent = idle;
   const local = url => zh && url.startsWith('/') && !url.startsWith('/zh/') ? `/zh${url}` : url;
   const el = (tag, text, className = '') => {const node = document.createElement(tag);node.textContent = text;node.className = className;return node;};
@@ -163,14 +175,13 @@ export function initCompanion(document) {
       const story = storyCards.find(card => card.id === item.id); if(!story){row.remove();return;}
       row.append(createDiceCard(document,{storyId:story.id,seen,language,onRoll:roll,onQuestion:ask}));
     } else if(item.kind === 'story') {
-      add(row,'p',zh?'这是她的经历总览。求学、工作和公益探索有不少重叠。':'Here is her experience at a glance. Education, work and community involvement overlap.','comic-reply');
       row.append(createBiographyChapter(document,{eventId:item.eventId,language,onChange:eventId=>{item.eventId=eventId;save();},onQuestion:ask}));
       sources(row,[{label:zh?'完整经历与资料来源':'Full biography and sources',url:local('/about/')}]);
     } else {
-      add(row,'p',item.text,'comic-reply');sources(row,item.sources);
+      add(row,'p',item.text,'comic-reply');sources(row,item.sources);if(item.sources?.length && row.querySelector('.comic-evidence'))row.querySelector('.comic-evidence').open=true;
       if(root.dataset.article!=='true' && item.sources?.length) {
-        const next = add(row,'button',zh?'再认识她的另一面 ↗':'Meet another side of her ↗','comic-follow');
-        next.type='button';next.addEventListener('click',roll);
+        const next = add(row,'button',zh?'再推荐一篇 ↗':'Another article ↗','comic-follow');
+        next.type='button';next.addEventListener('click',()=>discover('surprise',zh?'再推荐一篇':'Another article'));
       }
     }
     while(log.children.length > 10) log.firstElementChild.remove();
@@ -183,7 +194,7 @@ export function initCompanion(document) {
   async function roll() {
     if(busy)return;
     const focusStory=root.contains(document.activeElement);
-    setBusy(true,zh?'骰子落下之后，会是哪一面？':'Which side will the die land on?');animate('is-rolling');
+    setBusy(true,zh?'掷骰子…':'Rolling…');animate('is-rolling');
     const story = nextStory(seen);seen.push(story.id);
     // This is the physical dice animation, not simulated model reasoning.
     if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches) await new Promise(resolve => setTimeout(resolve,460));
@@ -196,6 +207,16 @@ export function initCompanion(document) {
     corpusPromise ||= fetch(root.dataset.index,{credentials:'omit',signal:AbortSignal.timeout(10000)}).then(response=>{if(!response.ok)throw new Error('Unavailable');return response.json();})
       .then(corpus=>({corpus,tools:createContentTools(corpus)})).catch(error=>{corpusPromise=null;throw error;});
     return corpusPromise;
+  }
+  async function discover(kind, question) {
+    if(busy)return;setBusy(true,zh?'加载中…':'Loading…');
+    try {
+      const {corpus}=await getTools();
+      const docs=discoveryDocuments(corpus.documents,kind,language);
+      const intro=kind==='recent'?(zh?'最近发布：\n\n':'Recently published:\n\n'):'';
+      render({kind:'text',question,text:docs.length?intro+docs.map(doc=>`${doc.title} · ${doc.date}\n${doc.summary}`).join('\n\n'):(zh?'还没有可推荐的公开文章。':'There are no published pieces to recommend yet.'),sources:docs.map(doc=>({label:doc.title,url:doc.url}))});
+    } catch {render({kind:'text',question,text:zh?'文章加载失败，请重试。':'Couldn’t load articles. Please retry.'});}
+    finally {setBusy(false);}
   }
   async function readPage() {
     const generation=readingGeneration;
@@ -219,13 +240,15 @@ export function initCompanion(document) {
     input.value='';updateComposer();
     if(/^(掷骰子|roll(?: a die)?)$/i.test(question)){await roll();return;}
     if(/^(带我看看她的经历|看看她的经历|看看她的经历总览|show me her story|see her experience at a glance)[。.!?？]?$/i.test(question)){render({kind:'story',question});return;}
+    if(/^(给我)?看看?最新(一篇)?文章[。！？?]?$|^show me the latest article[.!?]?$/i.test(question)){await discover('latest',question);return;}
+    if(/^最近她在关心什么[。！？?]?$|^what has she been exploring[.!?]?$/i.test(question)){await discover('recent',question);return;}
     if(liveClient) { await askLive(question,openingContext,readingSnapshot);return; }
     const answer=answerQuestion(question,language);
     if(answer.id !== 'empty') {
       render({kind:'text',question,text:answer.text,sources:answer.sources});
       status.textContent=zh?'这条来自预先整理的公开资料 · 自由对话尚未接通':'From authored public-source notes · live conversation is not connected';return;
     }
-    render({kind:'text',question,text:zh?'这个问题需要真正的 AI 对话，我现在还接不上。你可以先掷个骰子，或者让我带你看看她的经历；等模型接通，我们再展开聊。':'That needs a live conversation, which isn’t connected yet. For now, roll the die or explore her story; we can go further when the model is ready.'});
+    render({kind:'text',question,text:zh?'AI 对话暂不可用。':'AI chat is currently unavailable.'});
   }
   async function askLive(question,openingContext,readingSnapshot) {
     activeController=new AbortController();const controller=activeController;
@@ -269,7 +292,7 @@ export function initCompanion(document) {
   form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
   input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();if(!busy && input.value.trim())form.requestSubmit();}});
   root.querySelector('[data-opening]').addEventListener('click',()=>{
-    if(opening==='dice')roll();else if(opening==='read')readPage();
+    if(opening==='latest')discover('latest',zh?'最新文章':'Latest article');else if(opening==='dice')roll();else if(opening==='read')readPage();
     else render({kind:'story',question:openingCopy[language].story.action});
   });
   stopButton.addEventListener('click',()=>activeController?.abort());
@@ -277,7 +300,7 @@ export function initCompanion(document) {
   root.querySelector('[data-companion-reset]').addEventListener('click',async()=>{
     if(busy || !await confirmConversationReset(document,{language,hasDraft:Boolean(input.value.trim())}))return;
     // Keep the retained draft's original card reference. updateComposer clears it only for an empty draft.
-    liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨，我们重新认识一下。':'Hello. A fresh page.';resetOpening();
+    liveClient?.clearSession();lastLiveTurn=null;restorationNotice?.remove();restorationNotice=null;history=[];seen.length=0;updateComposer();save();log.replaceChildren();root.classList.remove('has-conversation');status.textContent=idle;hello.textContent=zh?'嗨。':'Hi.';resetOpening();
     // The reset button just disappeared. Keep keyboard navigation in this conversation.
     if(input.value.trim())input.focus({preventScroll:true});
     else {hello.setAttribute('tabindex','-1');hello.focus({preventScroll:true});}

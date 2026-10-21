@@ -219,3 +219,15 @@
 .companion-launcher {touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;}
 .companion-launcher.is-dragging {cursor:grabbing;}
 .companion-launcher .dumpling {pointer-events:none;}
+
+/* Several ways in, without making the visitor start with a biography. */
+.comic-play {flex-direction:column;align-items:center;gap:14px;padding-bottom:24px;}
+.comic-choices {display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:520px;}
+.comic-choices button {background:#f8f8f4;border:1px solid #e1e2da;border-radius:18px;padding:8px 13px;font-size:12px;min-height:38px;}
+.comic-choices button:hover {background:#f0f1e7;border-color:#899580;}
+.comic-room button:focus-visible {outline:2px solid var(--link);outline-offset:3px;}
+@media(max-height:740px){.comic-room:not(.has-conversation) .comic-character{width:76px;height:67px;margin-bottom:8px;}.comic-room:not(.has-conversation) .comic-hello{font-size:21px;margin-bottom:6px;}.comic-play{padding-bottom:14px;gap:10px;}.comic-welcome{padding-bottom:8px;}.comic-choices{gap:5px;}}
+.chat-page main:has(>.preview-notice) {display:flex;flex-direction:column;}
+.chat-page main>.preview-notice {flex:none;margin:0;}
+.chat-page main:has(>.preview-notice)>.comic-page {flex:1;min-height:0;height:auto;}
+@media(max-height:520px){.comic-room:not(.has-conversation){overflow-y:auto;}.comic-room:not(.has-conversation) .comic-character{display:none;}.comic-room:not(.has-conversation) .comic-welcome{margin-top:0;}.comic-room:not(.has-conversation) .comic-play{margin-bottom:12px;}}

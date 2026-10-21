@@ -11,6 +11,7 @@ eleventyComputed:
   section: "{{ entry.type }}"
   lang: "{{ entry.lang }}"
 article: true
+pageClass: reading-page
 ---
 {% set ui = locales[1] if (page.url | isChinese) or entry.lang == 'zh-CN' else locales[0] %}
 {% set listing = 'writing' if entry.type != 'projects' else 'projects' %}
@@ -30,9 +31,15 @@ article: true
     <p data-translation-notice hidden>{{ '机器翻译，未经作者审校。代码、公式与图片保留原样；可随时返回原文并与 AI 讨论。' if ui.prefix else 'Machine translation, not reviewed by the author. Code, equations and images remain unchanged. You can return to the original and continue chatting with the AI.' }}</p>
     <p data-translation-status role="status" aria-live="polite"></p><div data-translation-challenge hidden></div>
   </section>
+  <aside class="reading-rail" aria-label="{{ '阅读导航' if ui.prefix else 'Reading navigation' }}">
+    <a class="reading-greeting" href="{{ ui.prefix }}/chat/">{% include 'dumpling.njk' %}<span>{{ '嗨。' if ui.prefix else 'Hi.' }}</span></a>
+    <div class="reading-progress" hidden><label for="article-progress">{{ '阅读进度' if ui.prefix else 'Your progress' }} <span data-progress-label>0%</span></label><progress id="article-progress" max="100" value="0">0%</progress></div>
   {% if entry.headings.length > 1 %}
   <details class="toc" open><summary>{{ ui.contents }}</summary><nav aria-label="{{ ui.contents }}"><ul>{% for heading in entry.headings %}<li class="toc-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}</ul></nav></details>
   {% endif %}
+    <button class="reading-motion" type="button" data-reading-motion hidden>{{ '暂停动画' if ui.prefix else 'Pause animation' }}</button>
+  </aside>
+  <div class="reading-sprites" aria-hidden="true"><span>{% include 'dumpling.njk' %}</span><span>{% include 'dumpling.njk' %}</span></div>
   <div class="prose" lang="{{ entry.lang }}">{{ entry.html | safe }}</div>
   {% if entry.relatedReport %}<p class="related-reading"><a href="{{ ui.prefix }}{{ entry.relatedReport }}">{{ ui.relatedNote }}</a></p>{% endif %}
   {% if entry.assistantTopic %}<p class="related-reading"><a href="{{ ui.prefix }}/chat/#topic={{ entry.assistantTopic }}">{{ ui.askProject }}</a></p>{% endif %}
@@ -40,3 +47,5 @@ article: true
 </article>
 
 <script type="module" src="/assets/article-translation.js?v={{ assistantVersion }}"></script>
+
+<script type="module" src="/assets/reading-rail.js?v={{ assistantVersion }}"></script>

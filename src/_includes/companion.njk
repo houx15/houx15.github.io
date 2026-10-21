@@ -3,8 +3,8 @@
   <button type="button" class="comic-reset" data-companion-reset aria-label="{{ '清空这次对话' if cn else 'Clear this conversation' }}">{{ '重新开始' if cn else 'Start over' }}</button>
   <div class="comic-welcome">
     <div class="comic-character"><div class="comic-mascot" data-poke>{% include 'dumpling.njk' %}</div></div>
-    <p class="comic-hello" data-hello>{{ '嗨，我在。' if cn else 'Hi. I’m here.' }}</p>
-    <p class="comic-invitation" data-invitation>{{ '不知道从哪里开始？我们可以掷个骰子。' if cn else 'Not sure where to start? We could roll a die.' }}</p>
+    <p class="comic-hello" data-hello>{{ '嗨。' if cn else 'Hi.' }}</p>
+    <p class="comic-invitation" data-invitation hidden>{{ '不知道从哪里开始？我们可以掷个骰子。' if cn else 'Not sure where to start? We could roll a die.' }}</p>
   </div>
   <div class="comic-conversation" data-companion-log role="log" aria-live="polite" aria-relevant="additions" aria-label="{{ '对话' if cn else 'Conversation' }}"></div>
   <div class="comic-play" data-play>

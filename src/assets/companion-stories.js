@@ -24,22 +24,8 @@ export function openingContextFor(history, {article = false} = {}) {
 }
 
 export const greetings = {
-  'zh-CN': [
-    '她可能在和 AI 吵架，有什么问题先找我说说吧。',
-    '她大概率睡着了，我还醒着。聊聊？',
-    '她可能正忙着做梦，我先陪你聊。',
-    '她可能正在敲键盘，有什么想问她的，先问我吧。',
-    '她可能在健身房，我在这里。',
-    '我是 Monkey 煜欣的 AI 分身，随时来找我聊天！'
-  ],
-  en: [
-    'She might be arguing with an AI. Want to talk to me instead?',
-    'She’s probably asleep. I’m still here. Want to chat?',
-    'She might be busy dreaming. I’ll keep you company.',
-    'She might be typing away. Anything you wanted to ask her?',
-    'She might be at the gym. I’m here.',
-    'I’m Monkey Yuxin’s AI counterpart. Come chat anytime!'
-  ]
+  'zh-CN': ['聊文章、项目，或者问问我。'],
+  en: ['Ask about her writing or projects.']
 };
 
 export function chooseGreeting(language = 'en', random = Math.random) {
