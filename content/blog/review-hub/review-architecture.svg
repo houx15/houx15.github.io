@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="590" viewBox="0 0 1440 590" role="img" aria-labelledby="title desc">
+<title id="title">review-hub 的组件与信息流</title><desc id="desc">Agent 负责判断，Python 维护本地会话，网页展示文档并记录反馈。用户批准的反馈进入长期规则。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10" fill="none" stroke="#546979" stroke-width="1.6"/></marker></defs>
+<rect width="1440" height="590" rx="20" fill="#f7f8fa"/>
+<g font-family="-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif" fill="#233747">
+<text x="50" y="64" font-size="28" font-weight="600">review-hub · 判断、状态与交互</text>
+<g fill="#fff" stroke="#c5d0d8" stroke-width="2"><rect x="50" y="123" width="360" height="230" rx="14"/><rect x="540" y="123" width="360" height="230" rx="14"/><rect x="1030" y="123" width="360" height="230" rx="14"/></g>
+<g font-size="28" font-weight="600"><text x="80" y="171">Agent + 审阅技能</text><text x="570" y="171">本地会话 + Python</text><text x="1060" y="171">文档审阅界面</text></g>
+<g font-size="24"><text x="80" y="224">分方面判断 · 独立复核</text><text x="80" y="270">副本自改 · 回应讨论</text><text x="80" y="316">沿用已有模型环境</text><text x="570" y="224">快照 · 锚点 · 结构校验</text><text x="570" y="270">发现 · 修改 · 反馈 · 讨论</text><text x="570" y="316">可追溯的文件记录</text><text x="1060" y="224">概览 · 正文 · 问题卡片</text><text x="1060" y="270">阅读 · 判断 · 撤销 · 讨论</text><text x="1060" y="316">页面不直接调用模型</text></g>
+<g stroke="#546979" stroke-width="3" fill="none" marker-start="url(#arrow)" marker-end="url(#arrow)"><path d="M425 240H525"/><path d="M915 240H1015"/></g>
+<g font-size="20" text-anchor="middle"><text x="475" y="218">读 / 写</text><text x="965" y="218">读 / 写</text></g>
+<rect x="380" y="435" width="680" height="95" rx="12" fill="#e9eff3"/>
+<text x="720" y="475" text-anchor="middle" font-size="25" font-weight="600">人的反馈 → 规则修订提议 → 逐条同意后写入</text><text x="720" y="510" text-anchor="middle" font-size="22">类型标准 · 个人偏好 · 审阅写法</text>
+<path d="M720 368V420" stroke="#546979" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M365 480H230V368" stroke="#546979" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+<text x="70" y="452" font-size="22">用于下一次审阅</text>
+</g></svg>
