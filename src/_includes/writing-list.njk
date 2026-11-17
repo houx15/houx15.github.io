@@ -15,16 +15,30 @@
     <a href="?type=ideas" data-writing-type="ideas">{{ '想法' if chinese else 'Ideas' }}</a><a href="?type=notes" data-writing-type="notes">{{ '笔记' if chinese else 'Notes' }}</a><a href="?type=findings" data-writing-type="findings">{{ '发现' if chinese else 'Findings' }}</a>
   </nav>
   {% endif %}
+  {% if personalWriting and items.length %}<details class="essay-filters" data-note-filters hidden><summary>{{ '搜索与筛选' if chinese else 'Search & filter' }}</summary>{% endif %}
   {% if items.length %}<nav class="topic-filter writing-topics" aria-label="{{ '文章主题' if chinese else 'Article topic' }}"><a href="{{ archiveUrl }}" data-writing-tag="" aria-current="true">{{ '所有主题' if chinese else 'All topics' }}</a>{% for tag in items | writingTags %}<a href="?tag={{ tag | urlencode }}" data-writing-tag="{{ tag }}">{{ tag }}</a>{% endfor %}</nav>{% endif %}
   <div class="notes-tools" hidden>
     <label for="note-search">{{ '搜索文章' if chinese else 'Search articles' }}</label>
     <div class="notes-search"><input id="note-search" type="search" placeholder="{{ '搜索标题、摘要和正文' if chinese else 'Search titles, summaries, and full text' }}" autocomplete="off"><button type="button" data-clear>{{ '清除' if chinese else 'Clear' }}</button></div>
     <p class="notes-count" role="status" aria-live="polite" data-count></p>
   </div>
+  {% if personalWriting and items.length %}</details>{% endif %}
   {% if items.length %}<div class="notes-timeline">
   {% for year in items | noteYears %}<section class="notes-year" data-year aria-labelledby="year-{{ year }}"><h2 id="year-{{ year }}">{{ year }}</h2><ol>
-    {% for note in items | inYear(year) %}<li class="note-item" data-note data-writing-entry-type="{{ note.writingCategory }}" data-entry-tags="{{ note.tags | default([]) | join('|') }}" data-search="{{ note.title }} {{ note.summary }} {{ note.html | noteText }}" lang="{{ note.lang }}">
+    {% for note in items | inYear(year) %}
+    {% set illustration = (note | writingIllustration) if personalWriting else null %}
+    <li class="note-item{% if illustration %} essay-illustrated{% endif %}" data-note data-writing-entry-type="{{ note.writingCategory }}" data-entry-tags="{{ note.tags | default([]) | join('|') }}" data-search="{{ note.title }} {{ note.summary }} {{ note.html | noteText }}" lang="{{ note.lang }}">
+    {% if personalWriting %}
+    <div class="essay-list-copy">
+      <time datetime="{{ note.date }}">{{ note.date | dateLabel(ui.lang) }}</time>
+      <h3><a href="{{ note.url }}">{{ note.title }}</a></h3>
+      <p>{{ note.summary }}</p>
+      {% if note.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}
+    </div>
+    {% if illustration %}<figure class="essay-list-image"><img src="{{ illustration.src }}" alt="{{ illustration.alt }}" decoding="async"></figure>{% endif %}
+    {% else %}
     <time datetime="{{ note.date }}">{{ note.date.slice(5) }}</time><div><h3><a href="{{ note.url }}">{{ note.title }}</a></h3><p>{{ note.summary }}</p>{% if not personalWriting or note.tags.length %}<ul class="article-tags">{% if not personalWriting %}<li><a href="?type={{ note.writingCategory }}" data-writing-type="{{ note.writingCategory }}">{% if note.writingCategory == 'ideas' %}{{ '想法' if chinese else 'Ideas' }}{% elif note.writingCategory == 'findings' %}{{ '发现' if chinese else 'Findings' }}{% else %}{{ '笔记' if chinese else 'Notes' }}{% endif %}</a></li>{% endif %}{% for tag in note.tags %}<li><a href="?tag={{ tag | urlencode }}" data-writing-tag="{{ tag }}">{{ tag }}</a></li>{% endfor %}</ul>{% endif %}{% if note.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}</div>
+    {% endif %}
     </li>{% endfor %}
   </ol></section>{% endfor %}</div>
   <p data-no-results hidden>{{ '没有匹配的文章。试试其他关键词或标签。' if chinese else 'No matching articles. Try another keyword or tag.' }}</p>

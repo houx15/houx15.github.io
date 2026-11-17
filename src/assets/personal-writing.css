@@ -1,0 +1,335 @@
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("personal-type/instrument-serif.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Spectral;
+  src: url("personal-type/spectral.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Spectral;
+  src: url("personal-type/spectral-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+.personal-archive,
+.personal-essay {
+  --essay-display: "Instrument Serif", Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+  --essay-text: Spectral, Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+  --essay-paper: #f8f5ee;
+  --ink: #262b26;
+  --muted: #605d53;
+  --rule: #d8d0bf;
+  --link: #744b36;
+  background: var(--essay-paper);
+}
+
+.personal-archive main {
+  width: min(960px, calc(100% - 56px));
+  padding-top: clamp(2rem, 5vw, 4.75rem);
+}
+
+.personal-archive .page-heading {
+  margin-bottom: clamp(1.35rem, 3vw, 2.35rem);
+}
+
+.personal-archive h1,
+.personal-essay h1,
+.personal-archive .note-item h3,
+.personal-essay .prose h2,
+.personal-essay .prose h3 {
+  font-family: var(--essay-display);
+  font-weight: 400;
+  letter-spacing: -.015em;
+  line-height: 1.04;
+}
+
+.personal-archive h1 {
+  margin: 0;
+  font-size: clamp(3.2rem, 9vw, 6rem);
+}
+
+.personal-archive .writing-panels {
+  margin-bottom: 0;
+  gap: 0 1.4rem;
+}
+
+.personal-archive .writing-panels a {
+  font-size: .86rem;
+  padding-inline: 0;
+}
+
+.personal-archive .essay-filters {
+  margin: .55rem 0 .75rem;
+}
+
+.personal-archive .essay-filters summary {
+  min-height: 44px;
+  padding: .55rem 0;
+  color: var(--muted);
+  font-size: .8rem;
+  cursor: pointer;
+}
+
+.personal-archive .notes-tools {
+  max-width: 32rem;
+  margin-bottom: 1.2rem;
+}
+
+.personal-archive .notes-year {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: 1.25rem;
+  border-top: 1px solid var(--rule);
+}
+
+.personal-archive .notes-year h2 {
+  margin: 0;
+  padding: clamp(1rem, 3vw, 2.1rem) 0 0;
+  color: var(--muted);
+  font-size: .78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.personal-archive .notes-year ol {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.personal-archive .note-item {
+  display: block;
+  padding: clamp(1.15rem, 3vw, 2.1rem) 0;
+}
+
+.personal-archive .note-item::before {
+  content: none;
+}
+
+.personal-archive .essay-illustrated {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: clamp(1rem, 4vw, 2.5rem);
+}
+
+.personal-archive .note-item time {
+  display: block;
+  margin: 0 0 .65rem;
+  font: .75rem/1.4 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.personal-archive .note-item h3 {
+  max-width: 18ch;
+  margin: 0 0 .6rem;
+  font-size: clamp(2.15rem, 5vw, 3.65rem);
+  text-wrap: balance;
+}
+
+.personal-archive .note-item h3 a:hover {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .12em;
+}
+
+.personal-archive .note-item p {
+  max-width: 42ch;
+  font: 1rem/1.55 var(--essay-text);
+  text-wrap: pretty;
+}
+
+.essay-list-image {
+  margin: 0;
+  background: #f2ede1;
+  border: 1px solid var(--rule);
+}
+
+.essay-list-image img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+}
+
+.personal-essay main {
+  width: min(700px, calc(100% - 56px));
+  margin-inline: auto;
+  padding-top: clamp(2rem, 5vw, 4.5rem);
+}
+
+.personal-essay .article-heading {
+  margin-bottom: 0;
+}
+
+.personal-essay .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .45em;
+  min-height: 44px;
+  margin-bottom: clamp(.95rem, 3vw, 1.9rem);
+  font-size: .79rem;
+}
+
+.personal-essay h1 {
+  max-width: 17ch;
+  margin: 0 0 .75rem;
+  font-size: clamp(3rem, 7.7vw, 5.5rem);
+  text-wrap: balance;
+}
+
+.personal-essay .article-summary {
+  max-width: 42ch;
+  margin: 0 0 1rem;
+  font: italic clamp(1.08rem, 2vw, 1.32rem)/1.45 var(--essay-text);
+  text-wrap: pretty;
+}
+
+.personal-essay .article-meta {
+  gap: .25rem .7rem;
+  font-size: .76rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.personal-essay .article-meta > * + *::before {
+  content: "·" / "";
+  margin-right: .7rem;
+}
+
+.personal-essay .article-translation {
+  margin: .45rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.personal-essay .translation-actions button {
+  padding-inline: 0;
+  border: 0;
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+  color: var(--link);
+  font-size: .76rem;
+}
+
+.personal-essay .reading-rail {
+  position: static;
+  width: auto;
+  max-height: none;
+  margin-top: 1rem;
+  padding: 0;
+}
+
+.personal-essay .reading-greeting,
+.personal-essay .reading-motion {
+  display: none;
+}
+
+.personal-essay .reading-progress {
+  position: static;
+  padding: 0;
+  background: transparent;
+}
+
+.personal-essay .prose {
+  margin-top: clamp(1.3rem, 3vw, 2.25rem);
+  padding-top: clamp(1.5rem, 4vw, 2.75rem);
+  border-top: 1px solid var(--rule);
+  font: clamp(1.09rem, 1.8vw, 1.27rem)/1.64 var(--essay-text);
+  font-variant-ligatures: common-ligatures;
+}
+
+.personal-essay .prose p {
+  max-width: 64ch;
+  margin: 0 0 1.2em;
+}
+
+.personal-essay .prose p:has(br) {
+  margin-bottom: 1.6em;
+}
+
+.personal-essay .prose figure {
+  margin: clamp(1.9rem, 5vw, 3.1rem) 0;
+}
+
+.personal-essay .prose figure img {
+  border: 1px solid var(--rule);
+}
+
+.personal-essay .prose :lang(zh-CN) {
+  line-height: 1.85;
+}
+
+.personal-essay .article-end {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  margin-top: 2.75rem;
+  padding-top: .5rem;
+  font-size: .82rem;
+}
+
+.personal-essay .article-end > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.personal-essay .article-end .article-tags {
+  margin: 0 !important;
+}
+
+.personal-essay .article-end .article-tags a {
+  background: none;
+  padding: 0 .3rem;
+  text-decoration: underline;
+  text-underline-offset: .23em;
+}
+
+@media (max-width: 660px) {
+  .personal-archive main,
+  .personal-essay main {
+    width: calc(100% - 40px);
+  }
+
+  .personal-archive .notes-year,
+  .personal-archive .essay-illustrated {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .8rem;
+  }
+
+  .personal-archive .notes-year {
+    gap: 0;
+  }
+
+  .personal-essay .prose {
+    line-height: 1.69;
+  }
+}
+
+@media print {
+  .personal-essay {
+    --essay-paper: white;
+  }
+
+  .personal-essay main {
+    width: 100%;
+    padding: 0;
+  }
+
+  .personal-essay .article-translation,
+  .personal-essay .article-end {
+    display: none;
+  }
+}
