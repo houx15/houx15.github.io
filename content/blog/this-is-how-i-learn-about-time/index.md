@@ -5,7 +5,7 @@ date: '2026-11-17'
 draft: false
 lang: en
 author: Yuxin
-category: findings
+category: personal
 tags:
   - Writing
   - Personal reflection

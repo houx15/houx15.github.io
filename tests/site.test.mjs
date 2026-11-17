@@ -30,7 +30,7 @@ async function writeEntry(dir, type, slug, { draft = false, title = 'A technical
 
 test('empty site has all routes and no fabricated entries', async t => {
   const dir = await workspace(t); build(dir);
-  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 22);
+  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 24);
   const $ = load(await fs.readFile(path.join(dir, '_site/index.html'), 'utf8'));
   assert.equal($('.home-ai-stage').length,1);
   assert.equal($('.home-introduction').length,1);
@@ -76,7 +76,7 @@ test('reports and products render and are discoverable; drafts and their files s
   const draft = await writeEntry(dir, 'reports', 'unpublished-report', { draft: true });
   await fs.writeFile(path.join(draft, 'attachment.pdf'), 'draft-only attachment');
   build(dir);
-  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 24);
+  assert.equal((await checkSite(path.join(dir, '_site'))).pages, 26);
   const $ = load(await fs.readFile(path.join(dir, '_site/reports/test-report/index.html'), 'utf8'));
   assert.equal($('h1').text(), 'Methods & Results <2026>');
   assert.equal($('html').attr('lang'), 'zh-CN');
@@ -96,7 +96,7 @@ test('reports and products render and are discoverable; drafts and their files s
   assert.equal(projects('.product-tile').length,1);
   assert.equal(load(await fs.readFile(path.join(dir, '_site/projects/test-product/index.html'), 'utf8'))('.project-links a').attr('href'), 'https://github.com/houx15');
   build(dir, true);
-  assert.equal((await checkSite(path.join(dir, '_preview'), { preview: true })).pages, 25);
+  assert.equal((await checkSite(path.join(dir, '_preview'), { preview: true })).pages, 27);
   await fs.access(path.join(dir, '_preview/reports/unpublished-report/attachment.pdf'));
   const preview = load(await fs.readFile(path.join(dir, '_preview/reports/unpublished-report/index.html'), 'utf8'));
   assert.equal(preview('meta[name="robots"]').attr('content'), 'noindex, nofollow');
@@ -366,6 +366,39 @@ test('writing includes all three article kinds in date order, original language,
   assert.equal($('.site-header nav a[href$="/writing/"]').length,1);
   assert.equal($('.site-header nav a[href$="/reports/"],.site-header nav a[href$="/blog/"],.site-header nav a[href$="/notes/"]').length,0);
  }
+});
+
+test('personal writing has its own localized archive and stays out of technical listings and homepage updates', async t => {
+  const dir = await workspace(t);
+  await writeEntry(dir, 'blog', 'a-personal-essay', {
+    title: 'A personal essay',
+    body: 'OnlyInPersonalBody',
+    extra: 'category: personal\ntags:\n  - Reflection\n',
+  });
+  await writeEntry(dir, 'blog', 'a-technical-post', { title: 'A technical post' });
+  await writeEntry(dir, 'blog', 'a-personal-draft', { extra: 'category: personal\n', draft: true });
+  build(dir);
+  const read = async route => load(await fs.readFile(path.join(dir, '_site', route, 'index.html'), 'utf8'));
+  for (const prefix of ['', 'zh/']) {
+    const personal = await read(prefix + 'writing/personal');
+    assert.deepEqual(personal('[data-note] h3 a').toArray().map(link => personal(link).attr('href')), ['/blog/a-personal-essay/']);
+    assert.equal(personal('.writing-panels [aria-current="page"]').attr('href'), '/' + prefix + 'writing/personal/');
+    assert.match(personal('[data-note]').attr('data-search'), /OnlyInPersonalBody/);
+    assert.equal(personal('nav [data-writing-tag=""]').attr('href'), '/' + prefix + 'writing/personal/');
+    for (const route of ['writing', 'blog', 'reports', 'notes']) {
+      const technical = await read(prefix + route);
+      assert.equal(technical('[data-note]').length, 1);
+      assert.equal(technical('[data-note] h3 a').attr('href'), '/blog/a-technical-post/');
+      assert.equal(technical('[data-writing-tag="Reflection"]').length, 0);
+    }
+    const home = await read(prefix);
+    assert.equal(home('.home-updates a[href="/blog/a-personal-essay/"]').length, 0);
+    assert.equal(home('.home-updates a[href="/blog/a-technical-post/"]').length, 1);
+  }
+  const essay = await read('blog/a-personal-essay');
+  assert.equal(essay('.back-link').attr('href'), '/writing/personal/');
+  assert.equal(essay('.article-tags a').attr('href'), '/writing/personal/?tag=Reflection');
+  assert.equal(essay('#language-switch').attr('href'), '/zh/writing/personal/');
 });
 
 test('homepage keeps Mind Imprint and CyberSiliconValley plus only two latest notes or blogs',async t=>{

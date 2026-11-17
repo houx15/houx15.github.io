@@ -14,11 +14,13 @@ article: true
 pageClass: reading-page
 ---
 {% set ui = locales[1] if (page.url | isChinese) or entry.lang == 'zh-CN' else locales[0] %}
-{% set listing = 'writing' if entry.type != 'projects' else 'projects' %}
+{% set personalWriting = entry.category == 'personal' and entry.type != 'projects' %}
+{% set listing = 'writing/personal' if personalWriting else ('projects' if entry.type == 'projects' else 'writing') %}
+{% set listingLabel = ('个人随笔' if ui.prefix else 'Personal writing') if personalWriting else (ui.projects if entry.type == 'projects' else ui.writing) %}
 {% set writingCategory = entry.category or ('ideas' if entry.type == 'blog' else 'notes') %}
 <article>
   <header class="article-heading">
-    <a class="back-link" href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'writing' %}{{ ui.writing }}{% elif listing == 'research' %}{{ ui.research }}{% elif entry.type == 'blog' %}{{ ui.blog }}{% elif entry.type == 'notes' %}{{ ui.learningNotes }}{% elif entry.type == 'projects' %}{{ ui.projects }}{% else %}{{ ui.notes }}{% endif %}</a>
+    <a class="back-link" href="{{ ui.prefix }}/{{ listing }}/">{{ listingLabel }}</a>
     <h1>{{ entry.title }}</h1>
     <p class="article-summary">{{ entry.summary }}</p>
     <div class="article-meta"><span>{{ entry.author or ui.name }}</span>{% if entry.dateKind == 'authored' %}<span>{{ '写于' if ui.prefix else 'Written' }}</span>{% elif entry.dateKind == 'project-origin' %}<span>{{ '项目始于' if ui.prefix else 'Project started' }}</span>{% endif %}<time datetime="{{ entry.date }}">{{ entry.date | dateLabel(ui.lang) }}</time><span>{{ entry.readingTime }} {{ ui.minRead }}</span>{% if entry.status %}<span class="project-status">{% if ui.prefix %}{{ entry.status }}{% elif entry.status == '已完成' %}Completed{% else %}Concept{% endif %}</span>{% endif %}{% if entry.draft %}<span class="draft-label">{{ ui.draft }}</span>{% endif %}</div>
@@ -43,7 +45,7 @@ pageClass: reading-page
   <div class="prose" lang="{{ entry.lang }}">{{ entry.html | safe }}</div>
   {% if entry.relatedReport %}<p class="related-reading"><a href="{{ ui.prefix }}{{ entry.relatedReport }}">{{ ui.relatedNote }}</a></p>{% endif %}
   {% if entry.assistantTopic %}<p class="related-reading"><a href="{{ ui.prefix }}/chat/#topic={{ entry.assistantTopic }}">{{ ui.askProject }}</a></p>{% endif %}
-  <div class="article-end"><a href="{{ ui.prefix }}/{{ listing }}/">{% if listing == 'writing' %}{{ ui.writing }}{% elif listing == 'research' %}{{ ui.research }}{% elif entry.type == 'notes' %}{{ ui.learningNotes }}{% elif entry.type == 'projects' %}{{ ui.backProjects }}{% elif entry.type == 'blog' %}{{ ui.backBlog }}{% else %}{{ ui.backReports }}{% endif %}</a></div>
+  <div class="article-end"><a href="{{ ui.prefix }}/{{ listing }}/">{{ ui.backProjects if entry.type == 'projects' else listingLabel }}</a></div>
 </article>
 
 <script type="module" src="/assets/article-translation.js?v={{ assistantVersion }}"></script>

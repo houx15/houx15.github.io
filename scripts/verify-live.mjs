@@ -16,6 +16,8 @@ try {
   if (info.revision !== values.revision) throw new Error(`Live revision is ${info.revision}; expected ${values.revision}. The CDN may still be updating.`);
   const routes = new Set(['/', '/research/', '/projects/', '/reports/', '/blog/', '/writing/', '/notes/', '/about/', '/privacy/', '/chat/', '/zh/', '/zh/research/', '/zh/projects/', '/zh/reports/', '/zh/blog/', '/zh/writing/', '/zh/notes/', '/zh/about/', '/zh/privacy/', '/zh/chat/']);
   const publishedEntries = await loadContent();
+  routes.add('/writing/personal/');
+  routes.add('/zh/writing/personal/');
   const entryLanguages = new Map(publishedEntries.flatMap(entry => [[entry.url, entry.lang], ...(entry.zh ? [[entry.zh.url, entry.lang]] : [])]));
   for(const entry of publishedEntries) { routes.add(entry.url); if(entry.zh) routes.add(entry.zh.url); }
   if (values.path) {
