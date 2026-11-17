@@ -24,7 +24,7 @@ export default function (config) {
   config.addGlobalData('assistantVersion', assistantVersion);
   config.addGlobalData('agentCorpusVersion', async () => (await buildCorpus()).revision);
   config.addGlobalData('year', () => new Date().getUTCFullYear());
-  config.addGlobalData('stylesheetVersion', async () => createHash('sha256').update((await Promise.all(['style.css','companion.css','blog.css','project-gallery.css','home-profile.css'].map(name => fs.readFile(`src/assets/${name}`,'utf8')))).join('\0')).digest('hex').slice(0, 12));
+  config.addGlobalData('stylesheetVersion', async () => createHash('sha256').update((await Promise.all(['style.css','companion.css','blog.css','project-gallery.css','home-profile.css','personal-writing.css'].map(name => fs.readFile(`src/assets/${name}`,'utf8')))).join('\0')).digest('hex').slice(0, 12));
   config.addFilter('isChinese', url => url.startsWith('/zh/'));
   config.addFilter('localized', (entries, locale) => entries);
   config.addFilter('switchLanguage', (url, entries, language) => {
@@ -42,6 +42,13 @@ export default function (config) {
     .filter(item => ['reports', 'blog', 'notes'].includes(item.type) && (item.category === 'personal') === personal)
     .map(item => ({ ...item, writingCategory: item.category || (item.type === 'blog' ? 'ideas' : 'notes') })));
   config.addFilter('writingTags', entries => [...new Set(entries.flatMap(item=>item.tags || []))]);
+  config.addFilter('writingIllustration', entry => {
+    const $ = load(entry.html);
+    const image = $('figure img').first();
+    const src = image.attr('src');
+    if (!src || /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(src)) return null;
+    return { src: path.posix.resolve(entry.url, src), alt: image.attr('alt') };
+  });
   config.addFilter('learningEntries', (entries, locale) => entries.filter(entry => entry.type === 'notes'));
   config.addFilter('products', entries => entries.filter(item => item.category !== 'research' && item.category !== 'research-software'));
   config.addFilter('researchSoftware', entries => entries.filter(item => item.category === 'research-software'));

@@ -12,6 +12,7 @@ export function initNotes(root, win = globalThis) {
   const more = root.querySelector('[data-more]');
   const empty = root.querySelector('[data-no-results]');
   const count = root.querySelector('[data-count]');
+  const filters = root.querySelector('[data-note-filters]');
   const chinese = root.dataset.locale === 'zh-CN';
   const typeLinks=[...root.querySelectorAll('[data-writing-type]')].filter(link=>link.dataset.writingType!==undefined);
   const tagLinks=[...root.querySelectorAll('[data-writing-tag]')].filter(link=>link.dataset.writingTag!==undefined);
@@ -24,6 +25,7 @@ export function initNotes(root, win = globalThis) {
     input.value=params.get('q')||'';
     type=typeLinks.some(link=>link.dataset.writingType===params.get('type'))?params.get('type'):'';
     tag=tagLinks.some(link=>link.dataset.writingTag===params.get('tag'))?params.get('tag'):'';
+    if (filters && (tag || input.value)) filters.open = true;
     limit=30;render();
   }
   const matches=item=>matchesNote(item.dataset.search,input.value) && (!type||item.dataset.writingEntryType===type) && (!tag||(item.dataset.entryTags||'').split('|').includes(tag));
@@ -73,6 +75,7 @@ export function initNotes(root, win = globalThis) {
   });
   win.addEventListener?.('popstate',restore);
   win.addEventListener?.('pageshow',restore);
+  if (filters) filters.hidden = !items.length;
   root.querySelector('.notes-tools').hidden = false;
   restore();
 }

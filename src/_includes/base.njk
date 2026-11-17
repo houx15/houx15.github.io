@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/assets/style.css?v={{ stylesheetVersion }}">
   <link rel="stylesheet" href="/assets/companion.css?v={{ stylesheetVersion }}">
   <link rel="stylesheet" href="/assets/blog.css?v={{ stylesheetVersion }}">
+  {% if personalWriting or (article and entry.type == 'blog' and entry.category == 'personal') %}<link rel="stylesheet" href="/assets/personal-writing.css?v={{ stylesheetVersion }}">{% endif %}
   {% if article %}<link rel="stylesheet" href="/assets/katex/katex.min.css">{% endif %}
 </head>
 <body class="{{ pageClass }}">
