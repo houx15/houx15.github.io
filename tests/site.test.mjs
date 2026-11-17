@@ -203,7 +203,7 @@ test('locale routes preserve original article language without duplicating listi
   assert.equal(home('section.screen').length,0);
   const projectListing=load(await fs.readFile(path.join(dir,'_site/zh/projects/index.html'),'utf8'));
   assert.match(projectListing('.product-copy h2').text(),/English project/);
-  assert.equal((await checkSite(path.join(dir,'_site'))).pages, 24);
+  assert.equal((await checkSite(path.join(dir,'_site'))).pages, 26);
   const chat=load(await fs.readFile(path.join(dir,'_site/zh/chat/index.html'),'utf8'));
   assert.equal(chat('[data-companion-form]').length,1);
   assert.equal(chat('[data-opening]').length,1);
