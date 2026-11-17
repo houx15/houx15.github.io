@@ -132,3 +132,5 @@ The canonical skill lives in this repository and is exposed through `.agents/ski
 ## Writing categories
 
 Writing uses `category: ideas`, `category: notes`, or `category: findings` for 想法、笔记、发现. These editorial categories are independent of storage folders and topic tags. Use ideas for proposals and open questions, notes for learning and technical explanation, findings for observations and reflections from practice. Projects remain a separate portfolio; link related articles to the corresponding project when useful. Existing article URLs remain stable.
+
+For personal essays, use `category: personal`. These essays appear in Personal writing at `/writing/personal/` and `/zh/writing/personal/`, with their original article URLs. The default Writing archive and homepage updates omit personal essays.

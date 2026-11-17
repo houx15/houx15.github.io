@@ -7,7 +7,7 @@ date: '2026-11-13'
 draft: false
 lang: en
 author: Yuxin
-category: findings
+category: personal
 tags:
   - Personal website
   - Writing

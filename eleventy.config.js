@@ -30,6 +30,7 @@ export default function (config) {
   config.addFilter('switchLanguage', (url, entries, language) => {
     if (url.startsWith('/zh/')) return url.slice(3);
     const entry = entries.find(item=>item.url===url);
+    if (entry?.category === 'personal' && !entry.zh) return language === 'zh-CN' ? '/writing/personal/' : '/zh/writing/personal/';
     // An original Chinese article can have a canonical URL outside /zh/ and no English edition.
     if(entry && language==='zh-CN' && entry.lang==='zh-CN')return `/${entry.type}/`;
     return entry && !entry.zh ? `/zh/${entry.type}/` : `/zh${url}`;
@@ -37,7 +38,9 @@ export default function (config) {
   config.addFilter('noteText', html => load(html).text());
   config.addFilter('noteYears', entries => [...new Set(entries.map(entry => entry.date.slice(0, 4)))]);
   config.addFilter('inYear', (entries, year) => entries.filter(entry => entry.date.startsWith(year)));
-  config.addFilter('writingEntries', entries => entries.filter(item => ['reports','blog','notes'].includes(item.type)).map(item=>({...item,writingCategory:item.category || (item.type==='blog'?'ideas':'notes')})));
+  config.addFilter('writingEntries', (entries, personal = false) => entries
+    .filter(item => ['reports', 'blog', 'notes'].includes(item.type) && (item.category === 'personal') === personal)
+    .map(item => ({ ...item, writingCategory: item.category || (item.type === 'blog' ? 'ideas' : 'notes') })));
   config.addFilter('writingTags', entries => [...new Set(entries.flatMap(item=>item.tags || []))]);
   config.addFilter('learningEntries', (entries, locale) => entries.filter(entry => entry.type === 'notes'));
   config.addFilter('products', entries => entries.filter(item => item.category !== 'research' && item.category !== 'research-software'));

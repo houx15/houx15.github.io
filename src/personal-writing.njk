@@ -1,0 +1,15 @@
+---
+layout: base.njk
+pagination:
+  data: locales
+  size: 1
+  alias: locale
+permalink: "{{ locale.prefix }}/writing/personal/"
+section: writing
+personalWriting: true
+eleventyComputed:
+  lang: "{{ locale.lang }}"
+  title: "{{ '个人随笔' if locale.prefix else 'Personal writing' }}"
+---
+{% set ui = locale %}
+{% include 'writing-list.njk' %}
