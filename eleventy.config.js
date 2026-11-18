@@ -64,6 +64,7 @@ export default function (config) {
   config.addFilter('dateLabel', (value, language = 'en') => new Date(`${value}T12:00:00Z`).toLocaleDateString(language === 'zh-CN' ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }));
   config.addFilter('xml', value => markdown.utils.escapeHtml(String(value)));
   config.addPassthroughCopy({ 'src/assets': 'assets' });
+  config.addPassthroughCopy({ 'googlef66a165122f86b0b.html': 'googlef66a165122f86b0b.html' });
   config.addPassthroughCopy({ 'node_modules/katex/dist/katex.min.css': 'assets/katex/katex.min.css', 'node_modules/katex/dist/fonts': 'assets/katex/fonts' });
   config.on('eleventy.before', async ({ dir, runMode }) => {
     if (runMode === 'build') {

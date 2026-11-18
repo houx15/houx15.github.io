@@ -18,6 +18,10 @@ export async function checkSite(output = path.resolve('_site'), { preview = fals
   for (const file of htmlFiles) documents.set(file, load(await fs.readFile(file, 'utf8')));
   for (const [file, $] of documents) {
     const label = path.relative(output, file);
+    if (label === 'googlef66a165122f86b0b.html') {
+      if (await fs.readFile(file, 'utf8') !== 'google-site-verification: googlef66a165122f86b0b.html') errors.push(`${label}: incorrect Google verification content.`);
+      continue;
+    }
     if ($('h1').length !== 1) errors.push(`${label}: expected one h1.`);
     if (!$('html').attr('lang')) errors.push(`${label}: missing page language.`);
     if (!$('title').text().trim() || !$('meta[name="description"]').attr('content')?.trim()) errors.push(`${label}: missing title or description.`);
