@@ -134,3 +134,17 @@ The canonical skill lives in this repository and is exposed through `.agents/ski
 Writing uses `category: ideas`, `category: notes`, or `category: findings` for 想法、笔记、发现. These editorial categories are independent of storage folders and topic tags. Use ideas for proposals and open questions, notes for learning and technical explanation, findings for observations and reflections from practice. Projects remain a separate portfolio; link related articles to the corresponding project when useful. Existing article URLs remain stable.
 
 For personal essays, use `category: personal`. These essays appear in Personal writing at `/writing/personal/` and `/zh/writing/personal/`, with their original article URLs. The default Writing archive and homepage updates omit personal essays.
+
+## Translation corpus synchronization
+
+The public Pages corpus and the separately hosted translation service must match.
+The agent host runs `scripts/sync-agent-corpus.py` via a five-minute user timer,
+fetching only the already-published `https://houx15.github.io/assets/agent-corpus.json`.
+It validates the corpus, saves a rollback copy, atomically replaces it, restarts
+only `portfolio-agent`, and checks the public health revision. Failure rolls back.
+No runtime credentials or draft source files are transferred. The health endpoint
+exposes only the public corpus revision, not secrets or visitor data.
+The Pages deployment runs `node scripts/check-live-corpus.mjs` and fails final
+verification if synchronization does not converge. Also run this check when
+publishing manually. A failed check does not roll back Pages automatically;
+inspect the agent sync service logs and resolve before reporting publication complete.

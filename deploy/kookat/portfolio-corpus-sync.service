@@ -1,0 +1,7 @@
+[Unit]
+Description=Synchronize published website translation corpus
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/apps/portfolio-agent/sync-agent-corpus.py
+TimeoutStartSec=120
+UMask=0077

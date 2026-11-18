@@ -31,7 +31,7 @@ export function createAgentServer({origin,corpus,guard,complete,verifyChallenge,
       if(!res.write(`id: ${id}\nevent: ${type}\ndata: ${JSON.stringify({version:2,requestId,id,type,...data})}\n\n`)) {controller.abort();throw new Error('Slow consumer');}
     };
     try {
-      if(req.url==='/health' && req.method==='GET') {json(available()?200:503,{available:available(),version:2});return;}
+      if(req.url==='/health' && req.method==='GET') {json(available()?200:503,{available:available(),version:2,corpusRevision:corpus.revision});return;}
       if(req.headers.origin!==origin) throw new AgentError(403,'forbidden');
       res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Vary','Origin');
       if(req.method==='OPTIONS') {res.writeHead(204,{'Access-Control-Allow-Methods':'POST','Access-Control-Allow-Headers':'Content-Type, Authorization'});res.end();return;}
